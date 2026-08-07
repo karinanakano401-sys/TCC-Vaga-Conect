@@ -1,0 +1,374 @@
+/* ==========================================
+   VARIÁVEIS
+========================================== */
+
+:root {
+    --bg: #020e1c;
+    --border: #18324a;
+    --muted: #8496ab;
+    --text: #f4f7fb;
+}
+
+/* ==========================================
+   RESET
+========================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background:
+        radial-gradient(circle at 72% 4%, #0c2a48 0, transparent 25%),
+        var(--bg);
+
+    font: 13px Inter, Arial, sans-serif;
+    color: var(--text);
+}
+
+/* ==========================================
+   LAYOUT
+========================================== */
+
+.app-shell {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ==========================================
+   SIDEBAR
+========================================== */
+
+.sidebar {
+    width: 230px;
+    flex: none;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 22px 14px 18px;
+
+    background: linear-gradient(180deg, #061626, #04111f);
+    border-right: 1px solid var(--border);
+}
+
+/* Logo */
+
+.logo{
+    font-size:22px;
+    font-weight:700;
+    color:white;
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.logo span{
+    color:#3d82ff;
+}
+
+.logo i{
+    color:#3d82ff;
+    font-size:25px;
+}
+
+
+/* Menu */
+
+.sidebar nav {
+    display: grid;
+    gap: 5px;
+
+    margin-top: 28px;
+}
+
+.sidebar nav a {
+    display: flex;
+    align-items: center;
+
+    height: 39px;
+    padding: 0 12px;
+
+    border-radius: 6px;
+
+    color: #b9c6d5;
+    text-decoration: none;
+    font-size: 12px;
+
+    transition: .2s;
+}
+
+.sidebar nav a:hover,
+.sidebar nav .active {
+    background: #0c2a50;
+    color: white;
+}
+
+
+/* Perfil */
+
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    margin-top: auto;
+    padding: 16px 4px 0;
+
+    border-top: 1px solid var(--border);
+}
+
+.avatar {
+    width: 29px;
+    height: 29px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 50%;
+
+    background: linear-gradient(135deg, #3e7bff, #5f20d6);
+
+    font-weight: 700;
+}
+
+.profile div {
+    display: grid;
+    gap: 2px;
+}
+
+.profile strong {
+    font-size: 10px;
+}
+
+.profile small {
+    font-size: 8px;
+    color: #8194aa;
+}
+
+/* ==========================================
+   CONTEÚDO
+========================================== */
+
+.content {
+    width: 100%;
+    min-height: 100vh;
+
+    padding: 38px 52px;
+}
+
+/* ==========================================
+   CABEÇALHO
+========================================== */
+
+header {
+    margin-bottom: 29px;
+}
+
+header h1 {
+    margin: 0 0 7px;
+
+    font: 600 25px Outfit;
+}
+
+header p {
+    margin: 0;
+
+    color: var(--muted);
+    font-size: 13px;
+}
+
+/* ==========================================
+   PAINEL
+========================================== */
+
+.panel {
+    max-width: 1100px;
+    min-height: calc(100vh - 165px);
+
+    padding: 25px;
+
+    border: 1px solid var(--border);
+    border-radius: 9px;
+
+    background: linear-gradient(145deg, #091b2d, #061525);
+}
+
+/* ==========================================
+   BARRA DE FILTROS
+========================================== */
+
+.toolbar {
+    display: flex;
+    gap: 15px;
+
+    margin-bottom: 24px;
+}
+
+.toolbar label {
+    display: grid;
+    gap: 7px;
+
+    font-size: 11px;
+    color: #bac9d7;
+}
+
+/* Campos */
+
+.toolbar select,
+.search {
+    height: 42px;
+
+    padding: 0 12px;
+
+    border: 1px solid #193650;
+    border-radius: 6px;
+
+    background: #071829;
+
+    color: #dce6ef;
+    font: 12px Inter;
+}
+
+.toolbar select {
+    width: 190px;
+}
+
+/* Pesquisa */
+
+.search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    width: 330px;
+
+    color: #8297ab;
+}
+
+.search input {
+    width: 100%;
+
+    border: none;
+    outline: none;
+
+    background: transparent;
+
+    color: white;
+}
+
+/* ==========================================
+   LISTA DE FEEDBACKS
+========================================== */
+
+.feedback-list {
+    display: grid;
+    gap: 13px;
+}
+
+/* Card */
+
+.feedback {
+    padding: 18px;
+
+    border: 1px solid #193650;
+    border-radius: 8px;
+
+    background: #08192a;
+}
+
+/* Cabeçalho */
+
+.feedback-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Estrelas */
+
+.stars {
+    letter-spacing: 2px;
+
+    color: #f8bd22;
+    font-size: 16px;
+}
+
+.feedback-top strong {
+    font-size: 13px;
+}
+
+/* Local */
+
+.place {
+    margin-left: auto;
+
+    color: #8496ab;
+    font-size: 11px;
+}
+
+/* Texto */
+
+.feedback p {
+    margin: 13px 0 10px;
+
+    color: #d9e3ed;
+    font-size: 12px;
+}
+
+/* Data */
+
+.feedback time {
+    color: #8296aa;
+    font-size: 10px;
+}
+
+/* ==========================================
+   RESPONSIVO
+========================================== */
+
+@media (max-width: 650px) {
+
+    .sidebar {
+        display: none;
+    }
+
+    .content {
+        padding: 22px 14px;
+    }
+
+    .panel {
+        padding: 14px;
+    }
+
+    .toolbar {
+        flex-wrap: wrap;
+    }
+
+    .toolbar select,
+    .search {
+        width: 100%;
+    }
+
+    .feedback-top {
+        flex-wrap: wrap;
+    }
+
+    .place {
+        margin-left: 0;
+        width: 100%;
+    }
+
+}
+
+.sidebar nav a {
+  gap: 11px;
+}
+
+.sidebar nav a svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  stroke-width: 1.9;
+}

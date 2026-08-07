@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VagaConnect | Detalhes da Reserva</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../CSS/ReserDetalhe.css">
+</head>
+
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="logo">
+       <i class="fa-solid fa-layer-group"></i>
+       <span>Vaga</span>Connect
+     </div>
+
+      <nav>
+        <a href="../HTML/TelaADM.html"><i data-icon="grid"></i>Dashboard</a>
+        <a href="../HTML/TelaEstacionamento.html"><i data-icon="building"></i>Estacionamentos</a>
+        <a href="../HTML/TelaVagas.html"><i data-icon="car"></i>Vagas</a>
+        <a class="active" href="../HTML/TelaReservas.html"><i data-icon="calendar"></i>Reservas</a>
+        <a href="../HTML/TelaUsuarios.html"><i data-icon="users"></i>Usuários</a>
+        <a href="../HTML/TelaFuncionarios.html"><i data-icon="briefcase"></i>Funcionários</a>
+        <a href="../HTML/TelaFeedback.html"><i data-icon="message"></i>Feedbacks</a>
+        <a href="../HTML/TelaPagamentos.html"><i data-icon="credit-card"></i>Pagamentos</a>
+        <a href="../HTML/TelaFaturamento.html"><i data-icon="credit-card"></i>Faturamento</a>
+        <a href="../HTML/TelaConfigurações.html"><i data-icon="settings"></i>Configurações</a>
+        <a href="../../Base/HTML/Abertura.html"><i data-icon="log-out"></i>Sair</a>
+      </nav>
+
+      <div class="profile">
+        <span class="avatar">A</span>
+        <span class="status progress" id="statusReserva">Em andamento</span>
+
+        <div>
+          <strong>Administrador</strong>
+          <small>admin</small>
+        </div>
+
+        <i data-icon="more-vertical"></i>
+      </div>
+    </aside>
+
+    <main class="content">
+      <header class="topbar">
+        <button class="menu-button" id="menuButton">
+          <i data-icon="menu"></i>
+        </button>
+
+        <div>
+          <h1>Detalhes da Reserva #1258</h1>
+          <p>Confira os dados e atualize o status da reserva.</p>
+        </div>
+
+        <span class="status progress">Em andamento</span>
+      </header>
+
+      <section class="details-panel">
+        <div class="details-grid">
+          <article>
+            <div class="section-title">
+              <i data-icon="users"></i>
+              <h2>Dados do Cliente</h2>
+            </div>
+
+            <dl>
+              <div>
+                <dt>Nome</dt>
+                <dd id="clienteNome">João Silva</dd>
+              </div>
+
+              <div>
+                <dt>Telefone</dt>
+                <dd>(11) 99999-8888</dd>
+              </div>
+
+              <div>
+                <dt>E-mail</dt>
+                <dd>joao.silva@email.com</dd>
+              </div>
+            </dl>
+          </article>
+
+          <article>
+            <div class="section-title">
+              <i data-icon="calendar"></i>
+              <h2>Informações da Reserva</h2>
+            </div>
+
+            <dl class="two-columns">
+              <div>
+                <dt>Estacionamento</dt>
+                <dd id="estacionamento">CenterPark</dd>
+              </div>
+
+              <div>
+                <dt>Vaga</dt>
+                <dd id="vaga">25</dd>
+              </div>
+
+              <div>
+                <dt>Data</dt>
+                <dd id="data">23/05/2025</dd>
+              </div>
+
+              <div>
+                <dt>Horário</dt>
+                <dd id="horario">15:30</dd>
+              </div>
+
+              <div>
+                <dt>Carro</dt>
+                <dd id="carro">Fiat Argo · ABC1234</dd>
+              </div>
+
+              <div>
+                <dt>Pagamento</dt>
+                <dd id="pagamento">Pendente</dd>
+              </div>
+            </dl>
+          </article>
+        </div>
+
+        <div class="actions">
+          <button class="confirm" data-action="Presença confirmada">
+            Confirmar presença
+          </button>
+
+          <button class="finish" data-action="Reserva finalizada">
+            Finalizar reserva
+          </button>
+
+          <button class="cancel" data-action="Reserva cancelada">
+            Cancelar reserva
+          </button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const reserva = JSON.parse(localStorage.getItem("reservaSelecionada"));
+    const icons = {
+      grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
+
+      building: '<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 7h1m3 0h1m3 0h1M8 11h1m3 0h1m3 0h1M8 15h1m3 0h1m3 0h1M10 21v-3h4v3"/>',
+
+      car: '<path d="M5 17H3v-4l2-5h14l2 5v4h-2M5 17h14M7 17v2m10-2v2M5 13h14"/><circle cx="7" cy="15" r="1"/><circle cx="17" cy="15" r="1"/>',
+
+      calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>',
+
+      users: '<circle cx="9" cy="8" r="3"/><path d="M3 21v-2a6 6 0 0 1 12 0v2M16 4a3 3 0 0 1 0 6M21 21v-2a6 6 0 0 0-3-5.2"/>',
+
+      briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5h8v2M3 12h18M10 12v2h4v-2"/>',
+
+      message: '<path d="M21 11.5a8 8 0 0 1-8.5 8 9 9 0 0 1-4-.9L3 20l1.4-4A8 8 0 1 1 21 11.5Z"/>',
+
+      "credit-card": '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h2"/>',
+
+      file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h6"/>',
+
+      settings: '<circle cx="12" cy="12" r="3"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4m0-14.2-1.4 1.4M6.3 17.7l-1.4 1.4"/>',
+
+      "log-out": '<path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-5"/>',
+
+      "more-vertical": '<circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>',
+
+      menu: '<path d="M4 6h16M4 12h16M4 18h16"/>'
+    };
+
+    const svg = (name) => `
+      <svg viewBox="0 0 24 24"
+           fill="none"
+           stroke="currentColor"
+           stroke-width="1.8"
+           stroke-linecap="round"
+           stroke-linejoin="round">
+        ${icons[name]}
+      </svg>
+    `;
+
+    document.querySelectorAll("i[data-icon]").forEach((icon) => {
+      icon.outerHTML = svg(icon.dataset.icon);
+    });
+
+    document.querySelector("#menuButton").addEventListener("click", () => {
+      document.querySelector("#sidebar").classList.toggle("open");
+    });
+
+    document.querySelectorAll("[data-action]").forEach((button) => {
+
+    button.addEventListener("click", () => {
+
+        let reservas = JSON.parse(localStorage.getItem("reservas"));
+        let indice = localStorage.getItem("indiceReserva");
+
+        if(button.classList.contains("confirm")){
+            reservas[indice][5] = "Confirmada";
+        }
+
+        if(button.classList.contains("finish")){
+            reservas[indice][5] = "Finalizada";
+        }
+
+        if(button.classList.contains("cancel")){
+            reservas[indice][5] = "Cancelada";
+        }
+
+        // salva as alterações
+        localStorage.setItem("reservas", JSON.stringify(reservas));
+
+        // atualiza a reserva aberta
+        localStorage.setItem("reservaSelecionada",
+            JSON.stringify(reservas[indice]));
+
+        alert("Status atualizado com sucesso!");
+
+        // volta para a lista
+        window.location.href = "../HTML/TelaReservas.html";
+    });
+
+});
+
+    if(reserva){
+
+    document.getElementById("clienteNome").textContent = reserva[0];
+
+    document.getElementById("carro").textContent = reserva[1];
+
+    document.getElementById("vaga").textContent = reserva[2];
+
+    document.getElementById("data").textContent = reserva[3];
+
+    document.getElementById("horario").textContent = reserva[4];
+
+    document.getElementById("statusReserva").textContent = reserva[5];
+
+    document.getElementById("pagamento").textContent = reserva[6];
+
+    document.getElementById("estacionamento").textContent = reserva[7];
+
+}
+  </script>
+</body>
+</html>

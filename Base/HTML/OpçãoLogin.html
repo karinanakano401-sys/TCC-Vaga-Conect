@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login VagaConnect</title>
+<link rel="stylesheet" href="../CSS/OpçãoLogin.css">
+
+</head>
+
+<body>
+
+<div class="bg"></div>
+
+<div class="container">
+
+    <div class="logo">
+        <h1>Vaga<span>Connect</span></h1>
+        <p>Sistema Inteligente de Estacionamento</p>
+    </div>
+
+    <!-- BOTÕES -->
+    <div class="toggle-buttons">
+
+        <button id="usuarioBtn" class="active">
+            Usuário
+        </button>
+
+        <button id="adminBtn">
+            Admin
+        </button>
+
+        <button id="funcionarioBtn">
+            Funcionário
+        </button>
+
+    </div>
+
+    <!-- TEXTO -->
+    <div class="tipo-login" id="tipoTexto">
+        Entrando como Usuário
+    </div>
+
+    <!-- FORM -->
+    <form>
+
+        <div class="input-box">
+            <label>Email</label>
+            <input type="email" placeholder="Digite seu email">
+        </div>
+
+        <div class="input-box">
+            <label>Senha</label>
+            <input type="password" placeholder="Digite sua senha">
+        </div>
+
+        <button class="btn">
+            Entrar
+        </button>
+
+    </form>
+
+    <div class="extra">
+        Não possui conta?
+        <a href="../HTML/OpçãoCadastro.html">Cadastrar</a>
+    </div>
+
+</div>
+
+<script>
+
+const usuarioBtn = document.getElementById("usuarioBtn");
+const adminBtn = document.getElementById("adminBtn");
+const funcionarioBtn = document.getElementById("funcionarioBtn");
+const tipoTexto = document.getElementById("tipoTexto");
+
+function removerActive(){
+    usuarioBtn.classList.remove("active");
+    adminBtn.classList.remove("active");
+    funcionarioBtn.classList.remove("active");
+}
+
+usuarioBtn.addEventListener("click", () => {
+
+    removerActive();
+    usuarioBtn.classList.add("active");
+
+    tipoTexto.innerHTML = "Entrando como Usuário";
+
+});
+
+adminBtn.addEventListener("click", () => {
+
+    removerActive();
+    adminBtn.classList.add("active");
+
+    tipoTexto.innerHTML = "Entrando como Administrador";
+
+});
+
+funcionarioBtn.addEventListener("click", () => {
+
+    removerActive();
+    funcionarioBtn.classList.add("active");
+
+    tipoTexto.innerHTML = "Entrando como Funcionário";
+
+});
+
+</script>
+
+</body>
+</html>

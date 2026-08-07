@@ -1,0 +1,639 @@
+/* =====================================================
+   RESET
+===================================================== */
+
+
+*{
+
+    margin:0;
+
+    padding:0;
+
+    box-sizing:border-box;
+
+}
+
+
+
+
+
+body{
+
+
+    font-family:'Poppins',sans-serif;
+
+
+    background:#061426;
+
+
+    color:white;
+
+
+    min-height:100vh;
+
+
+    display:flex;
+
+
+    justify-content:center;
+
+
+    align-items:center;
+
+
+}
+
+
+
+
+
+
+/* =====================================================
+   CONTAINER
+===================================================== */
+
+
+.container{
+
+
+    width:100%;
+
+
+    min-height:100vh;
+
+
+    display:flex;
+
+
+    justify-content:center;
+
+
+    align-items:center;
+
+
+    padding:25px;
+
+
+}
+
+
+
+
+
+
+/* =====================================================
+   CARD PRINCIPAL
+===================================================== */
+
+
+.success-card{
+
+
+    width:430px;
+
+
+    background:#091c33;
+
+
+    border-radius:22px;
+
+
+    padding:30px;
+
+
+    text-align:center;
+
+
+    border:1px solid rgba(255,255,255,.08);
+
+
+    box-shadow:
+
+    0 20px 50px rgba(0,0,0,.45);
+
+
+}
+
+
+
+
+
+
+
+
+/* =====================================================
+   ÍCONE SUCESSO
+===================================================== */
+
+
+.success-icon{
+
+
+    width:80px;
+
+
+    height:80px;
+
+
+    margin:0 auto 20px;
+
+
+    border-radius:50%;
+
+
+    background:#16a34a;
+
+
+    display:flex;
+
+
+    align-items:center;
+
+
+    justify-content:center;
+
+
+    font-size:45px;
+
+
+    font-weight:700;
+
+
+    color:white;
+
+
+    box-shadow:
+
+    0 0 30px rgba(22,163,74,.5);
+
+
+    animation:aparecer .5s;
+
+
+}
+
+
+
+
+
+@keyframes aparecer{
+
+
+    from{
+
+
+        transform:scale(.5);
+
+
+        opacity:0;
+
+
+    }
+
+
+    to{
+
+
+        transform:scale(1);
+
+
+        opacity:1;
+
+
+    }
+
+
+}
+
+
+
+
+
+
+/* =====================================================
+   TITULO
+===================================================== */
+
+
+h1{
+
+
+    font-size:26px;
+
+
+    margin-bottom:8px;
+
+
+}
+
+
+
+
+
+.subtitle{
+
+
+    color:#91a7c6;
+
+
+    font-size:14px;
+
+
+    margin-bottom:25px;
+
+
+}
+
+
+
+
+
+
+/* =====================================================
+   CODIGO
+===================================================== */
+
+
+.code-box{
+
+
+    background:#102540;
+
+
+    border-radius:16px;
+
+
+    padding:18px;
+
+
+    margin-bottom:20px;
+
+
+}
+
+
+
+.code-box span{
+
+
+    color:#93a9c8;
+
+
+    font-size:13px;
+
+
+}
+
+
+
+.code-box h2{
+
+
+    margin-top:8px;
+
+
+    font-size:28px;
+
+
+    letter-spacing:2px;
+
+
+    color:#3280ff;
+
+
+}
+
+
+
+
+
+
+
+
+/* =====================================================
+   DETALHES
+===================================================== */
+
+
+.details{
+
+
+    background:#102540;
+
+
+    border-radius:16px;
+
+
+    padding:18px;
+
+
+    text-align:left;
+
+
+    margin-bottom:20px;
+
+
+}
+
+
+
+
+
+.item{
+
+
+    display:flex;
+
+
+    justify-content:space-between;
+
+
+    align-items:center;
+
+
+    padding:12px 0;
+
+
+    border-bottom:1px solid rgba(255,255,255,.06);
+
+
+}
+
+
+
+
+
+.item:last-child{
+
+
+    border-bottom:none;
+
+
+}
+
+
+
+
+.item span{
+
+
+    color:#8fa5c5;
+
+
+    font-size:13px;
+
+
+}
+
+
+
+
+.item strong{
+
+
+    font-size:13px;
+
+
+    text-align:right;
+
+
+}
+
+
+
+
+
+
+.approved{
+
+
+    color:#22c55e;
+
+
+}
+
+
+
+
+
+
+
+
+/* =====================================================
+   QR CODE
+===================================================== */
+
+
+.qr{
+
+
+    margin-bottom:25px;
+
+
+}
+
+
+
+#qrcode{
+
+
+    width:100px;
+
+
+    height:100px;
+
+
+    margin:auto;
+
+
+    background:white;
+
+
+    color:#061426;
+
+
+    display:flex;
+
+
+    align-items:center;
+
+
+    justify-content:center;
+
+
+    font-size:30px;
+
+
+    font-weight:bold;
+
+
+    border-radius:10px;
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+/* =====================================================
+   BOTÃO
+===================================================== */
+
+
+#inicio{
+
+
+    width:100%;
+
+
+    height:52px;
+
+
+    border:none;
+
+
+    border-radius:14px;
+
+
+    background:#1559d6;
+
+
+    color:white;
+
+
+    font-size:16px;
+
+
+    font-weight:600;
+
+
+    cursor:pointer;
+
+
+    transition:.3s;
+
+
+}
+
+
+
+
+#inicio:hover{
+
+
+    background:#2875ff;
+
+
+    transform:translateY(-2px);
+
+
+}
+
+
+
+
+
+
+
+
+/* =====================================================
+   RESPONSIVIDADE
+===================================================== */
+
+
+@media(max-width:500px){
+
+
+
+.container{
+
+
+    padding:15px;
+
+
+}
+
+
+
+.success-card{
+
+
+    width:100%;
+
+
+    padding:22px;
+
+
+}
+
+
+
+h1{
+
+
+    font-size:22px;
+
+
+}
+
+
+
+.item{
+
+
+    flex-direction:column;
+
+
+    align-items:flex-start;
+
+
+    gap:5px;
+
+
+}
+
+
+
+.item strong{
+
+
+    text-align:left;
+
+
+}
+
+
+
+}
+/* ==========================
+   QR CODE
+========================== */
+
+
+.qr-real{
+
+    width:80px;
+
+    height:80px;
+
+    display:grid;
+
+    grid-template-columns:repeat(5,1fr);
+
+    gap:2px;
+
+    background:white;
+
+    padding:5px;
+
+}
+
+
+

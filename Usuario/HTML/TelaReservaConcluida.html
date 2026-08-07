@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>
+VagaConnect | Reserva Concluída
+</title>
+
+
+<link rel="stylesheet" href="../CSS/TelaReservaConcluida.css">
+
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+rel="stylesheet">
+
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<div class="card">
+
+
+<!-- SUCESSO -->
+
+<div class="success">
+
+
+<div class="circle">
+
+<i class="fa-solid fa-check"></i>
+
+</div>
+
+
+<h2>
+
+Utilização Finalizada!
+
+</h2>
+
+
+<p>
+
+Obrigado por utilizar o VagaConnect.
+
+</p>
+
+
+</div>
+
+
+
+
+
+<!-- RESUMO -->
+
+<div class="resumo">
+
+
+<h3>
+
+Resumo da utilização
+
+</h3>
+
+
+
+<div class="linha">
+
+<span>
+
+Tempo total
+
+</span>
+
+<strong id="tempo">
+
+00:00:00
+
+</strong>
+
+</div>
+
+
+
+
+<div class="linha">
+
+<span>
+
+Valor da utilização
+
+</span>
+
+<strong id="valorUso">
+
+R$ 0,00
+
+</strong>
+
+</div>
+
+
+
+
+<div class="linha">
+
+<span>
+
+Garantia da Reserva
+
+</span>
+
+<strong>
+
+R$ 10,00
+
+</strong>
+
+</div>
+
+
+
+
+
+<div class="linha total">
+
+
+<span>
+
+Total pago
+
+</span>
+
+
+<strong id="total">
+
+R$ 0,00
+
+</strong>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+<button id="comprovante">
+
+
+<i class="fa-solid fa-file-lines"></i>
+
+Ver comprovante
+
+
+</button>
+
+
+
+
+
+<a href="../HTML/TelaUsuario.html"
+class="inicio">
+
+
+Voltar ao início
+
+
+</a>
+
+
+
+
+</div>
+
+
+</div>
+
+
+
+<script>
+    // =====================================================
+// VagaConnect
+// Tela 13 - Reserva Concluída
+// =====================================================
+
+
+// =====================================================
+// ELEMENTOS
+// =====================================================
+
+const tempo = document.getElementById("tempo");
+
+const valorUso = document.getElementById("valorUso");
+
+const total = document.getElementById("total");
+
+const botaoComprovante = document.getElementById("comprovante");
+
+
+
+
+// =====================================================
+// RECEBER DADOS DA TELA 12
+// =====================================================
+
+
+const dadosPagamento = JSON.parse(
+
+    localStorage.getItem("dadosPagamento")
+
+);
+
+
+
+
+// =====================================================
+// PREENCHER INFORMAÇÕES
+// =====================================================
+
+
+if(dadosPagamento){
+
+
+    tempo.textContent = 
+
+        dadosPagamento.tempo;
+
+
+
+    valorUso.textContent = 
+
+        dadosPagamento.valorUtilizacao;
+
+
+
+    total.textContent = 
+
+        dadosPagamento.total;
+
+
+
+}
+
+
+
+
+
+// =====================================================
+// CASO NÃO TENHA DADOS
+// =====================================================
+
+
+else{
+
+
+    tempo.textContent = "00:00:00";
+
+
+    valorUso.textContent = "R$ 0,00";
+
+
+    total.textContent = "R$ 0,00";
+
+
+}
+
+
+
+
+
+// =====================================================
+// BOTÃO COMPROVANTE
+// =====================================================
+
+
+botaoComprovante.addEventListener("click",()=>{
+
+
+    alert(
+
+`VagaConnect - Comprovante
+
+Tempo utilizado:
+${tempo.textContent}
+
+
+Valor da utilização:
+${valorUso.textContent}
+
+
+Garantia da Reserva:
+R$ 10,00
+
+
+Total pago:
+${total.textContent}
+
+
+Obrigado por utilizar o VagaConnect!`
+
+    );
+
+
+});
+</script>
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,398 @@
+/* =====================================================
+   RESET
+===================================================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+
+    font-family:'Poppins',sans-serif;
+    background:#031426;
+    color:#fff;
+    min-height:100vh;
+
+}
+
+/* =====================================================
+   CONTAINER
+===================================================== */
+
+.container{
+
+    width:100%;
+    min-height:100vh;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    padding:40px;
+
+}
+
+/* =====================================================
+   CARD
+===================================================== */
+
+.payment-card{
+
+    width:600px;
+    background:#0b2038;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    border-radius:18px;
+
+    padding:28px;
+
+    box-shadow:0 20px 40px rgba(0,0,0,.35);
+
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+header{
+
+    width:430px;
+
+    display:flex;
+    align-items:center;
+
+    gap:18px;
+
+    margin-bottom:25px;
+
+}
+
+.voltar{
+
+    width:45px;
+    height:45px;
+
+    border:none;
+
+    border-radius:12px;
+
+    cursor:pointer;
+
+    color:#fff;
+
+    background:#0d2747;
+
+    transition:.25s;
+
+}
+
+.voltar:hover{
+
+    background:#1856d8;
+
+}
+
+header h2{
+
+    font-size:27px;
+    font-weight:600;
+
+}
+
+header span{
+
+    color:#8da6c7;
+
+    font-size:14px;
+
+}
+
+/* =====================================================
+   TÍTULO
+===================================================== */
+
+.payment-card h3{
+
+    font-size:17px;
+
+    margin-bottom:22px;
+
+    color:#cddcf4;
+
+}
+
+/* =====================================================
+   OPÇÕES
+===================================================== */
+
+.payment-option{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    background:#102844;
+
+    border:2px solid transparent;
+
+    border-radius:14px;
+
+    padding:16px;
+
+    margin-bottom:15px;
+
+    cursor:pointer;
+
+    transition:.30s;
+
+}
+
+.payment-option:hover{
+
+    background:#16375e;
+
+}
+
+.payment-option.active{
+
+    border-color:#2b6cff;
+
+}
+
+/* =====================================================
+   LADO ESQUERDO
+===================================================== */
+
+.payment-left{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:16px;
+
+}
+
+.icon{
+
+    width:52px;
+    height:52px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    border-radius:14px;
+
+    background:#163d6e;
+
+    color:#5d8cff;
+
+    font-size:22px;
+
+}
+
+.payment-left h4{
+
+    font-size:16px;
+
+    font-weight:600;
+
+}
+
+.payment-left p{
+
+    font-size:13px;
+
+    color:#90a8c8;
+
+    margin-top:4px;
+
+}
+
+/* =====================================================
+   RADIO
+===================================================== */
+
+.payment-option input{
+
+    width:19px;
+    height:19px;
+
+    accent-color:#2b6cff;
+
+    cursor:pointer;
+
+}
+
+/* =====================================================
+   RESUMO
+===================================================== */
+
+.resumo{
+
+    margin-top:25px;
+
+    background:#081a2f;
+
+    border-radius:14px;
+
+    padding:18px;
+
+}
+
+.linha{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin-bottom:14px;
+
+    font-size:15px;
+
+}
+
+.linha:last-child{
+
+    margin-bottom:0;
+
+}
+
+.desconto{
+
+    color:#7cb7ff;
+
+}
+
+.total{
+
+    margin-top:10px;
+
+    padding-top:14px;
+
+    border-top:1px solid rgba(255,255,255,.08);
+
+    font-size:18px;
+
+    font-weight:600;
+
+}
+
+/* =====================================================
+   BOTÃO
+===================================================== */
+
+#btnPagar{
+
+    width:100%;
+
+    margin-top:25px;
+
+    border:none;
+
+    border-radius:14px;
+
+    padding:17px;
+
+    background:#2db14f;
+
+    color:#fff;
+
+    font-size:17px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+#btnPagar:hover{
+
+    transform:translateY(-2px);
+
+    background:#39c85d;
+
+}
+
+/* =====================================================
+   LINK
+===================================================== */
+
+#detalhes{
+
+    display:block;
+
+    margin-top:20px;
+
+    text-align:center;
+
+    text-decoration:none;
+
+    color:#4d8dff;
+
+    font-size:14px;
+
+    transition:.25s;
+
+}
+
+#detalhes:hover{
+
+    color:#82b2ff;
+
+}
+
+/* =====================================================
+   RESPONSIVO
+===================================================== */
+
+@media(max-width:520px){
+
+.container{
+
+padding:20px;
+
+}
+
+header,
+.payment-card{
+
+width:100%;
+
+}
+
+header h2{
+
+font-size:23px;
+
+}
+
+.payment-left h4{
+
+font-size:15px;
+
+}
+
+.payment-left p{
+
+font-size:12px;
+
+}
+
+#btnPagar{
+
+font-size:16px;
+
+}
+
+}

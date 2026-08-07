@@ -1,0 +1,779 @@
+:root {
+  --bg: #020e1c;
+  --border: #18324a;
+  --muted: #8496ab;
+  --text: #f4f7fb;
+}
+
+
+* {
+  box-sizing: border-box;
+}
+
+
+body {
+
+  margin:0;
+
+  background:
+  radial-gradient(circle at 72% 4%, #0c2a48 0, transparent 25%),
+  var(--bg);
+
+  font:13px Inter, Arial;
+
+  color:var(--text);
+
+}
+
+
+
+.app-shell {
+
+  min-height:100vh;
+
+  display:flex;
+
+}
+
+
+
+/* ================= SIDEBAR ================= */
+
+
+.sidebar {
+
+  width:230px;
+
+  flex:none;
+
+  background:linear-gradient(180deg,#061626,#04111f);
+
+  border-right:1px solid var(--border);
+
+  padding:22px 14px 18px;
+
+  display:flex;
+
+  flex-direction:column;
+
+}
+
+
+
+.logo{
+    font-size:22px;
+    font-weight:700;
+    color:white;
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.logo span{
+    color:#3d82ff;
+}
+
+.logo i{
+    color:#3d82ff;
+    font-size:25px;
+}
+
+
+
+.sidebar nav {
+
+  display:grid;
+
+  gap:5px;
+
+  margin-top:28px;
+
+}
+
+
+
+.sidebar nav a {
+
+  height:39px;
+
+  padding:0 12px;
+
+  display:flex;
+
+  gap:11px;
+
+  align-items:center;
+
+  text-decoration:none;
+
+  color:#b9c6d5;
+
+  border-radius:6px;
+
+  font-size:11px;
+
+}
+
+
+
+.sidebar nav a:hover,
+.sidebar nav .active {
+
+  background:#0c2a50;
+
+  color:#fff;
+
+}
+
+
+
+.sidebar svg{
+    width:15px;
+    height:15px;
+    stroke-width:1.9;
+}
+
+
+.primary-button svg{
+    width:16px;
+    height:16px;
+}
+
+
+
+.profile {
+
+  border-top:1px solid var(--border);
+
+  padding:16px 4px 0;
+
+  margin-top:auto;
+
+  display:flex;
+
+  align-items:center;
+
+  gap:9px;
+
+}
+
+
+
+.avatar {
+
+  display:grid;
+
+  place-items:center;
+
+  width:29px;
+
+  height:29px;
+
+  border-radius:50%;
+
+  background:linear-gradient(135deg,#3e7bff,#5f20d6);
+
+  font-weight:700;
+
+}
+
+
+
+.profile div {
+
+  display:grid;
+
+  gap:2px;
+
+}
+
+
+.profile strong {
+
+  font-size:10px;
+
+}
+
+
+
+.profile small {
+
+  font-size:8px;
+
+  color:#8194aa;
+
+}
+
+
+
+
+
+/* ================= CONTEÚDO ================= */
+
+
+.content {
+
+  width:100%;
+
+  min-height:100vh;
+
+  padding:38px 52px;
+
+}
+
+
+
+.topbar {
+
+  display:flex;
+
+  align-items:center;
+
+  gap:14px;
+
+  margin-bottom:29px;
+
+}
+
+
+
+.topbar h1 {
+
+  margin:0 0 7px;
+
+  font:600 25px Outfit;
+
+}
+
+
+
+.topbar p {
+
+  margin:0;
+
+  color:var(--muted);
+
+  font-size:13px;
+
+}
+
+
+
+.primary-button {
+
+  margin-left:auto;
+
+  display:flex;
+
+  align-items:center;
+
+  gap:8px;
+
+  border:0;
+
+  border-radius:6px;
+
+  background:linear-gradient(135deg,#1768ff,#1454d4);
+
+  color:#fff;
+
+  padding:13px 18px;
+
+  font:600 12px Inter;
+
+  cursor:pointer;
+
+}
+
+
+
+.primary-button svg {
+
+  width:16px;
+
+}
+
+
+
+.menu-button {
+
+  display:none;
+
+}
+
+
+
+
+
+/* ================= CARDS FATURAMENTO ================= */
+
+
+.cards {
+
+  display:grid;
+
+  grid-template-columns:repeat(4,1fr);
+
+  gap:15px;
+
+  margin-bottom:25px;
+
+}
+
+
+
+.card {
+
+  background:linear-gradient(145deg,#091b2d,#061525);
+
+  border:1px solid var(--border);
+
+  border-radius:9px;
+
+  padding:20px;
+
+}
+
+
+
+.card span {
+
+  color:#91a2b5;
+
+  font-size:12px;
+
+}
+
+
+
+.card h2 {
+
+  margin:15px 0 0;
+
+  font:600 24px Outfit;
+
+}
+
+
+
+.card p {
+
+  margin-top:10px;
+
+  color:#71869a;
+
+  font-size:12px;
+
+}
+
+
+
+.green {
+
+  color:#34d894;
+
+}
+
+
+.yellow {
+
+  color:#f8bd22;
+
+}
+
+
+.red {
+
+  color:#ff6674;
+
+}
+
+
+
+
+
+/* ================= PANEL ================= */
+
+
+.panel {
+
+  min-height:calc(100vh - 260px);
+
+  border:1px solid var(--border);
+
+  border-radius:9px;
+
+  background:linear-gradient(145deg,#091b2d,#061525);
+
+  padding:25px;
+
+}
+
+
+
+
+
+/* ================= FILTROS ================= */
+
+
+.filters {
+
+  display:flex;
+
+  align-items:end;
+
+  gap:14px;
+
+  margin-bottom:22px;
+
+}
+
+
+
+.filters label {
+
+  display:grid;
+
+  gap:7px;
+
+  color:#bac9d7;
+
+  font-size:11px;
+
+}
+
+
+
+.filters select,
+.filters input {
+
+  height:42px;
+
+  width:185px;
+
+  border:1px solid #193650;
+
+  border-radius:6px;
+
+  background:#071829;
+
+  color:#dce6ef;
+
+  padding:0 11px;
+
+  outline:none;
+
+  font:12px Inter;
+
+}
+
+
+
+.filters input {
+
+  width:300px;
+
+}
+
+
+
+
+
+/* ================= TABELA ================= */
+
+
+.table-wrap {
+
+  overflow:auto;
+
+}
+
+
+
+table {
+
+  width:100%;
+
+  border-collapse:collapse;
+
+  text-align:left;
+
+  font-size:13px;
+
+}
+
+
+
+th {
+
+  height:50px;
+
+  background:#0b2137;
+
+  color:#91a2b5;
+
+  font-weight:500;
+
+}
+
+
+
+th:first-child,
+td:first-child {
+
+  padding-left:17px;
+
+}
+
+
+
+th:first-child {
+
+  border-radius:6px 0 0 6px;
+
+}
+
+
+
+th:last-child {
+
+  border-radius:0 6px 6px 0;
+
+}
+
+
+
+td {
+
+  height:59px;
+
+  border-bottom:1px solid #153049;
+
+  color:#dce6ef;
+
+}
+
+
+
+
+
+/* ================= STATUS ================= */
+
+
+.status {
+
+  font-size:11px;
+
+  font-weight:600;
+
+  padding:7px 10px;
+
+  border-radius:4px;
+
+}
+
+
+
+.confirmado {
+
+  color:#34d894;
+
+  background:#0d3c36;
+
+}
+
+
+
+.pendente {
+
+  color:#f8bd22;
+
+  background:#443706;
+
+}
+
+
+
+.cancelado {
+
+  color:#ff6674;
+
+  background:#491d27;
+
+}
+
+
+
+
+
+/* ================= AÇÕES ================= */
+
+
+.actions-title,
+.row-actions {
+
+  text-align:center;
+
+}
+
+
+
+.row-actions button {
+
+  width:30px;
+
+  height:30px;
+
+  margin:0 3px;
+
+  border:1px solid #1d4771;
+
+  border-radius:5px;
+
+  background:#0a294a;
+
+  color:#3e93ff;
+
+}
+
+
+
+.row-actions svg {
+
+  width:14px;
+
+  height:14px;
+
+}
+
+
+
+.table-count {
+
+  margin:20px 0 0;
+
+  color:#8496ab;
+
+  font-size:11px;
+
+}
+
+
+
+
+
+/* ================= RESPONSIVO ================= */
+
+
+@media(max-width:850px){
+
+
+.sidebar {
+
+  position:fixed;
+
+  z-index:3;
+
+  left:-245px;
+
+  top:0;
+
+  height:100vh;
+
+}
+
+
+.sidebar.open {
+
+  left:0;
+
+}
+
+
+
+.content {
+
+  padding:25px 20px;
+
+}
+
+
+
+.menu-button {
+
+  display:grid;
+
+  place-items:center;
+
+  width:38px;
+
+  height:38px;
+
+  border:1px solid #254159;
+
+  border-radius:7px;
+
+  color:#fff;
+
+  background:#0a1c2e;
+
+}
+
+
+
+.cards {
+
+  grid-template-columns:repeat(2,1fr);
+
+}
+
+
+
+.filters {
+
+  flex-wrap:wrap;
+
+}
+
+
+
+}
+
+
+
+@media(max-width:520px){
+
+
+.content {
+
+  padding:17px 12px;
+
+}
+
+
+
+.cards {
+
+  grid-template-columns:1fr;
+
+}
+
+
+
+.filters {
+
+  flex-direction:column;
+
+}
+
+
+
+.filters select,
+.filters input {
+
+  width:100%;
+
+}
+
+
+}

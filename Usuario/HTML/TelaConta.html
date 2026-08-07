@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Minha Conta - ParkEasy</title>
+
+  <link rel="stylesheet" href="../CSS/TelaConta.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+  <div class="container">
+
+    <div class="card">
+
+      <div class="top-bar">
+        <span>MINHA CONTA</span>
+      </div>
+
+        <div class="logo">
+            <i class="fa-solid fa-layer-group"></i>
+            <span>Vaga</span>Connect
+        </div>
+
+      <h2>Editar dados da conta</h2>
+      <p class="subtitle">Atualize suas informações pessoais</p>
+
+      <form>
+
+        <!-- NOME -->
+        <label>Nome completo</label>
+        <input type="text" value="João da Silva">
+
+        <!-- CPF E EMAIL (NÃO EDITÁVEIS) -->
+        <div class="row">
+          <div>
+            <label>CPF</label>
+            <input type="text" value="000.000.000-00" readonly>
+          </div>
+
+          <div>
+            <label>E-mail</label>
+            <input type="email" value="usuario@email.com" readonly>
+          </div>
+        </div>
+
+        <!-- TELEFONE -->
+        <label>Telefone</label>
+        <input type="text" value="(17) 99999-0000">
+
+        <!-- ENDEREÇO -->
+        <label>Rua</label>
+        <input type="text" value="Rua das Flores">
+
+        <div class="row">
+          <div>
+            <label>Número</label>
+            <input type="text" value="123">
+          </div>
+
+          <div>
+            <label>CEP</label>
+            <input type="text" value="00000-000">
+          </div>
+        </div>
+
+        <label>Cidade</label>
+        <input type="text" value="Santa Fé do Sul">
+
+        <!-- SENHA -->
+        <label>Nova senha</label>
+        <div class="password-box">
+          <input type="password" id="senha1" placeholder="Digite nova senha">
+          <span onclick="togglePassword('senha1')">👁</span>
+        </div>
+
+        <label>Confirmar senha</label>
+        <div class="password-box">
+          <input type="password" id="senha2" placeholder="Confirme nova senha">
+          <span onclick="togglePassword('senha2')">👁</span>
+        </div>
+
+        <button type="submit">Salvar alterações</button>
+
+      </form>
+
+    </div>
+
+  </div>
+
+  <script>
+    function togglePassword(id) {
+      const input = document.getElementById(id);
+      input.type = input.type === "password" ? "text" : "password";
+    }
+  </script>
+
+</body>
+</html>

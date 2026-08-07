@@ -1,0 +1,579 @@
+/* =====================================================
+RESET
+===================================================== */
+
+*{
+
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+
+}
+
+
+
+body{
+
+    font-family:'Poppins',sans-serif;
+
+    background:#031426;
+
+    color:white;
+
+    min-height:100vh;
+
+}
+
+
+
+
+
+/* =====================================================
+TELA
+===================================================== */
+
+
+.screen{
+
+    width:100%;
+
+    min-height:100vh;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    padding:25px;
+
+}
+
+
+
+
+
+/* =====================================================
+BLOCO PRINCIPAL
+===================================================== */
+
+
+.box{
+
+    width:850px;
+
+    min-height:700px;
+
+    background:#061a30;
+
+    border-radius:18px;
+
+    padding:30px;
+
+    box-shadow:
+    0 15px 40px rgba(0,0,0,.35);
+
+}
+
+
+
+
+
+
+/* =====================================================
+TITULO
+===================================================== */
+
+
+.title{
+
+
+    font-size:12px;
+
+    font-weight:600;
+
+    margin-bottom:15px;
+
+    color:white;
+
+
+}
+
+
+
+
+
+
+
+/* =====================================================
+HEADER
+===================================================== */
+
+
+.header{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+    margin-bottom:25px;
+
+
+}
+
+
+
+.header span{
+
+
+    font-size:18px;
+
+    font-weight:500;
+
+
+}
+
+
+
+
+
+#voltar{
+
+
+    width:35px;
+
+    height:35px;
+
+    border:none;
+
+    background:transparent;
+
+    color:white;
+
+    font-size:25px;
+
+    cursor:pointer;
+
+
+}
+
+
+
+
+
+
+
+/* =====================================================
+CARD RESERVA
+===================================================== */
+
+
+.reservation-card{
+
+
+    background:#0b223d;
+
+    border-radius:16px;
+
+    padding:30px;
+
+
+}
+
+
+
+
+
+
+/* =====================================================
+STATUS
+===================================================== */
+
+
+.status{
+
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    color:#facc15;
+
+    background:rgba(250,204,21,.12);
+
+    padding:7px 14px;
+
+    border-radius:18px;
+
+    font-size:12px;
+
+    margin-bottom:18px;
+
+
+}
+
+
+
+
+.status span{
+
+    font-size:14px;
+
+}
+
+
+
+
+
+
+
+/* =====================================================
+TEXTOS
+===================================================== */
+
+
+.reservation-card h2{
+
+
+    font-size:25px;
+
+    margin-bottom:10px;
+
+
+}
+
+
+
+
+.reservation-card p{
+
+
+    color:#91a7c6;
+
+    font-size:13px;
+
+
+}
+
+
+
+
+
+
+
+/* =====================================================
+INFORMAÇÕES
+===================================================== */
+
+
+.info{
+
+
+    margin-top:25px;
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:15px;
+
+
+}
+
+
+
+
+
+.info div{
+
+
+    background:#102d50;
+
+    padding:18px;
+
+    border-radius:12px;
+
+
+}
+
+
+
+
+.info span{
+
+
+    display:block;
+
+    color:#91a7c6;
+
+    font-size:12px;
+
+    margin-bottom:8px;
+
+
+}
+
+
+
+
+
+.info strong{
+
+
+    font-size:14px;
+
+    font-weight:500;
+
+
+}
+
+
+
+
+
+
+
+/* =====================================================
+TIMER
+===================================================== */
+
+
+.timer-box{
+
+
+    margin-top:20px;
+
+    background:#06182d;
+
+    border-radius:12px;
+
+    text-align:center;
+
+    padding:22px;
+
+
+}
+
+
+
+
+
+.timer-box p{
+
+
+    font-size:13px;
+
+    color:#91a7c6;
+
+
+}
+
+
+
+
+.timer-box h1{
+
+
+    font-size:45px;
+
+    letter-spacing:7px;
+
+    margin:10px 0;
+
+
+}
+
+
+
+
+
+
+
+.labels{
+
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:45px;
+
+
+}
+
+
+
+
+
+.labels span{
+
+
+    font-size:11px;
+
+    color:#7f94b2;
+
+
+}
+
+
+
+
+
+
+
+/* =====================================================
+AVISO
+===================================================== */
+
+
+.warning{
+
+
+    text-align:center;
+
+    margin-top:18px;
+
+    line-height:18px;
+
+    color:#facc15!important;
+
+    font-size:12px!important;
+
+
+}
+
+
+
+
+
+
+
+
+/* =====================================================
+BOTÕES
+===================================================== */
+
+
+button.extend,
+button.cancel{
+
+
+    width:100%;
+
+    height:50px;
+
+    border:none;
+
+    border-radius:10px;
+
+    margin-top:15px;
+
+    cursor:pointer;
+
+    font-family:'Poppins';
+
+    font-size:14px;
+
+    font-weight:500;
+
+    transition:.3s;
+
+
+}
+
+
+
+
+
+.extend{
+
+
+    background:#1559d6;
+
+    color:white;
+
+
+}
+
+
+
+
+.extend:hover{
+
+
+    background:#2875ff;
+
+
+}
+
+
+
+
+
+.cancel{
+
+
+    background:#b91c1c;
+
+    color:white;
+
+
+}
+
+
+
+
+
+.cancel:hover{
+
+
+    background:#dc2626;
+
+
+}
+
+
+
+
+
+
+
+/* =====================================================
+RESPONSIVO
+===================================================== */
+
+
+@media(max-width:900px){
+
+
+.box{
+
+    width:95%;
+
+}
+
+
+
+.info{
+
+
+    grid-template-columns:1fr;
+
+}
+
+
+
+.timer-box h1{
+
+
+    font-size:32px;
+
+
+}
+
+
+}

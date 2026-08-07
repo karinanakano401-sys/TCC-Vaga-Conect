@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>VagaConnect | Escolher Vaga</title>
+
+<link rel="stylesheet" href="../CSS/TelaReservas.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+rel="stylesheet">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<!-- ================= HEADER ================= -->
+
+
+<header class="navbar">
+
+
+<div class="logo">
+
+<i class="fa-solid fa-layer-group"></i>
+
+<span>Vaga</span>Connect
+
+</div>
+
+
+
+<nav>
+
+
+<a href="../HTML/TelaUsuario.html">
+
+<i class="fa-solid fa-house"></i>
+
+Início
+
+</a>
+
+
+
+<a href="../HTML/TelaConta.html">
+
+<i class="fa-regular fa-user"></i>
+
+Conta
+
+</a>
+
+
+
+<a href="../../Base/HTML/Abertura.html" id="btnSair">
+
+<i class="fa-solid fa-right-from-bracket"></i>
+
+Sair
+
+</a>
+
+
+
+</nav>
+
+
+</header>
+
+
+
+
+
+<!-- ================= CONTEÚDO ================= -->
+
+
+<main class="content">
+
+
+
+<!-- TOPO -->
+
+
+<header class="topbar">
+
+
+<button id="backButton">
+
+←
+
+</button>
+
+
+
+<div>
+
+
+<h1 id="nomeEstacionamento">
+
+Carregando...
+
+</h1>
+
+
+
+<span id="enderecoEstacionamento">
+
+Carregando...
+
+</span>
+
+
+</div>
+
+
+</header>
+
+
+
+
+
+<!-- ================= LEGENDA ================= -->
+
+
+<section class="legend">
+
+
+<div>
+
+<span class="green"></span>
+
+Livre
+
+</div>
+
+
+
+<div>
+
+<span class="yellow"></span>
+
+Reservada
+
+</div>
+
+
+
+<div>
+
+<span class="red"></span>
+
+Ocupada
+
+</div>
+
+
+
+<div>
+
+<span class="blue"></span>
+
+Selecionada
+
+</div>
+
+
+
+<div>
+
+<span class="gray"></span>
+
+Coberta
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+<!-- ================= LAYOUT ================= -->
+
+
+<div class="layout">
+
+
+
+
+
+<!-- PAINEL ESQUERDO -->
+
+
+<aside class="filters">
+
+
+<h3>
+
+Filtros
+
+</h3>
+
+
+<hr>
+
+
+
+
+<label>
+
+Piso
+
+</label>
+
+
+
+
+<select>
+
+
+<option>
+
+Todos
+
+</option>
+
+
+<option>
+
+Piso 1
+
+</option>
+
+
+<option>
+
+Piso 2
+
+</option>
+
+
+<option>
+
+Coberto
+
+</option>
+
+
+</select>
+
+
+
+
+
+<label>
+
+Tipo da vaga
+
+</label>
+
+
+
+<select>
+
+
+<option>
+
+Todas
+
+</option>
+
+
+<option>
+
+Cobertas
+
+</option>
+
+
+<option>
+
+PCD
+
+</option>
+
+
+<option>
+
+Idoso
+
+</option>
+
+
+<option>
+
+Carregador EV
+
+</option>
+
+
+</select>
+
+
+
+
+
+
+<div class="resume">
+
+
+<h3>
+
+Resumo
+
+</h3>
+
+
+
+<p>
+
+Livres
+
+<strong id="livres">
+
+0
+
+</strong>
+
+</p>
+
+
+
+<p>
+
+Reservadas
+
+<strong id="reservadas">
+
+0
+
+</strong>
+
+</p>
+
+
+
+<p>
+
+Ocupadas
+
+<strong id="ocupadas">
+
+0
+
+</strong>
+
+</p>
+
+
+
+<p>
+
+Total
+
+<strong>
+
+100
+
+</strong>
+
+</p>
+
+
+
+</div>
+
+
+
+</aside>
+
+
+
+
+
+
+<!-- ================= MAPA ================= -->
+
+
+
+<section class="parking-area">
+
+
+
+<div class="parking-title">
+
+
+<div class="road">
+
+
+FRENTE - AV. PAULISTA
+
+
+</div>
+
+
+
+<div class="gate">
+
+
+ENTRADA / SAÍDA
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+<div id="parkingGrid">
+
+
+<!-- O JS VAI CRIAR AS 100 VAGAS AQUI -->
+
+
+</div>
+
+
+
+
+
+</section>
+<!-- ================= PAINEL DIREITO ================= -->
+
+
+<aside class="details">
+
+
+<h2>
+
+Vaga Selecionada
+
+</h2>
+
+
+
+
+
+<div class="card">
+
+
+<span>
+
+Número
+
+</span>
+
+
+<h1 id="spotNumber">
+
+--
+
+</h1>
+
+
+</div>
+
+
+
+
+
+<div class="card">
+
+
+<span>
+
+Status
+
+</span>
+
+
+<h2 id="spotStatus">
+
+Nenhuma
+
+</h2>
+
+
+</div>
+
+
+
+
+
+<div class="card">
+
+
+<span>
+
+Tipo
+
+</span>
+
+
+<h2 id="spotType">
+
+--
+
+</h2>
+
+
+</div>
+
+
+
+
+
+<button id="selectSpot">
+
+
+Selecionar vaga
+
+
+</button>
+
+
+
+
+
+
+
+<div class="icons">
+
+
+<h3>
+
+Legenda
+
+</h3>
+
+
+
+<p>
+
+🟩 Livre
+
+</p>
+
+
+<p>
+
+🟥 Ocupada
+
+</p>
+
+
+<p>
+
+🟨 Reservada
+
+</p>
+
+
+<p>
+
+🟦 Selecionada
+
+</p>
+
+
+<p>
+
+⬜ Coberta
+
+</p>
+
+
+<p>
+
+🟪 Deficiente
+
+</p>
+
+
+
+</div>
+
+
+
+
+</aside>
+
+
+
+
+</div>
+
+<!-- fim layout -->
+
+
+
+</main>
+
+<!-- fim content -->
+
+
+
+</div>
+
+<!-- fim container -->
+
+
+
+
+
+<script>
+
+
+// ============================================
+// PEGAR ESTACIONAMENTO ESCOLHIDO
+// ============================================
+
+
+const estacionamentoSelecionado = JSON.parse(
+
+    localStorage.getItem("estacionamentoSelecionado")
+
+);
+
+
+
+// Se não escolheu estacionamento
+
+if(!estacionamentoSelecionado){
+
+
+    alert(
+        "Selecione um estacionamento antes de escolher uma vaga."
+    );
+
+
+    window.location.href =
+    "../HTML/TelaLocais.html";
+
+
+}
+
+
+
+// Mostrar estacionamento escolhido
+
+else{
+
+
+    document.getElementById("nomeEstacionamento").textContent =
+
+    estacionamentoSelecionado.nome;
+
+
+
+    document.getElementById("enderecoEstacionamento").textContent =
+
+    estacionamentoSelecionado.endereco;
+
+
+}
+
+
+
+
+
+// ============================================
+// REFERÊNCIAS
+// ============================================
+
+
+const parkingGrid = document.getElementById("parkingGrid");
+
+
+const spotNumber = document.getElementById("spotNumber");
+
+const spotStatus = document.getElementById("spotStatus");
+
+const spotType = document.getElementById("spotType");
+
+
+const btnSelecionar = document.getElementById("selectSpot");
+
+
+const livres = document.getElementById("livres");
+
+const reservadas = document.getElementById("reservadas");
+
+const ocupadas = document.getElementById("ocupadas");
+
+
+
+
+
+// ============================================
+// DADOS DAS VAGAS
+// ============================================
+
+
+const vagas = [];
+
+
+let vagaSelecionada = null;
+
+
+
+
+
+// ============================================
+// CRIAR 100 VAGAS
+// ============================================
+
+
+for(let i = 1; i <= 100; i++){
+
+
+    let status = "free";
+
+
+
+    // exemplos de status
+
+    if(i % 7 === 0){
+
+        status = "reserved";
+
+    }
+
+
+    if(i % 5 === 0){
+
+        status = "occupied";
+
+    }
+
+
+    vagas.push({
+
+        numero:i,
+
+        status:status
+
+    });
+
+
+}
+
+
+
+
+
+// ============================================
+// NOME STATUS
+// ============================================
+
+
+function nomeStatus(status){
+
+
+    switch(status){
+
+
+        case "free":
+
+            return "Livre";
+
+
+        case "occupied":
+
+            return "Ocupada";
+
+
+        case "reserved":
+
+            return "Reservada";
+
+
+        case "covered":
+
+            return "Coberta";
+
+
+        case "special":
+
+            return "PCD";
+
+
+        case "ev":
+
+            return "Carregador EV";
+
+
+        default:
+
+            return "-";
+
+
+    }
+
+
+}
+
+
+
+
+
+// ============================================
+// TIPO DA VAGA
+// ============================================
+
+
+function tipoVaga(status){
+
+
+    switch(status){
+
+
+        case "covered":
+
+            return "Coberta";
+
+
+        case "special":
+
+            return "PCD";
+
+
+        case "ev":
+
+            return "Elétrica";
+
+
+        default:
+
+            return "Comum";
+
+
+    }
+
+
+}
+
+
+
+
+
+// ============================================
+// ATUALIZAR RESUMO
+// ============================================
+
+
+function atualizarResumo(){
+
+
+
+    let totalLivre = vagas.filter(v =>
+
+        v.status==="free"
+
+    ).length;
+
+
+
+    let totalReservada = vagas.filter(v =>
+
+        v.status==="reserved"
+
+    ).length;
+
+
+
+    let totalOcupada = vagas.filter(v =>
+
+        v.status==="occupied"
+
+    ).length;
+
+
+
+
+    livres.textContent = totalLivre;
+
+
+    reservadas.textContent = totalReservada;
+
+
+    ocupadas.textContent = totalOcupada;
+
+
+
+}
+
+
+
+
+
+// ============================================
+// DESENHAR MAPA
+// ============================================
+
+
+function render(){
+
+
+
+    parkingGrid.innerHTML = "";
+
+
+
+    vagas.forEach(vaga=>{
+
+
+
+        const div = document.createElement("div");
+
+
+
+        div.className =
+
+        "spot " + vaga.status;
+
+
+
+        div.textContent = vaga.numero;
+
+
+
+        div.onclick = ()=>{
+
+
+            selecionar(vaga,div);
+
+
+        };
+
+
+
+        parkingGrid.appendChild(div);
+
+
+
+    });
+
+
+
+
+    atualizarResumo();
+
+
+}
+
+
+
+render();
+
+
+
+
+
+
+
+// ============================================
+// SELECIONAR VAGA
+// ============================================
+
+
+function selecionar(vaga,elemento){
+
+
+
+    if(vaga.status==="occupied"){
+
+
+        alert(
+
+            "Esta vaga está ocupada."
+
+        );
+
+
+        return;
+
+
+    }
+
+
+
+
+
+    document.querySelectorAll(".spot")
+
+    .forEach(v=>{
+
+
+        v.classList.remove("selected");
+
+
+    });
+
+
+
+
+    elemento.classList.add("selected");
+
+
+
+    vagaSelecionada = vaga;
+
+
+
+
+    spotNumber.textContent = vaga.numero;
+
+
+
+    spotStatus.textContent =
+
+    nomeStatus(vaga.status);
+
+
+
+    spotType.textContent =
+
+    tipoVaga(vaga.status);
+
+
+
+}
+
+
+
+
+
+
+
+// ============================================
+// BOTÃO CONFIRMAR VAGA
+// ============================================
+
+
+btnSelecionar.onclick = ()=>{
+
+
+
+    if(!vagaSelecionada){
+
+
+        alert(
+
+            "Escolha uma vaga."
+
+        );
+
+
+        return;
+
+
+    }
+
+
+
+
+
+    localStorage.setItem(
+
+        "vagaSelecionada",
+
+        JSON.stringify({
+
+            estacionamento:
+
+            estacionamentoSelecionado.nome,
+
+
+            endereco:
+
+            estacionamentoSelecionado.endereco,
+
+
+            vaga:
+
+            vagaSelecionada.numero,
+
+
+            status:
+
+            vagaSelecionada.status
+
+
+        })
+
+    );
+
+
+
+
+
+    alert(
+
+        "Vaga " +
+
+        vagaSelecionada.numero +
+
+        " selecionada!"
+
+    );
+
+
+
+
+
+    window.location.href =
+
+    "../HTML/TelaDetalheReserva.html";
+
+
+
+};
+
+
+
+
+
+
+
+// ============================================
+// BOTÃO VOLTAR
+// ============================================
+
+
+document.getElementById("backButton").onclick = ()=>{
+
+
+    history.back();
+
+
+};
+
+
+
+
+
+
+
+// ============================================
+// SAIR
+// ============================================
+
+
+const btnSair = document.getElementById("btnSair");
+
+
+if(btnSair){
+
+
+btnSair.addEventListener("click",function(event){
+
+
+    event.preventDefault();
+
+
+
+    const confirmar = confirm(
+
+        "Tem certeza que deseja sair?"
+
+    );
+
+
+
+    if(confirmar){
+
+
+        window.location.href =
+
+        "../../Base/HTML/Abertura.html";
+
+
+    }
+
+
+
+});
+
+
+}
+
+
+
+</script>
+
+
+
+</body>
+
+
+</html>

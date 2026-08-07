@@ -1,0 +1,426 @@
+/* ===========================
+   RESET
+=========================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+
+    font-family:'Poppins',sans-serif;
+
+    background:
+    radial-gradient(circle at top,#0f2448,#081220 70%);
+
+    color:#fff;
+
+}
+
+
+/* ===========================
+   CONTAINER
+=========================== */
+
+.container{
+
+    display:flex;
+    min-height:100vh;
+
+}
+
+
+/* ===========================
+   SIDEBAR
+=========================== */
+
+.sidebar{
+
+    width:260px;
+
+    background:#081321;
+
+    border-right:1px solid rgba(255,255,255,.08);
+
+    padding:35px 25px;
+
+}
+
+
+.logo{
+    font-size:22px;
+    font-weight:700;
+}
+
+.logo span{
+    color:#3d82ff;
+}
+
+.logo i{
+    color:#3d82ff;
+    margin-right:8px;
+}
+
+.sidebar nav{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+}
+
+
+.sidebar nav a{
+
+    text-decoration:none;
+
+    color:#d6d6d6;
+
+    padding:15px 18px;
+
+    border-radius:12px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+    transition:.3s;
+
+    font-size:17px;
+
+}
+
+
+.sidebar nav a i{
+
+    width:22px;
+
+    text-align:center;
+
+}
+
+
+.sidebar nav a:hover{
+
+    background:#16325c;
+
+    color:white;
+
+}
+
+
+.sidebar nav .ativo{
+
+    background:#1f5eff;
+
+    color:white;
+
+}
+
+
+/* ===========================
+   CONTEÚDO
+=========================== */
+
+.conteudo{
+
+    flex:1;
+
+    padding:55px 70px;
+
+}
+
+
+.conteudo h1{
+
+    font-size:48px;
+
+    margin-bottom:10px;
+
+}
+
+
+.conteudo p{
+
+    color:#bdbdbd;
+
+    font-size:18px;
+
+    margin-bottom:40px;
+
+}
+
+
+/* ===========================
+   CARD
+=========================== */
+
+.card{
+
+    background:#0c1d33;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    border-radius:18px;
+
+    padding:35px;
+
+    margin-bottom:45px;
+
+}
+
+
+.card h2{
+
+    font-size:30px;
+
+    margin-bottom:30px;
+
+}
+
+
+.linha{
+
+    display:flex;
+
+    gap:25px;
+
+    margin-bottom:30px;
+
+}
+
+
+.campo{
+
+    flex:1;
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+
+.campo label{
+
+    margin-bottom:8px;
+
+    color:#d9d9d9;
+
+    font-size:15px;
+
+}
+
+
+input,
+select{
+
+    height:58px;
+
+    border-radius:12px;
+
+    border:1px solid rgba(255,255,255,.10);
+
+    background:#071220;
+
+    color:white;
+
+    padding:0 18px;
+
+    font-size:16px;
+
+    outline:none;
+
+}
+
+
+input:focus,
+select:focus{
+
+    border:1px solid #2f72ff;
+
+    box-shadow:0 0 0 3px rgba(47,114,255,.15);
+
+}
+
+
+/* ===========================
+   BOTÃO
+=========================== */
+
+#salvar{
+
+    width:280px;
+
+    height:58px;
+
+    border:none;
+
+    border-radius:12px;
+
+    cursor:pointer;
+
+    background:linear-gradient(90deg,#2465ff,#3d87ff);
+
+    color:white;
+
+    font-size:18px;
+
+    font-weight:600;
+
+    transition:.3s;
+
+}
+
+
+#salvar:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:0 10px 25px rgba(46,110,255,.35);
+
+}
+
+
+/* ===========================
+   LISTA
+=========================== */
+
+.lista{
+
+    background:#0c1d33;
+
+    border-radius:18px;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    padding:35px;
+
+}
+
+
+.lista h2{
+
+    margin-bottom:25px;
+
+    font-size:30px;
+
+}
+
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+}
+
+
+th{
+
+    text-align:left;
+
+    color:#9fa9b7;
+
+    font-size:17px;
+
+    padding-bottom:18px;
+
+}
+
+
+td{
+
+    padding:22px 0;
+
+    border-top:1px solid rgba(255,255,255,.08);
+
+    font-size:18px;
+
+}
+
+
+.excluir{
+
+    width:42px;
+
+    height:42px;
+
+    border:none;
+
+    background:transparent;
+
+    color:#f05353;
+
+    font-size:20px;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+
+.excluir:hover{
+
+    color:#ff2c2c;
+
+    transform:scale(1.15);
+
+}
+
+
+/* ===========================
+   RESPONSIVO
+=========================== */
+
+@media(max-width:1100px){
+
+.linha{
+
+    flex-direction:column;
+
+}
+
+.sidebar{
+
+    width:220px;
+
+}
+
+.conteudo{
+
+    padding:35px;
+
+}
+
+}
+
+@media(max-width:850px){
+
+.container{
+
+    flex-direction:column;
+
+}
+
+.sidebar{
+
+    width:100%;
+
+}
+
+#salvar{
+
+    width:100%;
+
+}
+
+}

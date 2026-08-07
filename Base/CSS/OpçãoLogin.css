@@ -1,0 +1,163 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#0f172a,#1e293b,#2563eb);
+    overflow:hidden;
+}
+
+/* FUNDO MODERNO */
+.bg{
+    position:absolute;
+    width:100%;
+    height:100%;
+    background:url('https://images.unsplash.com/photo-1506521781263-d8422e82f27a?q=80&w=1974&auto=format&fit=crop') center/cover;
+    opacity:0.20;
+    filter:blur(2px);
+}
+
+.container{
+    position:relative;
+    width:430px;
+    background:rgba(255,255,255,0.10);
+    backdrop-filter:blur(15px);
+    border:1px solid rgba(255,255,255,0.2);
+    border-radius:25px;
+    padding:35px;
+    box-shadow:0 10px 40px rgba(0,0,0,0.4);
+    color:white;
+    z-index:1;
+    animation:fade 0.6s ease;
+}
+
+@keyframes fade{
+    from{
+        opacity:0;
+        transform:translateY(25px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+.logo{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+.logo h1{
+    font-size:38px;
+    letter-spacing:1px;
+}
+
+.logo span{
+    color:#60a5fa;
+}
+
+.logo p{
+    margin-top:5px;
+    color:#cbd5e1;
+}
+
+/* BOTÕES DE TROCA */
+.toggle-buttons{
+    display:flex;
+    gap:10px;
+    margin-bottom:25px;
+}
+
+.toggle-buttons button{
+    flex:1;
+    padding:13px;
+    border:none;
+    border-radius:12px;
+    background:rgba(255,255,255,0.1);
+    color:white;
+    cursor:pointer;
+    font-weight:bold;
+    transition:0.3s;
+}
+
+.toggle-buttons button:hover{
+    background:#2563eb;
+}
+
+.toggle-buttons button.active{
+    background:#2563eb;
+    transform:scale(1.03);
+}
+
+/* TEXTO */
+.tipo-login{
+    text-align:center;
+    margin-bottom:20px;
+    color:#dbeafe;
+    font-weight:bold;
+}
+
+/* INPUTS */
+.input-box{
+    margin-bottom:18px;
+}
+
+.input-box label{
+    display:block;
+    margin-bottom:6px;
+    font-weight:bold;
+}
+
+.input-box input{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:rgba(255,255,255,0.15);
+    color:white;
+    outline:none;
+    font-size:15px;
+}
+
+.input-box input::placeholder{
+    color:#e2e8f0;
+}
+
+/* BOTÃO */
+.btn{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:#2563eb;
+    color:white;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.btn:hover{
+    background:#1d4ed8;
+    transform:scale(1.02);
+}
+
+/* LINK */
+.extra{
+    text-align:center;
+    margin-top:18px;
+    color:#e2e8f0;
+}
+
+.extra a{
+    color:#93c5fd;
+    text-decoration:none;
+    font-weight:bold;
+}

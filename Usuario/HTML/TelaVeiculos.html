@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ParkEasy - Meus Carros</title>
+
+    <link rel="stylesheet" href="../CSS/TelaVeiculos.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar">
+
+          <div class="logo">
+            <i class="fa-solid fa-layer-group"></i>
+            <span>Vaga</span>Connect
+        </div>
+
+        <nav>
+
+            <a href="../HTML/TelaUsuario.html">
+                <i class="fa-solid fa-house"></i>
+                Painel
+            </a>
+
+            <a class="ativo" href="#">
+                <i class="fa-solid fa-car"></i>
+                Meus Carros
+            </a>
+
+            <a href="../HTML/TelaConta.html">
+                <i class="fa-solid fa-user"></i>
+                Perfil
+            </a>
+
+             <a href="#" id="btnSair">
+                <i class="fa-solid fa-right-from-bracket"></i
+                    >Sair
+            </a>
+
+        </nav>
+
+    </aside>
+
+    <!-- Conteúdo -->
+
+    <main class="conteudo">
+
+        <h1>Meus Carros</h1>
+
+        <p>
+            Cadastre seus veículos para reservar mais rápido.
+        </p>
+
+
+        <!-- Card -->
+
+        <section class="card">
+
+            <h2>Adicionar novo carro</h2>
+
+            <div class="linha">
+
+                <div class="campo">
+
+                    <label>Placa</label>
+
+                    <input
+                    type="text"
+                    id="placa"
+                    placeholder="ABC1D23">
+
+                </div>
+
+                <div class="campo">
+
+                    <label>Modelo</label>
+
+                    <select id="modelo">
+
+                        <option>Honda Civic</option>
+                        <option>Fiat Argo</option>
+                        <option>Gol</option>
+                        <option>Corolla</option>
+                        <option>HB20</option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+            <button id="salvar">
+                Salvar carro
+            </button>
+
+        </section>
+
+
+        <!-- Lista -->
+
+        <section class="lista">
+
+            <h2>Meus carros cadastrados</h2>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Placa</th>
+
+                        <th>Modelo</th>
+
+                        <th></th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="listaCarros">
+
+                    <tr>
+
+                        <td>ABC1D23</td>
+
+                        <td>Honda Civic</td>
+
+                        <td>
+
+                            <button class="excluir">
+
+                                <i class="fa-solid fa-trash"></i>
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>XYZ9E87</td>
+
+                        <td>Fiat Argo</td>
+
+                        <td>
+
+                            <button class="excluir">
+
+                                <i class="fa-solid fa-trash"></i>
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script>
+
+// ===========================
+// CAPTURANDO ELEMENTOS
+// ===========================
+
+const placa = document.getElementById("placa");
+const modelo = document.getElementById("modelo");
+const salvar = document.getElementById("salvar");
+const lista = document.getElementById("listaCarros");
+
+// ===========================
+// LISTA DE CARROS
+// ===========================
+
+let carros = JSON.parse(localStorage.getItem("carros")) || [];
+
+// ===========================
+// CARREGAR CARROS SALVOS
+// ===========================
+
+function carregarCarros(){
+
+    lista.innerHTML = "";
+
+    carros.forEach(carro => {
+
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+
+            <td>${carro.placa}</td>
+
+            <td>${carro.modelo}</td>
+
+            <td>
+
+                <button class="excluir">
+
+                    <i class="fa-solid fa-trash"></i>
+
+                </button>
+
+            </td>
+
+        `;
+
+        lista.appendChild(tr);
+
+    });
+
+}
+
+carregarCarros();
+
+// ===========================
+// ADICIONAR CARRO
+// ===========================
+
+salvar.addEventListener("click", () => {
+
+    const placaDigitada = placa.value.trim().toUpperCase();
+    const modeloSelecionado = modelo.value;
+
+    // Verifica se a placa foi preenchida
+
+    if (placaDigitada === "") {
+
+        alert("Digite a placa do veículo.");
+
+        placa.focus();
+
+        return;
+
+    }
+
+    // Verifica se já existe
+
+    const placaExiste = carros.some(carro => carro.placa === placaDigitada);
+
+    if (placaExiste) {
+
+        alert("Essa placa já está cadastrada.");
+
+        return;
+
+    }
+
+    // Salva o carro
+
+    carros.push({
+
+        placa: placaDigitada,
+
+        modelo: modeloSelecionado
+
+    });
+
+    localStorage.setItem("carros", JSON.stringify(carros));
+
+    carregarCarros();
+
+    // Limpar campos
+
+    placa.value = "";
+
+    modelo.selectedIndex = 0;
+
+    placa.focus();
+
+});
+
+// ===========================
+// EXCLUIR CARRO
+// ===========================
+
+lista.addEventListener("click", function(e){
+
+    if(e.target.closest(".excluir")){
+
+        const confirmar = confirm("Deseja excluir este carro?");
+
+        if(confirmar){
+
+            const linha = e.target.closest("tr");
+
+            const placaExcluir = linha.children[0].textContent;
+
+            carros = carros.filter(carro => carro.placa !== placaExcluir);
+
+            localStorage.setItem("carros", JSON.stringify(carros));
+
+            carregarCarros();
+
+        }
+
+    }
+
+});
+
+
+// ===============================
+// SAIR DA CONTA
+// ===============================
+
+const btnSair = document.getElementById("btnSair");
+
+btnSair.addEventListener("click", function (event) {
+
+    event.preventDefault();
+
+    const confirmar = confirm(
+        "Tem certeza que deseja sair da sua conta?"
+    );
+
+    if (confirmar) {
+
+        // Limpa os dados, se desejar
+        // localStorage.clear();
+
+        window.location.href = "../../Base/HTML/Abertura.html";
+
+    }
+
+});
+</script>
+
+</body>
+</html>

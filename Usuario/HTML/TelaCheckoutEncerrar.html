@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>
+VagaConnect | Check-out
+</title>
+
+
+<link rel="stylesheet" href="../CSS/TelaCheckoutEncerrar.css">
+
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+rel="stylesheet">
+
+
+</head>
+
+
+<body>
+
+
+
+<div class="container">
+
+
+<div class="card">
+
+
+
+<h3 class="titulo">
+
+11. CHECK-OUT (ENCERRAMENTO)
+
+</h3>
+
+
+
+
+
+<div class="header">
+
+<a href="../HTML/TelaReservaAtiva.html">
+<button id="voltar">
+
+←
+
+</button>
+</a>
+
+<span>
+
+Check-out
+
+</span>
+
+
+</div>
+
+
+
+
+
+
+<div class="subtitle">
+
+Encerrar utilização da vaga
+
+</div>
+
+
+
+
+
+
+
+<div class="time-card">
+
+
+<span>
+
+Tempo total de utilização
+
+</span>
+
+
+<h1 id="tempo">
+
+00:00:00
+
+</h1>
+
+
+</div>
+
+
+
+
+
+
+
+
+<div class="price-card">
+
+
+
+<div>
+
+
+<span>
+
+Valor da utilização
+
+</span>
+
+
+<strong>
+
+R$ 00,00
+
+</strong>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<span>
+
+O valor é de 2,50 o min
+
+</span>
+
+
+
+
+</div>
+
+
+
+
+
+
+<hr>
+
+
+
+
+
+<div class="total">
+
+
+<span>
+
+Total a pagar
+
+</span>
+
+
+<strong id="total">
+
+R$ 2,50
+
+</strong>
+
+
+</div>
+
+
+
+</div>
+
+<button id="finalizar">
+
+Finalizar e pagar R$ 24,00
+
+</button>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+<script>
+
+// =====================================================
+// ELEMENTOS
+// =====================================================
+
+const tempo = document.getElementById("tempo");
+const valorUtilizacao = document.querySelector(".price-card strong");
+const total = document.getElementById("total");
+const botaoFinalizar = document.getElementById("finalizar");
+const voltar = document.getElementById("voltar");
+
+// =====================================================
+// BUSCAR RESERVAS
+// =====================================================
+
+let reservas = JSON.parse(localStorage.getItem("reservas")) || [];
+let reservaAtual = reservas[reservas.length - 1];
+
+// =====================================================
+// INÍCIO DO CHECK-IN
+// =====================================================
+
+let inicioUso = localStorage.getItem("inicioUso");
+
+if (!inicioUso) {
+
+    inicioUso = new Date().getTime();
+
+    localStorage.setItem("inicioUso", inicioUso);
+
+}
+
+inicioUso = Number(inicioUso);
+
+// =====================================================
+// FORMATAR
+// =====================================================
+
+function formatar(numero) {
+
+    return numero.toString().padStart(2, "0");
+
+}
+
+// =====================================================
+// CALCULAR VALOR
+// =====================================================
+
+function calcularValor(segundos) {
+
+    // R$ 2,50 por minuto
+
+    const minutos = Math.floor(segundos / 60);
+
+    return minutos * 2.50;
+
+}
+
+// =====================================================
+// ATUALIZAR TEMPO E VALOR
+// =====================================================
+
+function atualizarTela() {
+
+    const agora = new Date().getTime();
+
+    const segundos = Math.floor((agora - inicioUso) / 1000);
+
+    const horas = Math.floor(segundos / 3600);
+
+    const minutos = Math.floor((segundos % 3600) / 60);
+
+    const seg = segundos % 60;
+
+    tempo.textContent =
+        formatar(horas) + ":" +
+        formatar(minutos) + ":" +
+        formatar(seg);
+
+    const valorUso = calcularValor(segundos);
+
+    const garantia = 10;
+
+    let pagamento = valorUso - garantia;
+
+    if (pagamento < 0) {
+
+        pagamento = 0;
+
+    }
+
+    valorUtilizacao.textContent =
+        "R$ " +
+        valorUso.toFixed(2).replace(".", ",");
+
+    total.textContent =
+        "R$ " +
+        pagamento.toFixed(2).replace(".", ",");
+
+    botaoFinalizar.textContent =
+        "Finalizar e pagar " +
+        total.textContent;
+
+}
+
+// Atualiza imediatamente
+
+atualizarTela();
+
+// Atualiza a cada segundo
+
+setInterval(atualizarTela, 1000);
+
+// =====================================================
+// FINALIZAR
+// =====================================================
+
+botaoFinalizar.addEventListener("click", function () {
+
+    const pagamento = {
+
+        tempo: tempo.textContent,
+
+        valorUtilizacao: valorUtilizacao.textContent,
+
+        total: total.textContent
+
+    };
+
+    // Envia dados para a Tela 12
+
+    localStorage.setItem(
+
+        "dadosPagamento",
+
+        JSON.stringify(pagamento)
+
+    );
+
+    // Atualiza status da reserva
+
+    if (reservaAtual) {
+
+        reservaAtual.status = "Finalizada";
+
+        localStorage.setItem(
+
+            "reservas",
+
+            JSON.stringify(reservas)
+
+        );
+
+    }
+
+    // Abre a Tela 12
+
+    window.location.href = "../HTML/TelaPagamentoUtilizacao.html";
+
+});
+
+// =====================================================
+// VOLTAR
+// =====================================================
+
+voltar.addEventListener("click", function () {
+
+    history.back();
+
+});
+</script>
+
+
+</body>
+
+
+</html>

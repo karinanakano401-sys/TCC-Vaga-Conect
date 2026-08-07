@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VagaConnect | Gerenciar Vagas</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../CSS/TelaVagas.css">
+</head>
+
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="logo">
+       <i class="fa-solid fa-layer-group"></i>
+       <span>Vaga</span>Connect
+     </div>
+
+      <nav>
+        <a href="../HTML/TelaADM.html"><i data-icon="grid"></i>Dashboard</a>
+        <a href="../HTML/TelaEstacionamento.html"><i data-icon="building"></i>Estacionamentos</a>
+        <a class="active" href="#"><i data-icon="car"></i>Vagas</a>
+        <a href="../HTML/TelaReservas.html"><i data-icon="calendar"></i>Reservas</a>
+        <a href="../HTML/TelaUsuarios.html"><i data-icon="users"></i>Usuários</a>
+        <a href="../HTML/TelaFuncionarios.html"><i data-icon="briefcase"></i>Funcionários</a>
+        <a href="../HTML/TelaFeedback.html"><i data-icon="message"></i>Feedbacks</a>
+        <a href="../HTML/TelaPagamentos.html"><i data-icon="credit-card"></i>Pagamentos</a>
+        <a href="../HTML/TelaFaturamento.html"><i data-icon="chart"></i>Faturamento</a>
+        <a href="../HTML/TelaConfigurações.html"><i data-icon="settings"></i>Configurações</a>
+        <a href="/Base/HTML/Abertura.html"><i data-icon="log-out"></i>Sair</a>
+      </nav>
+
+      <div class="profile">
+        <span class="avatar">A</span>
+
+        <div>
+          <strong>Administrador</strong>
+          <small>admin</small>
+        </div>
+
+        <i data-icon="more-vertical"></i>
+      </div>
+    </aside>
+
+    <main class="content">
+      <header class="topbar">
+        <button class="menu-button" id="menuButton">
+          <i data-icon="menu"></i>
+        </button>
+
+        <div>
+          <h1>Vagas</h1>
+          <p>Gerencie as vagas disponíveis nos estacionamentos.</p>
+        </div>
+
+      <a href="../HTML/CadasVagas.html">
+        <button class="primary-button" id="newSpot">
+        
+          <i data-icon="plus"></i>
+          Adicionar vaga
+        </button>
+      </a>  
+      </header>
+
+      <section class="panel">
+        <div class="toolbar">
+          <label>
+            Estacionamento
+            <select id="parkingFilter">
+              <option value="">Todos</option>
+              <option>CenterPark</option>
+              <option>Shopping Plaza</option>
+            </select>
+          </label>
+
+          <label>
+            Status
+            <select id="statusFilter">
+              <option value="">Todos</option>
+              <option>Livre</option>
+              <option>Ocupada</option>
+              <option>Reservada</option>
+            </select>
+          </label>
+
+          <label class="search-box">
+            <i data-icon="search"></i>
+            <input id="searchInput" type="search" placeholder="Buscar vaga...">
+          </label>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Número</th>
+                <th>Tipo</th>
+                <th>Estacionamento</th>
+                <th>Status</th>
+                <th class="actions-title">Ações</th>
+              </tr>
+            </thead>
+
+            <tbody id="spotRows"></tbody>
+          </table>
+        </div>
+
+        <p class="table-count" id="tableCount"></p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    let spots = JSON.parse(localStorage.getItem("vagas")) || [
+  ["01", "Comum", "CenterPark", "Livre"],
+  ["02", "PCD", "CenterPark", "Ocupada"],
+  ["03", "Comum", "CenterPark", "Livre"],
+  ["04", "Comum", "CenterPark", "Reservada"],
+  ["05", "PCD", "CenterPark", "Livre"],
+  ["06", "Comum", "CenterPark", "Ocupada"]
+];
+
+    const icons = {
+      grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
+
+      building: '<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 7h1m3 0h1m3 0h1M8 11h1m3 0h1m3 0h1M8 15h1m3 0h1m3 0h1M10 21v-3h4v3"/>',
+
+      car: '<path d="M5 17H3v-4l2-5h14l2 5v4h-2M5 17h14M7 17v2m10-2v2M5 13h14"/><circle cx="7" cy="15" r="1"/><circle cx="17" cy="15" r="1"/>',
+
+      calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>',
+
+      users: '<circle cx="9" cy="8" r="3"/><path d="M3 21v-2a6 6 0 0 1 12 0v2M16 4a3 3 0 0 1 0 6M21 21v-2a6 6 0 0 0-3-5.2"/>',
+
+      briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5h8v2M3 12h18M10 12v2h4v-2"/>',
+
+      message: '<path d="M21 11.5a8 8 0 0 1-8.5 8 9 9 0 0 1-4-.9L3 20l1.4-4A8 8 0 1 1 21 11.5Z"/>',
+
+      "credit-card": '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h2"/>',
+
+      chart:'<path d="M4 19V5"/>'+'<path d="M4 19h16"/>'+'<path d="M8 15v-3"/>'+'<path d="M12 15V8"/>'+'<path d="M16 15V5"/>',
+
+  
+
+      file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h6"/>',
+      
+
+      settings: '<circle cx="12" cy="12" r="3"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4m0-14.2-1.4 1.4M6.3 17.7l-1.4 1.4"/>',
+
+      "log-out": '<path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-5"/>',
+
+      "more-vertical": '<circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>',
+
+      menu: '<path d="M4 6h16M4 12h16M4 18h16"/>',
+
+      plus: '<path d="M12 5v14M5 12h14"/>',
+
+      search: '<circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/>',
+
+      edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/>',
+
+      trash: '<path d="M3 6h18M8 6V4h8v2M19 6l-1 15H6L5 6M10 11v6m4-6v6"/>'
+    };
+
+    const svg = (name) => `
+      <svg viewBox="0 0 24 24"
+           fill="none"
+           stroke="currentColor"
+           stroke-width="1.8"
+           stroke-linecap="round"
+           stroke-linejoin="round">
+        ${icons[name]}
+      </svg>
+    `;
+
+    document.querySelectorAll("i[data-icon]").forEach((icon) => {
+      icon.outerHTML = svg(icon.dataset.icon);
+    });
+
+    const rows = document.querySelector("#spotRows");
+    const count = document.querySelector("#tableCount");
+
+    function render(data) {
+      rows.innerHTML = data.map(([number, type, parking, status], index) => `
+        <tr>
+          <td>${number}</td>
+          <td>${type}</td>
+          <td>${parking}</td>
+          <td>
+            <span class="status ${status.toLowerCase()}">
+              ${status}
+            </span>
+          </td>
+          <td class="row-actions">
+            <button title="Editar">${svg("edit")}</button>
+            <button class="delete" onclick="excluir(${index})" title="Excluir"> ${svg("trash")}</button>
+          </td>
+        </tr>
+      `).join("");
+
+      count.textContent = `Mostrando ${data.length} de ${spots.length} vagas`;
+    }
+
+    function filter() {
+      const search = document.querySelector("#searchInput").value.toLowerCase();
+      const parking = document.querySelector("#parkingFilter").value;
+      const status = document.querySelector("#statusFilter").value;
+
+      const filtered = spots.filter((spot) => {
+        return (
+          spot.join(" ").toLowerCase().includes(search) &&
+          (!parking || spot[2] === parking) &&
+          (!status || spot[3] === status)
+        );
+      });
+
+      render(filtered);
+    }
+
+    function excluir(index){
+
+    if(confirm("Deseja excluir esta vaga?")){
+
+        spots.splice(index,1);
+
+        localStorage.setItem("vagas", JSON.stringify(spots));
+
+        render(spots);
+    }
+
+}
+
+    render(spots);
+
+    ["searchInput", "parkingFilter", "statusFilter"].forEach((id) => {
+      document.querySelector(`#${id}`).addEventListener("input", filter);
+    });
+
+    document.querySelector("#menuButton").addEventListener("click", () => {
+      document.querySelector("#sidebar").classList.toggle("open");
+    });
+
+    document.querySelector("#newSpot").addEventListener("click", () => {
+      alert("Abrir cadastro de vaga");
+    });
+  </script>
+</body>
+</html>

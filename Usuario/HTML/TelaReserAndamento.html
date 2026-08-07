@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>
+VagaConnect | Minha Reserva
+</title>
+
+
+<link rel="stylesheet" href="../CSS/TelaReserAndamento.css">
+
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+rel="stylesheet">
+
+
+</head>
+
+
+<body>
+
+
+
+<div class="screen">
+
+
+
+<div class="box">
+
+
+
+
+
+<div class="header">
+
+
+<button id="voltar">
+
+←
+
+</button>
+
+
+<span>
+
+Minha Reserva
+
+</span>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="reservation-card">
+
+
+
+<div class="status">
+
+
+<span>
+
+◉
+
+</span>
+
+
+Reservada
+
+
+</div>
+
+
+
+
+
+
+<h2>
+
+Estacionamento Central
+
+</h2>
+
+
+
+
+
+<p>
+
+Piso 1 - Vaga 42 (Coberta)
+
+</p>
+
+
+
+
+
+
+
+
+<div class="info">
+
+
+<div>
+
+<span>
+
+Entrada
+
+</span>
+
+
+<strong id="entrada">
+
+18/06/2026 - 18:00
+
+</strong>
+
+</div>
+
+
+
+
+
+<div>
+
+<span>
+
+Saída prevista
+
+</span>
+
+
+<strong id="saida">
+
+18/06/2026 - 22:00
+
+</strong>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<div class="timer-box">
+
+
+<p>
+
+Tempo restante
+
+</p>
+
+
+<h1 id="timer">
+
+00 : 35 : 12
+
+</h1>
+
+
+
+<div class="labels">
+
+<span>
+
+Hora
+
+</span>
+
+
+<span>
+
+Min
+
+</span>
+
+
+<span>
+
+Seg
+
+</span>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+<p class="warning">
+
+Chegue até 18:15 para confirmar<br>
+
+sua chegada.
+
+</p>
+
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<button class="extend" id="prorrogar">
+
+Solicitar prorrogação
+
+</button>
+
+<a href="../HTML/TelaReservaAtiva.html">
+<button class="extend">
+Tela Temporária ( dps da confirmação de presença) 
+
+</button>
+</a>
+
+
+
+
+
+<button class="cancel" id="cancelar">
+
+Cancelar reserva
+
+</button>
+
+
+
+
+
+</div>
+
+
+
+
+</div>
+
+
+
+
+<script>
+    // =====================================================
+// ELEMENTOS
+// =====================================================
+
+
+const entrada = document.getElementById("entrada");
+
+const saida = document.getElementById("saida");
+
+const timer = document.getElementById("timer");
+
+
+const botaoProrrogar = document.getElementById("prorrogar");
+
+const botaoCancelar = document.getElementById("cancelar");
+
+const voltar = document.getElementById("voltar");
+
+
+
+
+// =====================================================
+// PEGAR RESERVA SALVA
+// =====================================================
+
+
+let reservas = JSON.parse(
+
+    localStorage.getItem("reservas")
+
+) || [];
+
+
+
+
+
+let reservaAtual = reservas[reservas.length - 1];
+
+
+
+
+
+// =====================================================
+// CARREGAR DADOS
+// =====================================================
+
+
+function carregarReserva(){
+
+
+
+    if(!reservaAtual){
+
+
+        console.log(
+
+        "Nenhuma reserva encontrada"
+
+        );
+
+
+        return;
+
+
+    }
+
+
+
+
+
+    let dados = 
+
+    reservaAtual.dados?.reserva || {};
+
+
+
+
+
+
+
+    // Entrada
+
+
+    if(dados.entrada){
+
+
+        entrada.textContent = dados.entrada;
+
+
+    }
+
+
+
+
+
+
+    // Saída
+
+
+    if(dados.saida){
+
+
+        saida.textContent = dados.saida;
+
+
+    }
+
+
+
+
+}
+
+
+
+
+carregarReserva();
+
+
+
+
+
+
+
+// =====================================================
+// CONTADOR
+// =====================================================
+
+
+
+let segundos = 35 * 60 + 12;
+
+
+
+
+
+function iniciarTimer(){
+
+
+
+    setInterval(()=>{
+
+
+
+        if(segundos <= 0){
+
+
+            timer.textContent = "00 : 00 : 00";
+
+
+            return;
+
+
+        }
+
+
+
+
+        segundos--;
+
+
+
+
+
+        let horas = Math.floor(
+
+            segundos / 3600
+
+        );
+
+
+
+        let minutos = Math.floor(
+
+            (segundos % 3600) / 60
+
+        );
+
+
+
+        let seg = segundos % 60;
+
+
+
+
+
+
+        timer.textContent =
+
+
+        formatar(horas)
+
+        +
+
+        " : "
+
+        +
+
+        formatar(minutos)
+
+        +
+
+        " : "
+
+        +
+
+        formatar(seg);
+
+
+
+
+
+    },1000);
+
+
+
+}
+
+
+
+
+
+function formatar(valor){
+
+
+    return valor
+
+    .toString()
+
+    .padStart(2,"0");
+
+
+}
+
+
+
+
+
+iniciarTimer();
+
+
+
+
+
+
+
+
+
+// =====================================================
+// SOLICITAR PRORROGAÇÃO
+// =====================================================
+
+
+botaoProrrogar.onclick = ()=>{
+
+
+
+    let confirmar = confirm(
+
+        "Deseja solicitar mais tempo para sua reserva?"
+
+    );
+
+
+
+
+    if(confirmar){
+
+
+
+        alert(
+
+        "Solicitação enviada com sucesso!"
+
+        );
+
+
+
+    }
+
+
+
+};
+
+
+
+
+
+
+
+
+
+// =====================================================
+// CANCELAR RESERVA
+// =====================================================
+
+
+botaoCancelar.onclick = ()=>{
+
+
+
+    let confirmar = confirm(
+
+    "Deseja cancelar sua reserva?"
+
+    );
+
+
+
+
+
+
+    if(confirmar){
+
+
+
+        if(reservaAtual){
+
+
+
+            reservaAtual.status = "Cancelada";
+
+
+
+
+
+            localStorage.setItem(
+
+                "reservas",
+
+                JSON.stringify(reservas)
+
+            );
+
+
+
+        }
+
+
+
+
+
+
+        alert(
+
+        "Reserva cancelada."
+
+        );
+
+
+
+
+
+        window.location.href =
+
+        "TelaInicio.html";
+
+
+
+    }
+
+
+
+};
+
+
+
+
+
+
+
+// =====================================================
+// VOLTAR
+// =====================================================
+
+
+voltar.onclick = ()=>{
+
+
+    history.back();
+
+
+};
+</script>
+
+
+</body>
+
+
+</html>

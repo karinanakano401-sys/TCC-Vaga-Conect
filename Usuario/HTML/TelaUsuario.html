@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VagaConnect Dashboard</title>
+
+<link rel="stylesheet" href="../CSS/TelaUsuario.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Navbar -->
+
+    <header class="navbar">
+
+        <div class="logo">
+            <i class="fa-solid fa-layer-group"></i>
+            <span>Vaga</span>Connect
+        </div>
+
+        <nav>
+
+
+            <a href="../HTML/TelaConta.html">
+                <i class="fa-regular fa-user"></i>
+                Conta
+            </a>
+
+            <a href="#" id="btnSair">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                Sair
+            </a>
+
+        </nav>
+
+    </header>
+
+    <!-- Hero -->
+
+    <section class="hero">
+
+        <div class="hero-content">
+
+            <h1>Olá, Usuário </h1>
+
+            <p>
+                Gerencie reservas, pagamentos e veículos em um único painel moderno,
+                rápido e inteligente.
+            </p>
+
+            <a href="../HTML/TelaConta.html">
+            <button>Perfil Usuário</button>
+            </a>
+
+        </div>
+
+        <div class="avatar-box">
+
+            <i class="fa-regular fa-user"></i>
+
+        </div>
+
+    </section>
+
+    <!-- Título -->
+
+    <div class="title-section">
+
+        <div class="line"></div>
+
+        <div>
+            <h2>Painel de Controle</h2>
+            <p>Acesse rapidamente todas as funcionalidades do sistema.</p>
+        </div>
+
+    </div>
+
+    <!-- Cards -->
+
+    <section class="cards">
+      
+
+        <div class="card"> 
+
+            <div class="icon blue">
+                <i class="fa-solid fa-calendar-days"></i>
+            </div>
+
+            <span class="badge green">Ativo</span>
+
+            <h3>Reservas</h3>
+
+            <p>
+                Faça sua reserva aqui.
+            </p>
+
+          <a href="../HTML/TelaReservas.html"> 
+            <button>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </a>  
+
+        </div>
+
+        <div class="card">
+
+            <div class="icon green">
+                <i class="fa-regular fa-credit-card"></i>
+            </div>
+
+            <span class="badge green">Seguro</span>
+
+            <h3>Meus status</h3>
+
+            <p>
+                Veja as suas reservas atual.
+            </p>
+
+            <a href="../HTML/TelaReserAndamento.html">
+            <button>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+            </a>
+
+        </div>
+
+        <div class="card">
+
+            <div class="icon purple">
+                <i class="fa-solid fa-location-dot"></i>
+            </div>
+
+            <span class="badge blue">Mapa</span>
+
+            <h3>Locais</h3>
+
+            <p>
+                Visualize estacionamentos e vagas próximas.
+            </p>
+            
+          <a href="../HTML/TelaLocais.html">  
+            <button>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </a>  
+
+        </div>
+
+        <div class="card">
+
+            <div class="icon car">
+                <i class="fa-solid fa-car"></i>
+            </div>
+
+            <span class="badge blue">Veículos</span>
+
+            <h3>Meus Veículos</h3>
+
+            <p>
+                Cadastre e gerencie seus veículos facilmente.
+            </p>
+            
+          <a href="../HTML/TelaVeiculos.html">  
+            <button>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </a>  
+
+        </div>
+
+        <div class="card">
+
+            <div class="icon yellow">
+                <i class="fa-solid fa-star"></i>
+            </div>
+
+            <span class="badge orange">Avaliações</span>
+
+            <h3>Feedbacks</h3>
+
+            <p>
+                Avalie e veja o feedback de outros usuários.
+            </p>
+
+          <a href="../HTML/TelaFeedbacks.html"> 
+            <button>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </a>  
+
+        </div>
+
+        
+
+    </section>
+
+    <script>
+        
+// ===============================
+// SAIR DA CONTA
+// ===============================
+
+const btnSair = document.getElementById("btnSair");
+
+btnSair.addEventListener("click", function (event) {
+
+    event.preventDefault();
+
+    const confirmar = confirm(
+        "Tem certeza que deseja sair da sua conta?"
+    );
+
+    if (confirmar) {
+
+        // Limpa os dados, se desejar
+        // localStorage.clear();
+
+        window.location.href = "../../Base/HTML/Abertura.html";
+
+    }
+
+});
+    </script>
+
+
+
+</div>
+</body>
+</html>

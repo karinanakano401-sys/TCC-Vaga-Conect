@@ -1,0 +1,502 @@
+/* =====================================================
+RESET
+===================================================== */
+
+*{
+
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+
+}
+
+
+
+body{
+
+    font-family:'Poppins',sans-serif;
+
+    background:#031426;
+
+    color:white;
+
+    min-height:100vh;
+
+}
+
+
+
+
+
+
+
+/* =====================================================
+CONTAINER
+===================================================== */
+
+
+.container{
+
+
+    width:100%;
+
+    min-height:100vh;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    padding:25px;
+
+
+}
+
+
+
+
+
+
+
+
+/* =====================================================
+CARD PRINCIPAL
+===================================================== */
+
+
+.card{
+
+
+    width:850px;
+
+    min-height:600px;
+
+    background:#061a30;
+
+
+    border:1px solid rgba(255,255,255,.12);
+
+
+    border-radius:18px;
+
+
+    padding:30px;
+
+
+    box-shadow:
+
+    0 15px 40px rgba(0,0,0,.45);
+
+
+}
+
+
+
+
+
+
+
+
+/* =====================================================
+TITULO
+===================================================== */
+
+
+.titulo{
+
+
+    font-size:12px;
+
+    font-weight:600;
+
+    margin-bottom:20px;
+
+
+}
+
+
+
+
+
+
+
+/* =====================================================
+HEADER
+===================================================== */
+
+
+.header{
+
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+    margin-bottom:25px;
+
+
+}
+
+
+
+.header span{
+
+
+    font-size:20px;
+
+    font-weight:500;
+
+
+}
+
+
+
+
+
+#voltar{
+
+
+    background:none;
+
+    border:none;
+
+    color:white;
+
+    font-size:28px;
+
+    cursor:pointer;
+
+
+}
+
+
+
+
+
+
+
+
+/* =====================================================
+SUBTITULO
+===================================================== */
+
+
+.subtitle{
+
+
+    text-align:center;
+
+    color:#91a7c6;
+
+    font-size:14px;
+
+    margin:20px 0;
+
+
+}
+
+
+
+
+
+
+
+
+/* =====================================================
+TEMPO
+===================================================== */
+
+
+.time-card{
+
+
+    background:#0b223d;
+
+    border-radius:15px;
+
+    padding:30px;
+
+    text-align:center;
+
+    border:1px solid rgba(255,255,255,.06);
+
+
+}
+
+
+
+
+
+
+
+.time-card span{
+
+
+    color:#91a7c6;
+
+    font-size:13px;
+
+
+}
+
+
+
+
+
+
+
+.time-card h1{
+
+
+    margin-top:15px;
+
+    font-size:50px;
+
+    letter-spacing:6px;
+
+    font-weight:500;
+
+
+}
+
+
+
+
+
+
+
+
+/* =====================================================
+VALORES
+===================================================== */
+
+
+.price-card{
+
+
+    background:#0b223d;
+
+    margin-top:25px;
+
+    padding:25px;
+
+    border-radius:15px;
+
+
+}
+
+
+
+
+
+
+.price-card div{
+
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:15px 0;
+
+
+}
+
+
+
+
+
+
+
+.price-card span{
+
+
+    color:#91a7c6;
+
+    font-size:13px;
+
+
+}
+
+
+
+
+
+
+
+.price-card strong{
+
+
+    font-size:15px;
+
+    font-weight:500;
+
+
+}
+
+
+
+
+
+
+
+.price-card hr{
+
+
+    border:none;
+
+    height:1px;
+
+    background:rgba(255,255,255,.08);
+
+    margin:12px 0;
+
+
+}
+
+
+
+
+
+
+
+
+/* =====================================================
+TOTAL
+===================================================== */
+
+
+.total span{
+
+
+    color:white;
+
+    font-weight:500;
+
+
+}
+
+
+
+
+.total strong{
+
+
+    font-size:24px;
+
+    font-weight:600;
+
+
+}
+
+
+
+
+
+
+
+
+/* =====================================================
+BOTÃO FINALIZAR
+===================================================== */
+
+
+#finalizar{
+
+
+    width:100%;
+
+
+    height:55px;
+
+
+    margin-top:30px;
+
+
+    border:none;
+
+
+    border-radius:10px;
+
+
+    background:#22c55e;
+
+
+    color:white;
+
+
+    font-family:'Poppins';
+
+
+    font-size:15px;
+
+
+    font-weight:600;
+
+
+    cursor:pointer;
+
+
+    transition:.3s;
+
+
+}
+
+
+
+
+
+
+
+#finalizar:hover{
+
+
+    background:#16a34a;
+
+
+}
+
+
+
+
+
+
+
+
+/* =====================================================
+RESPONSIVO
+===================================================== */
+
+
+@media(max-width:900px){
+
+
+
+.card{
+
+
+    width:95%;
+
+
+}
+
+
+
+
+
+.time-card h1{
+
+
+    font-size:35px;
+
+
+}
+
+
+
+}

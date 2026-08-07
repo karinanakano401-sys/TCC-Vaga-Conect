@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VagaConnect - Feedback</title>
+
+<link rel="stylesheet" href="../CSS/TelaFeedbacks.css">
+<link rel="stylesheet"href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+
+<body>
+
+<div class="container">
+
+ <!-- Navbar -->
+
+    <header class="navbar">
+
+        <div class="logo">
+            <i class="fa-solid fa-layer-group"></i>
+            <span>Vaga</span>Connect
+        </div>
+
+        <nav>
+
+
+            <a href="../HTML/TelaUsuario.html">
+                <i class="fa-regular fa-user"></i>
+                Painel
+            </a>
+
+            <a href="#" id="btnSair">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                Sair
+            </a>
+
+        </nav>
+
+    </header>
+
+
+<section class="hero">
+
+    <div class="hero-left">
+
+        <h1>Feedbacks </h1>
+
+        <p>
+            Sua experiência é importante para nós.
+            Avalie o sistema, envie sugestões, relate problemas
+            ou compartilhe sua opinião para que possamos melhorar
+            continuamente o VagaConnect.
+        </p>
+
+        <div class="badge">
+            Canal Direto com a Administração
+        </div>
+
+    </div>
+
+
+
+</section>
+
+<section class="feedback-box">
+
+    <h2>Enviar Feedback</h2>
+
+    <form>
+
+        <div class="form-grid">
+
+            <div class="input-group">
+                <label>Assunto</label>
+                <input type="text" placeholder="Ex: Problema na Reserva">
+            </div>
+
+            <div class="input-group">
+                <label>Categoria</label>
+
+                <select>
+                    <option>Sugestão</option>
+                    <option>Elogio</option>
+                    <option>Problema</option>
+                    <option>Dúvida</option>
+                </select>
+            </div>
+
+            <div class="input-group full">
+
+                <label>Sua Avaliação</label>
+
+                <div class="rating">
+
+                    <input type="radio" id="star5" name="rating">
+                    <label for="star5">★</label>
+
+                    <input type="radio" id="star4" name="rating">
+                    <label for="star4">★</label>
+
+                    <input type="radio" id="star3" name="rating">
+                    <label for="star3">★</label>
+
+                    <input type="radio" id="star2" name="rating">
+                    <label for="star2">★</label>
+
+                    <input type="radio" id="star1" name="rating">
+                    <label for="star1">★</label>
+
+                </div>
+
+                <span class="rating-text">
+                    Clique nas estrelas para avaliar sua experiência.
+                </span>
+
+            </div>
+
+            <div class="input-group full">
+                <label>Mensagem</label>
+
+                <textarea placeholder="Conte-nos sua experiência ou sugestão..."></textarea>
+            </div>
+
+        </div>
+
+        <div class="status-card">
+            <span> Feedback enviado diretamente para o painel do administrador.</span>
+            <strong>Status: Aguardando envio</strong>
+        </div>
+
+        <button type="submit" class="send-btn">
+             Enviar Feedback
+        </button>
+
+    </form>
+
+</section>
+
+</div>
+
+<script>
+    // ===============================
+// SAIR DA CONTA
+// ===============================
+
+const btnSair = document.getElementById("btnSair");
+
+btnSair.addEventListener("click", function (event) {
+
+    event.preventDefault();
+
+    const confirmar = confirm(
+        "Tem certeza que deseja sair da sua conta?"
+    );
+
+    if (confirmar) {
+
+        // Limpa os dados, se desejar
+        // localStorage.clear();
+
+        window.location.href = "../../Base/HTML/Abertura.html";
+
+    }
+
+});
+</script>
+
+</body>
+</html>

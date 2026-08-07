@@ -1,0 +1,213 @@
+/* ==============================
+RESET
+============================== */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+/* ==============================
+BODY (PERMITE SCROLL)
+============================== */
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    background:linear-gradient(135deg,#0f172a,#1e293b,#2563eb);
+    overflow-y:auto;
+    padding:40px 20px;
+}
+
+/* ==============================
+FUNDO
+============================== */
+.bg{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:url('https://images.unsplash.com/photo-1494526585095-c41746248156?q=80&w=1974&auto=format&fit=crop') center/cover;
+    opacity:0.15;
+    filter:blur(2px);
+    z-index:-1;
+}
+
+/* ==============================
+CARD PRINCIPAL (MAIOR E MODERNO)
+============================== */
+.container{
+    width:100%;
+    max-width:900px;
+    background:rgba(255,255,255,0.10);
+    backdrop-filter:blur(18px);
+    border:1px solid rgba(255,255,255,0.2);
+    border-radius:25px;
+    padding:40px 50px;
+    color:white;
+    box-shadow:0 15px 50px rgba(0,0,0,0.5);
+    animation:fade 0.6s ease;
+}
+
+/* animação */
+@keyframes fade{
+    from{
+        opacity:0;
+        transform:translateY(20px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+/* ==============================
+LOGO
+============================== */
+.logo{
+    text-align:center;
+    margin-bottom:30px;
+}
+
+.logo h1{
+    font-size:44px;
+}
+
+.logo span{
+    color:#60a5fa;
+}
+
+.logo p{
+    color:#dbeafe;
+    margin-top:5px;
+}
+
+/* ==============================
+BOTÕES TOGGLE
+============================== */
+.toggle-buttons{
+    display:flex;
+    gap:15px;
+    margin-bottom:25px;
+}
+
+.toggle-buttons button{
+    flex:1;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:rgba(255,255,255,0.1);
+    color:white;
+    cursor:pointer;
+    font-weight:bold;
+    transition:0.3s;
+}
+
+.toggle-buttons button:hover{
+    background:#2563eb;
+}
+
+.toggle-buttons button.active{
+    background:#2563eb;
+    transform:scale(1.05);
+}
+
+/* ==============================
+TEXTO
+============================== */
+.tipo-cadastro{
+    text-align:center;
+    margin-bottom:25px;
+    color:#dbeafe;
+    font-weight:bold;
+    font-size:18px;
+}
+
+/* ==============================
+FORMULÁRIO (MAIS ESPAÇO)
+============================== */
+#formulario{
+    display:flex;
+    flex-direction:column;
+}
+
+/* ==============================
+INPUTS
+============================== */
+.input-box{
+    margin-bottom:16px;
+}
+
+.input-box label{
+    display:block;
+    margin-bottom:6px;
+    font-weight:bold;
+}
+
+.input-box input{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:rgba(255,255,255,0.15);
+    color:white;
+    outline:none;
+    font-size:15px;
+}
+
+.input-box input::placeholder{
+    color:#e2e8f0;
+}
+
+/* ==============================
+BOTÃO
+============================== */
+.btn{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:12px;
+    background:#2563eb;
+    color:white;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.3s;
+    margin-top:10px;
+}
+
+.btn:hover{
+    background:#1d4ed8;
+    transform:scale(1.02);
+}
+
+/* ==============================
+LINK EXTRA
+============================== */
+.extra{
+    text-align:center;
+    margin-top:18px;
+    color:#dbeafe;
+}
+
+.extra a{
+    color:#93c5fd;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+/* ==============================
+RESPONSIVO (CELULAR)
+============================== */
+@media (max-width:768px){
+    .container{
+        padding:25px;
+    }
+
+    .logo h1{
+        font-size:32px;
+    }
+}

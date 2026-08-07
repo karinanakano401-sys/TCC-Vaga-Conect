@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>VagaConnect | Faturamento</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../CSS/TelaFaturamento.css">
+
+</head>
+
+<body>
+
+    <div class="app-shell">
+
+        <!-- ========================= -->
+        <!-- SIDEBAR -->
+        <!-- ========================= -->
+
+        <aside class="sidebar">
+
+            <div class="logo">
+       <i class="fa-solid fa-layer-group"></i>
+       <span>Vaga</span>Connect
+     </div>
+
+            <nav>
+
+                <a href="../HTML/TelaADM.html">
+                    <i data-icon="grid"></i>
+                    Dashboard
+                </a>
+
+                <a href="../HTML/TelaEstacionamento.html">
+                    <i data-icon="building"></i>
+                    Estacionamentos
+                </a>
+
+                <a href="../HTML/TelaVagas.html">
+                    <i data-icon="car"></i>
+                    Vagas
+                </a>
+
+                <a href="../HTML/TelaReservas.html">
+                    <i data-icon="calendar"></i>
+                    Reservas
+                </a>
+
+                <a href="../HTML/TelaUsuarios.html">
+                    <i data-icon="users"></i>
+                    Usuários
+                </a>
+
+                <a href="../HTML/TelaFuncionarios.html">
+                    <i data-icon="briefcase"></i>
+                    Funcionários
+                </a>
+
+                <a href="../HTML/TelaFeedback.html">
+                    <i data-icon="message"></i>
+                    Feedbacks
+                </a>
+
+                <a href="../HTML/TelaPagamentos.html">
+                    <i data-icon="credit-card"></i>
+                    Pagamentos
+                </a>
+
+                <a class="active">
+                    <i data-icon="chart"></i>
+                    Faturamento
+                </a>
+
+                <a href="../HTML/TelaConfigurações.html">
+                    <i data-icon="settings"></i>
+                    Configurações
+                </a>
+
+                <a href="../../Base/HTML/Abertura.html">
+                    <i data-icon="log-out"></i>
+                    Sair
+                </a>
+
+            </nav>
+
+            <div class="profile">
+
+                <span class="avatar">
+                    A
+                </span>
+
+                <div>
+                    <strong>Administrador</strong>
+                    <small>admin</small>
+                </div>
+
+            </div>
+
+        </aside>
+
+        <!-- ========================= -->
+        <!-- CONTEÚDO -->
+        <!-- ========================= -->
+
+        <main class="content">
+
+            <!-- Topo -->
+
+            <header class="topbar">
+
+                <div>
+
+                    <h1>Faturamento</h1>
+
+                    <p>
+                        Controle financeiro dos estacionamentos e reservas.
+                    </p>
+
+                </div>
+
+                <button class="primary-button" id="exportar">
+
+                    <i data-icon="download"></i>
+
+                    Exportar relatório
+
+                </button>
+
+            </header>
+
+            <!-- Cards -->
+
+            <section class="cards">
+
+                <div class="card">
+
+                    <span>Faturamento do mês</span>
+
+                    <h2 id="totalMes">
+                        R$ 0,00
+                    </h2>
+
+                    <p>
+                        Receita total recebida
+                    </p>
+
+                </div>
+
+                <div class="card">
+
+                    <span>Reservas realizadas</span>
+
+                    <h2 id="totalReservas">
+                        0
+                    </h2>
+
+                    <p>
+                        No período selecionado
+                    </p>
+
+                </div>
+
+                <div class="card">
+
+                    <span>Ticket médio</span>
+
+                    <h2 id="ticketMedio">
+                        R$ 0,00
+                    </h2>
+
+                    <p>
+                        Valor médio por reserva
+                    </p>
+
+                </div>
+
+                <div class="card">
+
+                    <span>Crescimento</span>
+
+                    <h2 class="green">
+                        +12%
+                    </h2>
+
+                    <p>
+                        Comparado ao mês anterior
+                    </p>
+
+                </div>
+
+            </section>
+
+            <!-- Painel -->
+
+            
+
+                <!-- Filtros -->
+
+                <div class="filters">
+
+                    <label>
+
+                        Mês
+
+                        <select id="mes">
+                            <option value="5">Maio</option>
+                            <option value="6">Junho</option>
+                            <option value="7">Julho</option>
+                        </select>
+
+                    </label>
+
+                    <label>
+
+                        Ano
+
+                        <select id="ano">
+                            <option>2025</option>
+                            <option>2026</option>
+                        </select>
+
+                    </label>
+
+                    <input
+                        type="text"
+                        id="buscar"
+                        placeholder="Buscar cliente ou reserva..."
+                    >
+
+                </div>
+
+                <!-- Tabela -->
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Cliente</th>
+                            <th>Reserva</th>
+                            <th>Estacionamento</th>
+                            <th>Pagamento</th>
+                            <th>Valor</th>
+                            <th>Data</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="faturamentoTabela">
+
+                        <!-- Conteúdo gerado pelo JavaScript -->
+
+                    </tbody>
+
+                </table>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        //======================================================
+// VAGACONNECT - TELA DE FATURAMENTO
+//======================================================
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    //==================================================
+    // DADOS
+    //==================================================
+
+    const dadosFaturamento = [
+
+        {
+            cliente: "Maria Eduarda",
+            reserva: "#1256",
+            estacionamento: "CenterPark",
+            pagamento: "Pix",
+            valor: 12,
+            data: "23/05/2025"
+        },
+
+        {
+            cliente: "João Silva",
+            reserva: "#1258",
+            estacionamento: "Shopping Plaza",
+            pagamento: "Cartão",
+            valor: 12,
+            data: "23/05/2025"
+        },
+
+        {
+            cliente: "Ana Paula",
+            reserva: "#1259",
+            estacionamento: "CenterPark",
+            pagamento: "Pix",
+            valor: 18,
+            data: "23/05/2025"
+        },
+
+        {
+            cliente: "Carlos Lima",
+            reserva: "#1260",
+            estacionamento: "Park Center",
+            pagamento: "Cartão",
+            valor: 18,
+            data: "22/05/2025"
+        },
+
+        {
+            cliente: "Fernanda Souza",
+            reserva: "#1261",
+            estacionamento: "Shopping Plaza",
+            pagamento: "Pix",
+            valor: 25,
+            data: "21/05/2025"
+        },
+
+        {
+            cliente: "Lucas Mendes",
+            reserva: "#1262",
+            estacionamento: "CenterPark",
+            pagamento: "Cartão",
+            valor: 20,
+            data: "20/05/2025"
+        },
+
+        {
+            cliente: "Beatriz Alves",
+            reserva: "#1263",
+            estacionamento: "Park Center",
+            pagamento: "Pix",
+            valor: 30,
+            data: "18/05/2025"
+        }
+
+    ];
+
+    //==================================================
+    // ELEMENTOS DA TELA
+    //==================================================
+
+    const tabela = document.getElementById("faturamentoTabela");
+
+    const totalMes = document.getElementById("totalMes");
+
+    const totalReservas = document.getElementById("totalReservas");
+
+    const ticketMedio = document.getElementById("ticketMedio");
+
+    const campoBusca = document.getElementById("buscar");
+
+    const botaoExportar = document.getElementById("exportar");
+
+
+
+    //==================================================
+    // FORMATAÇÃO
+    //==================================================
+
+    function formatarMoeda(valor) {
+
+        return "R$ " + valor.toFixed(2).replace(".", ",");
+
+    }
+
+
+
+    //==================================================
+    // RESUMO
+    //==================================================
+
+    function atualizarResumo(lista) {
+
+        const total = lista.reduce((soma, item) => soma + item.valor, 0);
+
+        const media = lista.length > 0
+            ? total / lista.length
+            : 0;
+
+        totalMes.textContent = formatarMoeda(total);
+
+        totalReservas.textContent = lista.length;
+
+        ticketMedio.textContent = formatarMoeda(media);
+
+    }
+
+
+
+    //==================================================
+    // TABELA
+    //==================================================
+
+    function carregarTabela(lista) {
+
+        tabela.innerHTML = "";
+
+        lista.forEach(item => {
+
+            const linha = document.createElement("tr");
+
+            linha.innerHTML = `
+
+                <td>${item.cliente}</td>
+
+                <td>${item.reserva}</td>
+
+                <td>${item.estacionamento}</td>
+
+                <td>${item.pagamento}</td>
+
+                <td>${formatarMoeda(item.valor)}</td>
+
+                <td>${item.data}</td>
+
+            `;
+
+            tabela.appendChild(linha);
+
+        });
+
+        atualizarResumo(lista);
+
+    }
+
+
+
+    //==================================================
+    // PESQUISA
+    //==================================================
+
+    campoBusca.addEventListener("input", () => {
+
+        const texto = campoBusca.value.toLowerCase();
+
+        const resultado = dadosFaturamento.filter(item =>
+
+            item.cliente.toLowerCase().includes(texto) ||
+
+            item.reserva.toLowerCase().includes(texto) ||
+
+            item.estacionamento.toLowerCase().includes(texto)
+
+        );
+
+        carregarTabela(resultado);
+
+    });
+
+
+
+
+    //==================================================
+    // EXPORTAR RELATÓRIO
+    //==================================================
+
+    botaoExportar.addEventListener("click", () => {
+
+        let relatorio = "";
+
+        relatorio += "RELATÓRIO DE FATURAMENTO\n";
+
+        relatorio += "=============================\n\n";
+
+        dadosFaturamento.forEach(item => {
+
+            relatorio +=
+
+                `Cliente: ${item.cliente}\n` +
+
+                `Reserva: ${item.reserva}\n` +
+
+                `Estacionamento: ${item.estacionamento}\n` +
+
+                `Pagamento: ${item.pagamento}\n` +
+
+                `Valor: ${formatarMoeda(item.valor)}\n` +
+
+                `Data: ${item.data}\n\n`;
+
+        });
+
+        const arquivo = new Blob(
+
+            [relatorio],
+
+            { type: "text/plain" }
+
+        );
+
+        const link = document.createElement("a");
+
+        link.href = URL.createObjectURL(arquivo);
+
+        link.download = "Relatorio_Faturamento.txt";
+
+        link.click();
+
+    });
+        //==================================================
+    // ÍCONES SVG
+    //==================================================
+
+    const icons = {
+
+grid:
+'<rect x="3" y="3" width="7" height="7"/>'+
+'<rect x="14" y="3" width="7" height="7"/>'+
+'<rect x="3" y="14" width="7" height="7"/>'+
+'<rect x="14" y="14" width="7" height="7"/>',
+
+
+building:
+'<rect x="4" y="3" width="16" height="18" rx="1"/>'+
+'<path d="M8 7h1m3 0h1m3 0h1M8 11h1m3 0h1m3 0h1M8 15h1m3 0h1m3 0h1M10 21v-3h4v3"/>',
+
+
+car:
+'<path d="M5 17H3v-4l2-5h14l2 5v4h-2M5 17h14M7 17v2m10-2v2M5 13h14"/>'+
+'<circle cx="7" cy="15" r="1"/>'+
+'<circle cx="17" cy="15" r="1"/>',
+
+
+calendar:
+'<rect x="3" y="5" width="18" height="16" rx="2"/>'+
+'<path d="M16 3v4M8 3v4M3 10h18"/>',
+
+
+users:
+'<circle cx="9" cy="8" r="3"/>'+
+'<path d="M3 21v-2a6 6 0 0 1 12 0v2"/>'+
+'<path d="M16 4a3 3 0 0 1 0 6"/>'+
+'<path d="M21 21v-2a6 6 0 0 0-3-5.2"/>',
+
+
+briefcase:
+'<rect x="3" y="7" width="18" height="13" rx="2"/>'+
+'<path d="M8 7V5h8v2M3 12h18M10 12v2h4v-2"/>',
+
+
+message:
+'<path d="M21 11.5a8 8 0 0 1-8.5 8 9 9 0 0 1-4-.9L3 20l1.4-4A8 8 0 1 1 21 11.5Z"/>',
+
+
+"credit-card":
+'<rect x="3" y="5" width="18" height="14" rx="2"/>'+
+'<path d="M3 10h18M7 15h2"/>',
+
+
+chart:
+'<path d="M4 19V5"/>'+
+'<path d="M4 19h16"/>'+
+'<path d="M8 15v-3"/>'+
+'<path d="M12 15V8"/>'+
+'<path d="M16 15V5"/>',
+
+
+settings:
+'<circle cx="12" cy="12" r="3"/>'+
+'<path d="M12 2v2m0 16v2M2 12h2m16 0h2"/>'+
+'<path d="M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4m0-14.2-1.4 1.4M6.3 17.7l-1.4 1.4"/>',
+
+
+"log-out":
+'<path d="M10 17l5-5-5-5"/>'+
+'<path d="M15 12H3"/>'+
+'<path d="M21 19V5a2 2 0 0 0-2-2h-5"/>',
+
+
+"more-vertical":
+'<circle cx="12" cy="5" r="1"/>'+
+'<circle cx="12" cy="12" r="1"/>'+
+'<circle cx="12" cy="19" r="1"/>',
+
+
+menu:
+'<path d="M4 6h16M4 12h16M4 18h16"/>',
+
+
+plus:
+'<path d="M12 5v14M5 12h14"/>',
+
+
+search:
+'<circle cx="11" cy="11" r="6"/>'+
+'<path d="m16 16 4 4"/>',
+
+
+download:
+'<path d="M12 3v12"/>'+
+'<path d="M8 11l4 4 4-4"/>'+
+'<path d="M5 21h14"/>'
+
+};
+
+
+    //==================================================
+    // SUBSTITUI <i> POR SVG
+    //==================================================
+
+    document.querySelectorAll("i[data-icon]").forEach(icon => {
+
+        const nome = icon.dataset.icon;
+
+        if (!icons[nome]) return;
+
+        icon.outerHTML = `
+            <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+
+                ${icons[nome]}
+
+            </svg>
+        `;
+
+    });
+
+
+
+    //==================================================
+    // INICIALIZAÇÃO
+    //==================================================
+
+    carregarTabela(dadosFaturamento);
+
+});
+    </script>
+
+</body>
+
+</html>

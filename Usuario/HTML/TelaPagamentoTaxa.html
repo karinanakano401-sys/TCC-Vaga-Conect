@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>
+VagaConnect | Pagamento Taxa
+</title>
+
+
+<link rel="stylesheet" href="../CSS/TelaPagamentoTaxa.css">
+
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+rel="stylesheet">
+
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+
+<main class="payment-card">
+
+
+
+<!-- CABEÇALHO -->
+
+<header>
+
+
+<button id="voltar">
+
+←
+
+</button>
+
+
+<div>
+
+<h2>
+Pagamento
+</h2>
+
+
+<p>
+Garantia de Reserva
+</p>
+
+</div>
+
+
+</header>
+
+
+
+
+
+<!-- GARANTIA -->
+
+
+<section class="guarantee">
+
+
+<div class="shield">
+
+<img src="../../IMG-ICO/icons8-taxa-50.png">
+
+</div>
+
+
+
+<div>
+
+<span>
+Valor da garantia
+</span>
+
+
+<h1>
+R$ 25,00
+</h1>
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+<!-- MÉTODOS -->
+
+
+<section class="methods">
+
+
+<h3>
+Escolha a forma de pagamento
+</h3>
+
+
+
+<div class="method active"
+data-payment="cartao">
+
+
+<div>
+
+<img src="../../IMG-ICO/icons8-cartão-50.png">
+
+</div>
+
+
+<div>
+
+<strong>
+Cartão de Crédito
+</strong>
+
+
+<p>
+Pague com seu cartão
+</p>
+
+
+</div>
+
+
+<span>
+
+●
+
+</span>
+
+
+</div>
+
+
+
+<div class="method"
+data-payment="pix">
+
+
+<div>
+
+<img src="../../IMG-ICO/icons8-foto-48.png">
+
+</div>
+
+
+<div>
+
+<strong>
+PIX
+</strong>
+
+
+<p>
+Pague com PIX
+</p>
+
+
+</div>
+
+
+<span>
+
+○
+
+</span>
+
+
+</div>
+
+
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- RESUMO -->
+
+
+<section class="summary">
+
+
+<h3>
+Resumo
+</h3>
+
+
+<div>
+
+<span>
+Garantia de reserva
+</span>
+
+
+<strong>
+R$ 25,00
+</strong>
+
+</div>
+
+
+
+<div>
+
+<span>
+Taxa de utilização
+</span>
+
+
+<strong>
+R$ 0,00
+</strong>
+
+</div>
+
+
+
+
+<hr>
+
+
+
+<div class="total">
+
+<span>
+Total agora
+</span>
+
+
+<strong>
+R$ 25,00
+</strong>
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- BOTÃO -->
+
+
+<button id="pagar">
+
+
+Pagar R$ 25,00
+
+
+</button>
+
+
+
+<p class="safe">
+
+Pagamento 100% seguro
+
+</p>
+
+
+
+
+</main>
+
+
+
+</div>
+
+
+
+
+<script>
+// =====================================================
+// ELEMENTOS
+// =====================================================
+
+
+const botoesPagamento = document.querySelectorAll(".method");
+
+const botaoPagar = document.getElementById("pagar");
+
+const botaoVoltar = document.getElementById("voltar");
+
+
+
+
+// =====================================================
+// VARIÁVEIS
+// =====================================================
+
+
+let formaPagamento = "cartao";
+
+
+
+let reserva = JSON.parse(
+
+    localStorage.getItem("reservaAtual")
+
+);
+
+
+
+
+// =====================================================
+// CARREGAR RESERVA
+// =====================================================
+
+
+if(reserva){
+
+
+    console.log("Reserva carregada:");
+
+    console.log(reserva);
+
+
+}
+
+
+
+
+
+
+
+// =====================================================
+// SELEÇÃO DE PAGAMENTO
+// =====================================================
+
+
+botoesPagamento.forEach(botao=>{
+
+
+    botao.addEventListener("click", ()=>{
+
+
+        // remove seleção
+
+        botoesPagamento.forEach(item=>{
+
+            item.classList.remove("active");
+
+            item.querySelector("span").textContent="○";
+
+        });
+
+
+
+        // adiciona seleção
+
+        botao.classList.add("active");
+
+
+        botao.querySelector("span").textContent="●";
+
+
+
+        formaPagamento = 
+
+        botao.dataset.payment;
+
+
+
+        atualizarBotao();
+
+
+
+    });
+
+
+
+});
+
+
+
+
+
+
+
+// =====================================================
+// ALTERAR TEXTO DO BOTÃO
+// =====================================================
+
+
+function atualizarBotao(){
+
+
+
+    switch(formaPagamento){
+
+
+        case "pix":
+
+
+            botaoPagar.textContent =
+
+            "Pagar com PIX R$ 10,00";
+
+
+        break;
+
+
+
+        case "dinheiro":
+
+
+            botaoPagar.textContent =
+
+            "Confirmar pagamento R$ 10,00";
+
+
+        break;
+
+
+
+        default:
+
+
+            botaoPagar.textContent =
+
+            "Pagar R$ 10,00";
+
+
+    }
+
+
+}
+
+
+
+
+
+
+// =====================================================
+// PAGAMENTO
+// =====================================================
+
+
+botaoPagar.onclick = ()=>{
+
+
+    const pagamento = {
+
+
+        status:"aprovado",
+
+
+        valor:10,
+
+
+        metodo:formaPagamento,
+
+
+        data:
+
+        new Date().toLocaleString(),
+
+
+
+        reserva:reserva
+
+
+
+    };
+
+
+
+
+
+    localStorage.setItem(
+
+        "pagamento",
+
+        JSON.stringify(pagamento)
+
+    );
+
+
+
+
+
+    alert(
+
+        "Pagamento realizado com sucesso!"
+
+    );
+
+
+
+
+
+    window.location.href =
+
+    "TelaReserConfirmada.html";
+
+
+
+};
+
+
+
+
+
+
+
+// =====================================================
+// VOLTAR
+// =====================================================
+
+
+botaoVoltar.onclick = ()=>{
+
+
+    history.back();
+
+
+};
+
+
+
+
+
+
+// =====================================================
+// PROTEÇÃO
+// =====================================================
+
+
+if(!reserva){
+
+
+    console.warn(
+
+        "Nenhuma reserva encontrada"
+
+    );
+
+
+}
+</script>
+
+
+
+</body>
+
+
+</html>

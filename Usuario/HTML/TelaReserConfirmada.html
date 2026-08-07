@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>
+VagaConnect | Reserva Confirmada
+</title>
+
+
+<link rel="stylesheet" href="../CSS/TelaReservaConfirmada.css">
+
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+rel="stylesheet">
+
+
+</head>
+
+
+<body>
+
+
+
+<div class="container">
+
+
+<main class="success-card">
+
+
+
+<!-- ÍCONE -->
+
+<div class="success-icon">
+
+✓
+
+</div>
+
+
+
+<h1>
+Reserva Confirmada!
+</h1>
+
+
+<p class="subtitle">
+
+Sua vaga foi reservada com sucesso.
+
+</p>
+
+
+<!-- CÓDIGO -->
+
+
+<section class="code-box">
+
+
+<span>
+Código da reserva
+</span>
+
+
+<h2 id="codigoReserva">
+
+VC-000000
+
+</h2>
+
+
+</section>
+
+
+<!-- DADOS -->
+
+
+<section class="details">
+
+
+
+<div class="item">
+
+
+<span>
+Estacionamento
+</span>
+
+
+<strong id="estacionamento">
+
+Estacionamento Central
+
+</strong>
+
+
+</div>
+
+<div class="item">
+
+
+<span>
+Localização
+</span>
+
+
+<strong id="endereco">
+
+Av. Paulista, 1000 - SP
+
+</strong>
+
+
+</div>
+
+<div class="item">
+
+
+<span>
+Vaga
+</span>
+
+
+<strong id="vaga">
+
+Piso 1 - 42
+
+</strong>
+
+
+</div>
+
+
+<div class="item">
+
+
+<span>
+Veículo
+</span>
+
+
+<strong id="veiculo">
+
+Honda Civic - ABC1D23
+
+</strong>
+
+</div>
+
+
+<div class="item">
+
+
+<span>
+Entrada
+
+</span>
+
+
+<strong id="entrada">
+
+18/06/2026 - 18:00
+
+</strong>
+
+
+</div>
+
+
+<div class="item">
+
+<span>
+Pagamento
+
+</span>
+
+
+<strong class="approved">
+
+Aprovado
+
+</strong>
+
+
+</div>
+
+
+</section>
+
+<!-- QR CODE -->
+
+<section class="qr">
+
+
+<img src="../../IMG-ICO/icons8-código-qr-80.png">
+
+
+<p>
+
+Apresente este código na entrada
+
+</p>
+
+
+</section>
+
+
+<a href="../HTML/TelaUsuario.html">
+<button id="inicio">
+Voltar ao início
+
+</button>
+</a>
+</main>
+
+
+</div>
+
+
+<script>
+    // =====================================================
+// ELEMENTOS
+// =====================================================
+
+
+const codigoReserva = document.getElementById("codigoReserva");
+
+const estacionamento = document.getElementById("estacionamento");
+
+const endereco = document.getElementById("endereco");
+
+const vaga = document.getElementById("vaga");
+
+const veiculo = document.getElementById("veiculo");
+
+const entrada = document.getElementById("entrada");
+
+const botaoInicio = document.getElementById("inicio");
+
+const qrCode = document.getElementById("qrcode");
+
+
+
+
+// =====================================================
+// PEGAR PAGAMENTO
+// =====================================================
+
+
+const pagamento = JSON.parse(
+
+    localStorage.getItem("pagamento")
+
+);
+
+
+
+
+// =====================================================
+// GERAR CÓDIGO DA RESERVA
+// =====================================================
+
+
+function gerarCodigo(){
+
+
+    let numero = Math.floor(
+
+        Math.random() * 900000
+
+    ) + 100000;
+
+
+
+    return "VC-" + numero;
+
+
+}
+
+
+
+
+
+const codigo = gerarCodigo();
+
+
+
+
+
+// =====================================================
+// CARREGAR DADOS
+// =====================================================
+
+
+function carregarDados(){
+
+
+
+    codigoReserva.textContent = codigo;
+
+
+
+    if(pagamento && pagamento.reserva){
+
+
+
+        const reserva = pagamento.reserva;
+
+
+
+        estacionamento.textContent =
+
+        reserva.estacionamento;
+
+
+
+        endereco.textContent =
+
+        reserva.endereco;
+
+
+
+        vaga.textContent =
+
+        "Piso 1 - Vaga " + reserva.vaga;
+
+
+
+        veiculo.textContent =
+
+        reserva.veiculo + 
+        " - " +
+        reserva.placa;
+
+
+
+        entrada.textContent =
+
+        reserva.entrada;
+
+
+
+    }
+
+
+
+
+}
+
+
+
+
+
+carregarDados();
+
+
+
+
+
+// =====================================================
+// CRIAR QR CODE VISUAL
+// =====================================================
+
+function criarQRCode(){
+
+    qrCode.innerHTML = "";
+
+    const qr = document.createElement("div");
+
+    qr.classList.add("qr-real");
+
+
+
+
+    blocos.forEach(valor=>{
+
+
+        let bloco = document.createElement("span");
+
+
+        if(valor === 1){
+
+            bloco.classList.add("preto");
+
+        }
+
+
+        qr.appendChild(bloco);
+
+
+    });
+
+
+
+    qrCode.appendChild(qr);
+
+
+}
+
+
+criarQRCode();
+
+
+
+
+
+
+
+// =====================================================
+// SALVAR HISTÓRICO
+// =====================================================
+
+
+let historico = JSON.parse(
+
+    localStorage.getItem("reservas")
+
+) || [];
+
+
+
+
+
+const novaReserva = {
+
+
+    codigo:codigo,
+
+
+    data:
+
+    new Date().toLocaleString(),
+
+
+    status:"Confirmada",
+
+
+    pagamento:"Aprovado",
+
+
+    dados:
+
+    pagamento
+
+
+
+};
+
+
+
+
+
+historico.push(novaReserva);
+
+
+
+
+
+localStorage.setItem(
+
+    "reservas",
+
+    JSON.stringify(historico)
+
+);
+
+
+
+
+
+
+
+// =====================================================
+// VOLTAR AO INÍCIO
+// =====================================================
+
+
+botaoInicio.onclick = ()=>{
+
+
+    window.location.href =
+
+    "TelaUsuario.html";
+
+
+};
+</script>
+
+</body>
+</html>

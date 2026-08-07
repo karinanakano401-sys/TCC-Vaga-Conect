@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>
+VagaConnect | Check-in Confirmados
+</title>
+
+
+<link rel="stylesheet" href="../CSS/TelaReservaAtiva.css">
+
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+rel="stylesheet">
+
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<div class="screen-card">
+
+
+
+
+
+
+<div class="header">
+
+
+<button id="voltar">
+
+←
+
+</button>
+
+
+<span>
+
+Reserva Confirmada
+
+</span>
+
+
+</div>
+
+
+
+
+
+
+
+
+<div class="success-area">
+
+
+
+<div class="success-circle">
+
+✓
+
+</div>
+
+
+
+<h1>
+
+Chegada Confirmada!
+
+</h1>
+
+
+
+<p>
+
+Aproveite sua estadia.
+
+</p>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<div class="details-card">
+
+
+
+<div class="row">
+
+
+<span>
+
+Entrada registrada
+
+</span>
+
+
+<strong id="entrada">
+
+18/06/2026 - 18:12
+
+</strong>
+
+
+</div>
+
+
+
+
+
+<div class="row">
+
+
+<span>
+
+Saída prevista
+
+</span>
+
+
+<strong id="saida">
+
+18/06/2026 - 22:00
+
+</strong>
+
+
+</div>
+
+
+
+
+
+
+<div class="row">
+
+
+<span>
+
+Tempo de utilização
+
+</span>
+
+
+<strong id="tempo">
+
+00 : 00 : 00
+
+</strong>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+<div class="timer-card">
+
+
+<h2 id="contador">
+
+00 : 00 : 05
+
+</h2>
+
+
+<p>
+
+O cronômetro iniciou.
+
+</p>
+
+
+</div>
+
+
+
+
+
+
+
+<button id="detalhes">
+
+Ver detalhes
+
+</button>
+
+
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+<script>
+    // =====================================================
+// ELEMENTOS
+// =====================================================
+
+
+const entrada = document.getElementById("entrada");
+
+const saida = document.getElementById("saida");
+
+const tempo = document.getElementById("tempo");
+
+const contador = document.getElementById("contador");
+
+const botaoDetalhes = document.getElementById("detalhes");
+
+const voltar = document.getElementById("voltar");
+
+
+
+
+// =====================================================
+// BUSCAR RESERVA
+// =====================================================
+
+
+let reservas = JSON.parse(
+
+    localStorage.getItem("reservas")
+
+) || [];
+
+
+
+let reservaAtual = reservas[reservas.length - 1];
+
+
+
+
+
+
+// =====================================================
+// CARREGAR DADOS
+// =====================================================
+
+
+function carregarDados(){
+
+
+    if(!reservaAtual){
+
+        console.log(
+            "Nenhuma reserva encontrada"
+        );
+
+        return;
+
+    }
+
+
+
+    let dados = 
+
+    reservaAtual.dados?.reserva || {};
+
+
+
+
+
+    if(dados.entrada){
+
+        entrada.textContent = dados.entrada;
+
+    }
+
+
+
+    if(dados.saida){
+
+        saida.textContent = dados.saida;
+
+    }
+
+
+
+
+
+    reservaAtual.status = "Em andamento";
+
+
+
+
+
+    localStorage.setItem(
+
+        "reservas",
+
+        JSON.stringify(reservas)
+
+    );
+
+
+
+}
+
+
+
+carregarDados();
+
+
+
+
+
+
+
+
+// =====================================================
+// CRONÔMETRO DE UTILIZAÇÃO
+// =====================================================
+
+
+// =====================================================
+// INÍCIO DA UTILIZAÇÃO
+// =====================================================
+
+
+let inicioUso = localStorage.getItem("inicioUso");
+
+
+// se ainda não existe, cria agora
+
+if(!inicioUso){
+
+    inicioUso = new Date().getTime();
+
+    localStorage.setItem(
+        "inicioUso",
+        inicioUso
+    );
+
+}
+
+
+
+
+
+function iniciarContador(){
+
+
+    setInterval(()=>{
+
+
+        let agora = new Date().getTime();
+
+
+        let segundos = Math.floor(
+            (agora - inicioUso) / 1000
+        );
+
+
+
+        let horas = Math.floor(
+            segundos / 3600
+        );
+
+
+
+        let minutos = Math.floor(
+            (segundos % 3600) / 60
+        );
+
+
+
+        let seg = segundos % 60;
+
+
+
+
+        let resultado =
+
+        formatar(horas)
+
+        + " : "
+
+        + formatar(minutos)
+
+        + " : "
+
+        + formatar(seg);
+
+
+
+
+        contador.textContent = resultado;
+
+
+        tempo.textContent = resultado;
+
+
+
+        // salva o tempo atual
+
+        localStorage.setItem(
+            "tempoUso",
+            segundos
+        );
+
+
+    },1000);
+
+
+}
+
+
+
+
+
+function formatar(valor){
+
+
+    return valor
+
+    .toString()
+
+    .padStart(2,"0");
+
+
+}
+
+
+
+
+
+iniciarContador();
+
+
+
+
+
+
+
+
+
+// =====================================================
+// VER DETALHES
+// =====================================================
+
+
+botaoDetalhes.onclick = ()=>{
+
+
+
+    localStorage.setItem(
+
+        "reservaDetalhes",
+
+        JSON.stringify(reservaAtual)
+
+    );
+
+
+
+
+    window.location.href =
+
+    "TelaCheckoutEncerrar.html";
+
+
+
+};
+
+
+
+
+
+
+
+
+
+// =====================================================
+// VOLTAR
+// =====================================================
+
+
+voltar.onclick = ()=>{
+
+
+    history.back();
+
+
+};
+</script>
+
+
+</body>
+
+
+</html>
