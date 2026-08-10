@@ -1,163 +1,479 @@
+/* =====================================================
+   RESET
+===================================================== */
+
 *{
     margin:0;
     padding:0;
     box-sizing:border-box;
-    font-family:Arial, Helvetica, sans-serif;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
 }
+
+
+/* =====================================================
+   BODY
+===================================================== */
 
 body{
-    height:100vh;
+
+    min-height:100vh;
+
     display:flex;
+
     justify-content:center;
+
     align-items:center;
-    background:linear-gradient(135deg,#0f172a,#1e293b,#2563eb);
+
+    background:#031426;
+
     overflow:hidden;
+
+    padding:20px;
+
 }
 
-/* FUNDO MODERNO */
+
+/* =====================================================
+   IMAGEM DE FUNDO
+===================================================== */
+
 .bg{
-    position:absolute;
+
+    position:fixed;
+
+    inset:0;
+
     width:100%;
     height:100%;
-    background:url('https://images.unsplash.com/photo-1506521781263-d8422e82f27a?q=80&w=1974&auto=format&fit=crop') center/cover;
-    opacity:0.20;
-    filter:blur(2px);
+
+    background-image:
+        url("https://images.unsplash.com/photo-1506521781263-d8422e82f27a?q=80&w=1974&auto=format&fit=crop");
+
+    background-position:center;
+
+    background-size:cover;
+
+    
+
 }
+
+
+/* =====================================================
+   CAMADA ESCURA SOBRE A IMAGEM
+===================================================== */
+
+.bg::after{
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(3,20,38,0.92),
+            rgba(3,20,38,0.72),
+            rgba(9,39,67,0.88)
+        );
+
+}
+
+
+/* =====================================================
+   CONTAINER
+===================================================== */
 
 .container{
+
     position:relative;
-    width:430px;
-    background:rgba(255,255,255,0.10);
-    backdrop-filter:blur(15px);
-    border:1px solid rgba(255,255,255,0.2);
-    border-radius:25px;
-    padding:35px;
-    box-shadow:0 10px 40px rgba(0,0,0,0.4);
-    color:white;
+
     z-index:1;
-    animation:fade 0.6s ease;
+
+    width:100%;
+
+    max-width:430px;
+
+    background:#061a30;
+
+    border:1px solid #173552;
+
+    border-radius:14px;
+
+    padding:28px 30px;
+
+    color:white;
+
+    box-shadow:
+        0 20px 50px rgba(0,0,0,0.55);
+
+    animation:
+        aparecer 0.5s ease;
+
 }
 
-@keyframes fade{
+
+/* =====================================================
+   ANIMAÇÃO
+===================================================== */
+
+@keyframes aparecer{
+
     from{
+
         opacity:0;
-        transform:translateY(25px);
+
+        transform:
+            translateY(20px);
+
     }
+
     to{
+
         opacity:1;
-        transform:translateY(0);
+
+        transform:
+            translateY(0);
+
     }
+
 }
+
+
+/* =====================================================
+   LOGO
+===================================================== */
 
 .logo{
+
     text-align:center;
-    margin-bottom:25px;
+
+    margin-bottom:22px;
+
 }
+
 
 .logo h1{
-    font-size:38px;
-    letter-spacing:1px;
+
+    font-size:34px;
+
+    font-weight:700;
+
+    letter-spacing:0.5px;
+
 }
+
 
 .logo span{
+
     color:#60a5fa;
+
 }
+
 
 .logo p{
+
     margin-top:5px;
-    color:#cbd5e1;
+
+    color:#8fa5b9;
+
+    font-size:12px;
+
 }
 
-/* BOTÕES DE TROCA */
+
+/* =====================================================
+   BOTÕES DE TIPO
+===================================================== */
+
 .toggle-buttons{
+
     display:flex;
-    gap:10px;
-    margin-bottom:25px;
+
+    gap:8px;
+
+    margin-bottom:20px;
+
 }
+
 
 .toggle-buttons button{
+
     flex:1;
-    padding:13px;
-    border:none;
-    border-radius:12px;
-    background:rgba(255,255,255,0.1);
-    color:white;
+
+    padding:11px 10px;
+
+    border:1px solid #244866;
+
+    border-radius:7px;
+
+    background:#081f34;
+
+    color:#8fa5b9;
+
     cursor:pointer;
+
+    font-size:13px;
+
     font-weight:bold;
-    transition:0.3s;
+
+    transition:0.25s;
+
 }
+
 
 .toggle-buttons button:hover{
-    background:#2563eb;
+
+    background:#102e49;
+
+    color:#ffffff;
+
 }
+
 
 .toggle-buttons button.active{
+
     background:#2563eb;
-    transform:scale(1.03);
+
+    border-color:#2563eb;
+
+    color:#ffffff;
+
+    transform:none;
+
 }
 
-/* TEXTO */
+
+/* =====================================================
+   TEXTO
+===================================================== */
+
 .tipo-login{
+
     text-align:center;
+
     margin-bottom:20px;
+
     color:#dbeafe;
+
+    font-size:14px;
+
     font-weight:bold;
+
 }
 
-/* INPUTS */
+
+/* =====================================================
+   INPUT BOX
+===================================================== */
+
 .input-box{
-    margin-bottom:18px;
+
+    margin-bottom:15px;
+
 }
+
 
 .input-box label{
+
     display:block;
+
     margin-bottom:6px;
+
+    color:#dbeafe;
+
+    font-size:12px;
+
     font-weight:bold;
+
 }
+
+
+/* =====================================================
+   INPUTS
+===================================================== */
 
 .input-box input{
+
     width:100%;
-    padding:14px;
-    border:none;
-    border-radius:12px;
-    background:rgba(255,255,255,0.15);
-    color:white;
+
+    height:42px;
+
+    padding:10px 12px;
+
+    border:1px solid #244866;
+
+    border-radius:7px;
+
+    background:#081f34;
+
+    color:#ffffff;
+
     outline:none;
-    font-size:15px;
+
+    font-size:13px;
+
+    transition:0.25s;
+
 }
+
 
 .input-box input::placeholder{
-    color:#e2e8f0;
+
+    color:#71869a;
+
 }
 
-/* BOTÃO */
-.btn{
-    width:100%;
-    padding:14px;
-    border:none;
-    border-radius:12px;
-    background:#2563eb;
-    color:white;
-    font-size:16px;
-    font-weight:bold;
-    cursor:pointer;
-    transition:0.3s;
+
+.input-box input:focus{
+
+    border-color:#2563eb;
+
+    box-shadow:
+        0 0 0 2px rgba(37,99,235,0.15);
+
+    background:#09233b;
+
 }
+
+
+/* =====================================================
+   BOTÃO ENTRAR
+===================================================== */
+
+.btn{
+
+    width:100%;
+
+    height:43px;
+
+    margin-top:5px;
+
+    border:none;
+
+    border-radius:7px;
+
+    background:#2563eb;
+
+    color:#ffffff;
+
+    font-size:14px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:0.25s;
+
+}
+
 
 .btn:hover{
+
     background:#1d4ed8;
-    transform:scale(1.02);
+
+    transform:translateY(-1px);
+
 }
 
-/* LINK */
-.extra{
-    text-align:center;
-    margin-top:18px;
-    color:#e2e8f0;
+
+.btn:active{
+
+    transform:translateY(0);
+
 }
+
+
+/* =====================================================
+   LINK CADASTRO
+===================================================== */
+
+.extra{
+
+    text-align:center;
+
+    margin-top:17px;
+
+    color:#8fa5b9;
+
+    font-size:12px;
+
+}
+
 
 .extra a{
-    color:#93c5fd;
+
+    color:#60a5fa;
+
     text-decoration:none;
+
     font-weight:bold;
+
+    margin-left:3px;
+
+}
+
+
+.extra a:hover{
+
+    color:#93c5fd;
+
+    text-decoration:underline;
+
+}
+
+
+/* =====================================================
+   RESPONSIVO
+===================================================== */
+
+@media(max-width:500px){
+
+    body{
+
+        padding:15px;
+
+        overflow-y:auto;
+
+    }
+
+
+    .container{
+
+        max-width:100%;
+
+        padding:24px 20px;
+
+        border-radius:12px;
+
+    }
+
+
+    .logo h1{
+
+        font-size:30px;
+
+    }
+
+
+    .logo p{
+
+        font-size:11px;
+
+    }
+
+
+    .toggle-buttons button{
+
+        font-size:12px;
+
+        padding:10px 6px;
+
+    }
+
 }
