@@ -201,8 +201,6 @@ nav a{
 
 .card{
     position:relative;
-    background:#101822;
-    border:1px solid rgba(255,255,255,.05);
     border-radius:25px;
     min-height:260px;
     padding:25px;
