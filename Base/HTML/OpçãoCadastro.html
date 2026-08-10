@@ -661,7 +661,7 @@ function carregarUsuario(){
 
 
 /* =====================================================
-   ADMIN
+   ADMINISTRADOR
 ===================================================== */
 
 function carregarAdmin(){
@@ -672,8 +672,19 @@ function carregarAdmin(){
 
     formulario.innerHTML = `
 
+       
+
+
+        <!-- =================================================
+             FORMULÁRIO
+        ================================================== -->
+
         <div class="form-grid">
 
+
+            <!-- =================================================
+                 NOME DO ADMINISTRADOR
+            ================================================== -->
 
             <div class="input-box">
 
@@ -682,6 +693,7 @@ function carregarAdmin(){
                 </label>
 
                 <input
+                    id="adminNome"
                     type="text"
                     placeholder="Digite seu nome"
                     required
@@ -690,6 +702,10 @@ function carregarAdmin(){
             </div>
 
 
+            <!-- =================================================
+                 EMAIL
+            ================================================== -->
+
             <div class="input-box">
 
                 <label>
@@ -697,6 +713,7 @@ function carregarAdmin(){
                 </label>
 
                 <input
+                    id="adminEmail"
                     type="email"
                     placeholder="Digite seu email"
                     required
@@ -705,20 +722,148 @@ function carregarAdmin(){
             </div>
 
 
+            <!-- =================================================
+                 CPF
+            ================================================== -->
+
             <div class="input-box">
 
                 <label>
-                    Senha
+                    CPF
                 </label>
 
                 <input
-                    type="password"
-                    placeholder="Digite sua senha"
+                    id="adminCPF"
+                    type="text"
+                    placeholder="000.000.000-00"
+                    maxlength="14"
                     required
                 >
 
             </div>
 
+
+            <!-- =================================================
+                 DATA DE NASCIMENTO
+            ================================================== -->
+
+            <div class="input-box">
+
+                <label>
+                    Data de nascimento
+                </label>
+
+                <input
+                    id="adminDataNascimento"
+                    type="date"
+                    required
+                >
+
+            </div>
+
+ <!-- =================================================
+             TÍTULO DO ESTACIONAMENTO
+        ================================================== -->
+
+        <div class="endereco-titulo">
+
+            <strong>
+                Dados do Estacionamento
+            </strong>
+
+            <span>
+                Informe os dados do estacionamento que será
+                administrado por você.
+            </span>
+
+        </div>
+        
+
+
+            <!-- =================================================
+                 CEP DO ESTACIONAMENTO
+            ================================================== -->
+
+            <div class="input-box">
+
+                <label>
+                    CEP do estacionamento
+                </label>
+
+                <input
+                    id="cepEstacionamento"
+                    type="text"
+                    placeholder="00000-000"
+                    maxlength="9"
+                    required
+                >
+
+            </div>
+
+
+            <!-- =================================================
+                 RUA DO ESTACIONAMENTO
+            ================================================== -->
+
+            <div class="input-box">
+
+                <label>
+                    Rua do estacionamento
+                </label>
+
+                <input
+                    id="ruaEstacionamento"
+                    type="text"
+                    placeholder="Nome da rua"
+                    required
+                >
+
+            </div>
+
+
+            <!-- =================================================
+                 CIDADE DO ESTACIONAMENTO
+            ================================================== -->
+
+            <div class="input-box">
+
+                <label>
+                    Cidade do estacionamento
+                </label>
+
+                <input
+                    id="cidadeEstacionamento"
+                    type="text"
+                    placeholder="Cidade"
+                    required
+                >
+
+            </div>
+
+
+            <!-- =================================================
+                 SENHA
+            ================================================== -->
+
+            <div class="input-box">
+
+                <label>
+                    Criar Senha
+                </label>
+
+                <input
+                    id="adminSenha"
+                    type="password"
+                    placeholder="Crie sua senha"
+                    required
+                >
+
+            </div>
+
+
+            <!-- =================================================
+                 CONFIRMAR SENHA
+            ================================================== -->
 
             <div class="input-box">
 
@@ -727,6 +872,7 @@ function carregarAdmin(){
                 </label>
 
                 <input
+                    id="adminConfirmarSenha"
                     type="password"
                     placeholder="Confirme sua senha"
                     required
@@ -738,15 +884,48 @@ function carregarAdmin(){
         </div>
 
 
+        <!-- =================================================
+             RESUMO DO ESTACIONAMENTO
+        ================================================== -->
+
+        <div
+            class="estacionamento-resumo"
+            id="estacionamentoResumo"
+        >
+
+            <span>
+                Estacionamento:
+            </span>
+
+            <strong id="resumoNome">
+                Preencha o nome do estacionamento
+            </strong>
+
+            <small id="resumoEndereco">
+                O endereço do estacionamento aparecerá aqui.
+            </small>
+
+        </div>
+
+
+        <!-- =================================================
+             BOTÃO
+        ================================================== -->
+
         <button
             class="btn"
-            type="button"
+            id="btnCadastrarAdmin"
+            type="submit"
         >
 
             Cadastrar Administrador
 
         </button>
 
+
+        <!-- =================================================
+             LOGIN
+        ================================================== -->
 
         <div class="extra">
 
@@ -760,8 +939,516 @@ function carregarAdmin(){
 
     `;
 
-}
 
+    /* =================================================
+       ELEMENTOS
+    ================================================= */
+
+    const cpfInput =
+        document.getElementById("adminCPF");
+
+
+    const cepInput =
+        document.getElementById("cepEstacionamento");
+
+
+    const dataNascimento =
+        document.getElementById("adminDataNascimento");
+
+
+    const nomeEstacionamento =
+        document.getElementById("nomeEstacionamento");
+
+
+    const ruaEstacionamento =
+        document.getElementById("ruaEstacionamento");
+
+
+    const numeroEstacionamento =
+        document.getElementById("numeroEstacionamento");
+
+
+    const cidadeEstacionamento =
+        document.getElementById("cidadeEstacionamento");
+
+
+    const resumoNome =
+        document.getElementById("resumoNome");
+
+
+    const resumoEndereco =
+        document.getElementById("resumoEndereco");
+
+
+    const btn =
+        document.getElementById("btnCadastrarAdmin");
+
+
+    /* =================================================
+       MÁSCARAS
+    ================================================= */
+
+    aplicarMascaraCPF(cpfInput);
+
+    aplicarMascaraCEP(cepInput);
+
+
+    /* =================================================
+       DATA MÁXIMA
+       ADMINISTRADOR PRECISA TER PELO MENOS 18 ANOS
+    ================================================= */
+
+    const hoje = new Date();
+
+
+    const dataMaxima = new Date(
+        hoje.getFullYear() - 18,
+        hoje.getMonth(),
+        hoje.getDate()
+    );
+
+
+    const ano =
+        dataMaxima.getFullYear();
+
+
+    const mes =
+        String(
+            dataMaxima.getMonth() + 1
+        ).padStart(2, "0");
+
+
+    const dia =
+        String(
+            dataMaxima.getDate()
+        ).padStart(2, "0");
+
+
+    dataNascimento.max =
+        `${ano}-${mes}-${dia}`;
+
+
+    /* =================================================
+       MOSTRAR DADOS DO ESTACIONAMENTO EM TEMPO REAL
+    ================================================= */
+
+    function atualizarResumo(){
+
+        const nome =
+            nomeEstacionamento
+                .value
+                .trim();
+
+
+        const rua =
+            ruaEstacionamento
+                .value
+                .trim();
+
+
+        const numero =
+            numeroEstacionamento
+                .value
+                .trim();
+
+
+        const cidade =
+            cidadeEstacionamento
+                .value
+                .trim();
+
+
+        const cep =
+            cepInput
+                .value
+                .trim();
+
+
+        /* =================================================
+           NOME
+        ================================================= */
+
+        if(nome){
+
+            resumoNome.textContent =
+                nome;
+
+        }else{
+
+            resumoNome.textContent =
+                "Preencha o nome do estacionamento";
+
+        }
+
+
+        /* =================================================
+           ENDEREÇO
+        ================================================= */
+
+        let endereco = "";
+
+
+        if(rua){
+
+            endereco += rua;
+
+        }
+
+
+        if(numero){
+
+            endereco +=
+                endereco
+                    ? ", " + numero
+                    : numero;
+
+        }
+
+
+        if(cidade){
+
+            endereco +=
+                endereco
+                    ? " - " + cidade
+                    : cidade;
+
+        }
+
+
+        if(cep){
+
+            endereco +=
+                endereco
+                    ? " | CEP: " + cep
+                    : "CEP: " + cep;
+
+        }
+
+
+        /* =================================================
+           MOSTRAR ENDEREÇO
+        ================================================= */
+
+        if(endereco){
+
+            resumoEndereco.textContent =
+                endereco;
+
+        }else{
+
+            resumoEndereco.textContent =
+                "O endereço do estacionamento aparecerá aqui.";
+
+        }
+
+    }
+
+
+    /* =================================================
+       ATUALIZAÇÃO AUTOMÁTICA
+    ================================================= */
+
+    nomeEstacionamento.addEventListener(
+        "input",
+        atualizarResumo
+    );
+
+
+    ruaEstacionamento.addEventListener(
+        "input",
+        atualizarResumo
+    );
+
+
+    numeroEstacionamento.addEventListener(
+        "input",
+        atualizarResumo
+    );
+
+
+    cidadeEstacionamento.addEventListener(
+        "input",
+        atualizarResumo
+    );
+
+
+    cepInput.addEventListener(
+        "input",
+        atualizarResumo
+    );
+
+
+    /* =================================================
+       CADASTRAR ADMINISTRADOR
+    ================================================= */
+
+    btn.addEventListener("click", (e) => {
+
+        e.preventDefault();
+
+
+        /* =================================================
+           DADOS DO ADMINISTRADOR
+        ================================================= */
+
+        const nome =
+            document
+                .getElementById("adminNome")
+                .value
+                .trim();
+
+
+        const email =
+            document
+                .getElementById("adminEmail")
+                .value
+                .trim();
+
+
+        const cpf =
+            cpfInput.value.trim();
+
+
+        const nascimento =
+            dataNascimento.value;
+
+
+        /* =================================================
+           DADOS DO ESTACIONAMENTO
+        ================================================= */
+
+        const estacionamento =
+            nomeEstacionamento
+                .value
+                .trim();
+
+
+        const cep =
+            cepInput.value
+                .trim();
+
+
+        const rua =
+            ruaEstacionamento
+                .value
+                .trim();
+
+
+        const numero =
+            numeroEstacionamento
+                .value
+                .trim();
+
+
+        const cidade =
+            cidadeEstacionamento
+                .value
+                .trim();
+
+
+        /* =================================================
+           SENHAS
+        ================================================= */
+
+        const senha =
+            document
+                .getElementById("adminSenha")
+                .value;
+
+
+        const confirmarSenha =
+            document
+                .getElementById("adminConfirmarSenha")
+                .value;
+
+
+        /* =================================================
+           CAMPOS OBRIGATÓRIOS
+        ================================================= */
+
+        if(
+            !nome ||
+            !email ||
+            !cpf ||
+            !nascimento ||
+            !estacionamento ||
+            !cep ||
+            !rua ||
+            !numero ||
+            !cidade ||
+            !senha ||
+            !confirmarSenha
+        ){
+
+            alert(
+                "Preencha todos os campos!"
+            );
+
+            return;
+
+        }
+
+
+        /* =================================================
+           VALIDAÇÃO CPF
+        ================================================= */
+
+        if(!validarCPF(cpf)){
+
+            alert(
+                "CPF inválido!"
+            );
+
+            return;
+
+        }
+
+
+        /* =================================================
+           VALIDAÇÃO DE IDADE
+        ================================================= */
+
+        if(
+            !validarMaiorDe18(
+                nascimento
+            )
+        ){
+
+            alert(
+                "O cadastro é permitido somente para pessoas maiores de 18 anos."
+            );
+
+            return;
+
+        }
+
+
+        /* =================================================
+           VALIDAÇÃO DAS SENHAS
+        ================================================= */
+
+        if(
+            senha !== confirmarSenha
+        ){
+
+            alert(
+                "As senhas não coincidem!"
+            );
+
+            return;
+
+        }
+
+
+        /* =================================================
+           SALVAR DADOS DO ESTACIONAMENTO
+           NO LOCALSTORAGE
+        ================================================= */
+
+        const dadosEstacionamento = {
+
+            nome: estacionamento,
+
+            cep: cep,
+
+            rua: rua,
+
+            numero: numero,
+
+            cidade: cidade,
+
+            endereco:
+                rua +
+                ", " +
+                numero +
+                " - " +
+                cidade,
+
+            enderecoCompleto:
+                rua +
+                ", " +
+                numero +
+                " - " +
+                cidade +
+                " | CEP: " +
+                cep
+
+        };
+
+
+        localStorage.setItem(
+            "estacionamentoSelecionado",
+            JSON.stringify(
+                dadosEstacionamento
+            )
+        );
+
+
+        /* =================================================
+           TAMBÉM SALVAR INDIVIDUALMENTE
+           PARA OUTRAS TELAS DO SISTEMA
+        ================================================= */
+
+        localStorage.setItem(
+            "nomeEstacionamento",
+            estacionamento
+        );
+
+
+        localStorage.setItem(
+            "enderecoEstacionamento",
+            dadosEstacionamento.enderecoCompleto
+        );
+
+
+        localStorage.setItem(
+            "cepEstacionamento",
+            cep
+        );
+
+
+        localStorage.setItem(
+            "ruaEstacionamento",
+            rua
+        );
+
+
+        localStorage.setItem(
+            "numeroEstacionamento",
+            numero
+        );
+
+
+        localStorage.setItem(
+            "cidadeEstacionamento",
+            cidade
+        );
+
+
+        /* =================================================
+           SUCESSO
+        ================================================= */
+
+        alert(
+            "Administrador cadastrado com sucesso!\n\n" +
+
+            "Estacionamento: " +
+            estacionamento +
+
+            "\n\nEndereço: " +
+            rua +
+            ", " +
+            numero +
+            " - " +
+            cidade +
+
+            "\nCEP: " +
+            cep
+        );
+
+    });
+
+}
 
 /* =====================================================
    BOTÃO USUÁRIO
