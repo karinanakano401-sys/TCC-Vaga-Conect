@@ -1,208 +1,324 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VagaConnect | Dashboard</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../CSS/TelaFunc.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VagaConnect | Dashboard do Funcionário</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../CSS/TelaFunc.css">
 </head>
+
 <body>
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
-      <a class="brand" href="#">
-        <span class="brand-mark">V</span>
-        <span>VagaConnect</span>
-      </a>
+      <div class="logo">
+       <i class="fa-solid fa-layer-group"></i>
+       <span>Vaga</span>Connect
+     </div>
 
-      <nav>
-        <a class="active" href="#"><i data-icon="grid"></i>Dashboard</a>
-        <a href="../HTML/TelaEstacionamento.html"><i data-icon="building"></i>Estacionamentos</a>
-        <a href="../HTML/TelaVagas.html"><i data-icon="car"></i>Vagas</a>
-        <a href="../HTML/TelaReservas.html"><i data-icon="calendar"></i>Reservas</a>
-        <a href="../HTML/TelaUsuarios.html"><i data-icon="users"></i>Usuários</a>
-        <a href="../HTML/TelaFuncionarios.html"><i data-icon="briefcase"></i>Funcionários</a>
-        <a href="../HTML/TelaFeedback.html"><i data-icon="message"></i>Feedbacks</a>
-        <a href="../HTML/TelaPagamentos.html"><i data-icon="credit-card"></i>Pagamentos</a>
-        <a href="../HTML/TelaFaturamento.html"><i data-icon="chart"></i>Faturamento</a>
-        <a href="../HTML/TelaConfigurações.html"><i data-icon="settings"></i>Configurações</a>
-        <a href="../../Base/HTML/Abertura.html"><i data-icon="log-out"></i>Sair</a>
-      </nav>
+  <nav class="sidebar-menu">
+    <a href="#" class="menu-link active">
+      <span class="menu-icon">▦</span>
+      <span>Dashboard</span>
+    </a>
 
-      <div class="profile">
-        <span class="avatar">A</span>
-        <div>
-          <strong>Funcionário</strong>
-          <small>serviços</small>
-        </div>
-        <i data-icon="more-vertical"></i>
-      </div>
-    </aside>
+    <a href="#" class="menu-link">
+      <span class="menu-icon">▤</span>
+      <span>Estacionamento</span>
+    </a>
 
-    <main class="content">
+    <a href="#" class="menu-link">
+      <span class="menu-icon">▣</span>
+      <span>Vagas</span>
+    </a>
+
+    <a href="#" class="menu-link">
+      <span class="menu-icon">▧</span>
+      <span>Reservas</span>
+    </a>
+
+    <a href="#" class="menu-link">
+      <span class="menu-icon">♙</span>
+      <span>Usuários</span>
+    </a>
+
+    <a href="#" class="menu-link">
+      <span class="menu-icon">☆</span>
+      <span>Feedbacks</span>
+    </a>
+
+    <a href="#" class="menu-link">
+      <span class="menu-icon">R$</span>
+      <span>Pagamentos</span>
+    </a>
+
+    <a href="#" class="menu-link">
+      <span class="menu-icon">▥</span>
+      <span>Relatórios</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-user">
+    <div class="user-avatar">JS</div>
+
+    <div class="user-info">
+      <strong>João Silva</strong>
+      <span><i></i> Funcionário</span>
+    </div>
+  </div>
+</aside>
+
+    <main class="main-content" id="dashboard">
       <header class="topbar">
-        <button class="menu-button" id="menuButton" aria-label="Abrir menu">
-          <i data-icon="menu"></i>
-        </button>
+        <button class="mobile-menu" type="button" aria-label="Abrir menu" aria-expanded="false">☰</button>
 
-        <div>
-          <h1>Olá, Funcionário!</h1>
-          <p>Bem-vindo ao painel de controle.</p>
+        <div class="page-title">
+          <p>VISÃO GERAL</p>
+          <h1>Painel de Controle</h1>
         </div>
 
-        <div class="header-actions">
-          <button aria-label="Notificações"><i data-icon="bell"></i></button>
-          <button aria-label="Configurações"><i data-icon="settings"></i></button>
+        <div class="top-actions">
+          <button class="notification" type="button" aria-label="Notificações">♧<span></span></button>
+
+          <button class="profile" type="button" aria-label="Abrir perfil">
+            <span class="avatar">JM</span>
+            <span class="profile-info">
+              <strong>João Martins</strong>
+              <small>Funcionário</small>
+            </span>
+            <b>⌄</b>
+          </button>
         </div>
       </header>
 
-      <section class="stats" aria-label="Resumo">
+      <section class="welcome-card">
+        <div>
+          <p>SEGUNDA-FEIRA, 17 DE AGOSTO</p>
+          <h2>Olá, João!</h2>
+          <span>Acompanhe as movimentações do seu estacionamento hoje.</span>
+        </div>
+
+        <div class="parking-badge">
+          <span>
+            <small>ESTACIONAMENTO VINCULADO</small>
+            <strong>Estacionamento Central</strong>
+          </span>
+        </div>
+      </section>
+
+      <section class="stats-grid">
         <article class="stat-card">
-          <span class="stat-icon purple"><i data-icon="users"></i></span>
-          <div><b>128</b><small>Reservas hoje</small></div>
+          <span class="stat-icon blue">▤</span>
+          <div>
+            <p>Vagas disponíveis</p>
+            <strong>42</strong>
+            <small>↑ 8% <em>em relação a ontem</em></small>
+          </div>
         </article>
 
         <article class="stat-card">
-          <span class="stat-icon violet"><i data-icon="map-pin"></i></span>
-          <div><b>56</b><small>Vagas ocupadas</small></div>
+          <span class="stat-icon purple">▣</span>
+          <div>
+            <p>Reservas hoje</p>
+            <strong>18</strong>
+            <small>↑ 12% <em>em relação a ontem</em></small>
+          </div>
         </article>
 
         <article class="stat-card">
-          <span class="stat-icon green"><i data-icon="square-parking"></i></span>
-          <div><b>72</b><small>Vagas livres</small></div>
-        </article>
-
-        <article class="stat-card income">
-          <div><b>R$ 8.420,50</b><small>Faturamento hoje</small></div>
-          <i data-icon="trending-up"></i>
-        </article>
-
-        <article class="stat-card">
-          <span class="stat-icon blue"><i data-icon="building"></i></span>
-          <div><b>8</b><small>Estacionamentos</small></div>
+          <span class="stat-icon orange">↪</span>
+          <div>
+            <p>Entradas hoje</p>
+            <strong>27</strong>
+            <small>↑ 5% <em>em relação a ontem</em></small>
+          </div>
         </article>
 
         <article class="stat-card">
-          <span class="stat-icon indigo"><i data-icon="users"></i></span>
-          <div><b>243</b><small>Usuários cadastrados</small></div>
-        </article>
-
-        <article class="stat-card">
-          <span class="stat-icon amber"><i data-icon="briefcase"></i></span>
-          <div><b>18</b><small>Funcionários</small></div>
-        </article>
-
-        <article class="stat-card">
-          <span class="stat-icon yellow"><i data-icon="star"></i></span>
-          <div><b>4.8</b><small>Avaliações médias</small></div>
+          <span class="stat-icon green">R$</span>
+          <div>
+            <p>Pagamentos diários</p>
+            <strong>R$ 840,50</strong>
+            <small>↑ 15% <em>em relação a ontem</em></small>
+          </div>
         </article>
       </section>
 
-      <section class="panel reservations">
-        <div class="panel-heading">
-          <div>
-            <h2>Reservas recentes</h2>
-            <p>Acompanhe as últimas reservas realizadas.</p>
+      <section class="content-grid">
+        <article class="panel reservations" id="reservas">
+          <div class="panel-header">
+            <div>
+              <h2>Reservas recentes</h2>
+              <p>Últimas reservas realizadas</p>
+            </div>
+
+            <a href="#ver-todas">Ver todas →</a>
           </div>
 
-          <a href="#">Ver todas <i data-icon="arrow-right"></i></a>
-        </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>CLIENTE</th>
+                  <th>VAGA</th>
+                  <th>HORÁRIO</th>
+                  <th>STATUS</th>
+                </tr>
+              </thead>
 
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Cliente</th>
-                <th>Vaga</th>
-                <th>Estacionamento</th>
-                <th>Data</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="reservationRows"></tbody>
-          </table>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="person">
+                      <span class="person-icon blue-person">MC</span>
+                      <span>
+                        <strong>Mariana Costa</strong>
+                        <small>Placa: ABC-1234</small>
+                      </span>
+                    </div>
+                  </td>
+                  <td><b>A-12</b></td>
+                  <td>08:30 - 10:30</td>
+                  <td><span class="status confirmed">Confirmada</span></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="person">
+                      <span class="person-icon purple-person">RS</span>
+                      <span>
+                        <strong>Rafael Silva</strong>
+                        <small>Placa: DEF-5678</small>
+                      </span>
+                    </div>
+                  </td>
+                  <td><b>B-08</b></td>
+                  <td>09:00 - 11:00</td>
+                  <td><span class="status confirmed">Confirmada</span></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="person">
+                      <span class="person-icon orange-person">AL</span>
+                      <span>
+                        <strong>Ana Luiza</strong>
+                        <small>Placa: GHI-9012</small>
+                      </span>
+                    </div>
+                  </td>
+                  <td><b>C-05</b></td>
+                  <td>10:00 - 12:00</td>
+                  <td><span class="status waiting">Aguardando</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="panel occupancy" id="vagas">
+          <div class="panel-header">
+            <div>
+              <h2>Situação das vagas</h2>
+              <p>Ocupação em tempo real</p>
+            </div>
+
+            <button class="more" type="button">•••</button>
+          </div>
+
+          <div class="occupancy-main">
+            <div class="donut" style="--percent: 58">
+              <div>
+                <strong>58%</strong>
+                <small>ocupadas</small>
+              </div>
+            </div>
+
+            <div class="legend">
+              <p><span class="legend-dot available"></span><b>42</b> disponíveis</p>
+              <p><span class="legend-dot occupied"></span><b>58</b> ocupadas</p>
+              <p><span class="legend-dot reserved"></span><b>10</b> reservadas</p>
+            </div>
+          </div>
+
+          <div class="progress-row">
+            <span>Capacidade total</span>
+            <strong>110 vagas</strong>
+          </div>
+
+          <div class="progress"><span></span></div>
+        </article>
+      </section>
+
+      <section class="quick-actions">
+        <h2>Ações rápidas</h2>
+
+        <div>
+          <button type="button" data-action="Nova reserva">＋ <span>Nova reserva</span></button>
+          <button type="button" data-action="Registrar entrada">↪ <span>Registrar entrada</span></button>
+          <button type="button" data-action="Consultar vaga">⌕ <span>Consultar vaga</span></button>
         </div>
       </section>
     </main>
   </div>
 
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <div class="toast" role="status" aria-live="polite"></div>
+
   <script>
-    const reservations = [
-  ['Maria Eduarda', '12', 'CenterPark', '23/05/2025 14:00', 'Confirmada', 'confirmed'],
-  ['João Silva', '25', 'Shopping Plaza', '23/05/2025 15:30', 'Em andamento', 'progress'],
-  ['Ana Paula', '07', 'Anápolis Mall', '23/05/2025 16:00', 'Confirmada', 'confirmed'],
-  ['Carlos Lima', '33', 'CenterPark', '23/05/2025 17:00', 'Pendente', 'scheduled']
-];
+    document.addEventListener("DOMContentLoaded", () => {
+  const sidebar = document.querySelector(".sidebar");
+  const menuButton = document.querySelector(".mobile-menu");
+  const toast = document.querySelector(".toast");
 
-document.querySelector('#reservationRows').innerHTML = reservations.map(
-  ([client, spot, place, date, status, className]) => `
-    <tr>
-      <td>${client}</td>
-      <td>${spot}</td>
-      <td>${place}</td>
-      <td>${date}</td>
-      <td><span class="status ${className}">${status}</span></td>
-    </tr>
-  `
-).join('');
+  let toastTimer;
 
-/* Ícones incorporados: continuam aparecendo mesmo quando a página está offline. */
-const icons = {
-  grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
-  building: '<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 7h1m3 0h1m3 0h1M8 11h1m3 0h1m3 0h1M8 15h1m3 0h1m3 0h1M10 21v-3h4v3"/>',
-  car: '<path d="M5 17H3v-4l2-5h14l2 5v4h-2M5 17h14M7 17v2m10-2v2M5 13h14"/><circle cx="7" cy="15" r="1"/><circle cx="17" cy="15" r="1"/>',
-  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>',
-  users: '<circle cx="9" cy="8" r="3"/><path d="M3 21v-2a6 6 0 0 1 12 0v2M16 4a3 3 0 0 1 0 6M21 21v-2a6 6 0 0 0-3-5.2"/>',
-  briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5h8v2M3 12h18M10 12v2h4v-2"/>',
-  message: '<path d="M21 11.5a8 8 0 0 1-8.5 8 9 9 0 0 1-4-.9L3 20l1.4-4A8 8 0 1 1 21 11.5Z"/>',
-  "credit-card": '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h2"/>',
-  chart:'<path d="M4 19V5"/>'+'<path d="M4 19h16"/>'+'<path d="M8 15v-3"/>'+'<path d="M12 15V8"/>'+'<path d="M16 15V5"/>',
-  file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h6"/>',
-  settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2 2-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5v.2h-2.8v-.2a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1-2-2 .1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H5.7v-2.8h.2a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9L7 8.2l2-2 .1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.5V4.9h2.8v.2a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1 2 2-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1h.2V14h-.2a1.7 1.7 0 0 0-1.5 1Z"/>',
-  "log-out": '<path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-5"/>',
-  "more-vertical": '<circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>',
-  menu: '<path d="M4 6h16M4 12h16M4 18h16"/>',
-  bell: '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
-  "map-pin": '<path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/>',
-  "square-parking": '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 16V8h4a3 3 0 0 1 0 6H9"/>',
-  "trending-up": '<path d="M3 17l6-6 4 4 7-8M14 7h6v6"/>',
-  star: '<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/>',
-  "arrow-right": '<path d="M5 12h14M13 6l6 6-6 6"/>'
-};
+  function notify(message) {
+    toast.textContent = message;
+    toast.classList.add("show");
 
-document.querySelectorAll("i[data-icon]").forEach((element) => {
-  const path = icons[element.dataset.icon] || icons.grid;
+    clearTimeout(toastTimer);
 
-  element.outerHTML = `
-    <svg viewBox="0 0 24 24"
-         fill="none"
-         stroke="currentColor"
-         stroke-width="1.8"
-         stroke-linecap="round"
-         stroke-linejoin="round"
-         aria-hidden="true">
-      ${path}
-    </svg>
-  `;
-});
-
-const sidebar = document.querySelector('#sidebar');
-
-document.querySelector('#menuButton').addEventListener('click', () => {
-  sidebar.classList.toggle('open');
-});
-
-document.addEventListener('click', (event) => {
-  if (
-    window.innerWidth <= 850 &&
-    !sidebar.contains(event.target) &&
-    !event.target.closest('#menuButton')
-  ) {
-    sidebar.classList.remove('open');
+    toastTimer = setTimeout(() => {
+      toast.classList.remove("show");
+    }, 2800);
   }
+
+  menuButton?.addEventListener("click", () => {
+    const isOpen = sidebar.classList.toggle("open");
+    menuButton.setAttribute("aria-expanded", isOpen);
+  });
+
+  document.querySelectorAll(".menu-item").forEach((item) => {
+    item.addEventListener("click", () => {
+      document.querySelector(".menu-item.active")?.classList.remove("active");
+      item.classList.add("active");
+
+      sidebar.classList.remove("open");
+      menuButton?.setAttribute("aria-expanded", "false");
+    });
+  });
+
+  document.querySelector(".notification")?.addEventListener("click", () => {
+    notify("Você tem 3 novas notificações.");
+  });
+
+  document.querySelector(".profile")?.addEventListener("click", () => {
+    notify("Perfil de João Martins.");
+  });
+
+  document.querySelector(".logout")?.addEventListener("click", () => {
+    notify("Sessão encerrada com segurança.");
+  });
+
+  document.querySelectorAll("[data-action]").forEach((button) => {
+    button.addEventListener("click", () => {
+      notify(`${button.dataset.action}: funcionalidade pronta para abrir.`);
+    });
+  });
 });
   </script>
 </body>
