@@ -51,6 +51,38 @@ body {
     font-size:25px;
 }
 
+.sidebar nav {
+  display: grid;
+  gap: 3px;
+  margin-top: 20px;
+}
+
+.sidebar nav a {
+  height: 39px;
+  padding: 0 9px;
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  text-decoration: none;
+  color: #b9c6d5;
+  border-radius: 6px;
+  font-size: 11px;
+}
+
+.sidebar nav a:hover,
+.sidebar nav .active {
+  background: #0c2a50;
+  color: #fff;
+}
+
+.sidebar svg {
+  width: 12px;
+  height: 12px;
+  stroke-width: 1.9;
+}
+
+
+
 
 .brand {
   display: flex;
