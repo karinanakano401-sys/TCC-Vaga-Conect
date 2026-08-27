@@ -83,12 +83,12 @@ Garantia de Reserva
 <div>
 
 <span>
-Valor da garantia
+Total a pagar
 </span>
 
 
-<h1>
-R$ 25,00
+<h1 id="valorTotalTopo">
+R$ 0,00
 </h1>
 
 
@@ -214,13 +214,13 @@ Resumo
 
 <div>
 
-<span>
-Garantia de reserva
+<span id="descricaoVaga">
+Vaga
 </span>
 
 
-<strong>
-R$ 25,00
+<strong id="resumoValorVaga">
+R$ 0,00
 </strong>
 
 </div>
@@ -230,11 +230,11 @@ R$ 25,00
 <div>
 
 <span>
-Taxa de utilização
+Garantia de reserva
 </span>
 
 
-<strong>
+<strong id="resumoGarantia">
 R$ 0,00
 </strong>
 
@@ -254,8 +254,8 @@ Total agora
 </span>
 
 
-<strong>
-R$ 25,00
+<strong id="resumoTotal">
+R$ 0,00
 </strong>
 
 
@@ -315,11 +315,42 @@ const botaoPagar = document.getElementById("pagar");
 const botaoVoltar = document.getElementById("voltar");
 
 
+const valorTotalTopo = document.getElementById("valorTotalTopo");
+
+const descricaoVaga = document.getElementById("descricaoVaga");
+
+const resumoValorVaga = document.getElementById("resumoValorVaga");
+
+const resumoGarantia = document.getElementById("resumoGarantia");
+
+const resumoTotal = document.getElementById("resumoTotal");
+
+
 
 
 // =====================================================
 // VARIÁVEIS
 // =====================================================
+
+
+const api = "http://localhost:3333";
+
+
+const usuarioLogado = JSON.parse(
+    localStorage.getItem("usuarioLogado")
+);
+
+
+if(!usuarioLogado){
+
+    window.location.replace("../../Base/HTML/OpçãoLogin.html");
+
+}
+
+
+
+// Garantia cobrada em toda reserva
+const GARANTIA = 25;
 
 
 let formaPagamento = "cartao";
@@ -334,21 +365,72 @@ let reserva = JSON.parse(
 
 
 
+let valorVaga = 0;
+
+let total = 0;
+
+
+
 
 // =====================================================
 // CARREGAR RESERVA
 // =====================================================
 
 
-if(reserva){
+function mostrarPreco(valor){
+
+    return Number(valor || 0).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+    });
+
+}
 
 
-    console.log("Reserva carregada:");
 
-    console.log(reserva);
+function carregarResumo(){
+
+
+    if(!reserva){
+
+        alert("Escolha uma vaga antes de pagar.");
+
+        window.location.href = "../HTML/TelaReservas.html";
+
+        return;
+
+    }
+
+
+
+    valorVaga = Number(reserva.valor || 0);
+
+    total = valorVaga + GARANTIA;
+
+
+
+    descricaoVaga.textContent =
+        `Vaga ${reserva.vaga} - ${reserva.estacionamento}`;
+
+
+    resumoValorVaga.textContent = mostrarPreco(valorVaga);
+
+    resumoGarantia.textContent = mostrarPreco(GARANTIA);
+
+    resumoTotal.textContent = mostrarPreco(total);
+
+    valorTotalTopo.textContent = mostrarPreco(total);
+
+
+
+    atualizarBotao();
 
 
 }
+
+
+
+carregarResumo();
 
 
 
@@ -427,7 +509,7 @@ function atualizarBotao(){
 
             botaoPagar.textContent =
 
-            "Pagar com PIX R$ 10,00";
+            `Pagar com PIX ${mostrarPreco(total)}`;
 
 
         break;
@@ -439,7 +521,7 @@ function atualizarBotao(){
 
             botaoPagar.textContent =
 
-            "Confirmar pagamento R$ 10,00";
+            `Confirmar pagamento ${mostrarPreco(total)}`;
 
 
         break;
@@ -451,7 +533,7 @@ function atualizarBotao(){
 
             botaoPagar.textContent =
 
-            "Pagar R$ 10,00";
+            `Pagar ${mostrarPreco(total)}`;
 
 
     }
@@ -469,16 +551,160 @@ function atualizarBotao(){
 // =====================================================
 
 
-botaoPagar.onclick = ()=>{
+// Grava a reserva, o vínculo com o cliente e o pagamento
+async function gravarReserva(){
+
+
+    const respostaReserva = await fetch(api + "/reserva", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            status: "Reservada",
+            fk_vaga: reserva.idVaga
+        })
+
+    });
+
+
+    const reservaCriada = await respostaReserva.json();
+
+
+    if(!respostaReserva.ok){
+
+        throw new Error(reservaCriada.erro || "Erro ao criar a reserva");
+
+    }
+
+
+
+
+    const respostaCliente = await fetch(api + "/reservacli", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            data:         reserva.dataChegada,
+            hora:         `${reserva.dataChegada}T${reserva.horaChegada}:00`,
+            horaSaida:    `${reserva.dataSaida}T${reserva.horaSaida}:00`,
+            fk_idCliente: usuarioLogado.id,
+            fk_idReserva: reservaCriada.id,
+            fk_idCarro:   reserva.idCarro
+        })
+
+    });
+
+
+    const reservaCliente = await respostaCliente.json();
+
+
+    if(!respostaCliente.ok){
+
+        // Não deixa uma reserva solta no banco
+        await fetch(api + "/reserva/" + reservaCriada.id, { method: "DELETE" });
+
+        throw new Error(reservaCliente.erro || "Erro ao ligar a reserva ao cliente");
+
+    }
+
+
+
+
+    const respostaPagamento = await fetch(api + "/pagamento", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            nome:       formaPagamento === "pix" ? "PIX" : "Cartão de Crédito",
+            tipo:       formaPagamento,
+            valor:      total,
+            fk_reserva: reservaCliente.id
+        })
+
+    });
+
+
+    const pagamentoCriado = await respostaPagamento.json();
+
+
+    if(!respostaPagamento.ok){
+
+        throw new Error(pagamentoCriado.erro || "Erro ao registrar o pagamento");
+
+    }
+
+
+
+
+    // A vaga sai da lista de livres
+    await fetch(api + "/vaga/" + reserva.idVaga, {
+
+        method: "PUT",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            numero: reserva.vaga,
+            tipo:   reserva.tipo,
+            status: "Reservada",
+            preco:  valorVaga,
+            fk_est: reserva.idEstacionamento
+        })
+
+    });
+
+
+
+    return reservaCliente;
+
+
+}
+
+
+
+
+botaoPagar.onclick = async ()=>{
+
+
+    botaoPagar.disabled = true;
+
+
+    try {
+
+
+    const reservaCliente = await gravarReserva();
 
 
     const pagamento = {
 
 
+        idReservaCli:reservaCliente.id,
+
+
         status:"aprovado",
 
 
-        valor:10,
+        valorVaga:valorVaga,
+
+
+        garantia:GARANTIA,
+
+
+        valor:total,
 
 
         metodo:formaPagamento,
@@ -510,11 +736,17 @@ botaoPagar.onclick = ()=>{
 
 
 
+    // A reserva já está no banco, o rascunho não serve mais
+    localStorage.removeItem("reservaAtual");
+
+    localStorage.removeItem("vagaSelecionada");
+
+
 
 
     alert(
 
-        "Pagamento realizado com sucesso!"
+        `Pagamento de ${mostrarPreco(total)} realizado com sucesso!`
 
     );
 
@@ -526,6 +758,21 @@ botaoPagar.onclick = ()=>{
 
     "TelaReserConfirmada.html";
 
+
+
+    } catch (error) {
+
+
+        alert(error.message || "Não foi possível concluir o pagamento. Verifique se o servidor está ligado.");
+
+
+    } finally {
+
+
+        botaoPagar.disabled = false;
+
+
+    }
 
 
 };
@@ -554,22 +801,6 @@ botaoVoltar.onclick = ()=>{
 
 
 
-// =====================================================
-// PROTEÇÃO
-// =====================================================
-
-
-if(!reserva){
-
-
-    console.warn(
-
-        "Nenhuma reserva encontrada"
-
-    );
-
-
-}
 </script>
 
 

@@ -6,15 +6,11 @@
 <title>VagaConnect - Feedback</title>
 
 <link rel="stylesheet" href="../CSS/TelaFeedbacks.css">
-<link rel="stylesheet"href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body>
 
-<body>
-
 <div class="container">
-
- <!-- Navbar -->
 
     <header class="navbar">
 
@@ -24,7 +20,6 @@
         </div>
 
         <nav>
-
 
             <a href="../HTML/TelaUsuario.html">
                 <i class="fa-regular fa-user"></i>
@@ -60,27 +55,26 @@
 
     </div>
 
-
-
 </section>
 
 <section class="feedback-box">
 
     <h2>Enviar Feedback</h2>
 
-    <form>
+    <form id="formFeedback">
 
         <div class="form-grid">
 
             <div class="input-group">
                 <label>Assunto</label>
-                <input type="text" placeholder="Ex: Problema na Reserva">
+                <input id="assunto" type="text" placeholder="Ex: Problema na Reserva" required>
             </div>
 
             <div class="input-group">
                 <label>Categoria</label>
 
-                <select>
+                <select id="categoria" required>
+                    <option value="">Selecione</option>
                     <option>Sugestão</option>
                     <option>Elogio</option>
                     <option>Problema</option>
@@ -94,19 +88,19 @@
 
                 <div class="rating">
 
-                    <input type="radio" id="star5" name="rating">
+                    <input type="radio" id="star5" name="rating" value="5">
                     <label for="star5">★</label>
 
-                    <input type="radio" id="star4" name="rating">
+                    <input type="radio" id="star4" name="rating" value="4">
                     <label for="star4">★</label>
 
-                    <input type="radio" id="star3" name="rating">
+                    <input type="radio" id="star3" name="rating" value="3">
                     <label for="star3">★</label>
 
-                    <input type="radio" id="star2" name="rating">
+                    <input type="radio" id="star2" name="rating" value="2">
                     <label for="star2">★</label>
 
-                    <input type="radio" id="star1" name="rating">
+                    <input type="radio" id="star1" name="rating" value="1">
                     <label for="star1">★</label>
 
                 </div>
@@ -120,51 +114,166 @@
             <div class="input-group full">
                 <label>Mensagem</label>
 
-                <textarea placeholder="Conte-nos sua experiência ou sugestão..."></textarea>
+                <textarea id="mensagem" placeholder="Conte-nos sua experiência ou sugestão..." required></textarea>
             </div>
 
         </div>
 
         <div class="status-card">
             <span> Feedback enviado diretamente para o painel do administrador.</span>
-            <strong>Status: Aguardando envio</strong>
+            <strong id="statusEnvio">Status: Aguardando envio</strong>
         </div>
 
-        <button type="submit" class="send-btn">
+        <button type="submit" class="send-btn" id="enviar">
              Enviar Feedback
         </button>
 
     </form>
+
+    <div class="lista-feedbacks">
+        <h2>Seus envios</h2>
+        <div id="meusFeedbacks"></div>
+    </div>
 
 </section>
 
 </div>
 
 <script>
-    // ===============================
-// SAIR DA CONTA
-// ===============================
+const api = "http://localhost:3333";
 
-const btnSair = document.getElementById("btnSair");
+const usuarioLogado = JSON.parse(
+    localStorage.getItem("usuarioLogado")
+);
 
-btnSair.addEventListener("click", function (event) {
+if (!usuarioLogado) {
+    window.location.replace("../../Base/HTML/OpçãoLogin.html");
+}
 
+const formulario = document.getElementById("formFeedback");
+const botaoEnviar = document.getElementById("enviar");
+const statusEnvio = document.getElementById("statusEnvio");
+const meusFeedbacks = document.getElementById("meusFeedbacks");
+
+
+function mostrarData(texto) {
+    const data = new Date(texto);
+    const dia = String(data.getDate()).padStart(2, "0");
+    const mes = String(data.getMonth() + 1).padStart(2, "0");
+    const hora = String(data.getHours()).padStart(2, "0");
+    const minuto = String(data.getMinutes()).padStart(2, "0");
+
+    return `${dia}/${mes}/${data.getFullYear()} ${hora}:${minuto}`;
+}
+
+
+function notaEscolhida() {
+    const marcado = document.querySelector("input[name='rating']:checked");
+    return marcado ? Number(marcado.value) : 0;
+}
+
+
+async function carregarMeusFeedbacks() {
+    try {
+        const resposta = await fetch(api + "/feedback");
+        const lista = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(lista.erro || "Erro ao carregar os feedbacks");
+        }
+
+        const meus = lista.filter(item =>
+            item.fk_idCliente === usuarioLogado.id
+        );
+
+        if (meus.length === 0) {
+            meusFeedbacks.innerHTML = `<p class="vazio">Você ainda não enviou nenhum feedback.</p>`;
+            return;
+        }
+
+        meusFeedbacks.innerHTML = meus.map(item => `
+            <article class="card-feedback">
+                <header>
+                    <span>${item.categoria} · ${mostrarData(item.createdAt)}</span>
+                    <span class="estrelas">${"★".repeat(item.nota)}${"☆".repeat(5 - item.nota)}</span>
+                </header>
+                <h3>${item.assunto}</h3>
+                <p>${item.mensagem}</p>
+            </article>
+        `).join("");
+    } catch (error) {
+        meusFeedbacks.innerHTML = `<p class="vazio">${error.message || "Não foi possível carregar seus envios."}</p>`;
+    }
+}
+
+
+formulario.addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    const confirmar = confirm(
-        "Tem certeza que deseja sair da sua conta?"
-    );
+    const assunto = document.getElementById("assunto").value.trim();
+    const categoria = document.getElementById("categoria").value;
+    const mensagem = document.getElementById("mensagem").value.trim();
+    const nota = notaEscolhida();
 
-    if (confirmar) {
-
-        // Limpa os dados, se desejar
-        // localStorage.clear();
-
-        window.location.href = "../../Base/HTML/Abertura.html";
-
+    if (!assunto || !categoria || !mensagem) {
+        alert("Preencha assunto, categoria e mensagem.");
+        return;
     }
 
+    if (!nota) {
+        alert("Escolha uma nota de 1 a 5 estrelas.");
+        return;
+    }
+
+    botaoEnviar.disabled = true;
+    statusEnvio.textContent = "Status: Enviando...";
+
+    try {
+        const resposta = await fetch(api + "/feedback", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                nota,
+                assunto,
+                categoria,
+                mensagem,
+                fk_idCliente: usuarioLogado.id
+            })
+        });
+
+        const retorno = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(retorno.erro || "Erro ao enviar o feedback");
+        }
+
+        formulario.reset();
+        statusEnvio.textContent = "Status: Enviado";
+        alert("Feedback enviado com sucesso!");
+        await carregarMeusFeedbacks();
+    } catch (error) {
+        statusEnvio.textContent = "Status: Falhou o envio";
+        alert(error.message || "Não foi possível enviar. Verifique se o servidor está ligado.");
+    } finally {
+        botaoEnviar.disabled = false;
+    }
 });
+
+
+document.getElementById("btnSair").addEventListener("click", (event) => {
+    event.preventDefault();
+
+    if (!confirm("Tem certeza que deseja sair da sua conta?")) return;
+
+    localStorage.removeItem("usuarioLogado");
+    localStorage.removeItem("funcionarioLogado");
+    window.location.href = "../../Base/HTML/Abertura.html";
+});
+
+
+carregarMeusFeedbacks();
 </script>
 
 </body>

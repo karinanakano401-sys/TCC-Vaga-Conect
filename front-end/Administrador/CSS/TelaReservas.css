@@ -269,6 +269,23 @@ td {
   background: #491d27;
 }
 
+.reservada {
+  color: #4a93ff;
+  background: #0b3157;
+}
+
+.ativa,
+.pendente {
+  color: #f8bd22;
+  background: #443706;
+}
+
+.concluida,
+.confirmada {
+  color: #34d894;
+  background: #0d3c36;
+}
+
 .actions-title,
 .row-actions {
   text-align: center;
@@ -289,10 +306,25 @@ td {
   cursor: pointer;
 }
 
-.row-actions .delete {
+.row-actions .delete,
+.row-actions .vermelho {
   border-color: #5a2834;
   background: #2e1720;
   color: #ff6572;
+}
+
+.row-actions .texto {
+  width: auto;
+  height: 28px;
+  padding: 0 8px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.row-actions .verde {
+  border-color: #0d3c36;
+  background: #0d3c36;
+  color: #34d894;
 }
 
 .row-actions svg {

@@ -28,10 +28,10 @@
         <a href="../HTML/TelaUsuarios.html"><i data-icon="users"></i>Usuários</a>
         <a href="../HTML/TelaFuncionarios.html"><i data-icon="briefcase"></i>Funcionários</a>
         <a href="../HTML/TelaFeedback.html"><i data-icon="message"></i>Feedbacks</a>
-        <a href="../HTML/TelaFeedback.html"><i data-icon="credit-card"></i>Pagamentos</a>
+        <a href="../HTML/TelaPagamentos.html"><i data-icon="credit-card"></i>Pagamentos</a>
         <a href="../HTML/TelaFaturamento.html"><i data-icon="chart"></i>Faturamento</a>
         <a href="../HTML/TelaConfigurações.html"><i data-icon="settings"></i>Configurações</a>
-        <a href="../../Base/HTML/Abertura.html"><i data-icon="log-out"></i>Sair</a>
+        <a href="#" id="btnSair"><i data-icon="log-out"></i>Sair</a>
       </nav>
 
       <div class="profile">
@@ -62,15 +62,13 @@
         <div class="toolbar">
           <label>
             Data
-            <input type="date" id="dateFilter" value="2025-05-23">
+            <input type="date" id="dateFilter">
           </label>
 
           <label>
             Estacionamento
             <select id="parkingFilter">
               <option value="">Todos</option>
-              <option>CenterPark</option>
-              <option>Shopping Plaza</option>
             </select>
           </label>
 
@@ -78,8 +76,9 @@
             Status
             <select id="statusFilter">
               <option value="">Todos</option>
-              <option>Confirmada</option>
-              <option>Em andamento</option>
+              <option>Reservada</option>
+              <option>Ativa</option>
+              <option>Concluída</option>
               <option>Cancelada</option>
             </select>
           </label>
@@ -97,6 +96,7 @@
                 <th>Cliente</th>
                 <th>Carro</th>
                 <th>Vaga</th>
+                <th>Estacionamento</th>
                 <th>Data</th>
                 <th>Horário</th>
                 <th>Status</th>
@@ -114,60 +114,29 @@
     </main>
   </div>
 
+  <script src="../../Base/JS/sessao.js"></script>
   <script>
-    let reservations = JSON.parse(localStorage.getItem("reservas")) || [
-  ["Maria Eduarda", "Honda Civic", "12", "23/05/2025", "14:00", "Confirmada", "Pago", "CenterPark"],
-  ["João Silva", "Fiat Argo", "25", "23/05/2025", "15:30", "Em andamento", "Pendente", "Shopping Plaza"],
-  ["Ana Paula", "VW Polo", "07", "23/05/2025", "16:00", "Confirmada", "Pago", "CenterPark"],
-  ["Carlos Lima", "Jeep Compass", "33", "23/05/2025", "17:00", "Pendente", "Pendente", "CenterPark"],
-  ["Fernanda Costa", "Toyota Corolla", "15", "23/05/2025", "18:00", "Cancelada", "Estornado", "Shopping Plaza"]
-];
-
-localStorage.setItem("reservas", JSON.stringify(reservations));
-
     const icons = {
       grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
-
       building: '<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 7h1m3 0h1m3 0h1M8 11h1m3 0h1m3 0h1M8 15h1m3 0h1m3 0h1M10 21v-3h4v3"/>',
-
       car: '<path d="M5 17H3v-4l2-5h14l2 5v4h-2M5 17h14M7 17v2m10-2v2M5 13h14"/><circle cx="7" cy="15" r="1"/><circle cx="17" cy="15" r="1"/>',
-
       calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>',
-
       users: '<circle cx="9" cy="8" r="3"/><path d="M3 21v-2a6 6 0 0 1 12 0v2M16 4a3 3 0 0 1 0 6M21 21v-2a6 6 0 0 0-3-5.2"/>',
-
       briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5h8v2M3 12h18M10 12v2h4v-2"/>',
-
       message: '<path d="M21 11.5a8 8 0 0 1-8.5 8 9 9 0 0 1-4-.9L3 20l1.4-4A8 8 0 1 1 21 11.5Z"/>',
-
       chart:'<path d="M4 19V5"/>'+'<path d="M4 19h16"/>'+'<path d="M8 15v-3"/>'+'<path d="M12 15V8"/>'+'<path d="M16 15V5"/>',
-
       "credit-card": '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h2"/>',
-
       file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h6"/>',
-
       settings: '<circle cx="12" cy="12" r="3"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4m0-14.2-1.4 1.4M6.3 17.7l-1.4 1.4"/>',
-
       "log-out": '<path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-5"/>',
-
       "more-vertical": '<circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>',
-
       menu: '<path d="M4 6h16M4 12h16M4 18h16"/>',
-
       search: '<circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/>',
-
-      edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/>',
-
-      trash: '<path d="M3 6h18M8 6V4h8v2M19 6l-1 15H6L5 6M10 11v6m4-6v6"/>'
+      edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/>'
     };
 
     const svg = (name) => `
-      <svg viewBox="0 0 24 24"
-           fill="none"
-           stroke="currentColor"
-           stroke-width="1.8"
-           stroke-linecap="round"
-           stroke-linejoin="round">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         ${icons[name]}
       </svg>
     `;
@@ -176,71 +145,227 @@ localStorage.setItem("reservas", JSON.stringify(reservations));
       icon.outerHTML = svg(icon.dataset.icon);
     });
 
-    const rows = document.querySelector("#reservationRows");
-    const count = document.querySelector("#tableCount");
+    const funcionarioLogado = exigirLogin("admin", "../../Base/HTML/OpçãoLogin.html");
 
-    const cssClass = (status) => {
-      return status.toLowerCase().replaceAll(" ", "-");
-    };
+    if (funcionarioLogado) {
 
-    function render(data) {
-     rows.innerHTML = data.map(([client, car, spot, date, time, status, payment], index) => `
-          <tr>
-            <td>${client}</td>
-            <td>${car}</td>
-            <td>${spot}</td>
-            <td>${date}</td>
-            <td>${time}</td>
-            <td>
-              <span class="status ${cssClass(status)}">${status}</span>
-            </td>
-            <td>${payment}</td>
-            <td class="row-actions">
-              <button onclick="abrirReserva(${index})" title="Editar">${svg("edit")}</button>
-              <button class="delete" title="Excluir">${svg("trash")}</button>
-            </td>
-          </tr>
-        `
-      ).join("");
+    mostrarFuncionarioNoPerfil(funcionarioLogado);
 
-      count.textContent = `Mostrando ${data.length} de ${reservations.length} reservas`;
-    }
-
-    function abrirReserva(index){
-
-    localStorage.setItem("reservaSelecionada",
-        JSON.stringify(reservations[index]));
-
-    localStorage.setItem("indiceReserva", index);
-
-    window.location.href = "../HTML/ReserDetalhe.html";
-}
-
-    function filter() {
-      const search = document.querySelector("#searchInput").value.toLowerCase();
-      const parking = document.querySelector("#parkingFilter").value;
-      const status = document.querySelector("#statusFilter").value;
-
-      const filtered = reservations.filter((reservation) => {
-        return (
-          reservation.join(" ").toLowerCase().includes(search) &&
-          (!parking || reservation[7] === parking) &&
-          (!status || reservation[5] === status)
-        );
-      });
-
-      render(filtered);
-    }
-
-    render(reservations);
-
-    ["searchInput", "parkingFilter", "statusFilter"].forEach((id) => {
-      document.querySelector(`#${id}`).addEventListener("input", filter);
+    document.querySelector("#btnSair").addEventListener("click", (event) => {
+      event.preventDefault();
+      sair("../../Base/HTML/Abertura.html");
     });
 
     document.querySelector("#menuButton").addEventListener("click", () => {
       document.querySelector("#sidebar").classList.toggle("open");
     });
+
+    let reservas = [];
+
+    function cssStatus(status) {
+      return String(status || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replaceAll(" ", "-");
+    }
+
+    function dataCurta(texto) {
+      if (!texto) return "--";
+      const data = new Date(texto);
+      return `${String(data.getDate()).padStart(2, "0")}/${String(data.getMonth() + 1).padStart(2, "0")}/${data.getFullYear()}`;
+    }
+
+    function horaCurta(texto) {
+      if (!texto) return "--";
+      const data = new Date(texto);
+      return `${String(data.getHours()).padStart(2, "0")}:${String(data.getMinutes()).padStart(2, "0")}`;
+    }
+
+    function ymd(texto) {
+      if (!texto) return "";
+      const data = new Date(texto);
+      return `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, "0")}-${String(data.getDate()).padStart(2, "0")}`;
+    }
+
+    function botoes(item) {
+      const status = item.reserva.status;
+      let acoes = "";
+
+      if (status === "Reservada") {
+        acoes += `<button class="texto verde" onclick="confirmarEntrada('${item.id}')">Confirmar</button>`;
+        acoes += `<button class="texto vermelho" onclick="cancelar('${item.id}')">Cancelar</button>`;
+      }
+
+      if (status === "Ativa") {
+        acoes += `<button class="texto" onclick="encerrar('${item.id}')">Encerrar</button>`;
+      }
+
+      acoes += `<button onclick="abrirReserva('${item.id}')" title="Detalhes">${svg("edit")}</button>`;
+      return acoes;
+    }
+
+    function render() {
+      const busca = document.querySelector("#searchInput").value.toLowerCase();
+      const patio = document.querySelector("#parkingFilter").value;
+      const status = document.querySelector("#statusFilter").value;
+      const data = document.querySelector("#dateFilter").value;
+
+      const filtradas = reservas.filter((item) => {
+        const texto = [
+          item.usuario?.nome,
+          item.carro?.modelo,
+          item.carro?.placacarro,
+          item.reserva?.vaga?.numero,
+          item.reserva?.vaga?.estacionamento?.nome
+        ].join(" ").toLowerCase();
+
+        return (
+          texto.includes(busca) &&
+          (!patio || item.reserva?.vaga?.fk_est === patio) &&
+          (!status || item.reserva?.status === status) &&
+          (!data || ymd(item.hora) === data)
+        );
+      });
+
+      const rows = document.querySelector("#reservationRows");
+      const count = document.querySelector("#tableCount");
+
+      if (filtradas.length === 0) {
+        rows.innerHTML = `<tr><td colspan="9">Nenhuma reserva encontrada.</td></tr>`;
+        count.textContent = `Mostrando 0 de ${reservas.length} reservas`;
+        return;
+      }
+
+      rows.innerHTML = filtradas.map((item) => {
+        const statusReserva = item.reserva?.status || "--";
+        const carro = item.carro
+          ? `${item.carro.modelo} · ${item.carro.placacarro}`
+          : "Sem veículo";
+        const pagamento = item.pagamentos?.length ? "Pago" : "--";
+
+        return `
+          <tr>
+            <td>${item.usuario?.nome || "Cliente"}</td>
+            <td>${carro}</td>
+            <td>${item.reserva?.vaga?.numero || "--"}</td>
+            <td>${item.reserva?.vaga?.estacionamento?.nome || "--"}</td>
+            <td>${dataCurta(item.hora)}</td>
+            <td>${horaCurta(item.hora)} - ${horaCurta(item.horaSaida)}</td>
+            <td><span class="status ${cssStatus(statusReserva)}">${statusReserva}</span></td>
+            <td>${pagamento}</td>
+            <td class="row-actions">${botoes(item)}</td>
+          </tr>
+        `;
+      }).join("");
+
+      count.textContent = `Mostrando ${filtradas.length} de ${reservas.length} reservas`;
+    }
+
+    function abrirReserva(id) {
+      window.location.href = "../HTML/ReserDetalhe.html?id=" + id;
+    }
+
+    async function atualizarVaga(vaga, status) {
+      await fetch(API + "/vaga/" + vaga.id, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          numero: vaga.numero,
+          tipo: vaga.tipo,
+          status,
+          preco: vaga.preco,
+          fk_est: vaga.fk_est
+        })
+      });
+    }
+
+    async function atualizarReserva(item, status) {
+      const resposta = await fetch(API + "/reserva/" + item.fk_idReserva, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status,
+          fk_vaga: item.reserva.fk_vaga
+        })
+      });
+      const retorno = await resposta.json();
+      if (!resposta.ok) throw new Error(retorno.erro || "Erro ao atualizar a reserva");
+    }
+
+    async function confirmarEntrada(id) {
+      const item = reservas.find((reserva) => reserva.id === id);
+      if (!confirm("Confirmar a chegada deste cliente?")) return;
+      try {
+        await atualizarReserva(item, "Ativa");
+        await atualizarVaga(item.reserva.vaga, "Ocupada");
+        await carregar();
+      } catch (error) {
+        alert(error.message || "Não foi possível confirmar a chegada.");
+      }
+    }
+
+    async function encerrar(id) {
+      const item = reservas.find((reserva) => reserva.id === id);
+      if (!confirm("Encerrar esta reserva e liberar a vaga?")) return;
+      try {
+        await atualizarReserva(item, "Concluída");
+        await atualizarVaga(item.reserva.vaga, "Livre");
+        await carregar();
+      } catch (error) {
+        alert(error.message || "Não foi possível encerrar a reserva.");
+      }
+    }
+
+    async function cancelar(id) {
+      const item = reservas.find((reserva) => reserva.id === id);
+      if (!confirm("Cancelar esta reserva?")) return;
+      try {
+        await atualizarReserva(item, "Cancelada");
+        await atualizarVaga(item.reserva.vaga, "Livre");
+        await carregar();
+      } catch (error) {
+        alert(error.message || "Não foi possível cancelar a reserva.");
+      }
+    }
+
+    window.confirmarEntrada = confirmarEntrada;
+    window.encerrar = encerrar;
+    window.cancelar = cancelar;
+    window.abrirReserva = abrirReserva;
+
+    async function carregarEstacionamentos() {
+      const resposta = await fetch(API + "/estacionamento");
+      const lista = await resposta.json();
+      if (!resposta.ok) throw new Error(lista.erro || "Erro ao carregar os estacionamentos");
+
+      const select = document.getElementById("parkingFilter");
+      lista.forEach((patio) => {
+        const option = document.createElement("option");
+        option.value = patio.id;
+        option.textContent = patio.nome;
+        select.appendChild(option);
+      });
+    }
+
+    async function carregar() {
+      const resposta = await fetch(API + "/reservacli");
+      const lista = await resposta.json();
+      if (!resposta.ok) throw new Error(lista.erro || "Erro ao carregar as reservas");
+      reservas = lista.sort((a, b) => new Date(b.hora) - new Date(a.hora));
+      render();
+    }
+
+    ["searchInput", "parkingFilter", "statusFilter", "dateFilter"].forEach((id) => {
+      document.querySelector(`#${id}`).addEventListener("input", render);
+      document.querySelector(`#${id}`).addEventListener("change", render);
+    });
+
+    Promise.all([carregarEstacionamentos(), carregar()]).catch((error) => {
+      alert(error.message || "Não foi possível carregar. Verifique se o servidor está ligado.");
+    });
+
+    }
   </script>
 </body>
 </html>

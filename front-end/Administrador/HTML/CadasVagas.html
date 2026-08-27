@@ -88,14 +88,16 @@
               </select>
             </label>
 
-            <label class="field field-wide">
+            <label class="field">
               Estacionamento
               <select name="parking" required>
                 <option value="">Selecione o estacionamento</option>
-                <option>CenterPark</option>
-                <option>Shopping Plaza</option>
-                <option>Park Sul</option>
               </select>
+            </label>
+
+            <label class="field">
+              Preço da vaga (R$)
+              <input name="price" type="number" min="0" step="0.01" placeholder="Ex.: 25,00" required>
             </label>
 
             <label class="field field-wide">
@@ -124,6 +126,7 @@
     </main>
   </div>
 
+  <script src="../../Base/JS/sessao.js"></script>
   <script>
     const icons = {
       grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
@@ -178,33 +181,149 @@
       document.querySelector("#spotForm").reset();
     });
 
-document.querySelector("#spotForm").addEventListener("submit", (event) => {
+const api = "http://localhost:3333";
+
+const funcionarioLogado = exigirLogin("admin", "../../Base/HTML/OpçãoLogin.html");
+
+mostrarFuncionarioNoPerfil(funcionarioLogado);
+
+const formularioVaga = document.querySelector("#spotForm");
+const selectEstacionamento = formularioVaga.parking;
+
+const params = new URLSearchParams(window.location.search);
+const idEdicao = params.get("id");
+
+
+// ==============================
+// ESTACIONAMENTOS DO SELECT
+// ==============================
+
+async function carregarEstacionamentos(){
+
+    const resposta = await fetch(api + "/estacionamento");
+
+    const lista = await resposta.json();
+
+    if(!resposta.ok){
+        throw new Error(lista.erro || "Erro ao carregar os estacionamentos");
+    }
+
+    selectEstacionamento.innerHTML =
+        '<option value="">Selecione o estacionamento</option>' +
+        lista.map((parking) => `
+            <option value="${parking.id}">${parking.nome}</option>
+        `).join("");
+
+}
+
+
+// ==============================
+// CARREGAR PARA EDITAR
+// ==============================
+
+async function carregarVagaParaEditar(){
+
+    if(!idEdicao) return;
+
+    const resposta = await fetch(api + "/vaga/" + idEdicao);
+
+    const vaga = await resposta.json();
+
+    if(!resposta.ok){
+        throw new Error(vaga.erro || "Erro ao carregar a vaga");
+    }
+
+    formularioVaga.number.value = vaga.numero;
+    formularioVaga.type.value = vaga.tipo;
+    formularioVaga.parking.value = vaga.fk_est;
+    formularioVaga.price.value = vaga.preco;
+    formularioVaga.status.value = vaga.status;
+
+    document.querySelector("h1").textContent = "Editar Vaga";
+
+}
+
+
+// ==============================
+// INICIAR A TELA
+// ==============================
+
+(async () => {
+
+    try {
+
+        await carregarEstacionamentos();
+
+        await carregarVagaParaEditar();
+
+    } catch (error) {
+
+        alert(error.message || "Não foi possível carregar. Verifique se o servidor está ligado.");
+
+    }
+
+})();
+
+
+// ==============================
+// SALVAR
+// ==============================
+
+formularioVaga.addEventListener("submit", async (event) => {
+
     event.preventDefault();
 
     const form = event.target;
 
-    const novaVaga = [
-        form.number.value,
-        form.type.value,
-        form.parking.value,
-        form.status.value
-    ];
+    const botaoSalvar = form.querySelector("button[type='submit']");
 
-    // Busca vagas já salvas
-    let vagas = JSON.parse(localStorage.getItem("vagas")) || [];
+    const dados = {
+        numero: form.number.value.trim(),
+        tipo: form.type.value,
+        status: form.status.value,
+        preco: Number(form.price.value),
+        fk_est: form.parking.value
+    };
 
-    // Adiciona a nova vaga
-    vagas.push(novaVaga);
+    botaoSalvar.disabled = true;
 
-    // Salva novamente
-    localStorage.setItem("vagas", JSON.stringify(vagas));
+    try {
 
-    alert("Vaga cadastrada com sucesso!");
+        const resposta = await fetch(
+            idEdicao ? api + "/vaga/" + idEdicao : api + "/vaga",
+            {
+                method: idEdicao ? "PUT" : "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(dados)
+            }
+        );
 
-    form.reset();
+        const vaga = await resposta.json();
 
-    // Volta para a tela de vagas
-    window.location.href = "TelaVagas.html";
+        if(!resposta.ok){
+            throw new Error(vaga.erro || "Erro ao salvar a vaga");
+        }
+
+        alert(
+            idEdicao
+                ? "Vaga atualizada com sucesso!"
+                : "Vaga cadastrada com sucesso!"
+        );
+
+        window.location.href = "TelaVagas.html";
+
+    } catch (error) {
+
+        alert(error.message || "Não foi possível salvar a vaga. Verifique se o servidor está ligado.");
+
+    } finally {
+
+        botaoSalvar.disabled = false;
+
+    }
+
 });
   </script>
 </body>

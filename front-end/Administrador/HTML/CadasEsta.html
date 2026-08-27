@@ -100,6 +100,7 @@
                 <label class="field field-wide">Bairro<input name="district" placeholder="Ex.: Jardim das Acácias" required></label>
                 <label class="field">CEP<input name="zip" placeholder="00000-000" maxlength="9" required></label>
                 <label class="field">Quantidade de vagas<input name="spaces" type="number" min="1" placeholder="Ex.: 80" required></label>
+                <label class="field">Preço por vaga (R$)<input name="price" type="number" min="0" step="0.01" placeholder="Ex.: 25,00" required></label>
                 <label class="field">Status<select name="status"><option>Ativo</option><option>Inativo</option></select></label>
               </div>
               <div class="form-actions">
@@ -113,11 +114,13 @@
              </button>
 
               </div>
+            </form>
           </section>
         </main>
       </div>
 
 
+      <script src="../../Base/JS/sessao.js"></script>
       <script>
 
 
@@ -237,71 +240,206 @@ save:
 
 
     (() => {
+      const api = "http://localhost:3333";
+
+      const funcionarioLogado = exigirLogin("admin", "../../Base/HTML/OpçãoLogin.html");
+
+      if (!funcionarioLogado) return;
+
+      mostrarFuncionarioNoPerfil(funcionarioLogado);
+
       const formulario = document.querySelector("#parkingForm");
       const botaoCancelar = document.querySelector("#cancelButton");
+      const botaoSalvar = formulario.querySelector("button[type='submit']");
 
       const params = new URLSearchParams(window.location.search);
-      const idEdicao = Number(params.get("id"));
+      const idEdicao = params.get("id");
 
-      function pegarEstacionamentos() {
-        return JSON.parse(localStorage.getItem("estacionamentos")) || [];
-      }
+      let estacionamentoEditado = null;
 
-      function preencherFormularioParaEditar() {
+
+      // ==============================
+      // CARREGAR PARA EDITAR
+      // ==============================
+
+      async function preencherFormularioParaEditar() {
         if (!idEdicao) return;
 
-        const estacionamento = pegarEstacionamentos().find(
-          (parking) => parking.id === idEdicao
-        );
+        try {
+          const resposta = await fetch(api + "/estacionamento/" + idEdicao);
+          const estacionamento = await resposta.json();
 
-        if (!estacionamento) return;
+          if (!resposta.ok) {
+            throw new Error(estacionamento.erro || "Erro ao carregar o estacionamento");
+          }
 
-        formulario.name.value = estacionamento.name;
-        formulario.city.value = estacionamento.city.split(" - ")[0];
-        formulario.street.value = estacionamento.street || "";
-        formulario.number.value = estacionamento.number || "";
-        formulario.district.value = estacionamento.district || "";
-        formulario.zip.value = estacionamento.zip || "";
-        formulario.spaces.value = estacionamento.spaces;
-        formulario.status.value = estacionamento.status;
+          estacionamentoEditado = estacionamento;
 
-        document.querySelector("h1").textContent = "Editar Estacionamento";
+          formulario.name.value = estacionamento.nome;
+          formulario.city.value = estacionamento.endereco.cidade;
+          formulario.state.value = estacionamento.endereco.estado;
+          formulario.street.value = estacionamento.endereco.rua;
+          formulario.number.value = estacionamento.endereco.numero;
+          formulario.district.value = estacionamento.endereco.bairro;
+          formulario.zip.value = estacionamento.endereco.cep;
+          formulario.status.value = estacionamento.status;
+
+          // Na edição as vagas e os preços são gerenciados na tela de Vagas
+          formulario.spaces.value = estacionamento.vagas.length;
+          formulario.spaces.readOnly = true;
+
+          formulario.price.value = estacionamento.vagas.length
+            ? estacionamento.vagas[0].preco
+            : 0;
+
+          formulario.price.readOnly = true;
+
+          document.querySelector("h1").textContent = "Editar Estacionamento";
+        } catch (error) {
+          alert(error.message || "Não foi possível carregar. Verifique se o servidor está ligado.");
+        }
       }
 
-      formulario.addEventListener("submit", (event) => {
-        event.preventDefault();
 
-        const lista = pegarEstacionamentos();
+      // ==============================
+      // CRIAR AS VAGAS DO ESTACIONAMENTO
+      // ==============================
 
-        const estacionamento = {
-          id: idEdicao || Date.now(),
-          name: formulario.name.value,
-          city: `${formulario.city.value} - ${formulario.state.value}`,
-          street: formulario.street.value,
-          number: formulario.number.value,
-          district: formulario.district.value,
-          zip: formulario.zip.value,
-          address: `${formulario.street.value}, ${formulario.number.value}`,
-          spaces: formulario.spaces.value,
-          status: formulario.status.value
-        };
+      async function criarVagas(quantidade, preco, idEstacionamento) {
+        const criacoes = [];
 
-        const indice = lista.findIndex(
-          (parking) => parking.id === idEdicao
-        );
-
-        if (indice >= 0) {
-          lista[indice] = estacionamento;
-        } else {
-          lista.push(estacionamento);
+        for (let i = 1; i <= quantidade; i++) {
+          criacoes.push(
+            fetch(api + "/vaga", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                numero: String(i),
+                tipo: "Comum",
+                status: "Livre",
+                preco: preco,
+                fk_est: idEstacionamento
+              })
+            })
+          );
         }
 
-        localStorage.setItem(
-          "estacionamentos",
-          JSON.stringify(lista)
-        );
+        await Promise.all(criacoes);
+      }
 
-        window.location.href = "../HTML/TelaEstacionamento.html";
+
+      // ==============================
+      // SALVAR
+      // ==============================
+
+      formulario.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const dadosEndereco = {
+          rua: formulario.street.value.trim(),
+          numero: formulario.number.value.trim(),
+          bairro: formulario.district.value.trim(),
+          cidade: formulario.city.value.trim(),
+          estado: formulario.state.value,
+          cep: formulario.zip.value.trim()
+        };
+
+        botaoSalvar.disabled = true;
+
+        let enderecoId = null;
+
+        try {
+          if (estacionamentoEditado) {
+            const respostaEndereco = await fetch(api + "/endereco/" + estacionamentoEditado.fk_idEndereco, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(dadosEndereco)
+            });
+
+            const endereco = await respostaEndereco.json();
+
+            if (!respostaEndereco.ok) {
+              throw new Error(endereco.erro || "Erro ao atualizar o endereço");
+            }
+
+            const respostaEstacionamento = await fetch(api + "/estacionamento/" + estacionamentoEditado.id, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                nome: formulario.name.value.trim(),
+                status: formulario.status.value
+              })
+            });
+
+            const estacionamento = await respostaEstacionamento.json();
+
+            if (!respostaEstacionamento.ok) {
+              throw new Error(estacionamento.erro || "Erro ao atualizar o estacionamento");
+            }
+
+            alert("Estacionamento atualizado com sucesso!");
+          } else {
+            const respostaEndereco = await fetch(api + "/endereco", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(dadosEndereco)
+            });
+
+            const endereco = await respostaEndereco.json();
+
+            if (!respostaEndereco.ok) {
+              throw new Error(endereco.erro || "Erro ao criar o endereço");
+            }
+
+            enderecoId = endereco.id;
+
+            const respostaEstacionamento = await fetch(api + "/estacionamento", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                nome: formulario.name.value.trim(),
+                status: formulario.status.value,
+                fk_idEndereco: endereco.id
+              })
+            });
+
+            const estacionamento = await respostaEstacionamento.json();
+
+            if (!respostaEstacionamento.ok) {
+              throw new Error(estacionamento.erro || "Erro ao criar o estacionamento");
+            }
+
+            await criarVagas(
+              Number(formulario.spaces.value),
+              Number(formulario.price.value),
+              estacionamento.id
+            );
+
+            alert("Estacionamento cadastrado com sucesso!");
+          }
+
+          window.location.href = "../HTML/TelaEstacionamento.html";
+        } catch (error) {
+          if (enderecoId) {
+            await fetch(api + "/endereco/" + enderecoId, {
+              method: "DELETE"
+            }).catch(() => {});
+          }
+
+          alert(error.message || "Não foi possível salvar. Verifique se o servidor está ligado.");
+        } finally {
+          botaoSalvar.disabled = false;
+        }
       });
 
       botaoCancelar.addEventListener("click", () => {

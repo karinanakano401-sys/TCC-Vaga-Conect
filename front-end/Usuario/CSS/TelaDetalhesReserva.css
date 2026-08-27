@@ -635,7 +635,9 @@ body{
 
 
 
-#novoHorario{
+#novoHorario,
+#novaData,
+#novaSaida{
 
     background:#0b223d;
 
@@ -650,6 +652,16 @@ body{
     font-family:'Poppins';
 
     font-size:13px;
+
+}
+
+
+
+.linha strong{
+
+    text-align:right;
+
+    max-width:60%;
 
 }
 

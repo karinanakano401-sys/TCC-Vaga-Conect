@@ -31,7 +31,7 @@
         <a href="../HTML/TelaPagamentos.html"><i data-icon="credit-card"></i>Pagamentos</a>
         <a href="../HTML/TelaFaturamento.html"><i data-icon="chart"></i>Faturamento</a>
         <a href="../HTML/TelaConfigurações.html"><i data-icon="settings"></i>Configurações</a>
-        <a href="../../Base/HTML/Abertura.html"><i data-icon="log-out"></i>Sair</a>
+        <a href="#" id="btnSair"><i data-icon="log-out"></i>Sair</a>
       </nav>
 
       <div class="profile">
@@ -81,7 +81,7 @@
                 <th>Cargo</th>
                 <th>CPF</th>
                 <th>Telefone</th>
-                <th>Status</th>
+                <th>Estacionamento</th>
                 <th class="actions-title">Ações</th>
               </tr>
             </thead>
@@ -95,21 +95,20 @@
     </main>
   </div>
 
+  <script src="../../Base/JS/sessao.js"></script>
   <script>
-    let employees =JSON.parse(localStorage.getItem("funcionarios")) || [];
+    const api = "http://localhost:3333";
 
-    const funcionariosSalvos = JSON.parse(localStorage.getItem("funcionarios")) || [];
-    funcionariosSalvos.forEach(funcionario => {
+    const funcionarioLogado = exigirLogin("admin", "../../Base/HTML/OpçãoLogin.html");
 
-    employees.push([
-        funcionario.nome,
-        funcionario.cargo,
-        funcionario.cpf,
-        funcionario.telefone,
-        "Ativo"
-    ]);
+    mostrarFuncionarioNoPerfil(funcionarioLogado);
 
-});
+    document.querySelector("#btnSair").addEventListener("click", (event) => {
+      event.preventDefault();
+      sair("../../Base/HTML/Abertura.html");
+    });
+
+    let employees = [];
 
     const icons = {
       grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
@@ -170,14 +169,28 @@
     function render(data){
       rows.innerHTML = "";
 
-data.forEach((employee,index)=>{
+if(data.length === 0){
+
+rows.innerHTML = `
+<tr>
+<td colspan="6">Nenhum funcionário cadastrado.</td>
+</tr>
+`;
+
+count.textContent = "Mostrando 0 funcionário(s)";
+
+return;
+
+}
+
+data.forEach((employee)=>{
 
 rows.innerHTML += `
 <tr>
 
 <td>${employee.nome}</td>
 
-<td>${employee.cargo}</td>
+<td>${employee.tipoFunc.nome}</td>
 
 <td>${employee.cpf}</td>
 
@@ -186,19 +199,19 @@ rows.innerHTML += `
 <td>
 
 <span class="status active-status">
-Ativo
+${employee.estacionamento.nome}
 </span>
 
 </td>
 
 <td class="row-actions">
 
-<button onclick="editarFuncionario(${index})">
+<button onclick="editarFuncionario('${employee.id}')">
 ${svg("edit")}
 </button>
 
 <button class="delete"
-onclick="excluirFuncionario(${index})">
+onclick="excluirFuncionario('${employee.id}')">
 ${svg("trash")}
 </button>
 
@@ -215,30 +228,63 @@ count.textContent =
 
 }
 
-function excluirFuncionario(indice){
+async function carregarFuncionarios(){
 
-if(confirm("Deseja realmente excluir este funcionário?")){
+try {
 
-employees.splice(indice,1);
+const resposta = await fetch(api + "/funcionario");
 
-localStorage.setItem(
-"funcionarios",
-JSON.stringify(employees)
-);
+const lista = await resposta.json();
+
+if(!resposta.ok){
+throw new Error(lista.erro || "Erro ao carregar os funcionários");
+}
+
+employees = lista;
 
 render(employees);
 
+} catch (error) {
+
+alert(error.message || "Não foi possível carregar. Verifique se o servidor está ligado.");
+
+}
+
+}
+
+async function excluirFuncionario(id){
+
+if(!confirm("Deseja realmente excluir este funcionário?")) return;
+
+try {
+
+const resposta = await fetch(api + "/funcionario/" + id, {
+method: "DELETE"
+});
+
+const retorno = await resposta.json();
+
+if(!resposta.ok){
+throw new Error(retorno.erro || "Erro ao excluir o funcionário");
+}
+
+await carregarFuncionarios();
+
+} catch (error) {
+
+alert(error.message || "Não foi possível excluir o funcionário.");
+
 }
 
 }
 
-function editarFuncionario(indice){
+function editarFuncionario(id){
 
-    window.location.href = "../HTML/CadasFunc.html?id=" + indice;
+    window.location.href = "../HTML/CadasFunc.html?id=" + id;
 
 }
 
-    render(employees);
+    carregarFuncionarios();
 
     document.querySelector("#searchInput").addEventListener("input", (event) => {
       const search = event.target.value.toLowerCase();
@@ -247,7 +293,7 @@ function editarFuncionario(indice){
 
       employee.nome.toLowerCase().includes(search) ||
 
-      employee.cargo.toLowerCase().includes(search) ||
+      employee.tipoFunc.nome.toLowerCase().includes(search) ||
 
       employee.cpf.toLowerCase().includes(search) ||
 

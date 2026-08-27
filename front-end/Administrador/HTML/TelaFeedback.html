@@ -73,7 +73,7 @@
     Configurações
 </a>
 
-<a href="../../Base/HTML/Abertura.html">
+<a href="#" id="btnSair">
     <i data-icon="log-out"></i>
     Sair
 </a>
@@ -104,6 +104,9 @@
               <option value="">Todos</option>
               <option value="5">5 estrelas</option>
               <option value="4">4 estrelas</option>
+              <option value="3">3 estrelas</option>
+              <option value="2">2 estrelas</option>
+              <option value="1">1 estrela</option>
             </select>
           </label>
 
@@ -120,7 +123,20 @@
 
   
 
+  <script src="../../Base/JS/sessao.js"></script>
   <script>
+
+const api = "http://localhost:3333";
+
+const funcionarioLogado = exigirLogin("admin", "../../Base/HTML/OpçãoLogin.html");
+
+mostrarFuncionarioNoPerfil(funcionarioLogado);
+
+document.querySelector("#btnSair").addEventListener("click", (event) => {
+  event.preventDefault();
+  sair("../../Base/HTML/Abertura.html");
+});
+
 
 const icons = {
 
@@ -174,50 +190,40 @@ settings:
 
 };
 
-
-
-    const feedbacks = [
-      [
-        "5",
-        "Maria Eduarda",
-        "Excelente estacionamento! Muito organizado e seguro.",
-        "CenterPark",
-        "23/05/2025"
-      ],
-      [
-        "4",
-        "João Silva",
-        "Ótima experiência e fácil acesso. Recomendo!",
-        "Shopping Plaza",
-        "22/05/2025"
-      ],
-      [
-        "5",
-        "Ana Paula",
-        "Muito bom, apenas a sinalização poderia melhorar.",
-        "Park Sul",
-        "21/05/2025"
-      ]
-    ];
+    let feedbacks = [];
 
     const list = document.querySelector("#feedbackList");
 
+    function mostrarData(texto) {
+      const data = new Date(texto);
+      const dia = String(data.getDate()).padStart(2, "0");
+      const mes = String(data.getMonth() + 1).padStart(2, "0");
+
+      return `${dia}/${mes}/${data.getFullYear()}`;
+    }
+
     function render(data) {
-      list.innerHTML = data.map(([rate, name, text, place, date]) => `
+      if (data.length === 0) {
+        list.innerHTML = `<article class="feedback"><p>Nenhum feedback encontrado.</p></article>`;
+        return;
+      }
+
+      list.innerHTML = data.map((item) => `
         <article class="feedback">
           <div class="feedback-top">
             <span class="stars">
-              ${"★".repeat(rate)}${"☆".repeat(5 - rate)}
+              ${"★".repeat(item.nota)}${"☆".repeat(5 - item.nota)}
             </span>
 
-            <strong>${name}</strong>
+            <strong>${item.usuario.nome}</strong>
 
-            <span class="place">⌖ ${place}</span>
+            <span class="place">${item.categoria}</span>
           </div>
 
-          <p>${text}</p>
+          <p><strong>${item.assunto}</strong></p>
+          <p>${item.mensagem}</p>
 
-          <time>${date}</time>
+          <time>${mostrarData(item.createdAt)}</time>
         </article>
       `).join("");
     }
@@ -226,17 +232,33 @@ settings:
       const query = document.querySelector("#search").value.toLowerCase();
       const rating = document.querySelector("#rating").value;
 
-      const filtered = feedbacks.filter((feedback) => {
+      const filtered = feedbacks.filter((item) => {
+        const texto = `${item.usuario.nome} ${item.assunto} ${item.categoria} ${item.mensagem}`.toLowerCase();
+
         return (
-          feedback.join(" ").toLowerCase().includes(query) &&
-          (!rating || feedback[0] === rating)
+          texto.includes(query) &&
+          (!rating || String(item.nota) === rating)
         );
       });
 
       render(filtered);
     }
 
-    render(feedbacks);
+    async function carregarFeedbacks() {
+      try {
+        const resposta = await fetch(api + "/feedback");
+        const lista = await resposta.json();
+
+        if (!resposta.ok) {
+          throw new Error(lista.erro || "Erro ao carregar os feedbacks");
+        }
+
+        feedbacks = lista;
+        filter();
+      } catch (error) {
+        list.innerHTML = `<article class="feedback"><p>${error.message || "Não foi possível carregar. Verifique se o servidor está ligado."}</p></article>`;
+      }
+    }
 
     document.querySelector("#search").addEventListener("input", filter);
     document.querySelector("#rating").addEventListener("change", filter);
@@ -263,6 +285,8 @@ document.querySelectorAll("i[data-icon]").forEach(icon=>{
 icon.outerHTML = svg(icon.dataset.icon);
 
 });
+
+    carregarFeedbacks();
   </script>
 </body>
 </html>

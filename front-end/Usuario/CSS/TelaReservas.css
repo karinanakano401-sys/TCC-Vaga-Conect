@@ -170,6 +170,7 @@ body{
     background:#071c33;
     border-radius:18px;
     padding:25px;
+    overflow-y:auto;
 }
 
 .filters h3,
@@ -200,6 +201,100 @@ body{
     color:#fff;
     padding:0 12px;
     outline:none;
+}
+
+/* =====================================================
+   LISTA DE ESTACIONAMENTOS
+===================================================== */
+
+.busca-estacionamento{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:#0d2948;
+    border-radius:10px;
+    padding:0 12px;
+    height:44px;
+    margin-bottom:15px;
+}
+
+.busca-estacionamento i{
+    color:#8aa3c0;
+    font-size:14px;
+}
+
+.busca-estacionamento input{
+    flex:1;
+    border:none;
+    background:transparent;
+    color:#fff;
+    outline:none;
+    font-family:inherit;
+    font-size:14px;
+}
+
+.lista-estacionamentos{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.item-estacionamento{
+    background:#0b223d;
+    border:2px solid transparent;
+    border-radius:12px;
+    padding:14px;
+    cursor:pointer;
+    transition:.25s;
+}
+
+.item-estacionamento:hover{
+    background:#0f2c4d;
+}
+
+.item-estacionamento.ativo{
+    border-color:#2563eb;
+    background:#0f2c4d;
+}
+
+.item-estacionamento h4{
+    font-size:15px;
+    margin-bottom:6px;
+}
+
+.item-estacionamento p{
+    color:#8aa3c0;
+    font-size:13px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
+
+.dados-estacionamento{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-top:10px;
+    color:#9fb6d1;
+    font-size:12px;
+}
+
+.dados-estacionamento span{
+    display:flex;
+    align-items:center;
+    gap:5px;
+}
+
+.sem-resultado{
+    color:#8aa3c0;
+    font-size:13px;
+}
+
+.aviso-vazio{
+    grid-column:1 / -1;
+    align-self:center;
+    text-align:center;
+    color:#8aa3c0;
 }
 
 .resume{

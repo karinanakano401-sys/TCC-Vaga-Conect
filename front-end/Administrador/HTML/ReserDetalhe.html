@@ -29,9 +29,9 @@
         <a href="../HTML/TelaFuncionarios.html"><i data-icon="briefcase"></i>Funcionários</a>
         <a href="../HTML/TelaFeedback.html"><i data-icon="message"></i>Feedbacks</a>
         <a href="../HTML/TelaPagamentos.html"><i data-icon="credit-card"></i>Pagamentos</a>
-        <a href="../HTML/TelaFaturamento.html"><i data-icon="credit-card"></i>Faturamento</a>
+        <a href="../HTML/TelaFaturamento.html"><i data-icon="chart"></i>Faturamento</a>
         <a href="../HTML/TelaConfigurações.html"><i data-icon="settings"></i>Configurações</a>
-        <a href="../../Base/HTML/Abertura.html"><i data-icon="log-out"></i>Sair</a>
+        <a href="#" id="btnSair"><i data-icon="log-out"></i>Sair</a>
       </nav>
 
       <div class="profile">
@@ -54,11 +54,11 @@
         </button>
 
         <div>
-          <h1>Detalhes da Reserva #1258</h1>
+          <h1 id="tituloReserva">Detalhes da Reserva</h1>
           <p>Confira os dados e atualize o status da reserva.</p>
         </div>
 
-        <span class="status progress">Em andamento</span>
+        <span class="status progress" id="statusTopo">--</span>
       </header>
 
       <section class="details-panel">
@@ -72,17 +72,17 @@
             <dl>
               <div>
                 <dt>Nome</dt>
-                <dd id="clienteNome">João Silva</dd>
+                <dd id="clienteNome">--</dd>
               </div>
 
               <div>
-                <dt>Telefone</dt>
-                <dd>(11) 99999-8888</dd>
+                <dt>CPF</dt>
+                <dd id="clienteCpf">--</dd>
               </div>
 
               <div>
                 <dt>E-mail</dt>
-                <dd>joao.silva@email.com</dd>
+                <dd id="clienteEmail">--</dd>
               </div>
             </dl>
           </article>
@@ -96,47 +96,52 @@
             <dl class="two-columns">
               <div>
                 <dt>Estacionamento</dt>
-                <dd id="estacionamento">CenterPark</dd>
+                <dd id="estacionamento">--</dd>
               </div>
 
               <div>
                 <dt>Vaga</dt>
-                <dd id="vaga">25</dd>
+                <dd id="vaga">--</dd>
               </div>
 
               <div>
                 <dt>Data</dt>
-                <dd id="data">23/05/2025</dd>
+                <dd id="data">--</dd>
               </div>
 
               <div>
-                <dt>Horário</dt>
-                <dd id="horario">15:30</dd>
+                <dt>Chegada</dt>
+                <dd id="horario">--</dd>
+              </div>
+
+              <div>
+                <dt>Saída prevista</dt>
+                <dd id="horarioSaida">--</dd>
               </div>
 
               <div>
                 <dt>Carro</dt>
-                <dd id="carro">Fiat Argo · ABC1234</dd>
+                <dd id="carro">--</dd>
               </div>
 
               <div>
                 <dt>Pagamento</dt>
-                <dd id="pagamento">Pendente</dd>
+                <dd id="pagamento">--</dd>
               </div>
             </dl>
           </article>
         </div>
 
         <div class="actions">
-          <button class="confirm" data-action="Presença confirmada">
+          <button class="confirm" id="btnConfirmar">
             Confirmar presença
           </button>
 
-          <button class="finish" data-action="Reserva finalizada">
+          <button class="finish" id="btnFinalizar">
             Finalizar reserva
           </button>
 
-          <button class="cancel" data-action="Reserva cancelada">
+          <button class="cancel" id="btnCancelar">
             Cancelar reserva
           </button>
         </div>
@@ -144,43 +149,26 @@
     </main>
   </div>
 
+  <script src="../../Base/JS/sessao.js"></script>
   <script>
-    const reserva = JSON.parse(localStorage.getItem("reservaSelecionada"));
     const icons = {
       grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
-
       building: '<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 7h1m3 0h1m3 0h1M8 11h1m3 0h1m3 0h1M8 15h1m3 0h1m3 0h1M10 21v-3h4v3"/>',
-
       car: '<path d="M5 17H3v-4l2-5h14l2 5v4h-2M5 17h14M7 17v2m10-2v2M5 13h14"/><circle cx="7" cy="15" r="1"/><circle cx="17" cy="15" r="1"/>',
-
       calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>',
-
       users: '<circle cx="9" cy="8" r="3"/><path d="M3 21v-2a6 6 0 0 1 12 0v2M16 4a3 3 0 0 1 0 6M21 21v-2a6 6 0 0 0-3-5.2"/>',
-
       briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5h8v2M3 12h18M10 12v2h4v-2"/>',
-
       message: '<path d="M21 11.5a8 8 0 0 1-8.5 8 9 9 0 0 1-4-.9L3 20l1.4-4A8 8 0 1 1 21 11.5Z"/>',
-
       "credit-card": '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h2"/>',
-
       file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h6"/>',
-
       settings: '<circle cx="12" cy="12" r="3"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4m0-14.2-1.4 1.4M6.3 17.7l-1.4 1.4"/>',
-
       "log-out": '<path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-5"/>',
-
       "more-vertical": '<circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>',
-
       menu: '<path d="M4 6h16M4 12h16M4 18h16"/>'
     };
 
     const svg = (name) => `
-      <svg viewBox="0 0 24 24"
-           fill="none"
-           stroke="currentColor"
-           stroke-width="1.8"
-           stroke-linecap="round"
-           stroke-linejoin="round">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         ${icons[name]}
       </svg>
     `;
@@ -189,63 +177,169 @@
       icon.outerHTML = svg(icon.dataset.icon);
     });
 
+    const funcionarioLogado = exigirLogin("admin", "../../Base/HTML/OpçãoLogin.html");
+
+    if (funcionarioLogado) {
+
+    mostrarFuncionarioNoPerfil(funcionarioLogado);
+
+    document.querySelector("#btnSair").addEventListener("click", (event) => {
+      event.preventDefault();
+      sair("../../Base/HTML/Abertura.html");
+    });
+
     document.querySelector("#menuButton").addEventListener("click", () => {
       document.querySelector("#sidebar").classList.toggle("open");
     });
 
-    document.querySelectorAll("[data-action]").forEach((button) => {
+    const idReserva = new URLSearchParams(window.location.search).get("id");
+    let reservaCli = null;
 
-    button.addEventListener("click", () => {
+    function cssStatus(status) {
+      return String(status || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replaceAll(" ", "-");
+    }
 
-        let reservas = JSON.parse(localStorage.getItem("reservas"));
-        let indice = localStorage.getItem("indiceReserva");
+    function dataCurta(texto) {
+      if (!texto) return "--";
+      const data = new Date(texto);
+      return `${String(data.getDate()).padStart(2, "0")}/${String(data.getMonth() + 1).padStart(2, "0")}/${data.getFullYear()}`;
+    }
 
-        if(button.classList.contains("confirm")){
-            reservas[indice][5] = "Confirmada";
-        }
+    function horaCurta(texto) {
+      if (!texto) return "--";
+      const data = new Date(texto);
+      return `${String(data.getHours()).padStart(2, "0")}:${String(data.getMinutes()).padStart(2, "0")}`;
+    }
 
-        if(button.classList.contains("finish")){
-            reservas[indice][5] = "Finalizada";
-        }
+    function mostrarPreco(valor) {
+      return Number(valor || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    }
 
-        if(button.classList.contains("cancel")){
-            reservas[indice][5] = "Cancelada";
-        }
+    function aplicarStatusNaTela(status) {
+      const classe = "status " + cssStatus(status);
+      const topo = document.getElementById("statusTopo");
+      const lateral = document.getElementById("statusReserva");
+      topo.className = classe;
+      topo.textContent = status;
+      lateral.className = classe;
+      lateral.textContent = status;
 
-        // salva as alterações
-        localStorage.setItem("reservas", JSON.stringify(reservas));
+      document.getElementById("btnConfirmar").style.display = status === "Reservada" ? "" : "none";
+      document.getElementById("btnCancelar").style.display = status === "Reservada" ? "" : "none";
+      document.getElementById("btnFinalizar").style.display = status === "Ativa" ? "" : "none";
+    }
 
-        // atualiza a reserva aberta
-        localStorage.setItem("reservaSelecionada",
-            JSON.stringify(reservas[indice]));
+    function preencher(item) {
+      const status = item.reserva?.status || "--";
+      const totalPago = (item.pagamentos || []).reduce((soma, pag) => soma + Number(pag.valor || 0), 0);
 
-        alert("Status atualizado com sucesso!");
+      document.getElementById("tituloReserva").textContent =
+        "Detalhes da Reserva #" + item.id.slice(0, 8);
+      document.getElementById("clienteNome").textContent = item.usuario?.nome || "--";
+      document.getElementById("clienteCpf").textContent = item.usuario?.cpf || "--";
+      document.getElementById("clienteEmail").textContent = item.usuario?.email || "--";
+      document.getElementById("estacionamento").textContent = item.reserva?.vaga?.estacionamento?.nome || "--";
+      document.getElementById("vaga").textContent = item.reserva?.vaga?.numero || "--";
+      document.getElementById("data").textContent = dataCurta(item.hora);
+      document.getElementById("horario").textContent = horaCurta(item.hora);
+      document.getElementById("horarioSaida").textContent = horaCurta(item.horaSaida);
+      document.getElementById("carro").textContent = item.carro
+        ? `${item.carro.modelo} · ${item.carro.placacarro}`
+        : "Sem veículo";
+      document.getElementById("pagamento").textContent = item.pagamentos?.length
+        ? `Pago · ${mostrarPreco(totalPago)}`
+        : "--";
 
-        // volta para a lista
+      aplicarStatusNaTela(status);
+    }
+
+    async function atualizarVaga(vaga, status) {
+      await fetch(API + "/vaga/" + vaga.id, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          numero: vaga.numero,
+          tipo: vaga.tipo,
+          status,
+          preco: vaga.preco,
+          fk_est: vaga.fk_est
+        })
+      });
+    }
+
+    async function atualizarReserva(status) {
+      const resposta = await fetch(API + "/reserva/" + reservaCli.fk_idReserva, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status,
+          fk_vaga: reservaCli.reserva.fk_vaga
+        })
+      });
+      const retorno = await resposta.json();
+      if (!resposta.ok) throw new Error(retorno.erro || "Erro ao atualizar a reserva");
+    }
+
+    document.getElementById("btnConfirmar").addEventListener("click", async () => {
+      if (!confirm("Confirmar a chegada deste cliente?")) return;
+      try {
+        await atualizarReserva("Ativa");
+        await atualizarVaga(reservaCli.reserva.vaga, "Ocupada");
+        alert("Presença confirmada.");
         window.location.href = "../HTML/TelaReservas.html";
+      } catch (error) {
+        alert(error.message || "Não foi possível confirmar a presença.");
+      }
     });
 
-});
+    document.getElementById("btnFinalizar").addEventListener("click", async () => {
+      if (!confirm("Encerrar esta reserva e liberar a vaga?")) return;
+      try {
+        await atualizarReserva("Concluída");
+        await atualizarVaga(reservaCli.reserva.vaga, "Livre");
+        alert("Reserva finalizada.");
+        window.location.href = "../HTML/TelaReservas.html";
+      } catch (error) {
+        alert(error.message || "Não foi possível finalizar a reserva.");
+      }
+    });
 
-    if(reserva){
+    document.getElementById("btnCancelar").addEventListener("click", async () => {
+      if (!confirm("Cancelar esta reserva?")) return;
+      try {
+        await atualizarReserva("Cancelada");
+        await atualizarVaga(reservaCli.reserva.vaga, "Livre");
+        alert("Reserva cancelada.");
+        window.location.href = "../HTML/TelaReservas.html";
+      } catch (error) {
+        alert(error.message || "Não foi possível cancelar a reserva.");
+      }
+    });
 
-    document.getElementById("clienteNome").textContent = reserva[0];
+    async function carregar() {
+      if (!idReserva) {
+        alert("Reserva não informada.");
+        window.location.href = "../HTML/TelaReservas.html";
+        return;
+      }
 
-    document.getElementById("carro").textContent = reserva[1];
+      const resposta = await fetch(API + "/reservacli/" + idReserva);
+      const item = await resposta.json();
+      if (!resposta.ok) throw new Error(item.erro || "Reserva não encontrada");
+      reservaCli = item;
+      preencher(item);
+    }
 
-    document.getElementById("vaga").textContent = reserva[2];
+    carregar().catch((error) => {
+      alert(error.message || "Não foi possível carregar a reserva.");
+      window.location.href = "../HTML/TelaReservas.html";
+    });
 
-    document.getElementById("data").textContent = reserva[3];
-
-    document.getElementById("horario").textContent = reserva[4];
-
-    document.getElementById("statusReserva").textContent = reserva[5];
-
-    document.getElementById("pagamento").textContent = reserva[6];
-
-    document.getElementById("estacionamento").textContent = reserva[7];
-
-}
+    }
   </script>
 </body>
 </html>

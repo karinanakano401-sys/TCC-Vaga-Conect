@@ -387,13 +387,56 @@ nav a:hover{
     transition:.35s;
 }
 
-.send-btn:hover{
+.send-btn:disabled{
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
 
-    transform:translateY(-4px);
+.lista-feedbacks{
+    margin-top: 30px;
+}
 
-    box-shadow:
-    0 15px 35px rgba(37,99,235,.4),
-    0 0 30px rgba(59,130,246,.25);
+.lista-feedbacks h2{
+    margin-bottom: 16px;
+}
+
+.card-feedback{
+    background: rgba(15,23,42,.85);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+}
+
+.card-feedback header{
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+    color: #cbd5e1;
+    font-size: 13px;
+}
+
+.card-feedback .estrelas{
+    color: #fbbf24;
+}
+
+.card-feedback h3{
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+.card-feedback p{
+    color: #94a3b8;
+    line-height: 1.5;
+}
+
+.vazio{
+    color: #94a3b8;
+    text-align: center;
+    padding: 20px 0;
 }
 
 /* RESPONSIVO */

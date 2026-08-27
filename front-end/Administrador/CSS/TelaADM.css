@@ -320,9 +320,25 @@ td:first-child {
   background: #0b3157;
 }
 
-.cancelled {
+.cancelled,
+.cancelada {
   color: #ff6270;
   background: #491d27;
+}
+
+.reservada {
+  color: #4a93ff;
+  background: #0b3157;
+}
+
+.ativa {
+  color: #f8bd22;
+  background: #443706;
+}
+
+.concluida {
+  color: #34d894;
+  background: #0d3c36;
 }
 
 @media (max-width: 850px) {

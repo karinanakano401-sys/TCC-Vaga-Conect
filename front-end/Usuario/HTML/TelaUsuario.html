@@ -47,7 +47,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 
         <div class="hero-content">
 
-            <h1>Olá, Usuário </h1>
+            <h1 id="saudacao">Olá, Usuário </h1>
 
             <p>
                 Gerencie reservas, pagamentos e veículos em um único painel moderno,
@@ -116,7 +116,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 
             <span class="badge green">Seguro</span>
 
-            <h3>Meus status</h3>
+            <h3>Minhas Reservas</h3>
 
             <p>
                 Veja as suas reservas atual.
@@ -130,27 +130,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 
         </div>
 
-        <div class="card">
-
-            <div class="icon purple">
-                <i class="fa-solid fa-location-dot"></i>
-            </div>
-
-            <span class="badge blue">Mapa</span>
-
-            <h3>Locais</h3>
-
-            <p>
-                Visualize estacionamentos e vagas próximas.
-            </p>
-            
-          <a href="../HTML/TelaLocais.html">  
-            <button>
-                <i class="fa-solid fa-arrow-right"></i>
-            </button>
-          </a>  
-
-        </div>
+       
 
         <div class="card">
 
@@ -218,14 +198,33 @@ btnSair.addEventListener("click", function (event) {
 
     if (confirmar) {
 
-        // Limpa os dados, se desejar
-        // localStorage.clear();
+        localStorage.removeItem("usuarioLogado");
 
         window.location.href = "../../Base/HTML/Abertura.html";
 
     }
 
 });
+
+
+// ===============================
+// USUÁRIO LOGADO
+// ===============================
+
+const usuarioLogado = JSON.parse(
+    localStorage.getItem("usuarioLogado")
+);
+
+if (!usuarioLogado) {
+
+    window.location.replace("../../Base/HTML/OpçãoLogin.html");
+
+} else {
+
+    document.getElementById("saudacao").textContent =
+        "Olá, " + usuarioLogado.nome;
+
+}
     </script>
 
 

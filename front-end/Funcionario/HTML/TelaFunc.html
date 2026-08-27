@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VagaConnect | Dashboard do Funcionário</title>
+  <title>VagaConnect | Painel do Funcionário</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="../CSS/TelaFunc.css">
 </head>
 
@@ -21,22 +21,19 @@
      </div>
 
       <nav>
-        <a class="active" href="#"><i data-icon="grid"></i>Dashboard</a>
-        <a href="../HTML/TelaEstacionamento.html"><i data-icon="building"></i>Estacionamentos</a>
-        <a href="../HTML/TelasVagas.html"><i data-icon="car"></i>Vagas</a>
-        <a href="../HTML/TelaReservas.html"><i data-icon="calendar"></i>Reservas</a>
-        <a href="../HTML/TelaUsuarios.html"><i data-icon="users"></i>Usuários</a>
-        <a href="../HTML/TelaFeedbacks.html"><i data-icon="message"></i>Feedbacks</a>
-        <a href="../HTML/TelaPagamentos.html"><i data-icon="credit-card"></i>Pagamentos</a>
-        <a href="../../Base/HTML/Abertura.html"><i data-icon="log-out"></i>Sair</a>
+        <a class="active" href="TelaFunc.html"><i data-icon="grid"></i>Dashboard</a>
+        <a href="TelaFuncVagas.html"><i data-icon="car"></i>Vagas</a>
+        <a href="TelaFuncReservas.html"><i data-icon="calendar"></i>Reservas</a>
+        <a href="TelaFuncPagamentos.html"><i data-icon="credit-card"></i>Pagamentos</a>
+        <a href="#" id="btnSair"><i data-icon="log-out"></i>Sair</a>
       </nav>
 
   <div class="sidebar-user">
-    <div class="user-avatar">JS</div>
+    <div class="user-avatar">F</div>
 
     <div class="user-info">
-      <strong>João Silva</strong>
-      <span><i></i> Funcionário</span>
+      <strong>Funcionário</strong>
+      <span>Carregando...</span>
     </div>
   </div>
 </aside>
@@ -51,30 +48,27 @@
         </div>
 
         <div class="top-actions">
-          <button class="notification" type="button" aria-label="Notificações">♧<span></span></button>
-
-          <button class="profile" type="button" aria-label="Abrir perfil">
-            <span class="avatar">JM</span>
+          <button class="profile" type="button">
+            <span class="avatar">F</span>
             <span class="profile-info">
-              <strong>João Martins</strong>
-              <small>Funcionário</small>
+              <strong>Funcionário</strong>
+              <small>funcionario</small>
             </span>
-            <b>⌄</b>
           </button>
         </div>
       </header>
 
       <section class="welcome-card">
         <div>
-          <p>SEGUNDA-FEIRA, 17 DE AGOSTO</p>
-          <h2>Olá, João!</h2>
-          <span>Acompanhe as movimentações do seu estacionamento hoje.</span>
+          <p id="dataHoje">HOJE</p>
+          <h2 id="saudacao">Olá!</h2>
+          <span>Acompanhe as movimentações do seu estacionamento.</span>
         </div>
 
         <div class="parking-badge">
           <span>
             <small>ESTACIONAMENTO VINCULADO</small>
-            <strong>Estacionamento Central</strong>
+            <strong id="nomeEstacionamento">Carregando...</strong>
           </span>
         </div>
       </section>
@@ -83,36 +77,36 @@
         <article class="stat-card">
           <span class="stat-icon blue">▤</span>
           <div>
-            <p>Vagas disponíveis</p>
-            <strong>42</strong>
-            <small>↑ 8% <em>em relação a ontem</em></small>
+            <p>Vagas livres</p>
+            <strong id="statLivres">0</strong>
+            <small id="statTotalVagas">de 0 vagas</small>
           </div>
         </article>
 
         <article class="stat-card">
           <span class="stat-icon purple">▣</span>
           <div>
-            <p>Reservas hoje</p>
-            <strong>18</strong>
-            <small>↑ 12% <em>em relação a ontem</em></small>
+            <p>Reservas ativas</p>
+            <strong id="statReservas">0</strong>
+            <small>Reservada + em uso</small>
           </div>
         </article>
 
         <article class="stat-card">
           <span class="stat-icon orange">↪</span>
           <div>
-            <p>Entradas hoje</p>
-            <strong>27</strong>
-            <small>↑ 5% <em>em relação a ontem</em></small>
+            <p>Vagas ocupadas</p>
+            <strong id="statOcupadas">0</strong>
+            <small>Carros no pátio</small>
           </div>
         </article>
 
         <article class="stat-card">
           <span class="stat-icon green">R$</span>
           <div>
-            <p>Pagamentos diários</p>
-            <strong>R$ 840,50</strong>
-            <small>↑ 15% <em>em relação a ontem</em></small>
+            <p>Total recebido</p>
+            <strong id="statPagamentos">R$ 0,00</strong>
+            <small>Pagamentos deste pátio</small>
           </div>
         </article>
       </section>
@@ -122,10 +116,10 @@
           <div class="panel-header">
             <div>
               <h2>Reservas recentes</h2>
-              <p>Últimas reservas realizadas</p>
+              <p>Últimas reservas deste estacionamento</p>
             </div>
 
-            <a href="#ver-todas">Ver todas →</a>
+            <a href="TelaFuncReservas.html">Ver todas →</a>
           </div>
 
           <div class="table-wrap">
@@ -138,53 +132,7 @@
                   <th>STATUS</th>
                 </tr>
               </thead>
-
-              <tbody>
-                <tr>
-                  <td>
-                    <div class="person">
-                      <span class="person-icon blue-person">MC</span>
-                      <span>
-                        <strong>Mariana Costa</strong>
-                        <small>Placa: ABC-1234</small>
-                      </span>
-                    </div>
-                  </td>
-                  <td><b>A-12</b></td>
-                  <td>08:30 - 10:30</td>
-                  <td><span class="status confirmed">Confirmada</span></td>
-                </tr>
-
-                <tr>
-                  <td>
-                    <div class="person">
-                      <span class="person-icon purple-person">RS</span>
-                      <span>
-                        <strong>Rafael Silva</strong>
-                        <small>Placa: DEF-5678</small>
-                      </span>
-                    </div>
-                  </td>
-                  <td><b>B-08</b></td>
-                  <td>09:00 - 11:00</td>
-                  <td><span class="status confirmed">Confirmada</span></td>
-                </tr>
-
-                <tr>
-                  <td>
-                    <div class="person">
-                      <span class="person-icon orange-person">AL</span>
-                      <span>
-                        <strong>Ana Luiza</strong>
-                        <small>Placa: GHI-9012</small>
-                      </span>
-                    </div>
-                  </td>
-                  <td><b>C-05</b></td>
-                  <td>10:00 - 12:00</td>
-                  <td><span class="status waiting">Aguardando</span></td>
-                </tr>
-              </tbody>
+              <tbody id="tabelaReservas"></tbody>
             </table>
           </div>
         </article>
@@ -195,31 +143,29 @@
               <h2>Situação das vagas</h2>
               <p>Ocupação em tempo real</p>
             </div>
-
-            <button class="more" type="button">•••</button>
           </div>
 
           <div class="occupancy-main">
-            <div class="donut" style="--percent: 58">
+            <div class="donut" id="donut" style="--percent: 0">
               <div>
-                <strong>58%</strong>
-                <small>ocupadas</small>
+                <strong id="percentualOcupacao">0%</strong>
+                <small>em uso</small>
               </div>
             </div>
 
             <div class="legend">
-              <p><span class="legend-dot available"></span><b>42</b> disponíveis</p>
-              <p><span class="legend-dot occupied"></span><b>58</b> ocupadas</p>
-              <p><span class="legend-dot reserved"></span><b>10</b> reservadas</p>
+              <p><span class="legend-dot available"></span><b id="legLivre">0</b> livres</p>
+              <p><span class="legend-dot occupied"></span><b id="legOcupada">0</b> ocupadas</p>
+              <p><span class="legend-dot reserved"></span><b id="legReservada">0</b> reservadas</p>
             </div>
           </div>
 
           <div class="progress-row">
             <span>Capacidade total</span>
-            <strong>110 vagas</strong>
+            <strong id="capacidadeTotal">0 vagas</strong>
           </div>
 
-          <div class="progress"><span></span></div>
+          <div class="progress"><span id="barraCapacidade"></span></div>
         </article>
       </section>
 
@@ -227,93 +173,153 @@
         <h2>Ações rápidas</h2>
 
         <div>
-          <button type="button" data-action="Nova reserva">＋ <span>Nova reserva</span></button>
-          <button type="button" data-action="Registrar entrada">↪ <span>Registrar entrada</span></button>
-          <button type="button" data-action="Consultar vaga">⌕ <span>Consultar vaga</span></button>
+          <button type="button" onclick="window.location.href='TelaFuncReservas.html'">↪ <span>Registrar entrada</span></button>
+          <button type="button" onclick="window.location.href='TelaFuncVagas.html'">⌕ <span>Consultar vaga</span></button>
+          <button type="button" onclick="window.location.href='TelaFuncPagamentos.html'">R$ <span>Ver pagamentos</span></button>
         </div>
       </section>
     </main>
   </div>
 
-  <div class="toast" role="status" aria-live="polite"></div>
-
+  <script src="../../Base/JS/sessao.js"></script>
   <script>
 
     const icons = {
   grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
-  layers:'<polygon points="12 2 2 7 12 12 22 7 12 2"/>'+'<polyline points="2 17 12 22 22 17"/>'+'<polyline points="2 12 12 17 22 12"/>',
-  building: '<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 7h1m3 0h1m3 0h1M8 11h1m3 0h1m3 0h1M8 15h1m3 0h1m3 0h1M10 21v-3h4v3"/>',
   car: '<path d="M5 17H3v-4l2-5h14l2 5v4h-2M5 17h14M7 17v2m10-2v2M5 13h14"/><circle cx="7" cy="15" r="1"/><circle cx="17" cy="15" r="1"/>',
   calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>',
-  users: '<circle cx="9" cy="8" r="3"/><path d="M3 21v-2a6 6 0 0 1 12 0v2M16 4a3 3 0 0 1 0 6M21 21v-2a6 6 0 0 0-3-5.2"/>',
-  briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5h8v2M3 12h18M10 12v2h4v-2"/>',
-  message: '<path d="M21 11.5a8 8 0 0 1-8.5 8 9 9 0 0 1-4-.9L3 20l1.4-4A8 8 0 1 1 21 11.5Z"/>',
   "credit-card": '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h2"/>',
-  chart:'<path d="M4 19V5"/>'+'<path d="M4 19h16"/>'+'<path d="M8 15v-3"/>'+'<path d="M12 15V8"/>'+'<path d="M16 15V5"/>',
-  file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h6"/>',
-  settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2 2-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5v.2h-2.8v-.2a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1-2-2 .1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H5.7v-2.8h.2a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9L7 8.2l2-2 .1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.5V4.9h2.8v.2a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1 2 2-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1h.2V14h-.2a1.7 1.7 0 0 0-1.5 1Z"/>',
-  "log-out": '<path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-5"/>',
-  "more-vertical": '<circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>',
-  menu: '<path d="M4 6h16M4 12h16M4 18h16"/>',
-  bell: '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
-  "map-pin": '<path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/>',
-  "square-parking": '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 16V8h4a3 3 0 0 1 0 6H9"/>',
-  "trending-up": '<path d="M3 17l6-6 4 4 7-8M14 7h6v6"/>',
-  star: '<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/>',
-  "arrow-right": '<path d="M5 12h14M13 6l6 6-6 6"/>'
+  "log-out": '<path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-5"/>'
 };
 
-    document.addEventListener("DOMContentLoaded", () => {
-  const sidebar = document.querySelector(".sidebar");
-  const menuButton = document.querySelector(".mobile-menu");
-  const toast = document.querySelector(".toast");
+    const svg = (name) => `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        ${icons[name]}
+      </svg>
+    `;
 
-  let toastTimer;
-
-  function notify(message) {
-    toast.textContent = message;
-    toast.classList.add("show");
-
-    clearTimeout(toastTimer);
-
-    toastTimer = setTimeout(() => {
-      toast.classList.remove("show");
-    }, 2800);
-  }
-
-  menuButton?.addEventListener("click", () => {
-    const isOpen = sidebar.classList.toggle("open");
-    menuButton.setAttribute("aria-expanded", isOpen);
-  });
-
-  document.querySelectorAll(".menu-item").forEach((item) => {
-    item.addEventListener("click", () => {
-      document.querySelector(".menu-item.active")?.classList.remove("active");
-      item.classList.add("active");
-
-      sidebar.classList.remove("open");
-      menuButton?.setAttribute("aria-expanded", "false");
+    document.querySelectorAll("i[data-icon]").forEach((icon) => {
+      icon.outerHTML = svg(icon.dataset.icon);
     });
-  });
 
-  document.querySelector(".notification")?.addEventListener("click", () => {
-    notify("Você tem 3 novas notificações.");
-  });
+    const funcionario = exigirLogin("funcionario", "../../Base/HTML/OpçãoLogin.html");
 
-  document.querySelector(".profile")?.addEventListener("click", () => {
-    notify("Perfil de João Martins.");
-  });
+    if (funcionario) {
 
-  document.querySelector(".logout")?.addEventListener("click", () => {
-    notify("Sessão encerrada com segurança.");
-  });
+    mostrarFuncionarioNoPerfil(funcionario);
 
-  document.querySelectorAll("[data-action]").forEach((button) => {
-    button.addEventListener("click", () => {
-      notify(`${button.dataset.action}: funcionalidade pronta para abrir.`);
+    document.querySelector("#btnSair").addEventListener("click", (event) => {
+      event.preventDefault();
+      sair("../../Base/HTML/Abertura.html");
     });
-  });
-});
+
+    document.querySelector(".mobile-menu")?.addEventListener("click", () => {
+      document.querySelector("#sidebar").classList.toggle("open");
+    });
+
+    const api = API;
+    const idPatio = funcionario.fk_est;
+
+    function mostrarPreco(valor) {
+      return Number(valor || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    }
+
+    function horaCurta(texto) {
+      if (!texto) return "--";
+      const data = new Date(texto);
+      return `${String(data.getHours()).padStart(2, "0")}:${String(data.getMinutes()).padStart(2, "0")}`;
+    }
+
+    function iniciaisPessoa(nome) {
+      return iniciais(nome);
+    }
+
+    const hoje = new Date();
+    document.getElementById("dataHoje").textContent = hoje
+      .toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })
+      .toUpperCase();
+
+    document.getElementById("saudacao").textContent = `Olá, ${funcionario.nome.split(" ")[0]}!`;
+    document.getElementById("nomeEstacionamento").textContent =
+      funcionario.estacionamento?.nome || "Seu estacionamento";
+
+    async function carregarPainel() {
+      const [vagas, reservasCli, pagamentos] = await Promise.all([
+        fetch(api + "/vaga").then(r => r.json()),
+        fetch(api + "/reservacli").then(r => r.json()),
+        fetch(api + "/pagamento").then(r => r.json())
+      ]);
+
+      const minhasVagas = vagas.filter(vaga => vaga.fk_est === idPatio);
+      const minhasReservas = reservasCli
+        .filter(item => item.reserva?.vaga?.fk_est === idPatio)
+        .sort((a, b) => new Date(b.hora) - new Date(a.hora));
+      const meusPagamentos = pagamentos.filter(item =>
+        item.reservaCli?.reserva?.vaga?.fk_est === idPatio
+      );
+
+      const livres = minhasVagas.filter(v => v.status === "Livre").length;
+      const ocupadas = minhasVagas.filter(v => v.status === "Ocupada").length;
+      const reservadas = minhasVagas.filter(v => v.status === "Reservada").length;
+      const ativas = minhasReservas.filter(item =>
+        item.reserva.status === "Reservada" || item.reserva.status === "Ativa"
+      ).length;
+      const totalPago = meusPagamentos.reduce((soma, item) => soma + Number(item.valor || 0), 0);
+      const percentual = minhasVagas.length
+        ? Math.round(((ocupadas + reservadas) / minhasVagas.length) * 100)
+        : 0;
+
+      document.getElementById("statLivres").textContent = livres;
+      document.getElementById("statTotalVagas").textContent = `de ${minhasVagas.length} vagas`;
+      document.getElementById("statReservas").textContent = ativas;
+      document.getElementById("statOcupadas").textContent = ocupadas;
+      document.getElementById("statPagamentos").textContent = mostrarPreco(totalPago);
+
+      document.getElementById("legLivre").textContent = livres;
+      document.getElementById("legOcupada").textContent = ocupadas;
+      document.getElementById("legReservada").textContent = reservadas;
+      document.getElementById("percentualOcupacao").textContent = percentual + "%";
+      document.getElementById("donut").style.setProperty("--percent", percentual);
+      document.getElementById("capacidadeTotal").textContent = `${minhasVagas.length} vagas`;
+      document.getElementById("barraCapacidade").style.width = percentual + "%";
+
+      const corpo = document.getElementById("tabelaReservas");
+      const recentes = minhasReservas.slice(0, 5);
+
+      if (recentes.length === 0) {
+        corpo.innerHTML = `<tr><td colspan="4" class="vazio">Nenhuma reserva neste pátio.</td></tr>`;
+        return;
+      }
+
+      corpo.innerHTML = recentes.map(item => {
+        const nome = item.usuario?.nome || "Cliente";
+        const placa = item.carro?.placacarro || "--";
+        const status = item.reserva.status;
+
+        return `
+          <tr>
+            <td>
+              <div class="person">
+                <span class="person-icon blue-person">${iniciaisPessoa(nome)}</span>
+                <span>
+                  <strong>${nome}</strong>
+                  <small>Placa: ${placa}</small>
+                </span>
+              </div>
+            </td>
+            <td><b>${item.reserva.vaga.numero}</b></td>
+            <td>${horaCurta(item.hora)} - ${horaCurta(item.horaSaida)}</td>
+            <td><span class="status ${status.toLowerCase()}">${status}</span></td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    carregarPainel().catch((error) => {
+      alert(error.message || "Não foi possível carregar o painel. Verifique se o servidor está ligado.");
+    });
+
+    }
   </script>
 </body>
 </html>

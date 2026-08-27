@@ -109,7 +109,7 @@ Sair
 
 <h1 id="nomeEstacionamento">
 
-Carregando...
+Escolha um estacionamento
 
 </h1>
 
@@ -117,7 +117,7 @@ Carregando...
 
 <span id="enderecoEstacionamento">
 
-Carregando...
+Selecione um estacionamento na lista ao lado.
 
 </span>
 
@@ -211,12 +211,47 @@ Coberta
 
 <h3>
 
-Filtros
+Estacionamentos
 
 </h3>
 
 
+
+<div class="busca-estacionamento">
+
+
+<i class="fa-solid fa-magnifying-glass"></i>
+
+
+<input
+type="text"
+id="buscarEstacionamento"
+placeholder="Pesquisar estacionamento..."
+>
+
+
+</div>
+
+
+
+<div id="listaEstacionamentos" class="lista-estacionamentos">
+
+
+<!-- O JS VAI CRIAR OS ESTACIONAMENTOS AQUI -->
+
+
+</div>
+
+
 <hr>
+
+
+
+<h3>
+
+Filtros
+
+</h3>
 
 
 
@@ -377,9 +412,9 @@ Ocupadas
 
 Total
 
-<strong>
+<strong id="total">
 
-100
+0
 
 </strong>
 
@@ -409,10 +444,10 @@ Total
 <div class="parking-title">
 
 
-<div class="road">
+<div class="road" id="ruaMapa">
 
 
-FRENTE - AV. PAULISTA
+FRENTE
 
 
 </div>
@@ -533,6 +568,29 @@ Tipo
 
 
 
+<div class="card">
+
+
+<span>
+
+Valor
+
+</span>
+
+
+<h2 id="spotPrice">
+
+--
+
+</h2>
+
+
+</div>
+
+
+
+
+
 <button id="selectSpot">
 
 
@@ -635,59 +693,6 @@ Legenda
 
 
 // ============================================
-// PEGAR ESTACIONAMENTO ESCOLHIDO
-// ============================================
-
-
-const estacionamentoSelecionado = JSON.parse(
-
-    localStorage.getItem("estacionamentoSelecionado")
-
-);
-
-
-
-// Se não escolheu estacionamento
-
-if(!estacionamentoSelecionado){
-
-
-    alert(
-        "Selecione um estacionamento antes de escolher uma vaga."
-    );
-
-
-    window.location.href =
-    "../HTML/TelaLocais.html";
-
-
-}
-
-
-
-// Mostrar estacionamento escolhido
-
-else{
-
-
-    document.getElementById("nomeEstacionamento").textContent =
-
-    estacionamentoSelecionado.nome;
-
-
-
-    document.getElementById("enderecoEstacionamento").textContent =
-
-    estacionamentoSelecionado.endereco;
-
-
-}
-
-
-
-
-
-// ============================================
 // REFERÊNCIAS
 // ============================================
 
@@ -701,6 +706,19 @@ const spotStatus = document.getElementById("spotStatus");
 
 const spotType = document.getElementById("spotType");
 
+const spotPrice = document.getElementById("spotPrice");
+
+
+
+function mostrarPreco(valor){
+
+    return Number(valor || 0).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+    });
+
+}
+
 
 const btnSelecionar = document.getElementById("selectSpot");
 
@@ -711,6 +729,88 @@ const reservadas = document.getElementById("reservadas");
 
 const ocupadas = document.getElementById("ocupadas");
 
+const total = document.getElementById("total");
+
+
+const nomeEstacionamento = document.getElementById("nomeEstacionamento");
+
+const enderecoEstacionamento = document.getElementById("enderecoEstacionamento");
+
+const ruaMapa = document.getElementById("ruaMapa");
+
+
+const listaEstacionamentos = document.getElementById("listaEstacionamentos");
+
+const buscarEstacionamento = document.getElementById("buscarEstacionamento");
+
+
+
+
+
+// ============================================
+// ESTACIONAMENTOS
+// ============================================
+
+
+const api = "http://localhost:3333";
+
+
+const usuarioLogado = JSON.parse(
+    localStorage.getItem("usuarioLogado")
+);
+
+
+if(!usuarioLogado){
+
+    window.location.replace("../../Base/HTML/OpçãoLogin.html");
+
+}
+
+
+let estacionamentos = [];
+
+
+
+// Traz os estacionamentos ativos e as vagas de cada um
+async function carregarEstacionamentos(){
+
+
+    const resposta = await fetch(api + "/estacionamento");
+
+
+    const lista = await resposta.json();
+
+
+    if(!resposta.ok){
+
+        throw new Error(lista.erro || "Erro ao carregar os estacionamentos");
+
+    }
+
+
+    estacionamentos = lista
+        .filter(est => est.status === "Ativo")
+        .map(est => ({
+
+            id: est.id,
+
+            nome: est.nome,
+
+            endereco: `${est.endereco.rua}, ${est.endereco.numero} - ${est.endereco.bairro}`,
+
+            vagas: est.vagas.filter(vaga => vaga.status === "Livre").length,
+
+            distancia: `${est.endereco.cidade} - ${est.endereco.estado}`,
+
+            precoMenor: precoMaisBarato(est.vagas),
+
+            listaVagas: est.vagas
+
+        }));
+
+
+}
+
 
 
 
@@ -720,7 +820,10 @@ const ocupadas = document.getElementById("ocupadas");
 // ============================================
 
 
-const vagas = [];
+let estacionamentoAtual = null;
+
+
+let vagas = [];
 
 
 let vagaSelecionada = null;
@@ -730,40 +833,72 @@ let vagaSelecionada = null;
 
 
 // ============================================
-// CRIAR 100 VAGAS
+// CRIAR AS VAGAS DO ESTACIONAMENTO
 // ============================================
 
 
-for(let i = 1; i <= 100; i++){
+// Mostra o valor da vaga mais barata do estacionamento
+function precoMaisBarato(listaVagas){
 
 
-    let status = "free";
+    if(listaVagas.length === 0){
 
-
-
-    // exemplos de status
-
-    if(i % 7 === 0){
-
-        status = "reserved";
+        return "Sem vagas";
 
     }
 
 
-    if(i % 5 === 0){
-
-        status = "occupied";
-
-    }
+    const menor = Math.min(
+        ...listaVagas.map(vaga => vaga.preco)
+    );
 
 
-    vagas.push({
+    return `a partir de ${mostrarPreco(menor)}`;
 
-        numero:i,
 
-        status:status
+}
 
-    });
+
+
+// Converte o status do banco para a classe usada no mapa
+function statusDaVaga(status){
+
+
+    if(status === "Ocupada") return "occupied";
+
+
+    if(status === "Reservada") return "reserved";
+
+
+    return "free";
+
+
+}
+
+
+
+function montarVagas(listaVagas){
+
+
+    return listaVagas
+
+    .slice()
+
+    .sort((a, b) => Number(a.numero) - Number(b.numero))
+
+    .map(vaga => ({
+
+        id: vaga.id,
+
+        numero: vaga.numero,
+
+        tipo: vaga.tipo,
+
+        preco: vaga.preco,
+
+        status: statusDaVaga(vaga.status)
+
+    }));
 
 
 }
@@ -910,6 +1045,206 @@ function atualizarResumo(){
     ocupadas.textContent = totalOcupada;
 
 
+    total.textContent = vagas.length;
+
+
+
+}
+
+
+
+
+
+// ============================================
+// LISTA DE ESTACIONAMENTOS
+// ============================================
+
+
+function renderEstacionamentos(){
+
+
+    const texto =
+
+    buscarEstacionamento.value.toLowerCase();
+
+
+
+    const encontrados = estacionamentos.filter(est =>
+
+        est.nome.toLowerCase().includes(texto) ||
+
+        est.endereco.toLowerCase().includes(texto)
+
+    );
+
+
+
+    listaEstacionamentos.innerHTML = "";
+
+
+
+    if(encontrados.length === 0){
+
+
+        listaEstacionamentos.innerHTML =
+
+        "<p class='sem-resultado'>Nenhum estacionamento encontrado.</p>";
+
+
+        return;
+
+
+    }
+
+
+
+    encontrados.forEach(est=>{
+
+
+        const item = document.createElement("div");
+
+
+
+        item.className = "item-estacionamento";
+
+
+
+        if(
+
+            estacionamentoAtual &&
+
+            estacionamentoAtual.nome === est.nome
+
+        ){
+
+            item.classList.add("ativo");
+
+        }
+
+
+
+        item.innerHTML = `
+
+            <h4>${est.nome}</h4>
+
+            <p>
+                <i class="fa-solid fa-location-dot"></i>
+                ${est.endereco}
+            </p>
+
+            <div class="dados-estacionamento">
+
+                <span>
+                    <i class="fa-solid fa-car"></i>
+                    ${est.vagas} vagas
+                </span>
+
+                <span>
+                    <i class="fa-solid fa-location-arrow"></i>
+                    ${est.distancia}
+                </span>
+
+                <span>
+                    <i class="fa-solid fa-tag"></i>
+                    ${est.precoMenor}
+                </span>
+
+            </div>
+
+        `;
+
+
+
+        item.onclick = ()=>{
+
+            selecionarEstacionamento(est);
+
+        };
+
+
+
+        listaEstacionamentos.appendChild(item);
+
+
+    });
+
+
+}
+
+
+
+
+
+// ============================================
+// SELECIONAR ESTACIONAMENTO
+// ============================================
+
+
+function selecionarEstacionamento(est){
+
+
+    estacionamentoAtual = est;
+
+
+    vagaSelecionada = null;
+
+
+    vagas = montarVagas(est.listaVagas);
+
+
+
+    nomeEstacionamento.textContent = est.nome;
+
+
+    enderecoEstacionamento.textContent = est.endereco;
+
+
+    ruaMapa.textContent = "FRENTE - " + est.endereco.toUpperCase();
+
+
+
+    spotNumber.textContent = "--";
+
+
+    spotStatus.textContent = "Nenhuma";
+
+
+    spotType.textContent = "--";
+
+
+    spotPrice.textContent = "--";
+
+
+
+    localStorage.setItem(
+
+        "estacionamentoSelecionado",
+
+        JSON.stringify({
+
+            id:est.id,
+
+            nome:est.nome,
+
+            endereco:est.endereco
+
+        })
+
+    );
+
+
+    localStorage.setItem("estacionamento", est.nome);
+
+
+    localStorage.setItem("endereco", est.endereco);
+
+
+
+    renderEstacionamentos();
+
+
+    render();
+
 
 }
 
@@ -927,6 +1262,24 @@ function render(){
 
 
     parkingGrid.innerHTML = "";
+
+
+
+    if(!estacionamentoAtual){
+
+
+        parkingGrid.innerHTML =
+
+        "<p class='aviso-vazio'>Escolha um estacionamento na lista ao lado para ver as vagas.</p>";
+
+
+        atualizarResumo();
+
+
+        return;
+
+
+    }
 
 
 
@@ -974,7 +1327,86 @@ function render(){
 
 
 
-render();
+
+
+// ============================================
+// INICIAR A TELA
+// ============================================
+
+
+buscarEstacionamento.addEventListener("keyup",()=>{
+
+
+    renderEstacionamentos();
+
+
+});
+
+
+
+// ============================================
+// CARREGAR OS DADOS DA API
+// ============================================
+
+
+(async () => {
+
+
+    try {
+
+
+        await carregarEstacionamentos();
+
+
+    } catch (error) {
+
+
+        alert(error.message || "Não foi possível carregar os estacionamentos. Verifique se o servidor está ligado.");
+
+
+    }
+
+
+
+    const estacionamentoSalvo = JSON.parse(
+
+        localStorage.getItem("estacionamentoSelecionado")
+
+    );
+
+
+
+    const salvo = estacionamentoSalvo
+
+    ? estacionamentos.find(est =>
+
+        est.id === estacionamentoSalvo.id
+
+      )
+
+    : null;
+
+
+
+    if(salvo){
+
+
+        selecionarEstacionamento(salvo);
+
+
+    }else{
+
+
+        renderEstacionamentos();
+
+
+        render();
+
+
+    }
+
+
+})();
 
 
 
@@ -1044,7 +1476,13 @@ function selecionar(vaga,elemento){
 
     spotType.textContent =
 
-    tipoVaga(vaga.status);
+    vaga.tipo;
+
+
+
+    spotPrice.textContent =
+
+    mostrarPreco(vaga.preco);
 
 
 
@@ -1062,6 +1500,23 @@ function selecionar(vaga,elemento){
 
 
 btnSelecionar.onclick = ()=>{
+
+
+
+    if(!estacionamentoAtual){
+
+
+        alert(
+
+            "Escolha um estacionamento."
+
+        );
+
+
+        return;
+
+
+    }
 
 
 
@@ -1090,19 +1545,39 @@ btnSelecionar.onclick = ()=>{
 
         JSON.stringify({
 
+            idEstacionamento:
+
+            estacionamentoAtual.id,
+
+
             estacionamento:
 
-            estacionamentoSelecionado.nome,
+            estacionamentoAtual.nome,
 
 
             endereco:
 
-            estacionamentoSelecionado.endereco,
+            estacionamentoAtual.endereco,
+
+
+            idVaga:
+
+            vagaSelecionada.id,
 
 
             vaga:
 
             vagaSelecionada.numero,
+
+
+            tipo:
+
+            vagaSelecionada.tipo,
+
+
+            preco:
+
+            vagaSelecionada.preco,
 
 
             status:
@@ -1154,7 +1629,9 @@ btnSelecionar.onclick = ()=>{
 document.getElementById("backButton").onclick = ()=>{
 
 
-    history.back();
+    window.location.href =
+
+    "../HTML/TelaUsuario.html";
 
 
 };

@@ -30,7 +30,7 @@
         <a href="../HTML/TelaPagamentos.html"><i data-icon="credit-card"></i>Pagamentos</a>
         <a href="../HTML/TelaFaturamento.html"><i data-icon="chart"></i>Faturamento</a>
         <a href="../HTML/TelaConfigurações.html"><i data-icon="settings"></i>Configurações</a>
-        <a href="#"><i data-icon="log-out"></i>Sair</a>
+        <a href="#" id="btnSair"><i data-icon="log-out"></i>Sair</a>
       </nav>
       <div class="profile"><span class="avatar">A</span><div><strong>Administrador</strong><small>admin</small></div><i data-icon="more-vertical"></i></div>
     </aside>
@@ -60,8 +60,20 @@
     </main>
   </div>
 
+<script src="../../Base/JS/sessao.js"></script>
 <script>
 (() => {
+
+  const funcionarioLogado = exigirLogin("admin", "../../Base/HTML/OpçãoLogin.html");
+
+  if (!funcionarioLogado) return;
+
+  mostrarFuncionarioNoPerfil(funcionarioLogado);
+
+  document.querySelector("#btnSair").addEventListener("click", (event) => {
+    event.preventDefault();
+    sair("../../Base/HTML/Abertura.html");
+  });
 
   const icons = {
 
@@ -136,48 +148,51 @@ document.querySelectorAll("i[data-icon]").forEach(icon=>{
 icon.outerHTML = svg(icon.dataset.icon);
 
 });
-  const dadosPadrao = [
-    {
-      id: 1,
-      name: "CenterPark",
-      city: "São Paulo - SP",
-      address: "Av. Paulista, 123",
-      spaces: 80,
-      status: "Ativo"
-    },
-    {
-      id: 2,
-      name: "Shopping Plaza",
-      city: "São Paulo - SP",
-      address: "Av. Paulista, 3000",
-      spaces: 120,
-      status: "Ativo"
-    }
-  ];
-
-  if (!localStorage.getItem("estacionamentos")) {
-    localStorage.setItem(
-      "estacionamentos",
-      JSON.stringify(dadosPadrao)
-    );
-  }
+  const api = "http://localhost:3333";
 
   const tabela = document.querySelector("#parkingRows");
   const campoBusca = document.querySelector("#searchInput");
   const contador = document.querySelector("#tableCount");
   const botaoNovo = document.querySelector("#newParking");
 
-  function pegarEstacionamentos() {
-    return JSON.parse(localStorage.getItem("estacionamentos")) || [];
+  let estacionamentos = [];
+
+  async function carregarEstacionamentos() {
+    try {
+      const resposta = await fetch(api + "/estacionamento");
+      const lista = await resposta.json();
+
+      if (!resposta.ok) {
+        throw new Error(lista.erro || "Erro ao carregar os estacionamentos");
+      }
+
+      estacionamentos = lista;
+
+      mostrarEstacionamentos(estacionamentos);
+    } catch (error) {
+      alert(error.message || "Não foi possível carregar. Verifique se o servidor está ligado.");
+    }
   }
 
   function mostrarEstacionamentos(lista) {
+    if (lista.length === 0) {
+      tabela.innerHTML = `
+        <tr>
+          <td colspan="6">Nenhum estacionamento cadastrado.</td>
+        </tr>
+      `;
+
+      contador.textContent = "Mostrando 0 de 0 estacionamentos";
+
+      return;
+    }
+
     tabela.innerHTML = lista.map((parking) => `
       <tr>
-        <td>${parking.name}</td>
-        <td>${parking.city}</td>
-        <td>${parking.address}</td>
-        <td>${parking.spaces}</td>
+        <td>${parking.nome}</td>
+        <td>${parking.endereco.cidade} - ${parking.endereco.estado}</td>
+        <td>${parking.endereco.rua}, ${parking.endereco.numero}</td>
+        <td>${parking.vagas.length}</td>
 
         <td>
           <span class="status ${
@@ -190,13 +205,13 @@ icon.outerHTML = svg(icon.dataset.icon);
         </td>
 
         <td class="row-actions">
-          <button onclick="editarEstacionamento(${parking.id})">
+          <button onclick="editarEstacionamento('${parking.id}')">
             ✎
           </button>
 
           <button
             class="delete"
-            onclick="excluirEstacionamento(${parking.id})"
+            onclick="excluirEstacionamento('${parking.id}')"
           >
             🗑
           </button>
@@ -205,30 +220,39 @@ icon.outerHTML = svg(icon.dataset.icon);
     `).join("");
 
     contador.textContent =
-      `Mostrando ${lista.length} de ${pegarEstacionamentos().length} estacionamentos`;
+      `Mostrando ${lista.length} de ${estacionamentos.length} estacionamentos`;
   }
 
   window.editarEstacionamento = function (id) {
     window.location.href = `../HTML/CadasEsta.html?id=${id}`;
   };
 
-  window.excluirEstacionamento = function (id) {
+  window.excluirEstacionamento = async function (id) {
     const confirmar = confirm(
       "Deseja excluir este estacionamento?"
     );
 
     if (!confirmar) return;
 
-    const novaLista = pegarEstacionamentos().filter(
-      (parking) => parking.id !== id
-    );
+    try {
+      const resposta = await fetch(api + "/estacionamento/" + id, {
+        method: "DELETE"
+      });
 
-    localStorage.setItem(
-      "estacionamentos",
-      JSON.stringify(novaLista)
-    );
+      const retorno = await resposta.json();
 
-    mostrarEstacionamentos(novaLista);
+      if (!resposta.ok) {
+        if ((retorno.erro || "").includes("Foreign key constraint")) {
+          throw new Error("Este estacionamento tem vagas ou funcionários ligados a ele. Exclua-os antes.");
+        }
+
+        throw new Error(retorno.erro || "Erro ao excluir o estacionamento");
+      }
+
+      await carregarEstacionamentos();
+    } catch (error) {
+      alert(error.message || "Não foi possível excluir o estacionamento.");
+    }
   };
 
   if (botaoNovo) {
@@ -241,15 +265,16 @@ icon.outerHTML = svg(icon.dataset.icon);
     campoBusca.addEventListener("input", (event) => {
       const texto = event.target.value.toLowerCase();
 
-      const filtrados = pegarEstacionamentos().filter((parking) =>
-        parking.name.toLowerCase().includes(texto)
+      const filtrados = estacionamentos.filter((parking) =>
+        parking.nome.toLowerCase().includes(texto) ||
+        parking.endereco.cidade.toLowerCase().includes(texto)
       );
 
       mostrarEstacionamentos(filtrados);
     });
   }
 
-  mostrarEstacionamentos(pegarEstacionamentos());
+  carregarEstacionamentos();
 })();
 </script>
 

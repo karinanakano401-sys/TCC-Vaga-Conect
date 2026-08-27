@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VagaConnect | Vagas do pátio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../CSS/TelaFunc.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="logo">
+        <i class="fa-solid fa-layer-group"></i>
+        <span>Vaga</span>Connect
+      </div>
+      <nav>
+        <a href="TelaFunc.html"><i data-icon="grid"></i>Dashboard</a>
+        <a class="active" href="TelaFuncVagas.html"><i data-icon="car"></i>Vagas</a>
+        <a href="TelaFuncReservas.html"><i data-icon="calendar"></i>Reservas</a>
+        <a href="TelaFuncPagamentos.html"><i data-icon="credit-card"></i>Pagamentos</a>
+        <a href="#" id="btnSair"><i data-icon="log-out"></i>Sair</a>
+      </nav>
+      <div class="sidebar-user">
+        <div class="user-avatar">F</div>
+        <div class="user-info">
+          <strong>Funcionário</strong>
+          <span>Carregando...</span>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="page-title">
+          <p>SEU PÁTIO</p>
+          <h1>Vagas</h1>
+        </div>
+      </header>
+
+      <section class="panel">
+        <div class="toolbar">
+          <label>
+            Status
+            <select id="filtroStatus">
+              <option value="">Todos</option>
+              <option>Livre</option>
+              <option>Reservada</option>
+              <option>Ocupada</option>
+            </select>
+          </label>
+          <label>
+            Buscar
+            <input id="busca" type="search" placeholder="Número ou tipo">
+          </label>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>NÚMERO</th>
+                <th>TIPO</th>
+                <th>PREÇO</th>
+                <th>STATUS</th>
+              </tr>
+            </thead>
+            <tbody id="linhas"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../../Base/JS/sessao.js"></script>
+  <script>
+    const icons = {
+      grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
+      car: '<path d="M5 17H3v-4l2-5h14l2 5v4h-2M5 17h14M7 17v2m10-2v2M5 13h14"/><circle cx="7" cy="15" r="1"/><circle cx="17" cy="15" r="1"/>',
+      calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>',
+      "credit-card": '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h2"/>',
+      "log-out": '<path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-5"/>'
+    };
+    document.querySelectorAll("i[data-icon]").forEach((icon) => {
+      icon.outerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${icons[icon.dataset.icon]}</svg>`;
+    });
+
+    const funcionario = exigirLogin("funcionario", "../../Base/HTML/OpçãoLogin.html");
+    if (!funcionario) { /* redirecionado */ } else {
+
+    mostrarFuncionarioNoPerfil(funcionario);
+    document.querySelector("#btnSair").addEventListener("click", (e) => {
+      e.preventDefault();
+      sair("../../Base/HTML/Abertura.html");
+    });
+
+    let vagas = [];
+
+    function mostrarPreco(valor) {
+      return Number(valor || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    }
+
+    function render() {
+      const status = document.getElementById("filtroStatus").value;
+      const busca = document.getElementById("busca").value.toLowerCase();
+      const filtradas = vagas.filter((vaga) =>
+        (!status || vaga.status === status) &&
+        `${vaga.numero} ${vaga.tipo}`.toLowerCase().includes(busca)
+      );
+
+      const corpo = document.getElementById("linhas");
+      if (filtradas.length === 0) {
+        corpo.innerHTML = `<tr><td colspan="4" class="vazio">Nenhuma vaga encontrada.</td></tr>`;
+        return;
+      }
+
+      corpo.innerHTML = filtradas.map((vaga) => `
+        <tr>
+          <td><b>${vaga.numero}</b></td>
+          <td>${vaga.tipo}</td>
+          <td>${mostrarPreco(vaga.preco)}</td>
+          <td>
+            <select class="acao-status" onchange="alterarStatus('${vaga.id}', this.value)">
+              <option ${vaga.status === "Livre" ? "selected" : ""}>Livre</option>
+              <option ${vaga.status === "Reservada" ? "selected" : ""}>Reservada</option>
+              <option ${vaga.status === "Ocupada" ? "selected" : ""}>Ocupada</option>
+            </select>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    async function carregar() {
+      const resposta = await fetch(API + "/vaga");
+      const lista = await resposta.json();
+      if (!resposta.ok) throw new Error(lista.erro || "Erro ao carregar as vagas");
+      vagas = lista
+        .filter((vaga) => vaga.fk_est === funcionario.fk_est)
+        .sort((a, b) => Number(a.numero) - Number(b.numero));
+      render();
+    }
+
+    async function alterarStatus(id, status) {
+      const vaga = vagas.find((item) => item.id === id);
+      try {
+        const resposta = await fetch(API + "/vaga/" + id, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            numero: vaga.numero,
+            tipo: vaga.tipo,
+            status,
+            preco: vaga.preco,
+            fk_est: vaga.fk_est
+          })
+        });
+        const retorno = await resposta.json();
+        if (!resposta.ok) throw new Error(retorno.erro || "Erro ao atualizar a vaga");
+        vaga.status = status;
+      } catch (error) {
+        alert(error.message || "Não foi possível atualizar a vaga.");
+        await carregar();
+      }
+    }
+
+    document.getElementById("filtroStatus").addEventListener("change", render);
+    document.getElementById("busca").addEventListener("input", render);
+
+    carregar().catch((error) => alert(error.message || "Verifique se o servidor está ligado."));
+    }
+  </script>
+</body>
+</html>

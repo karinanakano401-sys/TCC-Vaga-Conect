@@ -81,12 +81,17 @@ Carregando...
 </p>
 
 
+<p id="cidadeEstacionamento">
+
+--
+
+</p>
+
 
 </div>
 
 
 </section>
-
 
 
 
@@ -104,8 +109,12 @@ Vaga selecionada
 
 
 
-
 <div class="spot-info">
+
+
+<div class="icon">
+🅿️
+</div>
 
 
 <div>
@@ -113,19 +122,18 @@ Vaga selecionada
 
 <h2>
 
-Vaga 
+Vaga
 <span id="numeroVaga">
 
 --
 
 </span>
 
-
 </h2>
 
 
-<p>
-Coberta
+<p id="tipoVaga">
+--
 </p>
 
 
@@ -135,54 +143,127 @@ Coberta
 </div>
 
 
+
+<div class="linha" style="margin-top:18px;">
+
+<span>
+Tipo da vaga
+</span>
+
+<strong id="tipoVagaDetalhe">
+--
+</strong>
+
+</div>
+
+
+
+<div class="linha">
+
+<span>
+Situação
+</span>
+
+<strong id="situacaoVaga">
+--
+</strong>
+
+</div>
+
+
+
+<div class="linha" style="margin-bottom:0;">
+
+<span>
+Estacionamento
+</span>
+
+<strong id="estacionamentoVaga">
+--
+</strong>
+
+</div>
+
+
 </section>
 
 
 
 
 
-
-
-
-<!-- ================= HORÁRIO ================= -->
-
+<!-- ================= CHEGADA ================= -->
 
 
 <section class="box">
 
 
-<div class="info-box">
+<h3>
+Chegada no local
+</h3>
 
+
+
+<div class="linha">
 
 <span>
-Horário de Chegada no Local
+Data
 </span>
 
+<strong id="dataTexto">
+--
+</strong>
+
+</div>
+
+
+
+<div class="linha">
+
+<span>
+Horário de chegada
+</span>
+
+<strong id="horarioTexto">
+--
+</strong>
+
+</div>
+
+
+
+<div class="linha">
+
+<span>
+Saída prevista
+</span>
+
+<strong id="saidaTexto">
+--
+</strong>
+
+</div>
 
 
 
 <div class="vehicle">
 
 
-
-<strong id="horarioTexto">
-
-18:00
-
-</strong>
+<input
+type="date"
+id="novaData"
+style="display:none;">
 
 
-
-
-
-<input 
+<input
 type="time"
 id="novoHorario"
 style="display:none;">
 
 
-
-
+<input
+type="time"
+id="novaSaida"
+style="display:none;">
 
 
 <button id="alterarHorario">
@@ -192,9 +273,6 @@ Alterar
 </button>
 
 
-
-
-
 <button id="salvarHorario" style="display:none;">
 
 Salvar
@@ -202,12 +280,7 @@ Salvar
 </button>
 
 
-
 </div>
-
-
-</div>
-
 
 
 </section>
@@ -216,10 +289,7 @@ Salvar
 
 
 
-
-
 <!-- ================= VEÍCULO ================= -->
-
 
 
 <section class="box">
@@ -231,12 +301,12 @@ Veículo
 
 
 
-
-
 <div class="vehicle">
 
 
-
+<div class="car-icon">
+🚗
+</div>
 
 
 <div>
@@ -244,23 +314,19 @@ Veículo
 
 <h4 id="modeloCarro">
 
-Honda Civic - Prata
+Carregando...
 
 </h4>
 
 
 <p id="placaCarro">
 
-ABC1D23
+--
 
 </p>
 
 
-
 </div>
-
-
-
 
 
 <button id="alterarVeiculo">
@@ -270,13 +336,7 @@ Alterar
 </button>
 
 
-
-
 </div>
-
-
-
-
 
 
 
@@ -286,29 +346,149 @@ Alterar
 <div id="listaCarrosReserva" style="display:none;">
 
 
-
 <h4>
 Escolha um veículo:
 </h4>
 
 
-
-
 <div id="opcoesCarros">
 
-
 </div>
 
 
-
 </div>
-
 
 
 </section>
 
 
 
+
+
+<!-- ================= RESUMO ================= -->
+
+
+<section class="box">
+
+
+<h3>
+Resumo da reserva
+</h3>
+
+
+
+<div class="linha">
+
+<span>
+Estacionamento
+</span>
+
+<strong id="resumoEstacionamento">
+--
+</strong>
+
+</div>
+
+
+
+<div class="linha">
+
+<span>
+Endereço
+</span>
+
+<strong id="resumoEndereco">
+--
+</strong>
+
+</div>
+
+
+
+<div class="linha">
+
+<span>
+Vaga
+</span>
+
+<strong id="resumoVaga">
+--
+</strong>
+
+</div>
+
+
+
+<div class="linha">
+
+<span>
+Veículo
+</span>
+
+<strong id="resumoVeiculo">
+--
+</strong>
+
+</div>
+
+
+
+<div class="linha">
+
+<span>
+Placa
+</span>
+
+<strong id="resumoPlaca">
+--
+</strong>
+
+</div>
+
+
+
+<div class="linha">
+
+<span>
+Chegada
+</span>
+
+<strong id="resumoChegada">
+--
+</strong>
+
+</div>
+
+
+
+<div class="linha">
+
+<span>
+Saída prevista
+</span>
+
+<strong id="resumoSaida">
+--
+</strong>
+
+</div>
+
+
+
+<div class="linha" style="margin-bottom:0;">
+
+<span>
+Valor
+</span>
+
+<strong id="resumoValor">
+--
+</strong>
+
+</div>
+
+
+</section>
 
 
 
@@ -317,71 +497,37 @@ Escolha um veículo:
 <!-- ================= VALORES ================= -->
 
 
-
 <section class="values">
 
 
 <div>
 
-
 <span>
-Valor da garantia
+Valor da vaga
 </span>
 
-
-<strong>
-R$ 50,00
+<strong id="valorVaga">
+--
 </strong>
-
-
 
 </div>
 
 
 
-
-
 <div>
-
-
-<span>
-Valor estimado da utilização
-</span>
-
-
-<strong>
-R$ 25,00
-</strong>
-
-
-
-</div>
-
-
-
-
-
-<div>
-
 
 <span>
 Total agora
 </span>
 
-
-<strong>
-R$ 25,00
+<strong id="valorTotal">
+--
 </strong>
-
-
 
 </div>
 
 
-
 </section>
-
-
 
 
 
@@ -392,284 +538,714 @@ R$ 25,00
 
 <button id="pagamento">
 
-
 Continuar para pagamento
 
-
 </button>
-
-
-
 
 
 </main>
 
 
-
 </div>
+
+
 <script>
-    // =====================================================
+
+// =====================================================
+// CONFIGURAÇÃO
+// =====================================================
+
+
+const api = "http://localhost:3333";
+
+
+const usuarioLogado = JSON.parse(
+    localStorage.getItem("usuarioLogado")
+);
+
+
+if(!usuarioLogado){
+
+    window.location.replace("../../Base/HTML/OpçãoLogin.html");
+
+}
+
+
+
+
+// =====================================================
 // PEGAR ELEMENTOS
 // =====================================================
 
 
+const nomeEstacionamento = document.getElementById("nomeEstacionamento");
+
+const enderecoEstacionamento = document.getElementById("enderecoEstacionamento");
+
+const cidadeEstacionamento = document.getElementById("cidadeEstacionamento");
+
+
 const numeroVaga = document.getElementById("numeroVaga");
 
-const nomeEstacionamento =
-document.getElementById("nomeEstacionamento");
+const tipoVaga = document.getElementById("tipoVaga");
+
+const tipoVagaDetalhe = document.getElementById("tipoVagaDetalhe");
+
+const situacaoVaga = document.getElementById("situacaoVaga");
+
+const estacionamentoVaga = document.getElementById("estacionamentoVaga");
 
 
-const enderecoEstacionamento =
-document.getElementById("enderecoEstacionamento");
+const dataTexto = document.getElementById("dataTexto");
+
+const horarioTexto = document.getElementById("horarioTexto");
+
+const novaData = document.getElementById("novaData");
+
+const novoHorario = document.getElementById("novoHorario");
+
+const saidaTexto = document.getElementById("saidaTexto");
+
+const novaSaida = document.getElementById("novaSaida");
+
+const alterarHorario = document.getElementById("alterarHorario");
+
+const salvarHorario = document.getElementById("salvarHorario");
 
 
-const botaoPagamento =
-document.getElementById("pagamento");
+const modeloCarro = document.getElementById("modeloCarro");
+
+const placaCarro = document.getElementById("placaCarro");
+
+const alterarVeiculo = document.getElementById("alterarVeiculo");
+
+const listaCarrosReserva = document.getElementById("listaCarrosReserva");
+
+const opcoesCarros = document.getElementById("opcoesCarros");
 
 
-const botaoVoltar =
-document.getElementById("voltar");
+const resumoEstacionamento = document.getElementById("resumoEstacionamento");
+
+const resumoEndereco = document.getElementById("resumoEndereco");
+
+const resumoVaga = document.getElementById("resumoVaga");
+
+const resumoVeiculo = document.getElementById("resumoVeiculo");
+
+const resumoPlaca = document.getElementById("resumoPlaca");
+
+const resumoChegada = document.getElementById("resumoChegada");
+
+const resumoSaida = document.getElementById("resumoSaida");
+
+const resumoValor = document.getElementById("resumoValor");
+
+
+const valorVaga = document.getElementById("valorVaga");
+
+const valorTotal = document.getElementById("valorTotal");
+
+
+const botaoPagamento = document.getElementById("pagamento");
+
+const botaoVoltar = document.getElementById("voltar");
 
 
 
 
 // =====================================================
-// CARREGAR ESTACIONAMENTO ESCOLHIDO
+// O QUE FOI ESCOLHIDO NA TELA ANTERIOR
 // =====================================================
 
 
-const estacionamentoSelecionado = JSON.parse(
-
-    localStorage.getItem("estacionamentoSelecionado")
-
+const escolha = JSON.parse(
+    localStorage.getItem("vagaSelecionada")
 );
 
 
+if(!escolha || !escolha.idVaga){
+
+    alert("Escolha uma vaga antes de continuar.");
+
+    window.location.href = "../HTML/TelaReservas.html";
+
+}
 
 
 
-if(!estacionamentoSelecionado){
+let vaga = null;
+
+let estacionamento = null;
+
+let carros = [];
+
+let carroSelecionado = null;
 
 
-    alert(
-        "Selecione um estacionamento antes de continuar."
+
+// Começa na data e na hora de agora
+let dataChegada = dataDeHoje();
+
+let horaChegada = horaDeAgora();
+
+
+// Por padrão a reserva dura 4 horas
+let horaSaida = somarHoras(horaChegada, 4);
+
+
+
+
+// =====================================================
+// AJUDANTES DE DATA E HORA
+// =====================================================
+
+
+function dataDeHoje(){
+
+    const hoje = new Date();
+
+    const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+
+    const dia = String(hoje.getDate()).padStart(2, "0");
+
+    return `${hoje.getFullYear()}-${mes}-${dia}`;
+
+}
+
+
+
+function horaDeAgora(){
+
+    const agora = new Date();
+
+    const hora = String(agora.getHours()).padStart(2, "0");
+
+    const minuto = String(agora.getMinutes()).padStart(2, "0");
+
+    return `${hora}:${minuto}`;
+
+}
+
+
+
+function mostrarData(data){
+
+    const partes = data.split("-");
+
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+
+}
+
+
+
+function somarHoras(hora, quantidade){
+
+    const partes = hora.split(":");
+
+    const total = (Number(partes[0]) + quantidade) % 24;
+
+    return `${String(total).padStart(2, "0")}:${partes[1]}`;
+
+}
+
+
+
+// A saída vira o dia seguinte quando o horário passa da meia-noite
+function dataDaSaida(){
+
+    if(horaSaida > horaChegada){
+
+        return dataChegada;
+
+    }
+
+    const diaSeguinte = new Date(`${dataChegada}T00:00:00`);
+
+    diaSeguinte.setDate(diaSeguinte.getDate() + 1);
+
+
+    const mes = String(diaSeguinte.getMonth() + 1).padStart(2, "0");
+
+    const dia = String(diaSeguinte.getDate()).padStart(2, "0");
+
+
+    return `${diaSeguinte.getFullYear()}-${mes}-${dia}`;
+
+}
+
+
+
+function mostrarPreco(valor){
+
+    return Number(valor || 0).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+    });
+
+}
+
+
+
+
+// =====================================================
+// BUSCAR OS DADOS NA API
+// =====================================================
+
+
+async function carregarVaga(){
+
+    const resposta = await fetch(api + "/vaga/" + escolha.idVaga);
+
+    const retorno = await resposta.json();
+
+    if(!resposta.ok || !retorno){
+
+        throw new Error(retorno.erro || "Não encontramos essa vaga.");
+
+    }
+
+    vaga = retorno;
+
+}
+
+
+
+async function carregarEstacionamento(){
+
+    const id = vaga.fk_est;
+
+    const resposta = await fetch(api + "/estacionamento/" + id);
+
+    const retorno = await resposta.json();
+
+    if(!resposta.ok || !retorno){
+
+        throw new Error(retorno.erro || "Não encontramos esse estacionamento.");
+
+    }
+
+    estacionamento = retorno;
+
+}
+
+
+
+async function carregarCarros(){
+
+    const resposta = await fetch(api + "/carro");
+
+    const lista = await resposta.json();
+
+    if(!resposta.ok){
+
+        throw new Error(lista.erro || "Erro ao carregar os veículos.");
+
+    }
+
+    carros = lista.filter(carro =>
+        carro.fk_idCliente === usuarioLogado.id
     );
 
 
-    window.location.href =
-    "../HTML/TelaLocais.html";
+    const salvo = JSON.parse(
+        localStorage.getItem("carroSelecionado")
+    );
 
+
+    // Mantém o carro escolhido antes, se ele ainda existir
+    carroSelecionado =
+        carros.find(carro => salvo && carro.id === salvo.id)
+        || carros[0]
+        || null;
 
 }
-else{
 
 
-    nomeEstacionamento.textContent =
 
-    estacionamentoSelecionado.nome;
 
+// =====================================================
+// MOSTRAR TUDO NA TELA
+// =====================================================
+
+
+function mostrarEstacionamento(){
+
+    const endereco = estacionamento.endereco;
+
+
+    nomeEstacionamento.textContent = estacionamento.nome;
 
 
     enderecoEstacionamento.textContent =
+        `${endereco.rua}, ${endereco.numero} - ${endereco.bairro}`;
 
-    estacionamentoSelecionado.endereco;
 
+    cidadeEstacionamento.textContent =
+        `${endereco.cidade} - ${endereco.estado} | CEP ${endereco.cep}`;
+
+}
+
+
+
+function mostrarVaga(){
+
+    numeroVaga.textContent = vaga.numero;
+
+    tipoVaga.textContent =
+        `Vaga ${vaga.tipo.toLowerCase()} · ${mostrarPreco(vaga.preco)}`;
+
+    tipoVagaDetalhe.textContent = vaga.tipo;
+
+    situacaoVaga.textContent = vaga.status;
+
+    estacionamentoVaga.textContent = estacionamento.nome;
+
+}
+
+
+
+function mostrarValores(){
+
+    valorVaga.textContent = mostrarPreco(vaga.preco);
+
+    valorTotal.textContent = mostrarPreco(vaga.preco);
+
+}
+
+
+
+function mostrarChegada(){
+
+    dataTexto.textContent = mostrarData(dataChegada);
+
+    horarioTexto.textContent = horaChegada;
+
+    saidaTexto.textContent =
+        `${mostrarData(dataDaSaida())} às ${horaSaida}`;
+
+}
+
+
+
+function mostrarCarro(){
+
+    if(!carroSelecionado){
+
+        modeloCarro.textContent = "Nenhum veículo cadastrado";
+
+        placaCarro.textContent = "Cadastre um veículo antes de reservar";
+
+        return;
+
+    }
+
+
+    modeloCarro.textContent = carroSelecionado.modelo;
+
+    placaCarro.textContent = carroSelecionado.placacarro;
+
+}
+
+
+
+function mostrarResumo(){
+
+    const endereco = estacionamento.endereco;
+
+
+    resumoEstacionamento.textContent = estacionamento.nome;
+
+
+    resumoEndereco.textContent =
+        `${endereco.rua}, ${endereco.numero} - ${endereco.cidade}`;
+
+
+    resumoVaga.textContent =
+        `Vaga ${vaga.numero} (${vaga.tipo})`;
+
+
+    resumoVeiculo.textContent =
+        carroSelecionado ? carroSelecionado.modelo : "--";
+
+
+    resumoPlaca.textContent =
+        carroSelecionado ? carroSelecionado.placacarro : "--";
+
+
+    resumoChegada.textContent =
+        `${mostrarData(dataChegada)} às ${horaChegada}`;
+
+
+    resumoSaida.textContent =
+        `${mostrarData(dataDaSaida())} às ${horaSaida}`;
+
+
+    resumoValor.textContent = mostrarPreco(vaga.preco);
 
 }
 
 
 
 
-
-
-
-
 // =====================================================
-// CARREGAR VAGA ESCOLHIDA
+// GUARDAR A RESERVA QUE ESTÁ SENDO MONTADA
 // =====================================================
 
 
+function salvarReservaAtual(){
 
-let vagaSelecionada = JSON.parse(
-
-    localStorage.getItem("vagaSelecionada")
-
-);
+    const endereco = estacionamento.endereco;
 
 
+    const reserva = {
+
+        idEstacionamento: estacionamento.id,
+
+        estacionamento:   estacionamento.nome,
+
+        endereco:         `${endereco.rua}, ${endereco.numero} - ${endereco.bairro}`,
+
+        cidade:           `${endereco.cidade} - ${endereco.estado}`,
+
+        idVaga:           vaga.id,
+
+        vaga:             vaga.numero,
+
+        tipo:             vaga.tipo,
+
+        idCarro:          carroSelecionado ? carroSelecionado.id : null,
+
+        veiculo:          carroSelecionado ? carroSelecionado.modelo : "--",
+
+        placa:            carroSelecionado ? carroSelecionado.placacarro : "--",
+
+        dataChegada:      dataChegada,
+
+        horaChegada:      horaChegada,
+
+        dataSaida:        dataDaSaida(),
+
+        horaSaida:        horaSaida,
+
+        chegada:          `${mostrarData(dataChegada)} às ${horaChegada}`,
+
+        saida:            `${mostrarData(dataDaSaida())} às ${horaSaida}`,
+
+        valor:            vaga.preco,
+
+        valorTexto:       mostrarPreco(vaga.preco)
+
+    };
 
 
-
-function carregarReserva(){
-
-
-    if(vagaSelecionada){
-
-
-        numeroVaga.textContent =
-
-        vagaSelecionada.numero;
-
-
-    }
-    else{
-
-
-        numeroVaga.textContent =
-
-        "--";
-
-
-    }
-
+    localStorage.setItem(
+        "reservaAtual",
+        JSON.stringify(reserva)
+    );
 
 }
 
 
 
-carregarReserva();
+function atualizarTela(){
 
+    mostrarEstacionamento();
 
+    mostrarVaga();
 
+    mostrarChegada();
 
+    mostrarCarro();
 
+    mostrarValores();
 
+    mostrarResumo();
+
+    salvarReservaAtual();
+
+}
 
 
 
 
 // =====================================================
-// CRIAR DADOS DA RESERVA
+// INICIAR A TELA
 // =====================================================
 
 
+(async () => {
 
-const reserva = {
+    try {
 
+        await carregarVaga();
 
+        await carregarEstacionamento();
 
-    estacionamento:
-
-    estacionamentoSelecionado
-    ?
-    estacionamentoSelecionado.nome
-    :
-    "--",
+        await carregarCarros();
 
 
+        if(vaga.status !== "Livre"){
+
+            alert("Essa vaga já não está mais livre. Escolha outra.");
+
+            window.location.href = "../HTML/TelaReservas.html";
+
+            return;
+
+        }
 
 
-    endereco:
+        atualizarTela();
 
-    estacionamentoSelecionado
-    ?
-    estacionamentoSelecionado.endereco
-    :
-    "--",
+    } catch (error) {
 
+        alert(error.message || "Não foi possível carregar a reserva. Verifique se o servidor está ligado.");
 
+    }
 
-
-
-
-    vaga:
-
-    vagaSelecionada
-    ?
-    vagaSelecionada.numero
-    :
-    "--",
+})();
 
 
 
 
-
-    tipo:
-
-    vagaSelecionada
-    ?
-    vagaSelecionada.status
-    :
-    "Comum",
+// =====================================================
+// ALTERAR VEÍCULO
+// =====================================================
 
 
+alterarVeiculo.onclick = ()=>{
+
+    listaCarrosReserva.style.display = "block";
+
+    opcoesCarros.innerHTML = "";
 
 
+    if(carros.length === 0){
+
+        opcoesCarros.innerHTML =
+            "<p>Nenhum veículo cadastrado. Cadastre um em Meus veículos.</p>";
+
+        return;
+
+    }
 
 
-    entrada:
+    carros.forEach(carro=>{
 
-    "18/06/2026 - 18:00",
+        const opcao = document.createElement("button");
 
+        opcao.className = "opcaoCarro";
 
-
-
-
-
-    saida:
-
-    "18/06/2026 - 22:00",
-
+        opcao.innerHTML = `
+            🚗 ${carro.modelo}
+            <br>
+            <small>${carro.placacarro}</small>
+        `;
 
 
+        opcao.onclick = ()=>{
+
+            carroSelecionado = carro;
+
+            localStorage.setItem(
+                "carroSelecionado",
+                JSON.stringify(carro)
+            );
+
+            listaCarrosReserva.style.display = "none";
+
+            atualizarTela();
+
+        };
 
 
+        opcoesCarros.appendChild(opcao);
 
-    veiculo:
-
-
-    document.getElementById("modeloCarro")
-    .textContent,
-
-
-
-
-
-    placa:
-
-
-    document.getElementById("placaCarro")
-    .textContent,
-
-
-
-
-
-
-    garantia:
-
-
-    50
-
-
+    });
 
 };
 
 
 
 
-
-
-
-
 // =====================================================
-// SALVAR RESERVA ATUAL
+// ALTERAR DATA E HORÁRIO
 // =====================================================
 
 
+alterarHorario.onclick = ()=>{
 
-localStorage.setItem(
+    novaData.value = dataChegada;
 
+    novoHorario.value = horaChegada;
 
-    "reservaAtual",
-
-
-    JSON.stringify(reserva)
-
-
-);
+    novaSaida.value = horaSaida;
 
 
+    novaData.style.display = "block";
+
+    novoHorario.style.display = "block";
+
+    novaSaida.style.display = "block";
+
+    alterarHorario.style.display = "none";
+
+    salvarHorario.style.display = "block";
+
+};
+
+
+
+salvarHorario.onclick = ()=>{
+
+    if(novaData.value === "" || novoHorario.value === "" || novaSaida.value === ""){
+
+        alert("Escolha a data, o horário de chegada e a saída prevista.");
+
+        return;
+
+    }
+
+
+    if(novaData.value < dataDeHoje()){
+
+        alert("A data de chegada não pode ser no passado.");
+
+        return;
+
+    }
+
+
+    if(novaSaida.value === novoHorario.value){
+
+        alert("A saída precisa ser diferente do horário de chegada.");
+
+        return;
+
+    }
+
+
+    dataChegada = novaData.value;
+
+    horaChegada = novoHorario.value;
+
+    horaSaida = novaSaida.value;
+
+
+    novaData.style.display = "none";
+
+    novoHorario.style.display = "none";
+
+    novaSaida.style.display = "none";
+
+    alterarHorario.style.display = "block";
+
+    salvarHorario.style.display = "none";
+
+
+    atualizarTela();
+
+};
 
 
 
@@ -679,18 +1255,25 @@ localStorage.setItem(
 // =====================================================
 
 
-
 botaoPagamento.onclick = ()=>{
 
+    if(!carroSelecionado){
 
-    window.location.href =
+        alert("Cadastre um veículo antes de continuar.");
 
-    "TelaPagamentoTaxa.html";
+        window.location.href = "../HTML/TelaVeiculos.html";
 
+        return;
+
+    }
+
+
+    salvarReservaAtual();
+
+
+    window.location.href = "TelaPagamentoTaxa.html";
 
 };
-
-
 
 
 
@@ -700,446 +1283,12 @@ botaoPagamento.onclick = ()=>{
 // =====================================================
 
 
-
 botaoVoltar.onclick = ()=>{
 
-
-    history.back();
-
+    window.location.href = "../HTML/TelaReservas.html";
 
 };
 
-// =====================================================
-// ALTERAR VEÍCULO
-// =====================================================
-
-
-const alterarVeiculo =
-document.getElementById("alterarVeiculo");
-
-
-const listaCarrosReserva =
-document.getElementById("listaCarrosReserva");
-
-
-const opcoesCarros =
-document.getElementById("opcoesCarros");
-
-
-const modeloCarro =
-document.getElementById("modeloCarro");
-
-
-const placaCarro =
-document.getElementById("placaCarro");
-
-
-
-
-// pegar carros cadastrados na TelaVeiculos
-
-
-let carros = JSON.parse(
-
-localStorage.getItem("carros")
-
-) || [];
-
-
-
-
-
-alterarVeiculo.onclick = ()=>{
-
-
-    listaCarrosReserva.style.display =
-    "block";
-
-
-
-    opcoesCarros.innerHTML = "";
-
-
-
-
-
-    if(carros.length === 0){
-
-
-        opcoesCarros.innerHTML =
-
-        "<p>Nenhum carro cadastrado.</p>";
-
-        return;
-
-
-    }
-
-
-
-
-
-
-    carros.forEach(carro=>{
-
-
-
-        const opcao =
-        document.createElement("button");
-
-
-
-        opcao.className =
-        "opcaoCarro";
-
-
-
-        opcao.innerHTML = `
-
-        🚗 ${carro.modelo}
-
-        <br>
-
-        ${carro.placa}
-
-        `;
-
-
-
-
-
-
-        opcao.onclick = ()=>{
-
-
-
-            modeloCarro.textContent =
-
-            carro.modelo;
-
-
-
-
-
-            placaCarro.textContent =
-
-            carro.placa;
-
-
-
-
-
-
-
-            localStorage.setItem(
-
-                "carroSelecionado",
-
-                JSON.stringify(carro)
-
-            );
-
-
-
-
-
-
-            listaCarrosReserva.style.display =
-            "none";
-
-
-
-
-
-
-            atualizarReserva();
-
-
-
-        };
-
-
-
-
-
-        opcoesCarros.appendChild(opcao);
-
-
-
-    });
-
-
-
-};
-
-
-
-
-
-
-
-
-
-// =====================================================
-// ALTERAR HORÁRIO
-// =====================================================
-
-
-
-const alterarHorario =
-document.getElementById("alterarHorario");
-
-
-const salvarHorario =
-document.getElementById("salvarHorario");
-
-
-const horarioTexto =
-document.getElementById("horarioTexto");
-
-
-const novoHorario =
-document.getElementById("novoHorario");
-
-
-
-
-
-
-
-alterarHorario.onclick = ()=>{
-
-
-    horarioTexto.style.display =
-    "none";
-
-
-
-    novoHorario.style.display =
-    "block";
-
-
-
-    alterarHorario.style.display =
-    "none";
-
-
-
-    salvarHorario.style.display =
-    "block";
-
-
-
-
-
-    novoHorario.value =
-
-    horarioTexto.textContent;
-
-
-
-};
-
-
-
-
-
-
-
-
-salvarHorario.onclick = ()=>{
-
-
-
-    if(novoHorario.value === ""){
-
-
-        alert(
-            "Escolha um horário."
-        );
-
-
-        return;
-
-
-    }
-
-
-
-
-
-
-
-    horarioTexto.textContent =
-
-    novoHorario.value;
-
-
-
-
-
-
-    horarioTexto.style.display =
-    "block";
-
-
-
-    novoHorario.style.display =
-    "none";
-
-
-
-    alterarHorario.style.display =
-    "block";
-
-
-
-    salvarHorario.style.display =
-    "none";
-
-
-
-
-
-
-
-
-    localStorage.setItem(
-
-        "horarioChegada",
-
-        novoHorario.value
-
-    );
-
-
-
-
-
-
-
-    atualizarReserva();
-
-
-
-};
-
-
-
-
-
-
-
-
-
-// =====================================================
-// ATUALIZAR RESERVA SALVA
-// =====================================================
-
-
-function atualizarReserva(){
-
-
-
-    let reservaAtual = JSON.parse(
-
-        localStorage.getItem("reservaAtual")
-
-    );
-
-
-
-
-
-    if(!reservaAtual){
-
-        return;
-
-    }
-
-
-
-
-
-
-
-    reservaAtual.estacionamento =
-
-    estacionamentoSelecionado.nome;
-
-
-
-
-
-    reservaAtual.endereco =
-
-    estacionamentoSelecionado.endereco;
-
-
-
-
-
-
-
-    reservaAtual.vaga =
-
-    vagaSelecionada
-    ?
-    vagaSelecionada.numero
-    :
-    "--";
-
-
-
-
-
-
-
-    reservaAtual.veiculo =
-
-    modeloCarro.textContent;
-
-
-
-
-
-
-
-
-    reservaAtual.placa =
-
-    placaCarro.textContent;
-
-
-
-
-
-
-
-
-    reservaAtual.entrada =
-
-    horarioTexto.textContent;
-
-
-
-
-
-
-
-
-
-    localStorage.setItem(
-
-        "reservaAtual",
-
-        JSON.stringify(reservaAtual)
-
-    );
-
-
-
-}
 </script>
 
 </body>

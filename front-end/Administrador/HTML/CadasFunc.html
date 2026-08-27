@@ -83,8 +83,8 @@
         </label>
 
         <label class="field">
-          Idade
-          <input name="age" type="number" min="18" placeholder="Ex.: 28" required>
+          Data de nascimento
+          <input name="birth" type="date" required>
         </label>
 
         <label class="field">
@@ -112,6 +112,13 @@
             <option>Supervisora</option>
           </select>
         </label>
+
+        <label class="field">
+          Estacionamento
+          <select name="parking" required>
+            <option value="">Selecione o estacionamento</option>
+          </select>
+        </label>
       </div>
 
       <div class="form-actions">
@@ -129,6 +136,7 @@
 </main>
   </div>
 
+  <script src="../../Base/JS/sessao.js"></script>
   <script>
     const icons = {
       grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
@@ -175,72 +183,215 @@
       icon.outerHTML = svg(icon.dataset.icon);
     });
 
-    const params = new URLSearchParams(window.location.search);
+    const api = "http://localhost:3333";
+
+const funcionarioLogado = exigirLogin("admin", "../../Base/HTML/OpçãoLogin.html");
+
+mostrarFuncionarioNoPerfil(funcionarioLogado);
+
+const params = new URLSearchParams(window.location.search);
 const id = params.get("id");
 
-let funcionarios =
-JSON.parse(localStorage.getItem("funcionarios")) || [];
+const formulario = document.querySelector("#employeeForm");
+const selectEstacionamento = formulario.parking;
 
-if(id !== null){
 
-    const funcionario = funcionarios[id];
+// ==============================
+// ESTACIONAMENTOS DO SELECT
+// ==============================
 
-    document.querySelector("[name='name']").value = funcionario.nome;
-    document.querySelector("[name='cpf']").value = funcionario.cpf;
-    document.querySelector("[name='age']").value = funcionario.idade;
-    document.querySelector("[name='phone']").value = funcionario.telefone;
-    document.querySelector("[name='email']").value = funcionario.email;
-    document.querySelector("[name='password']").value = funcionario.senha;
-    document.querySelector("[name='role']").value = funcionario.cargo;
+async function carregarEstacionamentos(){
+
+    const resposta = await fetch(api + "/estacionamento");
+
+    const lista = await resposta.json();
+
+    if(!resposta.ok){
+        throw new Error(lista.erro || "Erro ao carregar os estacionamentos");
+    }
+
+    selectEstacionamento.innerHTML =
+        '<option value="">Selecione o estacionamento</option>' +
+        lista.map((parking) => `
+            <option value="${parking.id}">${parking.nome}</option>
+        `).join("");
+
+}
+
+
+// ==============================
+// TIPO DE FUNCIONÁRIO
+// Reaproveita o tipo se ele já existir
+// ==============================
+
+async function garantirTipoFunc(cargo){
+
+    const tipo = cargo === "Administrador"
+        ? "admin"
+        : "funcionario";
+
+    const resposta = await fetch(api + "/tipofunc");
+
+    const tipos = await resposta.json();
+
+    if(!resposta.ok){
+        throw new Error(tipos.erro || "Erro ao buscar os tipos de funcionário");
+    }
+
+    const existente = tipos.find(t =>
+        t.nome === cargo && t.tipo === tipo
+    );
+
+    if(existente){
+        return existente;
+    }
+
+    const respostaNovo = await fetch(api + "/tipofunc", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            nome: cargo,
+            tipo: tipo
+        })
+    });
+
+    const novo = await respostaNovo.json();
+
+    if(!respostaNovo.ok){
+        throw new Error(novo.erro || "Erro ao criar o tipo de funcionário");
+    }
+
+    return novo;
+
+}
+
+
+// ==============================
+// CARREGAR PARA EDITAR
+// ==============================
+
+async function carregarFuncionarioParaEditar(){
+
+    if(!id) return;
+
+    const resposta = await fetch(api + "/funcionario/" + id);
+
+    const funcionario = await resposta.json();
+
+    if(!resposta.ok){
+        throw new Error(funcionario.erro || "Erro ao carregar o funcionário");
+    }
+
+    formulario.name.value = funcionario.nome;
+    formulario.cpf.value = funcionario.cpf;
+    formulario.birth.value = funcionario.dataNascimento.substring(0, 10);
+    formulario.phone.value = funcionario.telefone;
+    formulario.email.value = funcionario.email;
+    formulario.password.value = funcionario.senha;
+    formulario.role.value = funcionario.tipoFunc.nome;
+    formulario.parking.value = funcionario.fk_est;
 
     document.querySelector("h1").textContent = "Editar Funcionário";
+
 }
+
+
+// ==============================
+// INICIAR A TELA
+// ==============================
+
+(async () => {
+
+    try {
+
+        await carregarEstacionamentos();
+
+        await carregarFuncionarioParaEditar();
+
+    } catch (error) {
+
+        alert(error.message || "Não foi possível carregar. Verifique se o servidor está ligado.");
+
+    }
+
+})();
+
 
     document.querySelector("#menuButton").addEventListener("click", () => {
       document.querySelector("#sidebar").classList.toggle("open");
     });
 
     document.querySelector("#cancelButton").addEventListener("click", () => {
-      document.querySelector("#employeeForm").reset();
+      window.location.href = "../HTML/TelaFuncionarios.html";
     });
 
-    document.querySelector("#employeeForm").addEventListener("submit", (event) => {
+    formulario.addEventListener("submit", async (event) => {
 
     event.preventDefault();
 
     const form = event.target;
 
-    const funcionario = {
-        nome: form.name.value,
-        cpf: form.cpf.value,
-        idade: form.age.value,
-        telefone: form.phone.value,
-        email: form.email.value,
-        senha: form.password.value,
-        cargo: form.role.value
-    };
+    const botaoSalvar = form.querySelector("button[type='submit']");
 
+    botaoSalvar.disabled = true;
 
-  if(id !== null){
+    try {
 
-    funcionarios[id] = funcionario;
+        const tipoFunc = await garantirTipoFunc(form.role.value);
 
-    alert("Funcionário atualizado com sucesso!");
+        const dados = {
+            nome: form.name.value.trim(),
+            dataNascimento: form.birth.value,
+            cpf: form.cpf.value.trim(),
+            telefone: form.phone.value.trim(),
+            email: form.email.value.trim(),
+            senha: form.password.value,
+            fk_tipofunc: tipoFunc.id,
+            fk_est: form.parking.value
+        };
 
-}else{
+        const resposta = await fetch(
+            id ? api + "/funcionario/" + id : api + "/funcionario",
+            {
+                method: id ? "PUT" : "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(dados)
+            }
+        );
 
-    funcionarios.push(funcionario);
+        const funcionario = await resposta.json();
 
-    alert("Funcionário cadastrado com sucesso!");
+        if(!resposta.ok){
 
-}
+            if((funcionario.erro || "").includes("Unique constraint")){
+                throw new Error("Já existe um funcionário com esse CPF ou e-mail.");
+            }
 
-localStorage.setItem(
-"funcionarios",
-JSON.stringify(funcionarios)
-);
+            throw new Error(funcionario.erro || "Erro ao salvar o funcionário");
 
-window.location.href="../HTML/TelaFuncionarios.html";
+        }
+
+        alert(
+            id
+                ? "Funcionário atualizado com sucesso!"
+                : "Funcionário cadastrado com sucesso!"
+        );
+
+        window.location.href = "../HTML/TelaFuncionarios.html";
+
+    } catch (error) {
+
+        alert(error.message || "Não foi possível salvar. Verifique se o servidor está ligado.");
+
+    } finally {
+
+        botaoSalvar.disabled = false;
+
+    }
 
 });
   </script>

@@ -4,10 +4,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Minha Conta - ParkEasy</title>
+  <title>Minha Conta - VagaConnect</title>
 
   <link rel="stylesheet" href="../CSS/TelaConta.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
 <body>
@@ -17,6 +18,7 @@
     <div class="card">
 
       <div class="top-bar">
+        <button type="button" class="back-button" id="voltar">←</button>
         <span>MINHA CONTA</span>
       </div>
 
@@ -28,62 +30,69 @@
       <h2>Editar dados da conta</h2>
       <p class="subtitle">Atualize suas informações pessoais</p>
 
-      <form>
+      <form id="formConta">
 
-        <!-- NOME -->
         <label>Nome completo</label>
-        <input type="text" value="João da Silva">
+        <input type="text" id="nome" placeholder="Seu nome completo" required>
 
-        <!-- CPF E EMAIL (NÃO EDITÁVEIS) -->
         <div class="row">
           <div>
             <label>CPF</label>
-            <input type="text" value="000.000.000-00" readonly>
+            <input type="text" id="cpf" readonly>
           </div>
 
           <div>
             <label>E-mail</label>
-            <input type="email" value="usuario@email.com" readonly>
+            <input type="email" id="email" readonly>
           </div>
         </div>
 
-        <!-- TELEFONE -->
-        <label>Telefone</label>
-        <input type="text" value="(17) 99999-0000">
+        <label>Data de nascimento</label>
+        <input type="date" id="dataNascimento" required>
 
-        <!-- ENDEREÇO -->
         <label>Rua</label>
-        <input type="text" value="Rua das Flores">
+        <input type="text" id="rua" placeholder="Ex.: Rua das Flores" required>
 
         <div class="row">
           <div>
             <label>Número</label>
-            <input type="text" value="123">
+            <input type="text" id="numero" placeholder="Ex.: 123" required>
           </div>
 
           <div>
             <label>CEP</label>
-            <input type="text" value="00000-000">
+            <input type="text" id="cep" placeholder="00000-000" maxlength="9" required>
           </div>
         </div>
 
-        <label>Cidade</label>
-        <input type="text" value="Santa Fé do Sul">
+        <label>Bairro</label>
+        <input type="text" id="bairro" placeholder="Ex.: Centro" required>
 
-        <!-- SENHA -->
+        <div class="row">
+          <div>
+            <label>Cidade</label>
+            <input type="text" id="cidade" placeholder="Ex.: Santa Fé do Sul" required>
+          </div>
+
+          <div>
+            <label>Estado</label>
+            <input type="text" id="estado" placeholder="UF (ex.: SP)" maxlength="2" required>
+          </div>
+        </div>
+
         <label>Nova senha</label>
         <div class="password-box">
-          <input type="password" id="senha1" placeholder="Digite nova senha">
+          <input type="password" id="senha1" placeholder="Deixe em branco para manter">
           <span onclick="togglePassword('senha1')">👁</span>
         </div>
 
         <label>Confirmar senha</label>
         <div class="password-box">
-          <input type="password" id="senha2" placeholder="Confirme nova senha">
+          <input type="password" id="senha2" placeholder="Confirme a nova senha">
           <span onclick="togglePassword('senha2')">👁</span>
         </div>
 
-        <button type="submit">Salvar alterações</button>
+        <button type="submit" id="salvar">Salvar alterações</button>
 
       </form>
 
@@ -92,10 +101,193 @@
   </div>
 
   <script>
+    const api = "http://localhost:3333";
+
+    const usuarioLogado = JSON.parse(
+      localStorage.getItem("usuarioLogado")
+    );
+
+    if (!usuarioLogado) {
+      window.location.replace("../../Base/HTML/OpçãoLogin.html");
+    }
+
+    let usuarioAtual = null;
+
+    const formulario = document.getElementById("formConta");
+    const botaoSalvar = document.getElementById("salvar");
+
+
     function togglePassword(id) {
       const input = document.getElementById(id);
       input.type = input.type === "password" ? "text" : "password";
     }
+
+
+    function validarMaiorDe18(dataNascimento) {
+      if (!dataNascimento) return false;
+
+      const nascimento = new Date(dataNascimento + "T00:00:00");
+      const hoje = new Date();
+      let idade = hoje.getFullYear() - nascimento.getFullYear();
+      const mes = hoje.getMonth() - nascimento.getMonth();
+
+      if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) {
+        idade--;
+      }
+
+      return idade >= 18;
+    }
+
+
+    async function carregarConta() {
+      try {
+        const resposta = await fetch(api + "/usuario/" + usuarioLogado.id);
+        const usuario = await resposta.json();
+
+        if (!resposta.ok || !usuario) {
+          throw new Error(usuario.erro || "Não foi possível carregar seus dados.");
+        }
+
+        usuarioAtual = usuario;
+
+        document.getElementById("nome").value = usuario.nome;
+        document.getElementById("cpf").value = usuario.cpf;
+        document.getElementById("email").value = usuario.email;
+        document.getElementById("dataNascimento").value =
+          usuario.dataNascimento.substring(0, 10);
+
+        const endereco = usuario.endereco || {};
+
+        document.getElementById("rua").value = endereco.rua || "";
+        document.getElementById("numero").value = endereco.numero || "";
+        document.getElementById("cep").value = endereco.cep || "";
+        document.getElementById("bairro").value = endereco.bairro || "";
+        document.getElementById("cidade").value = endereco.cidade || "";
+        document.getElementById("estado").value = endereco.estado || "";
+      } catch (error) {
+        alert(error.message || "Não foi possível carregar. Verifique se o servidor está ligado.");
+      }
+    }
+
+
+    formulario.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      if (!usuarioAtual) return;
+
+      const nome = document.getElementById("nome").value.trim();
+      const dataNascimento = document.getElementById("dataNascimento").value;
+      const rua = document.getElementById("rua").value.trim();
+      const numero = document.getElementById("numero").value.trim();
+      const cep = document.getElementById("cep").value.trim();
+      const bairro = document.getElementById("bairro").value.trim();
+      const cidade = document.getElementById("cidade").value.trim();
+      const estado = document.getElementById("estado").value.trim().toUpperCase();
+      const senha1 = document.getElementById("senha1").value;
+      const senha2 = document.getElementById("senha2").value;
+
+      if (!nome || !dataNascimento || !rua || !numero || !cep || !bairro || !cidade || !estado) {
+        alert("Preencha todos os campos obrigatórios.");
+        return;
+      }
+
+      if (!validarMaiorDe18(dataNascimento)) {
+        alert("É necessário ter 18 anos ou mais.");
+        return;
+      }
+
+      if (senha1 || senha2) {
+        if (senha1 !== senha2) {
+          alert("As senhas não coincidem.");
+          return;
+        }
+
+        if (senha1.length < 3) {
+          alert("A nova senha precisa ter pelo menos 3 caracteres.");
+          return;
+        }
+      }
+
+      botaoSalvar.disabled = true;
+
+      try {
+        const respostaEndereco = await fetch(api + "/endereco/" + usuarioAtual.fk_idEndereco, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            rua,
+            numero,
+            bairro,
+            cidade,
+            estado,
+            cep
+          })
+        });
+
+        const endereco = await respostaEndereco.json();
+
+        if (!respostaEndereco.ok) {
+          throw new Error(endereco.erro || "Erro ao atualizar o endereço");
+        }
+
+        const dadosUsuario = {
+          nome,
+          dataNascimento,
+          cpf: usuarioAtual.cpf,
+          email: usuarioAtual.email
+        };
+
+        if (senha1) {
+          dadosUsuario.senha = senha1;
+        }
+
+        const respostaUsuario = await fetch(api + "/usuario/" + usuarioAtual.id, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(dadosUsuario)
+        });
+
+        const usuario = await respostaUsuario.json();
+
+        if (!respostaUsuario.ok) {
+          if ((usuario.erro || "").includes("Unique constraint")) {
+            throw new Error("Já existe um usuário com esse e-mail ou CPF.");
+          }
+
+          throw new Error(usuario.erro || "Erro ao atualizar o usuário");
+        }
+
+        localStorage.setItem("usuarioLogado", JSON.stringify({
+          ...usuarioLogado,
+          nome: usuario.nome,
+          email: usuario.email,
+          dataNascimento: usuario.dataNascimento
+        }));
+
+        document.getElementById("senha1").value = "";
+        document.getElementById("senha2").value = "";
+
+        usuarioAtual = usuario;
+
+        alert("Dados atualizados com sucesso!");
+      } catch (error) {
+        alert(error.message || "Não foi possível salvar. Verifique se o servidor está ligado.");
+      } finally {
+        botaoSalvar.disabled = false;
+      }
+    });
+
+
+    document.getElementById("voltar").onclick = () => {
+      window.location.href = "TelaUsuario.html";
+    };
+
+
+    carregarConta();
   </script>
 
 </body>

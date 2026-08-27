@@ -31,7 +31,7 @@
         <a href="../HTML/TelaPagamentos.html"><i data-icon="credit-card"></i>Pagamentos</a>
         <a href="../HTML/TelaFaturamento.html"><i data-icon="chart"></i>Faturamento</a>
         <a href="../HTML/TelaConfigurações.html"><i data-icon="settings"></i>Configurações</a>
-        <a href="../../Base/HTML/Abertura.html"><i data-icon="log-out"></i>Sair</a>
+        <a href="#" id="btnSair"><i data-icon="log-out"></i>Sair</a>
       </nav>
 
       <div class="profile">
@@ -51,7 +51,7 @@
         </button>
 
         <div>
-          <h1>Olá, Administrador!</h1>
+          <h1 id="saudacaoAdmin">Olá, Administrador!</h1>
           <p>Bem-vindo ao painel de controle.</p>
         </div>
 
@@ -64,42 +64,42 @@
       <section class="stats" aria-label="Resumo">
         <article class="stat-card">
           <span class="stat-icon purple"><i data-icon="users"></i></span>
-          <div><b>128</b><small>Reservas hoje</small></div>
+          <div><b id="statReservas">0</b><small>Reservas ativas</small></div>
         </article>
 
         <article class="stat-card">
           <span class="stat-icon violet"><i data-icon="map-pin"></i></span>
-          <div><b>56</b><small>Vagas ocupadas</small></div>
+          <div><b id="statOcupadas">0</b><small>Vagas ocupadas</small></div>
         </article>
 
         <article class="stat-card">
           <span class="stat-icon green"><i data-icon="square-parking"></i></span>
-          <div><b>72</b><small>Vagas livres</small></div>
+          <div><b id="statLivres">0</b><small>Vagas livres</small></div>
         </article>
 
         <article class="stat-card income">
-          <div><b>R$ 8.420,50</b><small>Faturamento hoje</small></div>
+          <div><b id="statFaturamento">R$ 0,00</b><small>Faturamento total</small></div>
           <i data-icon="trending-up"></i>
         </article>
 
         <article class="stat-card">
           <span class="stat-icon blue"><i data-icon="building"></i></span>
-          <div><b>8</b><small>Estacionamentos</small></div>
+          <div><b id="statEstacionamentos">0</b><small>Estacionamentos</small></div>
         </article>
 
         <article class="stat-card">
           <span class="stat-icon indigo"><i data-icon="users"></i></span>
-          <div><b>243</b><small>Usuários cadastrados</small></div>
+          <div><b id="statUsuarios">0</b><small>Usuários cadastrados</small></div>
         </article>
 
         <article class="stat-card">
           <span class="stat-icon amber"><i data-icon="briefcase"></i></span>
-          <div><b>18</b><small>Funcionários</small></div>
+          <div><b id="statFuncionarios">0</b><small>Funcionários</small></div>
         </article>
 
         <article class="stat-card">
           <span class="stat-icon yellow"><i data-icon="star"></i></span>
-          <div><b>4.8</b><small>Avaliações médias</small></div>
+          <div><b id="statAvaliacao">--</b><small>Avaliações médias</small></div>
         </article>
       </section>
 
@@ -110,7 +110,7 @@
             <p>Acompanhe as últimas reservas realizadas.</p>
           </div>
 
-          <a href="#">Ver todas <i data-icon="arrow-right"></i></a>
+          <a href="../HTML/TelaReservas.html">Ver todas <i data-icon="arrow-right"></i></a>
         </div>
 
         <div class="table-wrap">
@@ -131,26 +131,8 @@
     </main>
   </div>
 
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="../../Base/JS/sessao.js"></script>
   <script>
-    const reservations = [
-  ['Maria Eduarda', '12', 'CenterPark', '23/05/2025 14:00', 'Confirmada', 'confirmed'],
-  ['João Silva', '25', 'Shopping Plaza', '23/05/2025 15:30', 'Em andamento', 'progress'],
-  ['Ana Paula', '07', 'Anápolis Mall', '23/05/2025 16:00', 'Confirmada', 'confirmed'],
-  ['Carlos Lima', '33', 'CenterPark', '23/05/2025 17:00', 'Pendente', 'scheduled']
-];
-
-document.querySelector('#reservationRows').innerHTML = reservations.map(
-  ([client, spot, place, date, status, className]) => `
-    <tr>
-      <td>${client}</td>
-      <td>${spot}</td>
-      <td>${place}</td>
-      <td>${date}</td>
-      <td><span class="status ${className}">${status}</span></td>
-    </tr>
-  `
-).join('');
 
 /* Ícones incorporados: continuam aparecendo mesmo quando a página está offline. */
 const icons = {
@@ -208,6 +190,110 @@ document.addEventListener('click', (event) => {
     sidebar.classList.remove('open');
   }
 });
+
+const funcionarioLogado = exigirLogin("admin", "../../Base/HTML/OpçãoLogin.html");
+
+if (funcionarioLogado) {
+
+mostrarFuncionarioNoPerfil(funcionarioLogado);
+
+document.querySelector("#btnSair").addEventListener("click", (event) => {
+  event.preventDefault();
+  sair("../../Base/HTML/Abertura.html");
+});
+
+document.getElementById("saudacaoAdmin").textContent =
+  `Olá, ${funcionarioLogado.nome.split(" ")[0]}!`;
+
+function mostrarPreco(valor) {
+  return Number(valor || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+function cssStatus(status) {
+  return String(status || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replaceAll(" ", "-");
+}
+
+function dataHora(texto) {
+  if (!texto) return "--";
+  const data = new Date(texto);
+  const dia = String(data.getDate()).padStart(2, "0");
+  const mes = String(data.getMonth() + 1).padStart(2, "0");
+  const ano = data.getFullYear();
+  const hora = String(data.getHours()).padStart(2, "0");
+  const minuto = String(data.getMinutes()).padStart(2, "0");
+  return `${dia}/${mes}/${ano} ${hora}:${minuto}`;
+}
+
+async function carregarPainel() {
+  const [vagas, reservasCli, pagamentos, estacionamentos, usuarios, funcionarios, feedbacks] =
+    await Promise.all([
+      fetch(API + "/vaga").then(r => r.json()),
+      fetch(API + "/reservacli").then(r => r.json()),
+      fetch(API + "/pagamento").then(r => r.json()),
+      fetch(API + "/estacionamento").then(r => r.json()),
+      fetch(API + "/usuario").then(r => r.json()),
+      fetch(API + "/funcionario").then(r => r.json()),
+      fetch(API + "/feedback").then(r => r.json())
+    ]);
+
+  const reservas = Array.isArray(reservasCli) ? reservasCli : [];
+  const listaVagas = Array.isArray(vagas) ? vagas : [];
+  const listaPagamentos = Array.isArray(pagamentos) ? pagamentos : [];
+  const listaFeedbacks = Array.isArray(feedbacks) ? feedbacks : [];
+
+  const ativas = reservas.filter(item =>
+    item.reserva?.status === "Reservada" || item.reserva?.status === "Ativa"
+  ).length;
+  const ocupadas = listaVagas.filter(vaga => vaga.status === "Ocupada").length;
+  const livres = listaVagas.filter(vaga => vaga.status === "Livre").length;
+  const totalPago = listaPagamentos.reduce((soma, item) => soma + Number(item.valor || 0), 0);
+  const media = listaFeedbacks.length
+    ? (listaFeedbacks.reduce((soma, item) => soma + Number(item.nota || 0), 0) / listaFeedbacks.length).toFixed(1)
+    : "--";
+
+  document.getElementById("statReservas").textContent = ativas;
+  document.getElementById("statOcupadas").textContent = ocupadas;
+  document.getElementById("statLivres").textContent = livres;
+  document.getElementById("statFaturamento").textContent = mostrarPreco(totalPago);
+  document.getElementById("statEstacionamentos").textContent = Array.isArray(estacionamentos) ? estacionamentos.length : 0;
+  document.getElementById("statUsuarios").textContent = Array.isArray(usuarios) ? usuarios.length : 0;
+  document.getElementById("statFuncionarios").textContent = Array.isArray(funcionarios) ? funcionarios.length : 0;
+  document.getElementById("statAvaliacao").textContent = media;
+
+  const recentes = [...reservas]
+    .sort((a, b) => new Date(b.hora) - new Date(a.hora))
+    .slice(0, 6);
+
+  const corpo = document.getElementById("reservationRows");
+
+  if (recentes.length === 0) {
+    corpo.innerHTML = `<tr><td colspan="5">Nenhuma reserva cadastrada.</td></tr>`;
+    return;
+  }
+
+  corpo.innerHTML = recentes.map(item => {
+    const status = item.reserva?.status || "--";
+    return `
+      <tr>
+        <td>${item.usuario?.nome || "Cliente"}</td>
+        <td>${item.reserva?.vaga?.numero || "--"}</td>
+        <td>${item.reserva?.vaga?.estacionamento?.nome || "--"}</td>
+        <td>${dataHora(item.hora)}</td>
+        <td><span class="status ${cssStatus(status)}">${status}</span></td>
+      </tr>
+    `;
+  }).join("");
+}
+
+carregarPainel().catch((error) => {
+  alert(error.message || "Não foi possível carregar o painel. Verifique se o servidor está ligado.");
+});
+
+}
   </script>
 </body>
 </html>

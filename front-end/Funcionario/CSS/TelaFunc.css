@@ -872,3 +872,73 @@ th:first-child {
   border-radius: 50%;
   background: #2ed48b;
 }
+
+.toolbar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.toolbar label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.toolbar input,
+.toolbar select,
+.acao-status {
+  background: #061a2a;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-family: inherit;
+}
+
+.btn {
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.btn-azul {
+  background: var(--blue);
+  color: white;
+}
+
+.btn-verde {
+  background: #0f6b4e;
+  color: #9ff3d0;
+}
+
+.btn-vermelho {
+  background: #5a1d2a;
+  color: #ffb4c0;
+}
+
+.acoes {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.vazio {
+  color: var(--muted);
+  text-align: center;
+  padding: 24px 0;
+}
+
+.status.reservada { color: #facc15; }
+.status.ativa { color: #60a5fa; }
+.status.concluida { color: #4ade80; }
+.status.cancelada { color: #f87171; }
+.status.livre { color: #4ade80; }
+.status.ocupada { color: #fb923c; }

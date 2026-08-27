@@ -9,7 +9,7 @@
 
 
 <title>
-VagaConnect | Minha Reserva
+VagaConnect | Minhas Reservas
 </title>
 
 
@@ -36,7 +36,6 @@ rel="stylesheet">
 
 
 
-
 <div class="header">
 
 
@@ -49,7 +48,7 @@ rel="stylesheet">
 
 <span>
 
-Minha Reserva
+Minhas Reservas
 
 </span>
 
@@ -59,207 +58,17 @@ Minha Reserva
 
 
 
+<div id="listaReservas">
 
 
+<p class="carregando">
 
-<div class="reservation-card">
-
-
-
-<div class="status">
-
-
-<span>
-
-◉
-
-</span>
-
-
-Reservada
-
-
-</div>
-
-
-
-
-
-
-<h2>
-
-Estacionamento Central
-
-</h2>
-
-
-
-
-
-<p>
-
-Piso 1 - Vaga 42 (Coberta)
+Carregando suas reservas...
 
 </p>
 
 
-
-
-
-
-
-
-<div class="info">
-
-
-<div>
-
-<span>
-
-Entrada
-
-</span>
-
-
-<strong id="entrada">
-
-18/06/2026 - 18:00
-
-</strong>
-
 </div>
-
-
-
-
-
-<div>
-
-<span>
-
-Saída prevista
-
-</span>
-
-
-<strong id="saida">
-
-18/06/2026 - 22:00
-
-</strong>
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-
-
-
-<div class="timer-box">
-
-
-<p>
-
-Tempo restante
-
-</p>
-
-
-<h1 id="timer">
-
-00 : 35 : 12
-
-</h1>
-
-
-
-<div class="labels">
-
-<span>
-
-Hora
-
-</span>
-
-
-<span>
-
-Min
-
-</span>
-
-
-<span>
-
-Seg
-
-</span>
-
-
-</div>
-
-
-
-</div>
-
-
-
-
-
-
-
-<p class="warning">
-
-Chegue até 18:15 para confirmar<br>
-
-sua chegada.
-
-</p>
-
-
-
-
-
-</div>
-
-
-
-
-
-
-
-
-
-<button class="extend" id="prorrogar">
-
-Solicitar prorrogação
-
-</button>
-
-<a href="../HTML/TelaReservaAtiva.html">
-<button class="extend">
-Tela Temporária ( dps da confirmação de presença) 
-
-</button>
-</a>
-
-
-
-
-
-<button class="cancel" id="cancelar">
-
-Cancelar reserva
-
-</button>
-
 
 
 
@@ -275,65 +84,239 @@ Cancelar reserva
 
 
 <script>
-    // =====================================================
+
+// =====================================================
+// CONFIGURAÇÃO
+// =====================================================
+
+
+const api = "http://localhost:3333";
+
+
+const usuarioLogado = JSON.parse(
+    localStorage.getItem("usuarioLogado")
+);
+
+
+if(!usuarioLogado){
+
+    window.location.replace("../../Base/HTML/OpçãoLogin.html");
+
+}
+
+
+
+
+// =====================================================
 // ELEMENTOS
 // =====================================================
 
 
-const entrada = document.getElementById("entrada");
-
-const saida = document.getElementById("saida");
-
-const timer = document.getElementById("timer");
-
-
-const botaoProrrogar = document.getElementById("prorrogar");
-
-const botaoCancelar = document.getElementById("cancelar");
+const listaReservas = document.getElementById("listaReservas");
 
 const voltar = document.getElementById("voltar");
 
 
 
+let reservas = [];
 
-// =====================================================
-// PEGAR RESERVA SALVA
-// =====================================================
-
-
-let reservas = JSON.parse(
-
-    localStorage.getItem("reservas")
-
-) || [];
-
-
-
-
-
-let reservaAtual = reservas[reservas.length - 1];
-
+let contador = null;
 
 
 
 
 // =====================================================
-// CARREGAR DADOS
+// AJUDANTES
 // =====================================================
 
 
-function carregarReserva(){
+function mostrarPreco(valor){
+
+    return Number(valor || 0).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+    });
+
+}
 
 
 
-    if(!reservaAtual){
+function mostrarDataHora(texto){
+
+    if(!texto) return "--";
 
 
-        console.log(
+    const data = new Date(texto);
 
-        "Nenhuma reserva encontrada"
 
-        );
+    const dia = String(data.getDate()).padStart(2, "0");
+
+    const mes = String(data.getMonth() + 1).padStart(2, "0");
+
+    const hora = String(data.getHours()).padStart(2, "0");
+
+    const minuto = String(data.getMinutes()).padStart(2, "0");
+
+
+    return `${dia}/${mes}/${data.getFullYear()} - ${hora}:${minuto}`;
+
+}
+
+
+
+function formatar(valor){
+
+    return String(valor).padStart(2, "0");
+
+}
+
+
+
+function totalPago(reservaCli){
+
+    return reservaCli.pagamentos.reduce(
+        (soma, pagamento) => soma + pagamento.valor,
+        0
+    );
+
+}
+
+
+
+function estaAtiva(item){
+
+    const status = item.reserva.status;
+
+    return status !== "Cancelada" && status !== "Concluída";
+
+}
+
+
+
+function classeDoStatus(status){
+
+    if(status === "Cancelada") return "cancelada";
+
+    if(status === "Concluída") return "concluida";
+
+    return "";
+
+}
+
+
+
+function distanciaDoHorario(item){
+
+    return Math.abs(new Date(item.hora).getTime() - Date.now());
+
+}
+
+
+
+
+// =====================================================
+// BUSCAR AS RESERVAS DO CLIENTE
+// =====================================================
+
+
+async function carregarReservas(){
+
+
+    try {
+
+
+        const resposta = await fetch(api + "/reservacli");
+
+
+        const lista = await resposta.json();
+
+
+        if(!resposta.ok){
+
+            throw new Error(lista.erro || "Erro ao carregar suas reservas");
+
+        }
+
+
+
+        // Ativas primeiro; entre elas, a mais perto do horário de entrada
+        reservas = lista
+
+            .filter(item => item.fk_idCliente === usuarioLogado.id)
+
+            .sort((a, b) => {
+
+                const ativaA = estaAtiva(a);
+
+                const ativaB = estaAtiva(b);
+
+
+                if(ativaA !== ativaB){
+
+                    return ativaA ? -1 : 1;
+
+                }
+
+
+                return distanciaDoHorario(a) - distanciaDoHorario(b);
+
+            });
+
+
+
+        render();
+
+
+    } catch (error) {
+
+
+        listaReservas.innerHTML = `
+            <p class="carregando">
+                ${error.message || "Não foi possível carregar. Verifique se o servidor está ligado."}
+            </p>
+        `;
+
+
+    }
+
+
+}
+
+
+
+
+// =====================================================
+// DESENHAR OS CARDS
+// =====================================================
+
+
+function render(){
+
+
+    if(contador){
+
+        clearInterval(contador);
+
+        contador = null;
+
+    }
+
+
+
+    if(reservas.length === 0){
+
+
+        listaReservas.innerHTML = `
+
+            <p class="carregando">
+                Você ainda não tem reservas.
+            </p>
+
+            <button class="extend" onclick="window.location.href='TelaReservas.html'">
+                Reservar uma vaga
+            </button>
+
+        `;
 
 
         return;
@@ -343,46 +326,108 @@ function carregarReserva(){
 
 
 
+    listaReservas.innerHTML = reservas.map((item, indice) => {
 
 
-    let dados = 
+        const reserva = item.reserva;
 
-    reservaAtual.dados?.reserva || {};
+        const vaga = reserva.vaga;
 
+        const privilegiada = indice === 0 && estaAtiva(item);
 
-
-
-
-
-
-    // Entrada
+        const emAndamento = privilegiada;
 
 
-    if(dados.entrada){
+        return `
+
+        <div class="reservation-card${privilegiada ? " privilegiada" : ""}">
 
 
-        entrada.textContent = dados.entrada;
+            <div class="card-top">
+
+                <div class="status ${classeDoStatus(reserva.status)}">
+
+                    <span>◉</span>
+
+                    ${reserva.status}
+
+                </div>
+
+                ${privilegiada ? `<div class="selo-privilegio">Privilégio</div>` : ""}
+
+            </div>
 
 
-    }
+            <h2>${vaga.estacionamento.nome}</h2>
+
+
+            <p>Vaga ${vaga.numero} (${vaga.tipo})</p>
+
+
+            <div class="info">
+
+                <div>
+                    <span>Entrada</span>
+                    <strong>${mostrarDataHora(item.hora)}</strong>
+                </div>
+
+                <div>
+                    <span>Saída prevista</span>
+                    <strong>${mostrarDataHora(item.horaSaida)}</strong>
+                </div>
+
+                <div>
+                    <span>Veículo</span>
+                    <strong>${item.carro ? `${item.carro.modelo} - ${item.carro.placacarro}` : "--"}</strong>
+                </div>
+
+                <div>
+                    <span>Valor pago</span>
+                    <strong>${mostrarPreco(totalPago(item))}</strong>
+                </div>
+
+            </div>
+
+
+            ${emAndamento ? `
+
+            <div class="timer-box">
+
+                <p id="tituloTimer">Tempo restante</p>
+
+                <h1 id="timer">00 : 00 : 00</h1>
+
+                <div class="labels">
+                    <span>Hora</span>
+                    <span>Min</span>
+                    <span>Seg</span>
+                </div>
+
+            </div>
+
+
+            <button class="extend" onclick="prorrogar('${item.id}')">
+                Solicitar prorrogação
+            </button>
+
+
+            <button class="cancel" onclick="cancelar('${item.id}')">
+                Cancelar reserva
+            </button>
+
+            ` : ""}
+
+
+        </div>
+
+        `;
+
+
+    }).join("");
 
 
 
-
-
-
-    // Saída
-
-
-    if(dados.saida){
-
-
-        saida.textContent = dados.saida;
-
-
-    }
-
-
+    iniciarTimer();
 
 
 }
@@ -390,257 +435,251 @@ function carregarReserva(){
 
 
 
-carregarReserva();
-
-
-
-
-
-
-
 // =====================================================
-// CONTADOR
+// CONTADOR DA RESERVA EM ANDAMENTO
 // =====================================================
-
-
-
-let segundos = 35 * 60 + 12;
-
-
-
 
 
 function iniciarTimer(){
 
 
+    const timer = document.getElementById("timer");
 
-    setInterval(()=>{
+    const tituloTimer = document.getElementById("tituloTimer");
 
+
+    if(!timer) return;
+
+
+
+    const reservaAtiva = reservas[0];
+
+
+    const chegada = new Date(reservaAtiva.hora);
+
+    const saida = reservaAtiva.horaSaida
+        ? new Date(reservaAtiva.horaSaida)
+        : chegada;
+
+
+
+    function atualizar(){
+
+
+        const agora = new Date();
+
+
+        // Antes da hora marcada conta para a chegada, depois para a saída
+        const alvo = agora < chegada ? chegada : saida;
+
+
+        tituloTimer.textContent = agora < chegada
+            ? "Tempo até a chegada"
+            : "Tempo restante";
+
+
+
+        let segundos = Math.floor((alvo - agora) / 1000);
 
 
         if(segundos <= 0){
 
-
             timer.textContent = "00 : 00 : 00";
 
+            tituloTimer.textContent = "Tempo esgotado";
+
+            clearInterval(contador);
 
             return;
 
-
         }
 
 
 
+        const horas = Math.floor(segundos / 3600);
 
-        segundos--;
+        const minutos = Math.floor((segundos % 3600) / 60);
 
-
-
-
-
-        let horas = Math.floor(
-
-            segundos / 3600
-
-        );
-
-
-
-        let minutos = Math.floor(
-
-            (segundos % 3600) / 60
-
-        );
-
-
-
-        let seg = segundos % 60;
-
-
-
-
+        const resto = segundos % 60;
 
 
         timer.textContent =
-
-
-        formatar(horas)
-
-        +
-
-        " : "
-
-        +
-
-        formatar(minutos)
-
-        +
-
-        " : "
-
-        +
-
-        formatar(seg);
-
-
-
-
-
-    },1000);
-
-
-
-}
-
-
-
-
-
-function formatar(valor){
-
-
-    return valor
-
-    .toString()
-
-    .padStart(2,"0");
-
-
-}
-
-
-
-
-
-iniciarTimer();
-
-
-
-
-
-
-
-
-
-// =====================================================
-// SOLICITAR PRORROGAÇÃO
-// =====================================================
-
-
-botaoProrrogar.onclick = ()=>{
-
-
-
-    let confirmar = confirm(
-
-        "Deseja solicitar mais tempo para sua reserva?"
-
-    );
-
-
-
-
-    if(confirmar){
-
-
-
-        alert(
-
-        "Solicitação enviada com sucesso!"
-
-        );
-
+            `${formatar(horas)} : ${formatar(minutos)} : ${formatar(resto)}`;
 
 
     }
 
 
 
-};
+    atualizar();
 
 
+    contador = setInterval(atualizar, 1000);
 
 
-
+}
 
 
 
 
 // =====================================================
-// CANCELAR RESERVA
+// PRORROGAR (soma 1 hora na saída prevista)
 // =====================================================
 
 
-botaoCancelar.onclick = ()=>{
+async function prorrogar(idReservaCli){
+
+
+    const reservaCli = reservas.find(item => item.id === idReservaCli);
+
+
+    if(!confirm("Deseja mais 1 hora nessa reserva?")) return;
 
 
 
-    let confirmar = confirm(
+    const novaSaida = new Date(reservaCli.horaSaida || reservaCli.hora);
 
-    "Deseja cancelar sua reserva?"
-
-    );
+    novaSaida.setHours(novaSaida.getHours() + 1);
 
 
 
+    try {
+
+
+        const resposta = await fetch(api + "/reservacli/" + idReservaCli, {
+
+            method: "PUT",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                data:         reservaCli.data,
+                hora:         reservaCli.hora,
+                horaSaida:    novaSaida.toISOString(),
+                fk_idCliente: reservaCli.fk_idCliente,
+                fk_idReserva: reservaCli.fk_idReserva,
+                fk_idCarro:   reservaCli.fk_idCarro
+            })
+
+        });
+
+
+        const retorno = await resposta.json();
+
+
+        if(!resposta.ok){
+
+            throw new Error(retorno.erro || "Erro ao prorrogar a reserva");
+
+        }
+
+
+        alert("Reserva prorrogada por mais 1 hora!");
+
+
+        await carregarReservas();
+
+
+    } catch (error) {
+
+
+        alert(error.message || "Não foi possível prorrogar a reserva.");
+
+
+    }
+
+
+}
 
 
 
-    if(confirmar){
+
+// =====================================================
+// CANCELAR (libera a vaga)
+// =====================================================
+
+
+async function cancelar(idReservaCli){
+
+
+    const reservaCli = reservas.find(item => item.id === idReservaCli);
+
+
+    if(!confirm("Deseja cancelar sua reserva?")) return;
 
 
 
-        if(reservaAtual){
+    try {
 
 
+        const resposta = await fetch(api + "/reserva/" + reservaCli.fk_idReserva, {
 
-            reservaAtual.status = "Cancelada";
+            method: "PUT",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                status:  "Cancelada",
+                fk_vaga: reservaCli.reserva.fk_vaga
+            })
+
+        });
 
 
+        const retorno = await resposta.json();
 
 
+        if(!resposta.ok){
 
-            localStorage.setItem(
-
-                "reservas",
-
-                JSON.stringify(reservas)
-
-            );
-
-
+            throw new Error(retorno.erro || "Erro ao cancelar a reserva");
 
         }
 
 
 
+        const vaga = reservaCli.reserva.vaga;
+
+
+        await fetch(api + "/vaga/" + vaga.id, {
+
+            method: "PUT",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                numero: vaga.numero,
+                tipo:   vaga.tipo,
+                status: "Livre",
+                preco:  vaga.preco,
+                fk_est: vaga.fk_est
+            })
+
+        });
 
 
 
-        alert(
-
-        "Reserva cancelada."
-
-        );
+        alert("Reserva cancelada e vaga liberada.");
 
 
+        await carregarReservas();
 
 
+    } catch (error) {
 
-        window.location.href =
 
-        "TelaInicio.html";
-
+        alert(error.message || "Não foi possível cancelar a reserva.");
 
 
     }
 
 
-
-};
-
-
-
+}
 
 
 
@@ -652,11 +691,15 @@ botaoCancelar.onclick = ()=>{
 
 voltar.onclick = ()=>{
 
-
-    history.back();
-
+    window.location.href = "TelaUsuario.html";
 
 };
+
+
+
+
+carregarReservas();
+
 </script>
 
 

@@ -235,6 +235,12 @@ td {
   background: #443706;
 }
 
+.table-count {
+  margin: 20px 0 0;
+  color: #8496ab;
+  font-size: 11px;
+}
+
 @media (max-width: 650px) {
   .sidebar {
     display: none;

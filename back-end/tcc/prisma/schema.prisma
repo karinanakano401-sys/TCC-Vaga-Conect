@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id             String       @id @default(uuid())
+  nome           String
+  dataNascimento DateTime
+  cpf            String       @unique
+  email          String       @unique
+  senha          String
+  createdAt      DateTime     @default(now())
+
+  fk_idEndereco  String       @unique
+  endereco       Endereco     @relation(fields: [fk_idEndereco], references: [id])
+
+  carros         Carro[]
+  reservas       ReservaCli[]
+  feedbacks      Feedback[]
+}
+
+model Endereco {
+  id             String          @id @default(uuid())
+  rua            String
+  numero         String
+  bairro         String
+  cidade         String
+  estado         String
+  cep            String
+
+  usuario        Usuario?
+  estacionamento Estacionamento?
+}
+
+model Carro {
+  id           String       @id @default(uuid())
+  placacarro   String       @unique
+  modelo       String
+  fk_idCliente String
+  usuario      Usuario      @relation(fields: [fk_idCliente], references: [id], onDelete: Cascade)
+
+  reservas     ReservaCli[]
+
+  @@index([fk_idCliente])
+}
+
+model ReservaCli {
+  id           String      @id @default(uuid())
+  data         DateTime    @default(now())
+  hora         DateTime    @default(now())
+  horaSaida    DateTime?
+  fk_idCliente String
+  fk_idReserva String
+  fk_idCarro   String?
+
+  usuario      Usuario     @relation(fields: [fk_idCliente], references: [id], onDelete: Cascade)
+  reserva      Reserva     @relation(fields: [fk_idReserva], references: [id])
+  carro        Carro?      @relation(fields: [fk_idCarro], references: [id])
+
+  pagamentos   Pagamento[]
+
+  @@index([fk_idCliente])
+  @@index([fk_idReserva])
+  @@index([fk_idCarro])
+}
+
+model Reserva {
+  id          String       @id @default(uuid())
+  status      String
+  fk_vaga     String
+  vaga        Vaga         @relation(fields: [fk_vaga], references: [id])
+  reservasCli ReservaCli[]
+
+  @@index([fk_vaga])
+}
+
+model Pagamento {
+  id         String     @id @default(uuid())
+  nome       String
+  tipo       String
+  valor      Float
+  fk_reserva String
+  reservaCli ReservaCli @relation(fields: [fk_reserva], references: [id], onDelete: Cascade)
+
+  @@index([fk_reserva])
+}
+
+model Feedback {
+  id           String   @id @default(uuid())
+  nota         Int
+  assunto      String
+  categoria    String
+  mensagem     String
+  createdAt    DateTime @default(now())
+  fk_idCliente String
+  usuario      Usuario  @relation(fields: [fk_idCliente], references: [id], onDelete: Cascade)
+
+  @@index([fk_idCliente])
+}
+
+model Vaga {
+  id             String         @id @default(uuid())
+  numero         String
+  tipo           String
+  status         String
+  preco          Float          @default(0)
+  fk_est         String
+  reservas       Reserva[]
+  estacionamento Estacionamento @relation(fields: [fk_est], references: [id])
+
+  @@index([fk_est])
+}
+
+model Estacionamento {
+  id            String        @id @default(uuid())
+  nome          String
+  status        String
+  fk_idEndereco String        @unique
+  endereco      Endereco      @relation(fields: [fk_idEndereco], references: [id])
+  funcionarios  Funcionario[]
+  vagas         Vaga[]
+}
+
+model Funcionario {
+  id             String         @id @default(uuid())
+  nome           String
+  dataNascimento DateTime
+  cpf            String         @unique
+  telefone       String
+  email          String         @unique
+  senha          String
+  fk_tipofunc    String
+  fk_est         String
+  estacionamento Estacionamento @relation(fields: [fk_est], references: [id])
+  tipoFunc       TipoFunc       @relation(fields: [fk_tipofunc], references: [id])
+
+  @@index([fk_est])
+  @@index([fk_tipofunc])
+}
+
+model TipoFunc {
+  id           String        @id @default(uuid())
+  nome         String
+  tipo         String
+  funcionarios Funcionario[]
+}

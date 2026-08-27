@@ -27,7 +27,7 @@
         <!-- SIDEBAR -->
         <!-- ========================= -->
 
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
 
             <div class="logo">
        <i class="fa-solid fa-layer-group"></i>
@@ -86,7 +86,7 @@
                     Configurações
                 </a>
 
-                <a href="../../Base/HTML/Abertura.html">
+                <a href="#" id="btnSair">
                     <i data-icon="log-out"></i>
                     Sair
                 </a>
@@ -188,8 +188,8 @@
 
                     <span>Crescimento</span>
 
-                    <h2 class="green">
-                        +12%
+                    <h2 class="green" id="crescimento">
+                        --
                     </h2>
 
                     <p>
@@ -200,71 +200,45 @@
 
             </section>
 
-            <!-- Painel -->
-
-            
-
-                <!-- Filtros -->
+            <section class="panel">
 
                 <div class="filters">
 
                     <label>
-
                         Mês
-
-                        <select id="mes">
-                            <option value="5">Maio</option>
-                            <option value="6">Junho</option>
-                            <option value="7">Julho</option>
-                        </select>
-
+                        <select id="mes"></select>
                     </label>
 
                     <label>
-
                         Ano
-
-                        <select id="ano">
-                            <option>2025</option>
-                            <option>2026</option>
-                        </select>
-
+                        <select id="ano"></select>
                     </label>
 
                     <input
-                        type="text"
+                        type="search"
                         id="buscar"
-                        placeholder="Buscar cliente ou reserva..."
+                        placeholder="Buscar cliente, pátio ou reserva..."
                     >
 
                 </div>
 
-                <!-- Tabela -->
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Reserva</th>
+                                <th>Estacionamento</th>
+                                <th>Pagamento</th>
+                                <th>Valor</th>
+                                <th>Data</th>
+                            </tr>
+                        </thead>
+                        <tbody id="faturamentoTabela"></tbody>
+                    </table>
+                </div>
 
-                <table>
-
-                    <thead>
-
-                        <tr>
-
-                            <th>Cliente</th>
-                            <th>Reserva</th>
-                            <th>Estacionamento</th>
-                            <th>Pagamento</th>
-                            <th>Valor</th>
-                            <th>Data</th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody id="faturamentoTabela">
-
-                        <!-- Conteúdo gerado pelo JavaScript -->
-
-                    </tbody>
-
-                </table>
+                <p class="table-count" id="tableCount"></p>
 
             </section>
 
@@ -272,379 +246,244 @@
 
     </div>
 
-    <!-- JavaScript -->
+    <script src="../../Base/JS/sessao.js"></script>
     <script>
-        //======================================================
-// VAGACONNECT - TELA DE FATURAMENTO
-//======================================================
+        const icons = {
+            grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
+            building: '<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 7h1m3 0h1m3 0h1M8 11h1m3 0h1m3 0h1M8 15h1m3 0h1m3 0h1M10 21v-3h4v3"/>',
+            car: '<path d="M5 17H3v-4l2-5h14l2 5v4h-2M5 17h14M7 17v2m10-2v2M5 13h14"/><circle cx="7" cy="15" r="1"/><circle cx="17" cy="15" r="1"/>',
+            calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>',
+            users: '<circle cx="9" cy="8" r="3"/><path d="M3 21v-2a6 6 0 0 1 12 0v2"/><path d="M16 4a3 3 0 0 1 0 6"/><path d="M21 21v-2a6 6 0 0 0-3-5.2"/>',
+            briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5h8v2M3 12h18M10 12v2h4v-2"/>',
+            message: '<path d="M21 11.5a8 8 0 0 1-8.5 8 9 9 0 0 1-4-.9L3 20l1.4-4A8 8 0 1 1 21 11.5Z"/>',
+            "credit-card": '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h2"/>',
+            chart: '<path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 15v-3"/><path d="M12 15V8"/><path d="M16 15V5"/>',
+            settings: '<circle cx="12" cy="12" r="3"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2"/><path d="M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4m0-14.2-1.4 1.4M6.3 17.7l-1.4 1.4"/>',
+            "log-out": '<path d="M10 17l5-5-5-5"/><path d="M15 12H3"/><path d="M21 19V5a2 2 0 0 0-2-2h-5"/>',
+            download: '<path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><path d="M5 21h14"/>'
+        };
 
-document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll("i[data-icon]").forEach((icon) => {
+            const nome = icon.dataset.icon;
+            if (!icons[nome]) return;
+            icon.outerHTML = `
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    ${icons[nome]}
+                </svg>
+            `;
+        });
 
-    //==================================================
-    // DADOS
-    //==================================================
+        const funcionarioLogado = exigirLogin("admin", "../../Base/HTML/OpçãoLogin.html");
 
-    const dadosFaturamento = [
+        if (funcionarioLogado) {
 
-        {
-            cliente: "Maria Eduarda",
-            reserva: "#1256",
-            estacionamento: "CenterPark",
-            pagamento: "Pix",
-            valor: 12,
-            data: "23/05/2025"
-        },
+        mostrarFuncionarioNoPerfil(funcionarioLogado);
 
-        {
-            cliente: "João Silva",
-            reserva: "#1258",
-            estacionamento: "Shopping Plaza",
-            pagamento: "Cartão",
-            valor: 12,
-            data: "23/05/2025"
-        },
+        document.querySelector("#btnSair").addEventListener("click", (event) => {
+            event.preventDefault();
+            sair("../../Base/HTML/Abertura.html");
+        });
 
-        {
-            cliente: "Ana Paula",
-            reserva: "#1259",
-            estacionamento: "CenterPark",
-            pagamento: "Pix",
-            valor: 18,
-            data: "23/05/2025"
-        },
+        const meses = [
+            "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+            "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+        ];
 
-        {
-            cliente: "Carlos Lima",
-            reserva: "#1260",
-            estacionamento: "Park Center",
-            pagamento: "Cartão",
-            valor: 18,
-            data: "22/05/2025"
-        },
+        const hoje = new Date();
+        const selectMes = document.getElementById("mes");
+        const selectAno = document.getElementById("ano");
+        const tabela = document.getElementById("faturamentoTabela");
+        const campoBusca = document.getElementById("buscar");
+        const cardCrescimento = document.getElementById("crescimento");
 
-        {
-            cliente: "Fernanda Souza",
-            reserva: "#1261",
-            estacionamento: "Shopping Plaza",
-            pagamento: "Pix",
-            valor: 25,
-            data: "21/05/2025"
-        },
+        let pagamentos = [];
 
-        {
-            cliente: "Lucas Mendes",
-            reserva: "#1262",
-            estacionamento: "CenterPark",
-            pagamento: "Cartão",
-            valor: 20,
-            data: "20/05/2025"
-        },
+        meses.forEach((nome, indice) => {
+            const option = document.createElement("option");
+            option.value = String(indice + 1);
+            option.textContent = nome;
+            if (indice === hoje.getMonth()) option.selected = true;
+            selectMes.appendChild(option);
+        });
 
-        {
-            cliente: "Beatriz Alves",
-            reserva: "#1263",
-            estacionamento: "Park Center",
-            pagamento: "Pix",
-            valor: 30,
-            data: "18/05/2025"
+        for (let ano = 2025; ano <= hoje.getFullYear(); ano++) {
+            const option = document.createElement("option");
+            option.value = String(ano);
+            option.textContent = ano;
+            if (ano === hoje.getFullYear()) option.selected = true;
+            selectAno.appendChild(option);
         }
 
-    ];
+        function mostrarPreco(valor) {
+            return Number(valor || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+        }
 
-    //==================================================
-    // ELEMENTOS DA TELA
-    //==================================================
+        function nomeTipo(tipo) {
+            const texto = String(tipo || "").toLowerCase();
+            if (texto.includes("pix")) return "Pix";
+            if (texto.includes("cart")) return "Cartão";
+            return tipo || "--";
+        }
 
-    const tabela = document.getElementById("faturamentoTabela");
+        function dataDoPagamento(item) {
+            return item.reservaCli?.hora || item.reservaCli?.data || null;
+        }
 
-    const totalMes = document.getElementById("totalMes");
+        function dataCurta(texto) {
+            if (!texto) return "--";
+            const data = new Date(texto);
+            return `${String(data.getDate()).padStart(2, "0")}/${String(data.getMonth() + 1).padStart(2, "0")}/${data.getFullYear()}`;
+        }
 
-    const totalReservas = document.getElementById("totalReservas");
+        function noPeriodo(item, mes, ano) {
+            const texto = dataDoPagamento(item);
+            if (!texto) return false;
+            const data = new Date(texto);
+            return data.getMonth() + 1 === mes && data.getFullYear() === ano;
+        }
 
-    const ticketMedio = document.getElementById("ticketMedio");
+        function soma(lista) {
+            return lista.reduce((total, item) => total + Number(item.valor || 0), 0);
+        }
 
-    const campoBusca = document.getElementById("buscar");
+        function reservasUnicas(lista) {
+            return new Set(lista.map((item) => item.fk_reserva || item.reservaCli?.id).filter(Boolean)).size;
+        }
 
-    const botaoExportar = document.getElementById("exportar");
+        function linhasVisiveis() {
+            const mes = Number(selectMes.value);
+            const ano = Number(selectAno.value);
+            const busca = campoBusca.value.toLowerCase();
 
+            return pagamentos.filter((item) => {
+                if (!noPeriodo(item, mes, ano)) return false;
 
+                const cliente = item.reservaCli?.usuario?.nome || "";
+                const patio = item.reservaCli?.reserva?.vaga?.estacionamento?.nome || "";
+                const reserva = (item.fk_reserva || item.reservaCli?.id || "").slice(0, 8);
 
-    //==================================================
-    // FORMATAÇÃO
-    //==================================================
+                return `${cliente} ${patio} ${reserva} ${item.nome}`.toLowerCase().includes(busca);
+            });
+        }
 
-    function formatarMoeda(valor) {
+        function atualizarCrescimento(atual, anterior) {
+            cardCrescimento.classList.remove("green", "yellow", "red");
 
-        return "R$ " + valor.toFixed(2).replace(".", ",");
+            if (anterior === 0 && atual === 0) {
+                cardCrescimento.textContent = "--";
+                cardCrescimento.classList.add("yellow");
+                return;
+            }
 
-    }
+            if (anterior === 0) {
+                cardCrescimento.textContent = "+100%";
+                cardCrescimento.classList.add("green");
+                return;
+            }
 
+            const percentual = ((atual - anterior) / anterior) * 100;
+            const sinal = percentual > 0 ? "+" : "";
+            cardCrescimento.textContent = `${sinal}${percentual.toFixed(0)}%`;
 
+            if (percentual > 0) cardCrescimento.classList.add("green");
+            else if (percentual < 0) cardCrescimento.classList.add("red");
+            else cardCrescimento.classList.add("yellow");
+        }
 
-    //==================================================
-    // RESUMO
-    //==================================================
+        function render() {
+            const mes = Number(selectMes.value);
+            const ano = Number(selectAno.value);
+            const lista = linhasVisiveis();
+            const doMes = pagamentos.filter((item) => noPeriodo(item, mes, ano));
 
-    function atualizarResumo(lista) {
+            const mesAnterior = mes === 1 ? 12 : mes - 1;
+            const anoAnterior = mes === 1 ? ano - 1 : ano;
+            const doMesAnterior = pagamentos.filter((item) => noPeriodo(item, mesAnterior, anoAnterior));
 
-        const total = lista.reduce((soma, item) => soma + item.valor, 0);
+            const total = soma(doMes);
+            const qtdReservas = reservasUnicas(doMes);
+            const media = qtdReservas ? total / qtdReservas : 0;
 
-        const media = lista.length > 0
-            ? total / lista.length
-            : 0;
+            document.getElementById("totalMes").textContent = mostrarPreco(total);
+            document.getElementById("totalReservas").textContent = qtdReservas;
+            document.getElementById("ticketMedio").textContent = mostrarPreco(media);
+            atualizarCrescimento(total, soma(doMesAnterior));
 
-        totalMes.textContent = formatarMoeda(total);
+            if (lista.length === 0) {
+                tabela.innerHTML = `<tr><td colspan="6">Nenhum pagamento neste período.</td></tr>`;
+                document.getElementById("tableCount").textContent = `Mostrando 0 de ${doMes.length} pagamentos`;
+                return;
+            }
 
-        totalReservas.textContent = lista.length;
+            tabela.innerHTML = lista.map((item) => {
+                const idCurto = (item.fk_reserva || item.reservaCli?.id || "").slice(0, 8);
+                return `
+                    <tr>
+                        <td>${item.reservaCli?.usuario?.nome || "--"}</td>
+                        <td>#${idCurto || "--"}</td>
+                        <td>${item.reservaCli?.reserva?.vaga?.estacionamento?.nome || "--"}</td>
+                        <td>${nomeTipo(item.tipo)}</td>
+                        <td><b>${mostrarPreco(item.valor)}</b></td>
+                        <td>${dataCurta(dataDoPagamento(item))}</td>
+                    </tr>
+                `;
+            }).join("");
 
-        ticketMedio.textContent = formatarMoeda(media);
+            document.getElementById("tableCount").textContent =
+                `Mostrando ${lista.length} de ${doMes.length} pagamentos`;
+        }
 
-    }
+        document.getElementById("exportar").addEventListener("click", () => {
+            const lista = linhasVisiveis();
+            const mesNome = meses[Number(selectMes.value) - 1];
+            const ano = selectAno.value;
 
+            let relatorio = `RELATÓRIO DE FATURAMENTO\n`;
+            relatorio += `${mesNome}/${ano}\n`;
+            relatorio += `=============================\n\n`;
 
+            if (lista.length === 0) {
+                relatorio += "Nenhum pagamento neste período.\n";
+            } else {
+                lista.forEach((item) => {
+                    const idCurto = (item.fk_reserva || item.reservaCli?.id || "").slice(0, 8);
+                    relatorio +=
+                        `Cliente: ${item.reservaCli?.usuario?.nome || "--"}\n` +
+                        `Reserva: #${idCurto || "--"}\n` +
+                        `Estacionamento: ${item.reservaCli?.reserva?.vaga?.estacionamento?.nome || "--"}\n` +
+                        `Pagamento: ${nomeTipo(item.tipo)}\n` +
+                        `Valor: ${mostrarPreco(item.valor)}\n` +
+                        `Data: ${dataCurta(dataDoPagamento(item))}\n\n`;
+                });
 
-    //==================================================
-    // TABELA
-    //==================================================
+                relatorio += `Total: ${mostrarPreco(soma(lista))}\n`;
+            }
 
-    function carregarTabela(lista) {
-
-        tabela.innerHTML = "";
-
-        lista.forEach(item => {
-
-            const linha = document.createElement("tr");
-
-            linha.innerHTML = `
-
-                <td>${item.cliente}</td>
-
-                <td>${item.reserva}</td>
-
-                <td>${item.estacionamento}</td>
-
-                <td>${item.pagamento}</td>
-
-                <td>${formatarMoeda(item.valor)}</td>
-
-                <td>${item.data}</td>
-
-            `;
-
-            tabela.appendChild(linha);
-
+            const arquivo = new Blob([relatorio], { type: "text/plain;charset=utf-8" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(arquivo);
+            link.download = `Relatorio_Faturamento_${mesNome}_${ano}.txt`;
+            link.click();
+            URL.revokeObjectURL(link.href);
         });
 
-        atualizarResumo(lista);
+        selectMes.addEventListener("change", render);
+        selectAno.addEventListener("change", render);
+        campoBusca.addEventListener("input", render);
 
-    }
+        async function carregar() {
+            const resposta = await fetch(API + "/pagamento");
+            const lista = await resposta.json();
+            if (!resposta.ok) throw new Error(lista.erro || "Erro ao carregar o faturamento");
+            pagamentos = lista;
+            render();
+        }
 
-
-
-    //==================================================
-    // PESQUISA
-    //==================================================
-
-    campoBusca.addEventListener("input", () => {
-
-        const texto = campoBusca.value.toLowerCase();
-
-        const resultado = dadosFaturamento.filter(item =>
-
-            item.cliente.toLowerCase().includes(texto) ||
-
-            item.reserva.toLowerCase().includes(texto) ||
-
-            item.estacionamento.toLowerCase().includes(texto)
-
-        );
-
-        carregarTabela(resultado);
-
-    });
-
-
-
-
-    //==================================================
-    // EXPORTAR RELATÓRIO
-    //==================================================
-
-    botaoExportar.addEventListener("click", () => {
-
-        let relatorio = "";
-
-        relatorio += "RELATÓRIO DE FATURAMENTO\n";
-
-        relatorio += "=============================\n\n";
-
-        dadosFaturamento.forEach(item => {
-
-            relatorio +=
-
-                `Cliente: ${item.cliente}\n` +
-
-                `Reserva: ${item.reserva}\n` +
-
-                `Estacionamento: ${item.estacionamento}\n` +
-
-                `Pagamento: ${item.pagamento}\n` +
-
-                `Valor: ${formatarMoeda(item.valor)}\n` +
-
-                `Data: ${item.data}\n\n`;
-
+        carregar().catch((error) => {
+            alert(error.message || "Não foi possível carregar. Verifique se o servidor está ligado.");
         });
 
-        const arquivo = new Blob(
-
-            [relatorio],
-
-            { type: "text/plain" }
-
-        );
-
-        const link = document.createElement("a");
-
-        link.href = URL.createObjectURL(arquivo);
-
-        link.download = "Relatorio_Faturamento.txt";
-
-        link.click();
-
-    });
-        //==================================================
-    // ÍCONES SVG
-    //==================================================
-
-    const icons = {
-
-grid:
-'<rect x="3" y="3" width="7" height="7"/>'+
-'<rect x="14" y="3" width="7" height="7"/>'+
-'<rect x="3" y="14" width="7" height="7"/>'+
-'<rect x="14" y="14" width="7" height="7"/>',
-
-
-building:
-'<rect x="4" y="3" width="16" height="18" rx="1"/>'+
-'<path d="M8 7h1m3 0h1m3 0h1M8 11h1m3 0h1m3 0h1M8 15h1m3 0h1m3 0h1M10 21v-3h4v3"/>',
-
-
-car:
-'<path d="M5 17H3v-4l2-5h14l2 5v4h-2M5 17h14M7 17v2m10-2v2M5 13h14"/>'+
-'<circle cx="7" cy="15" r="1"/>'+
-'<circle cx="17" cy="15" r="1"/>',
-
-
-calendar:
-'<rect x="3" y="5" width="18" height="16" rx="2"/>'+
-'<path d="M16 3v4M8 3v4M3 10h18"/>',
-
-
-users:
-'<circle cx="9" cy="8" r="3"/>'+
-'<path d="M3 21v-2a6 6 0 0 1 12 0v2"/>'+
-'<path d="M16 4a3 3 0 0 1 0 6"/>'+
-'<path d="M21 21v-2a6 6 0 0 0-3-5.2"/>',
-
-
-briefcase:
-'<rect x="3" y="7" width="18" height="13" rx="2"/>'+
-'<path d="M8 7V5h8v2M3 12h18M10 12v2h4v-2"/>',
-
-
-message:
-'<path d="M21 11.5a8 8 0 0 1-8.5 8 9 9 0 0 1-4-.9L3 20l1.4-4A8 8 0 1 1 21 11.5Z"/>',
-
-
-"credit-card":
-'<rect x="3" y="5" width="18" height="14" rx="2"/>'+
-'<path d="M3 10h18M7 15h2"/>',
-
-
-chart:
-'<path d="M4 19V5"/>'+
-'<path d="M4 19h16"/>'+
-'<path d="M8 15v-3"/>'+
-'<path d="M12 15V8"/>'+
-'<path d="M16 15V5"/>',
-
-
-settings:
-'<circle cx="12" cy="12" r="3"/>'+
-'<path d="M12 2v2m0 16v2M2 12h2m16 0h2"/>'+
-'<path d="M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4m0-14.2-1.4 1.4M6.3 17.7l-1.4 1.4"/>',
-
-
-"log-out":
-'<path d="M10 17l5-5-5-5"/>'+
-'<path d="M15 12H3"/>'+
-'<path d="M21 19V5a2 2 0 0 0-2-2h-5"/>',
-
-
-"more-vertical":
-'<circle cx="12" cy="5" r="1"/>'+
-'<circle cx="12" cy="12" r="1"/>'+
-'<circle cx="12" cy="19" r="1"/>',
-
-
-menu:
-'<path d="M4 6h16M4 12h16M4 18h16"/>',
-
-
-plus:
-'<path d="M12 5v14M5 12h14"/>',
-
-
-search:
-'<circle cx="11" cy="11" r="6"/>'+
-'<path d="m16 16 4 4"/>',
-
-
-download:
-'<path d="M12 3v12"/>'+
-'<path d="M8 11l4 4 4-4"/>'+
-'<path d="M5 21h14"/>'
-
-};
-
-
-    //==================================================
-    // SUBSTITUI <i> POR SVG
-    //==================================================
-
-    document.querySelectorAll("i[data-icon]").forEach(icon => {
-
-        const nome = icon.dataset.icon;
-
-        if (!icons[nome]) return;
-
-        icon.outerHTML = `
-            <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.8"
-                stroke-linecap="round"
-                stroke-linejoin="round">
-
-                ${icons[nome]}
-
-            </svg>
-        `;
-
-    });
-
-
-
-    //==================================================
-    // INICIALIZAÇÃO
-    //==================================================
-
-    carregarTabela(dadosFaturamento);
-
-});
+        }
     </script>
 
 </body>

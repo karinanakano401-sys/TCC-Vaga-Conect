@@ -88,15 +88,10 @@
 
                     <label>Modelo</label>
 
-                    <select id="modelo">
-
-                        <option>Honda Civic</option>
-                        <option>Fiat Argo</option>
-                        <option>Gol</option>
-                        <option>Corolla</option>
-                        <option>HB20</option>
-
-                    </select>
+                    <input
+                    type="text"
+                    id="modelo"
+                    placeholder="Ex.: Honda Civic">
 
                 </div>
 
@@ -133,41 +128,7 @@
 
                 <tbody id="listaCarros">
 
-                    <tr>
-
-                        <td>ABC1D23</td>
-
-                        <td>Honda Civic</td>
-
-                        <td>
-
-                            <button class="excluir">
-
-                                <i class="fa-solid fa-trash"></i>
-
-                            </button>
-
-                        </td>
-
-                    </tr>
-
-                    <tr>
-
-                        <td>XYZ9E87</td>
-
-                        <td>Fiat Argo</td>
-
-                        <td>
-
-                            <button class="excluir">
-
-                                <i class="fa-solid fa-trash"></i>
-
-                            </button>
-
-                        </td>
-
-                    </tr>
+                    <!-- O JS VAI CRIAR OS CARROS AQUI -->
 
                 </tbody>
 
@@ -190,19 +151,77 @@ const modelo = document.getElementById("modelo");
 const salvar = document.getElementById("salvar");
 const lista = document.getElementById("listaCarros");
 
+const api = "http://localhost:3333";
+
+// ===========================
+// USUÁRIO LOGADO
+// ===========================
+
+const usuarioLogado = JSON.parse(
+    localStorage.getItem("usuarioLogado")
+);
+
+if(!usuarioLogado){
+
+    window.location.replace("../../Base/HTML/OpçãoLogin.html");
+
+}
+
 // ===========================
 // LISTA DE CARROS
 // ===========================
 
-let carros = JSON.parse(localStorage.getItem("carros")) || [];
+let carros = [];
 
 // ===========================
-// CARREGAR CARROS SALVOS
+// CARREGAR CARROS DO USUÁRIO
 // ===========================
 
-function carregarCarros(){
+async function carregarCarros(){
+
+    try {
+
+        const resposta = await fetch(api + "/carro");
+
+        const todos = await resposta.json();
+
+        if(!resposta.ok){
+            throw new Error(todos.erro || "Erro ao carregar os carros");
+        }
+
+        carros = todos.filter(carro =>
+            carro.fk_idCliente === usuarioLogado.id
+        );
+
+        mostrarCarros();
+
+    } catch (error) {
+
+        alert(error.message || "Não foi possível carregar os carros. Verifique se o servidor está ligado.");
+
+    }
+
+}
+
+// ===========================
+// MOSTRAR CARROS NA TABELA
+// ===========================
+
+function mostrarCarros(){
 
     lista.innerHTML = "";
+
+    if(carros.length === 0){
+
+        lista.innerHTML = `
+            <tr>
+                <td colspan="3">Nenhum carro cadastrado.</td>
+            </tr>
+        `;
+
+        return;
+
+    }
 
     carros.forEach(carro => {
 
@@ -210,13 +229,13 @@ function carregarCarros(){
 
         tr.innerHTML = `
 
-            <td>${carro.placa}</td>
+            <td>${carro.placacarro}</td>
 
             <td>${carro.modelo}</td>
 
             <td>
 
-                <button class="excluir">
+                <button class="excluir" data-id="${carro.id}">
 
                     <i class="fa-solid fa-trash"></i>
 
@@ -238,10 +257,10 @@ carregarCarros();
 // ADICIONAR CARRO
 // ===========================
 
-salvar.addEventListener("click", () => {
+salvar.addEventListener("click", async () => {
 
     const placaDigitada = placa.value.trim().toUpperCase();
-    const modeloSelecionado = modelo.value;
+    const modeloDigitado = modelo.value.trim();
 
     // Verifica se a placa foi preenchida
 
@@ -255,9 +274,21 @@ salvar.addEventListener("click", () => {
 
     }
 
+    // Verifica se o modelo foi preenchido
+
+    if (modeloDigitado === "") {
+
+        alert("Digite o modelo do veículo.");
+
+        modelo.focus();
+
+        return;
+
+    }
+
     // Verifica se já existe
 
-    const placaExiste = carros.some(carro => carro.placa === placaDigitada);
+    const placaExiste = carros.some(carro => carro.placacarro === placaDigitada);
 
     if (placaExiste) {
 
@@ -269,25 +300,53 @@ salvar.addEventListener("click", () => {
 
     // Salva o carro
 
-    carros.push({
+    salvar.disabled = true;
 
-        placa: placaDigitada,
+    try {
 
-        modelo: modeloSelecionado
+        const resposta = await fetch(api + "/carro", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                placacarro: placaDigitada,
+                modelo: modeloDigitado,
+                fk_idCliente: usuarioLogado.id
+            })
+        });
 
-    });
+        const carro = await resposta.json();
 
-    localStorage.setItem("carros", JSON.stringify(carros));
+        if(!resposta.ok){
 
-    carregarCarros();
+            if((carro.erro || "").includes("Unique constraint")){
+                throw new Error("Essa placa já está cadastrada.");
+            }
 
-    // Limpar campos
+            throw new Error(carro.erro || "Erro ao cadastrar o carro");
 
-    placa.value = "";
+        }
 
-    modelo.selectedIndex = 0;
+        await carregarCarros();
 
-    placa.focus();
+        // Limpar campos
+
+        placa.value = "";
+
+        modelo.value = "";
+
+        placa.focus();
+
+    } catch (error) {
+
+        alert(error.message || "Não foi possível cadastrar o carro. Verifique se o servidor está ligado.");
+
+    } finally {
+
+        salvar.disabled = false;
+
+    }
 
 });
 
@@ -295,23 +354,35 @@ salvar.addEventListener("click", () => {
 // EXCLUIR CARRO
 // ===========================
 
-lista.addEventListener("click", function(e){
+lista.addEventListener("click", async function(e){
 
-    if(e.target.closest(".excluir")){
+    const botao = e.target.closest(".excluir");
+
+    if(botao){
 
         const confirmar = confirm("Deseja excluir este carro?");
 
         if(confirmar){
 
-            const linha = e.target.closest("tr");
+            try {
 
-            const placaExcluir = linha.children[0].textContent;
+                const resposta = await fetch(api + "/carro/" + botao.dataset.id, {
+                    method: "DELETE"
+                });
 
-            carros = carros.filter(carro => carro.placa !== placaExcluir);
+                const retorno = await resposta.json();
 
-            localStorage.setItem("carros", JSON.stringify(carros));
+                if(!resposta.ok){
+                    throw new Error(retorno.erro || "Erro ao excluir o carro");
+                }
 
-            carregarCarros();
+                await carregarCarros();
+
+            } catch (error) {
+
+                alert(error.message || "Não foi possível excluir o carro. Verifique se o servidor está ligado.");
+
+            }
 
         }
 
@@ -336,8 +407,7 @@ btnSair.addEventListener("click", function (event) {
 
     if (confirmar) {
 
-        // Limpa os dados, se desejar
-        // localStorage.clear();
+        localStorage.removeItem("usuarioLogado");
 
         window.location.href = "../../Base/HTML/Abertura.html";
 

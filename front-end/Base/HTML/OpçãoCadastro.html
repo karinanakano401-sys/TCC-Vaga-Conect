@@ -84,6 +84,15 @@ const tipoTexto = document.getElementById("tipoTexto");
 
 
 /* =====================================================
+   O ENVIO É FEITO PELO JAVASCRIPT
+===================================================== */
+
+formulario.addEventListener("submit", (e) => {
+    e.preventDefault();
+});
+
+
+/* =====================================================
    REMOVER ACTIVE
 ===================================================== */
 
@@ -212,6 +221,244 @@ function validarMaiorDe18(dataNascimento){
 
 
     return idade >= 18;
+
+}
+
+
+/* =====================================================
+   API — CADASTRO USUÁRIO + ENDEREÇO
+===================================================== */
+
+async function cadastrarUsuarioNaApi(dados, api){
+
+    let enderecoId = null;
+
+    try {
+
+        const respostaEndereco = await fetch(api + "/endereco", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                rua: dados.rua,
+                numero: dados.numero,
+                bairro: dados.bairro,
+                cidade: dados.cidade,
+                estado: dados.estado,
+                cep: dados.cep
+            })
+        });
+
+        const endereco = await respostaEndereco.json();
+
+        if(!respostaEndereco.ok){
+            throw new Error(endereco.erro || "Erro ao criar endereço");
+        }
+
+        enderecoId = endereco.id;
+
+        const respostaUsuario = await fetch(api + "/usuario", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                nome: dados.nome,
+                dataNascimento: dados.dataNascimento,
+                cpf: dados.cpf,
+                email: dados.email,
+                senha: dados.senha,
+                fk_idEndereco: endereco.id
+            })
+        });
+
+        const usuario = await respostaUsuario.json();
+
+        if(!respostaUsuario.ok){
+            throw new Error(usuario.erro || "Erro ao criar usuário");
+        }
+
+        alert("Cadastro realizado com sucesso!");
+        window.location.replace("OpçãoLogin.html");
+        return true;
+
+    } catch (error) {
+
+        if(enderecoId){
+            await fetch(api + "/endereco/" + enderecoId, {
+                method: "DELETE"
+            }).catch(() => {});
+        }
+
+        alert(error.message || "Não foi possível cadastrar. Verifique se o servidor está ligado.");
+        return false;
+
+    }
+
+}
+
+
+/* =====================================================
+   API — TIPO DE FUNCIONÁRIO
+   Reaproveita o tipo se ele já existir
+===================================================== */
+
+async function garantirTipoFunc(nome, tipo, api){
+
+    const resposta = await fetch(api + "/tipofunc");
+
+    const tipos = await resposta.json();
+
+    if(!resposta.ok){
+        throw new Error(tipos.erro || "Erro ao buscar os tipos de funcionário");
+    }
+
+
+    const existente = tipos.find(t =>
+        t.nome === nome && t.tipo === tipo
+    );
+
+    if(existente){
+        return existente;
+    }
+
+
+    const respostaNovo = await fetch(api + "/tipofunc", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            nome: nome,
+            tipo: tipo
+        })
+    });
+
+    const novo = await respostaNovo.json();
+
+    if(!respostaNovo.ok){
+        throw new Error(novo.erro || "Erro ao criar o tipo de funcionário");
+    }
+
+    return novo;
+
+}
+
+
+/* =====================================================
+   API — CADASTRO ADMIN + ESTACIONAMENTO
+===================================================== */
+
+async function cadastrarAdminNaApi(dados, api){
+
+    let enderecoId = null;
+
+    let estacionamentoId = null;
+
+    try {
+
+        const respostaEndereco = await fetch(api + "/endereco", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                rua: dados.rua,
+                numero: dados.numero,
+                bairro: dados.bairro,
+                cidade: dados.cidade,
+                estado: dados.estado,
+                cep: dados.cep
+            })
+        });
+
+        const endereco = await respostaEndereco.json();
+
+        if(!respostaEndereco.ok){
+            throw new Error(endereco.erro || "Erro ao criar endereço");
+        }
+
+        enderecoId = endereco.id;
+
+
+        const respostaEstacionamento = await fetch(api + "/estacionamento", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                nome: dados.estacionamento,
+                status: "Ativo",
+                fk_idEndereco: endereco.id
+            })
+        });
+
+        const estacionamento = await respostaEstacionamento.json();
+
+        if(!respostaEstacionamento.ok){
+            throw new Error(estacionamento.erro || "Erro ao criar estacionamento");
+        }
+
+        estacionamentoId = estacionamento.id;
+
+
+        const tipoFunc = await garantirTipoFunc(
+            "Administrador",
+            "admin",
+            api
+        );
+
+
+        const respostaFuncionario = await fetch(api + "/funcionario", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                nome: dados.nome,
+                dataNascimento: dados.dataNascimento,
+                cpf: dados.cpf,
+                telefone: dados.telefone,
+                email: dados.email,
+                senha: dados.senha,
+                fk_tipofunc: tipoFunc.id,
+                fk_est: estacionamento.id
+            })
+        });
+
+        const funcionario = await respostaFuncionario.json();
+
+        if(!respostaFuncionario.ok){
+            throw new Error(funcionario.erro || "Erro ao criar administrador");
+        }
+
+
+        alert("Administrador cadastrado com sucesso!");
+
+        window.location.replace("OpçãoLogin.html");
+
+        return true;
+
+    } catch (error) {
+
+        if(estacionamentoId){
+            await fetch(api + "/estacionamento/" + estacionamentoId, {
+                method: "DELETE"
+            }).catch(() => {});
+        }
+
+        if(enderecoId){
+            await fetch(api + "/endereco/" + enderecoId, {
+                method: "DELETE"
+            }).catch(() => {});
+        }
+
+        alert(error.message || "Não foi possível cadastrar. Verifique se o servidor está ligado.");
+
+        return false;
+
+    }
 
 }
 
@@ -382,6 +629,43 @@ function carregarUsuario(){
             </div>
 
 
+            <!-- BAIRRO -->
+
+            <div class="input-box">
+
+                <label>
+                    Bairro
+                </label>
+
+                <input
+                    id="bairro"
+                    type="text"
+                    placeholder="Seu bairro"
+                    required
+                >
+
+            </div>
+
+
+            <!-- ESTADO -->
+
+            <div class="input-box">
+
+                <label>
+                    Estado
+                </label>
+
+                <input
+                    id="estado"
+                    type="text"
+                    placeholder="UF (ex.: SP)"
+                    maxlength="2"
+                    required
+                >
+
+            </div>
+
+
             <!-- SENHA -->
 
             <div class="input-box">
@@ -426,7 +710,7 @@ function carregarUsuario(){
         <button
             class="btn"
             id="btnCadastrar"
-            type="submit"
+            type="button"
         >
 
             Cadastrar Usuário
@@ -440,7 +724,7 @@ function carregarUsuario(){
 
             Já possui conta?
 
-            <a href="../HTML/OpçãoLogin.html">
+            <a href="OpçãoLogin.html">
                 Entrar
             </a>
 
@@ -564,6 +848,21 @@ function carregarUsuario(){
                 .trim();
 
 
+        const bairro =
+            document
+                .getElementById("bairro")
+                .value
+                .trim();
+
+
+        const estado =
+            document
+                .getElementById("estado")
+                .value
+                .trim()
+                .toUpperCase();
+
+
         const senha =
             document
                 .getElementById("senha")
@@ -589,6 +888,8 @@ function carregarUsuario(){
             !numero ||
             !cep ||
             !cidade ||
+            !bairro ||
+            !estado ||
             !senha ||
             !confirmarSenha
         ){
@@ -648,12 +949,30 @@ function carregarUsuario(){
 
 
         /* =================================================
-           SUCESSO
+           API
         ================================================= */
 
-        alert(
-            "Cadastro realizado com sucesso!"
-        );
+        const api = "http://localhost:3333";
+
+        btn.disabled = true;
+
+        cadastrarUsuarioNaApi({
+            nome,
+            email,
+            cpf,
+            dataNascimento: nascimento,
+            senha,
+            rua,
+            numero,
+            bairro,
+            cidade,
+            estado,
+            cep
+        }, api).finally(() => {
+
+            btn.disabled = false;
+
+        });
 
     });
 
@@ -761,6 +1080,26 @@ function carregarAdmin(){
 
             </div>
 
+
+            <!-- =================================================
+                 TELEFONE
+            ================================================== -->
+
+            <div class="input-box">
+
+                <label>
+                    Telefone
+                </label>
+
+                <input
+                    id="adminTelefone"
+                    type="text"
+                    placeholder="(00) 00000-0000"
+                    required
+                >
+
+            </div>
+
  <!-- =================================================
              TÍTULO DO ESTACIONAMENTO
         ================================================== -->
@@ -778,6 +1117,26 @@ function carregarAdmin(){
 
         </div>
         
+
+
+            <!-- =================================================
+                 NOME DO ESTACIONAMENTO
+            ================================================== -->
+
+            <div class="input-box">
+
+                <label>
+                    Nome do estacionamento
+                </label>
+
+                <input
+                    id="nomeEstacionamento"
+                    type="text"
+                    placeholder="Ex.: CenterPark"
+                    required
+                >
+
+            </div>
 
 
             <!-- =================================================
@@ -822,6 +1181,46 @@ function carregarAdmin(){
 
 
             <!-- =================================================
+                 NÚMERO DO ESTACIONAMENTO
+            ================================================== -->
+
+            <div class="input-box">
+
+                <label>
+                    Número
+                </label>
+
+                <input
+                    id="numeroEstacionamento"
+                    type="text"
+                    placeholder="Número do local"
+                    required
+                >
+
+            </div>
+
+
+            <!-- =================================================
+                 BAIRRO DO ESTACIONAMENTO
+            ================================================== -->
+
+            <div class="input-box">
+
+                <label>
+                    Bairro do estacionamento
+                </label>
+
+                <input
+                    id="bairroEstacionamento"
+                    type="text"
+                    placeholder="Bairro"
+                    required
+                >
+
+            </div>
+
+
+            <!-- =================================================
                  CIDADE DO ESTACIONAMENTO
             ================================================== -->
 
@@ -835,6 +1234,27 @@ function carregarAdmin(){
                     id="cidadeEstacionamento"
                     type="text"
                     placeholder="Cidade"
+                    required
+                >
+
+            </div>
+
+
+            <!-- =================================================
+                 ESTADO DO ESTACIONAMENTO
+            ================================================== -->
+
+            <div class="input-box">
+
+                <label>
+                    Estado
+                </label>
+
+                <input
+                    id="estadoEstacionamento"
+                    type="text"
+                    placeholder="UF (ex.: SP)"
+                    maxlength="2"
                     required
                 >
 
@@ -915,7 +1335,7 @@ function carregarAdmin(){
         <button
             class="btn"
             id="btnCadastrarAdmin"
-            type="submit"
+            type="button"
         >
 
             Cadastrar Administrador
@@ -931,7 +1351,7 @@ function carregarAdmin(){
 
             Já possui conta?
 
-            <a href="../HTML/OpçãoLogin.html">
+            <a href="OpçãoLogin.html">
                 Entrar
             </a>
 
@@ -1213,6 +1633,13 @@ function carregarAdmin(){
             dataNascimento.value;
 
 
+        const telefone =
+            document
+                .getElementById("adminTelefone")
+                .value
+                .trim();
+
+
         /* =================================================
            DADOS DO ESTACIONAMENTO
         ================================================= */
@@ -1240,10 +1667,25 @@ function carregarAdmin(){
                 .trim();
 
 
+        const bairro =
+            document
+                .getElementById("bairroEstacionamento")
+                .value
+                .trim();
+
+
         const cidade =
             cidadeEstacionamento
                 .value
                 .trim();
+
+
+        const estado =
+            document
+                .getElementById("estadoEstacionamento")
+                .value
+                .trim()
+                .toUpperCase();
 
 
         /* =================================================
@@ -1271,11 +1713,14 @@ function carregarAdmin(){
             !email ||
             !cpf ||
             !nascimento ||
+            !telefone ||
             !estacionamento ||
             !cep ||
             !rua ||
             !numero ||
+            !bairro ||
             !cidade ||
+            !estado ||
             !senha ||
             !confirmarSenha
         ){
@@ -1341,110 +1786,32 @@ function carregarAdmin(){
 
 
         /* =================================================
-           SALVAR DADOS DO ESTACIONAMENTO
-           NO LOCALSTORAGE
+           API
         ================================================= */
 
-        const dadosEstacionamento = {
+        const api = "http://localhost:3333";
 
-            nome: estacionamento,
+        btn.disabled = true;
 
-            cep: cep,
-
-            rua: rua,
-
-            numero: numero,
-
-            cidade: cidade,
-
-            endereco:
-                rua +
-                ", " +
-                numero +
-                " - " +
-                cidade,
-
-            enderecoCompleto:
-                rua +
-                ", " +
-                numero +
-                " - " +
-                cidade +
-                " | CEP: " +
-                cep
-
-        };
-
-
-        localStorage.setItem(
-            "estacionamentoSelecionado",
-            JSON.stringify(
-                dadosEstacionamento
-            )
-        );
-
-
-        /* =================================================
-           TAMBÉM SALVAR INDIVIDUALMENTE
-           PARA OUTRAS TELAS DO SISTEMA
-        ================================================= */
-
-        localStorage.setItem(
-            "nomeEstacionamento",
-            estacionamento
-        );
-
-
-        localStorage.setItem(
-            "enderecoEstacionamento",
-            dadosEstacionamento.enderecoCompleto
-        );
-
-
-        localStorage.setItem(
-            "cepEstacionamento",
+        cadastrarAdminNaApi({
+            nome,
+            email,
+            cpf,
+            dataNascimento: nascimento,
+            telefone,
+            senha,
+            estacionamento,
+            rua,
+            numero,
+            bairro,
+            cidade,
+            estado,
             cep
-        );
+        }, api).finally(() => {
 
+            btn.disabled = false;
 
-        localStorage.setItem(
-            "ruaEstacionamento",
-            rua
-        );
-
-
-        localStorage.setItem(
-            "numeroEstacionamento",
-            numero
-        );
-
-
-        localStorage.setItem(
-            "cidadeEstacionamento",
-            cidade
-        );
-
-
-        /* =================================================
-           SUCESSO
-        ================================================= */
-
-        alert(
-            "Administrador cadastrado com sucesso!\n\n" +
-
-            "Estacionamento: " +
-            estacionamento +
-
-            "\n\nEndereço: " +
-            rua +
-            ", " +
-            numero +
-            " - " +
-            cidade +
-
-            "\nCEP: " +
-            cep
-        );
+        });
 
     });
 

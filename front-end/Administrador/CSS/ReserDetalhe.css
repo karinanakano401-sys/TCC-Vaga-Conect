@@ -158,9 +158,28 @@ body {
   border-radius: 4px;
 }
 
-.progress {
+.progress,
+.ativa {
   color: #f8bd22;
   background: #443706;
+}
+
+.scheduled,
+.reservada {
+  color: #4a93ff;
+  background: #0b3157;
+}
+
+.confirmed,
+.concluida {
+  color: #34d894;
+  background: #0d3c36;
+}
+
+.cancelled,
+.cancelada {
+  color: #ff6270;
+  background: #491d27;
 }
 
 .details-panel {

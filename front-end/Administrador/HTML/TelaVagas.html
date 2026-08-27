@@ -31,7 +31,7 @@
         <a href="../HTML/TelaPagamentos.html"><i data-icon="credit-card"></i>Pagamentos</a>
         <a href="../HTML/TelaFaturamento.html"><i data-icon="chart"></i>Faturamento</a>
         <a href="../HTML/TelaConfigurações.html"><i data-icon="settings"></i>Configurações</a>
-        <a href="/Base/HTML/Abertura.html"><i data-icon="log-out"></i>Sair</a>
+        <a href="#" id="btnSair"><i data-icon="log-out"></i>Sair</a>
       </nav>
 
       <div class="profile">
@@ -100,6 +100,7 @@
                 <th>Número</th>
                 <th>Tipo</th>
                 <th>Estacionamento</th>
+                <th>Preço</th>
                 <th>Status</th>
                 <th class="actions-title">Ações</th>
               </tr>
@@ -114,15 +115,20 @@
     </main>
   </div>
 
+  <script src="../../Base/JS/sessao.js"></script>
   <script>
-    let spots = JSON.parse(localStorage.getItem("vagas")) || [
-  ["01", "Comum", "CenterPark", "Livre"],
-  ["02", "PCD", "CenterPark", "Ocupada"],
-  ["03", "Comum", "CenterPark", "Livre"],
-  ["04", "Comum", "CenterPark", "Reservada"],
-  ["05", "PCD", "CenterPark", "Livre"],
-  ["06", "Comum", "CenterPark", "Ocupada"]
-];
+    const api = "http://localhost:3333";
+
+    const funcionarioLogado = exigirLogin("admin", "../../Base/HTML/OpçãoLogin.html");
+
+    mostrarFuncionarioNoPerfil(funcionarioLogado);
+
+    document.querySelector("#btnSair").addEventListener("click", (event) => {
+      event.preventDefault();
+      sair("../../Base/HTML/Abertura.html");
+    });
+
+    let spots = [];
 
     const icons = {
       grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
@@ -182,21 +188,42 @@
 
     const rows = document.querySelector("#spotRows");
     const count = document.querySelector("#tableCount");
+    const parkingFilter = document.querySelector("#parkingFilter");
+
+    function formatarPreco(valor) {
+      return Number(valor || 0).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      });
+    }
 
     function render(data) {
-      rows.innerHTML = data.map(([number, type, parking, status], index) => `
+      if (data.length === 0) {
+        rows.innerHTML = `
+          <tr>
+            <td colspan="6">Nenhuma vaga cadastrada.</td>
+          </tr>
+        `;
+
+        count.textContent = `Mostrando 0 de ${spots.length} vagas`;
+
+        return;
+      }
+
+      rows.innerHTML = data.map((spot) => `
         <tr>
-          <td>${number}</td>
-          <td>${type}</td>
-          <td>${parking}</td>
+          <td>${spot.numero}</td>
+          <td>${spot.tipo}</td>
+          <td>${spot.estacionamento.nome}</td>
+          <td>${formatarPreco(spot.preco)}</td>
           <td>
-            <span class="status ${status.toLowerCase()}">
-              ${status}
+            <span class="status ${spot.status.toLowerCase()}">
+              ${spot.status}
             </span>
           </td>
           <td class="row-actions">
-            <button title="Editar">${svg("edit")}</button>
-            <button class="delete" onclick="excluir(${index})" title="Excluir"> ${svg("trash")}</button>
+            <button onclick="editar('${spot.id}')" title="Editar">${svg("edit")}</button>
+            <button class="delete" onclick="excluir('${spot.id}')" title="Excluir"> ${svg("trash")}</button>
           </td>
         </tr>
       `).join("");
@@ -206,34 +233,87 @@
 
     function filter() {
       const search = document.querySelector("#searchInput").value.toLowerCase();
-      const parking = document.querySelector("#parkingFilter").value;
+      const parking = parkingFilter.value;
       const status = document.querySelector("#statusFilter").value;
 
       const filtered = spots.filter((spot) => {
+        const texto = `${spot.numero} ${spot.tipo} ${spot.estacionamento.nome} ${spot.status}`.toLowerCase();
+
         return (
-          spot.join(" ").toLowerCase().includes(search) &&
-          (!parking || spot[2] === parking) &&
-          (!status || spot[3] === status)
+          texto.includes(search) &&
+          (!parking || spot.fk_est === parking) &&
+          (!status || spot.status === status)
         );
       });
 
       render(filtered);
     }
 
-    function excluir(index){
+    async function carregarVagas() {
+      try {
+        const resposta = await fetch(api + "/vaga");
+        const lista = await resposta.json();
 
-    if(confirm("Deseja excluir esta vaga?")){
+        if (!resposta.ok) {
+          throw new Error(lista.erro || "Erro ao carregar as vagas");
+        }
 
-        spots.splice(index,1);
+        spots = lista;
 
-        localStorage.setItem("vagas", JSON.stringify(spots));
-
-        render(spots);
+        filter();
+      } catch (error) {
+        alert(error.message || "Não foi possível carregar. Verifique se o servidor está ligado.");
+      }
     }
 
-}
+    async function carregarEstacionamentosDoFiltro() {
+      try {
+        const resposta = await fetch(api + "/estacionamento");
+        const lista = await resposta.json();
 
-    render(spots);
+        if (!resposta.ok) return;
+
+        parkingFilter.innerHTML =
+          '<option value="">Todos</option>' +
+          lista.map((parking) => `
+            <option value="${parking.id}">${parking.nome}</option>
+          `).join("");
+      } catch (error) {
+        // o filtro continua com a opção Todos
+      }
+    }
+
+    function editar(id){
+      window.location.href = `../HTML/CadasVagas.html?id=${id}`;
+    }
+
+    async function excluir(id){
+
+      if(!confirm("Deseja excluir esta vaga?")) return;
+
+      try {
+        const resposta = await fetch(api + "/vaga/" + id, {
+          method: "DELETE"
+        });
+
+        const retorno = await resposta.json();
+
+        if (!resposta.ok) {
+          if ((retorno.erro || "").includes("Foreign key constraint")) {
+            throw new Error("Esta vaga tem reservas ligadas a ela e não pode ser excluída.");
+          }
+
+          throw new Error(retorno.erro || "Erro ao excluir a vaga");
+        }
+
+        await carregarVagas();
+      } catch (error) {
+        alert(error.message || "Não foi possível excluir a vaga.");
+      }
+    }
+
+    carregarEstacionamentosDoFiltro();
+    carregarVagas();
 
     ["searchInput", "parkingFilter", "statusFilter"].forEach((id) => {
       document.querySelector(`#${id}`).addEventListener("input", filter);
