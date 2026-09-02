@@ -40,6 +40,7 @@ body {
     display:flex;
     align-items:center;
     gap:8px;
+    text-decoration: none;
 }
 
 .logo span{
@@ -942,3 +943,45 @@ th:first-child {
 .status.cancelada { color: #f87171; }
 .status.livre { color: #4ade80; }
 .status.ocupada { color: #fb923c; }
+
+/* =========================
+   CÓDIGO DE CONFIRMAÇÃO
+========================= */
+
+.codigo-presenca {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 135px;
+    padding: 8px 10px;
+    border: 1px solid #1b4d6d;
+    border-radius: 8px;
+    background: #061a2a;
+}
+
+.codigo-titulo {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #78a9c9;
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.codigo-titulo i {
+    color: #3d9dff;
+    font-size: 8px;
+}
+
+.codigo-presenca strong {
+    color: #ffffff;
+    font-size: 16px;
+    letter-spacing: 2px;
+}
+
+.codigo-presenca small {
+    color: #7194aa;
+    font-size: 7px;
+    line-height: 1.3;
+}

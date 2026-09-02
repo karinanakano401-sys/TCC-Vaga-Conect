@@ -12,14 +12,17 @@
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
       <div class="logo">
+        <a href="TelaFunc.html" class="logo">
         <i class="fa-solid fa-layer-group"></i>
         <span>Vaga</span>Connect
+        </a>
       </div>
       <nav>
         <a href="TelaFunc.html"><i data-icon="grid"></i>Dashboard</a>
         <a href="TelaFuncVagas.html"><i data-icon="car"></i>Vagas</a>
         <a class="active" href="TelaFuncReservas.html"><i data-icon="calendar"></i>Reservas</a>
-        <a href="TelaFuncPagamentos.html"><i data-icon="credit-card"></i>Pagamentos</a>
+        <a href="TelaFuncPagamentos.html"><i data-icon="credit-card"></i>Pagamentos Reserva</a>
+        <a href="TelaPagamentosTempo.html"><i data-icon="credit-card"></i>Pagamentos Tempo</a>
         <a href="#" id="btnSair"><i data-icon="log-out"></i>Sair</a>
       </nav>
       <div class="sidebar-user">
@@ -111,20 +114,64 @@
     }
 
     function botoes(item) {
-      const status = item.reserva.status;
-      if (status === "Reservada") {
-        return `
-          <div class="acoes">
-            <button class="btn btn-verde" onclick="confirmarEntrada('${item.id}')">Confirmar chegada</button>
-            <button class="btn btn-vermelho" onclick="cancelar('${item.id}')">Cancelar</button>
-          </div>
-        `;
-      }
-      if (status === "Ativa") {
-        return `<button class="btn btn-azul" onclick="encerrar('${item.id}')">Encerrar</button>`;
-      }
-      return "--";
-    }
+  const status = item.reserva.status;
+
+  if (status === "Reservada") {
+
+    // Pega o código que veio do backend.
+    // Foram colocadas algumas possibilidades para não mexer
+    // na estrutura principal do seu sistema.
+    const codigo =
+      item.codigoPresenca ??
+      item.codigo_confirmacao ??
+      item.codigoConfirmacao ??
+      item.reserva?.codigoPresenca ??
+      item.reserva?.codigo_confirmacao ??
+      item.reserva?.codigoConfirmacao ??
+      item.reserva?.codigo ??
+      "--";
+
+    return `
+      <div class="acoes">
+
+        <div class="codigo-presenca">
+          <span class="codigo-titulo">
+            <i class="fa-solid fa-key"></i>
+            Código de presença
+          </span>
+
+          <strong>${codigo}</strong>
+
+          <small>
+            Passe este código ao cliente na chegada.
+          </small>
+        </div>
+
+        <button class="btn btn-verde"
+          onclick="confirmarEntrada('${item.id}')">
+          Confirmar chegada
+        </button>
+
+        <button class="btn btn-vermelho"
+          onclick="cancelar('${item.id}')">
+          Cancelar
+        </button>
+
+      </div>
+    `;
+  }
+
+  if (status === "Ativa") {
+    return `
+      <button class="btn btn-azul"
+        onclick="encerrar('${item.id}')">
+        Encerrar
+      </button>
+    `;
+  }
+
+  return "--";
+}
 
     function render() {
       const status = document.getElementById("filtroStatus").value;
