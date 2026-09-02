@@ -1,5 +1,47 @@
 /* =====================================================
-RESET
+   VagaConnect · Minhas Reservas
+   Folha de estilo completa — substitui o TelaReserAndamento.css
+   Nenhuma classe nova: tudo usa o HTML que já existe.
+===================================================== */
+
+
+/* =====================================================
+   TOKENS
+===================================================== */
+
+:root{
+
+    --fundo:        #04101f;
+    --fundo-topo:   #071a30;
+
+    --painel:       #08192c;
+    --cartao:       #0c2440;
+    --campo:        #102d50;
+
+    --linha:        rgba(125, 178, 232, .14);
+    --linha-forte:  rgba(125, 178, 232, .28);
+
+    --texto:        #eaf4ff;
+    --apagado:      #8ba7c6;
+
+    --azul:         #1f6ffb;
+    --azul-claro:   #63b0ff;
+
+    --ambar:        #fbbf24;
+    --verde:        #34d399;
+    --vermelho:     #f87171;
+
+    --raio:         18px;
+    --raio-pequeno: 12px;
+
+    --sombra:       0 24px 60px rgba(0, 0, 0, .45);
+
+}
+
+
+
+/* =====================================================
+   RESET
 ===================================================== */
 
 *{
@@ -11,33 +53,59 @@ RESET
 }
 
 
+html{
+
+    -webkit-text-size-adjust:100%;
+
+}
+
 
 body{
 
-    font-family:'Poppins',sans-serif;
+    font-family:'Poppins', system-ui, sans-serif;
 
-    background:#031426;
-
-    color:white;
+    color:var(--texto);
 
     min-height:100vh;
+
+    padding-bottom:40px;
+
+    background:
+        radial-gradient(900px 520px at 15% -10%, rgba(31, 111, 251, .22), transparent 60%),
+        radial-gradient(700px 420px at 100% 0%, rgba(99, 176, 255, .10), transparent 55%),
+        linear-gradient(180deg, var(--fundo-topo) 0%, var(--fundo) 45%);
+
+    background-attachment:fixed;
+
+    -webkit-font-smoothing:antialiased;
+
+}
+
+
+::selection{
+
+    background:rgba(31, 111, 251, .35);
+
+}
+
+
+:focus-visible{
+
+    outline:2px solid var(--azul-claro);
+
+    outline-offset:3px;
 
 }
 
 
 
-
-
 /* =====================================================
-TELA
+   TELA
 ===================================================== */
-
 
 .screen{
 
     width:100%;
-
-    min-height:100vh;
 
     display:flex;
 
@@ -45,70 +113,61 @@ TELA
 
     align-items:flex-start;
 
-    padding:25px;
+    padding:34px 25px 12px;
 
 }
 
 
 
-
-
 /* =====================================================
-BLOCO PRINCIPAL
+   BLOCO PRINCIPAL
 ===================================================== */
-
 
 .box{
 
     width:850px;
 
-    min-height:700px;
+    max-width:100%;
 
-    background:#061a30;
+    min-height:640px;
 
-    border-radius:18px;
+    padding:26px 28px 32px;
 
-    padding:30px;
+    border:1px solid var(--linha);
 
-    box-shadow:
-    0 15px 40px rgba(0,0,0,.35);
+    border-radius:24px;
+
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(255, 255, 255, 0) 220px),
+        var(--painel);
+
+    box-shadow:var(--sombra);
 
 }
 
 
 
-
-
-
 /* =====================================================
-TITULO
+   TÍTULO (usado em outras telas do mesmo CSS)
 ===================================================== */
-
 
 .title{
 
+    margin-bottom:15px;
+
+    color:var(--texto);
 
     font-size:12px;
 
     font-weight:600;
 
-    margin-bottom:15px;
-
-    color:white;
-
-
 }
 
 
 
-
-
-
-
 /* =====================================================
-HEADER
+   HEADER
 ===================================================== */
-
 
 .header{
 
@@ -116,127 +175,144 @@ HEADER
 
     align-items:center;
 
-    gap:15px;
+    gap:14px;
 
-    margin-bottom:25px;
+    margin-bottom:26px;
 
+    padding-bottom:18px;
+
+    border-bottom:1px solid var(--linha);
 
 }
-
 
 
 .header span{
 
+    font-size:19px;
 
-    font-size:18px;
+    font-weight:600;
 
-    font-weight:500;
-
+    letter-spacing:-.2px;
 
 }
-
-
-
 
 
 #voltar{
 
+    width:40px;
 
-    width:35px;
+    height:40px;
 
-    height:35px;
+    display:grid;
 
-    border:none;
+    place-items:center;
 
-    background:transparent;
+    flex:0 0 auto;
 
-    color:white;
+    border:1px solid var(--linha-forte);
 
-    font-size:25px;
+    border-radius:12px;
+
+    background:rgba(255, 255, 255, .03);
+
+    color:var(--texto);
+
+    font-size:20px;
+
+    line-height:1;
 
     cursor:pointer;
 
+    transition:background .18s, border-color .18s, transform .18s;
+
+}
+
+
+#voltar:hover{
+
+    background:rgba(31, 111, 251, .18);
+
+    border-color:var(--azul);
+
+    transform:translateX(-2px);
 
 }
 
 
 
-
-
-
-
 /* =====================================================
-CARD RESERVA
+   CARD DA RESERVA
 ===================================================== */
-
 
 .reservation-card{
 
+    position:relative;
 
-    background:#0b223d;
+    padding:26px 28px 28px;
 
-    border-radius:16px;
+    border:1px solid var(--linha);
 
-    padding:30px;
+    border-radius:var(--raio);
 
+    background:
+        linear-gradient(160deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, 0) 55%),
+        var(--cartao);
+
+    overflow:hidden;
 
 }
 
 
+.reservation-card + .reservation-card{
 
+    margin-top:18px;
+
+}
+
+
+/* faixa lateral: marca visualmente a reserva em andamento */
+.reservation-card::before{
+
+    content:"";
+
+    position:absolute;
+
+    left:0;
+    top:0;
+    bottom:0;
+
+    width:3px;
+
+    background:var(--linha-forte);
+
+}
+
+
+.reservation-card.privilegiada{
+
+    border-color:rgba(52, 211, 153, .32);
+
+    background:
+        radial-gradient(520px 220px at 100% 0%, rgba(52, 211, 153, .10), transparent 60%),
+        linear-gradient(160deg, rgba(255, 255, 255, .05), rgba(255, 255, 255, 0) 55%),
+        var(--cartao);
+
+    box-shadow:0 18px 44px rgba(0, 0, 0, .28);
+
+}
+
+
+.reservation-card.privilegiada::before{
+
+    background:linear-gradient(180deg, var(--verde), rgba(52, 211, 153, .15));
+
+}
 
 
 
 /* =====================================================
-STATUS
+   TOPO DO CARD · STATUS E SELO
 ===================================================== */
-
-
-.status{
-
-
-    display:inline-flex;
-
-    align-items:center;
-
-    gap:8px;
-
-    color:#facc15;
-
-    background:rgba(250,204,21,.12);
-
-    padding:7px 14px;
-
-    border-radius:18px;
-
-    font-size:12px;
-
-    margin-bottom:18px;
-
-
-}
-
-
-
-
-.status span{
-
-    font-size:14px;
-
-}
-
-
-
-
-.status.cancelada{
-
-    color:#f87171;
-
-    background:rgba(248,113,113,.12);
-
-}
-
-
 
 .card-top{
 
@@ -253,6 +329,30 @@ STATUS
 }
 
 
+.status{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    padding:7px 14px;
+
+    border:1px solid rgba(251, 191, 36, .28);
+
+    border-radius:999px;
+
+    background:rgba(251, 191, 36, .12);
+
+    color:var(--ambar);
+
+    font-size:12px;
+
+    font-weight:500;
+
+}
+
 
 .card-top .status{
 
@@ -260,6 +360,55 @@ STATUS
 
 }
 
+
+.status span{
+
+    font-size:11px;
+
+    line-height:1;
+
+    animation:pulsar 2.4s ease-in-out infinite;
+
+}
+
+
+@keyframes pulsar{
+
+    0%, 100% { opacity:1; }
+
+    50%      { opacity:.35; }
+
+}
+
+
+.status.cancelada{
+
+    border-color:rgba(248, 113, 113, .28);
+
+    background:rgba(248, 113, 113, .12);
+
+    color:var(--vermelho);
+
+}
+
+
+.status.concluida{
+
+    border-color:rgba(74, 222, 128, .28);
+
+    background:rgba(74, 222, 128, .12);
+
+    color:#4ade80;
+
+}
+
+
+.status.cancelada span,
+.status.concluida span{
+
+    animation:none;
+
+}
 
 
 .selo-privilegio{
@@ -270,416 +419,453 @@ STATUS
 
     padding:7px 14px;
 
-    border-radius:18px;
+    border:1px solid rgba(134, 239, 172, .35);
+
+    border-radius:999px;
+
+    background:rgba(34, 197, 94, .16);
+
+    color:#86efac;
 
     font-size:12px;
 
     font-weight:600;
 
-    letter-spacing:.4px;
-
-    color:#86efac;
-
-    background:rgba(34,197,94,.16);
-
-    border:1px solid rgba(134,239,172,.35);
+    letter-spacing:.3px;
 
 }
-
-
-
-.reservation-card.privilegiada{
-
-    border:1px solid rgba(134,239,172,.35);
-
-    box-shadow:0 0 0 1px rgba(34,197,94,.12), 0 12px 30px rgba(0,0,0,.25);
-
-}
-
-
-
-
-.status.concluida{
-
-    color:#4ade80;
-
-    background:rgba(74,222,128,.12);
-
-}
-
-
-
-
-.reservation-card + .reservation-card{
-
-    margin-top:20px;
-
-}
-
-
-
-
-.carregando{
-
-    text-align:center;
-
-    color:#91a7c6;
-
-    font-size:14px;
-
-    padding:30px 0;
-
-}
-
-
-
-
 
 
 
 /* =====================================================
-TEXTOS
+   TEXTOS DO CARD
 ===================================================== */
-
 
 .reservation-card h2{
 
+    margin-bottom:6px;
 
-    font-size:25px;
+    font-size:26px;
 
-    margin-bottom:10px;
+    font-weight:600;
 
+    letter-spacing:-.6px;
 
 }
-
-
 
 
 .reservation-card p{
 
-
-    color:#91a7c6;
+    color:var(--apagado);
 
     font-size:13px;
 
+}
+
+
+.carregando{
+
+    padding:60px 0;
+
+    color:var(--apagado);
+
+    font-size:14px;
+
+    text-align:center;
 
 }
 
 
 
-
-
-
-
 /* =====================================================
-INFORMAÇÕES
+   INFORMAÇÕES
 ===================================================== */
 
-
 .info{
-
-
-    margin-top:25px;
 
     display:grid;
 
     grid-template-columns:1fr 1fr;
 
-    gap:15px;
+    gap:12px;
 
+    margin-top:24px;
 
 }
-
-
-
 
 
 .info div{
 
+    padding:16px 18px;
 
-    background:#102d50;
+    border:1px solid var(--linha);
 
-    padding:18px;
+    border-radius:var(--raio-pequeno);
 
-    border-radius:12px;
-
+    background:linear-gradient(180deg, rgba(255, 255, 255, .035), rgba(255, 255, 255, 0)), var(--campo);
 
 }
-
-
 
 
 .info span{
 
-
     display:block;
 
-    color:#91a7c6;
+    margin-bottom:6px;
+
+    color:var(--apagado);
 
     font-size:12px;
-
-    margin-bottom:8px;
-
 
 }
 
 
-
-
-
 .info strong{
-
 
     font-size:14px;
 
     font-weight:500;
 
+    line-height:1.4;
 
 }
-
-
-
-
 
 
 
 /* =====================================================
-TIMER
+   TIMER
 ===================================================== */
-
 
 .timer-box{
 
-
     margin-top:20px;
 
-    background:#06182d;
+    padding:26px 22px 20px;
 
-    border-radius:12px;
+    border:1px solid var(--linha);
+
+    border-radius:var(--raio);
+
+    background:
+        radial-gradient(420px 160px at 50% 0%, rgba(31, 111, 251, .18), transparent 70%),
+        #06182d;
 
     text-align:center;
 
-    padding:22px;
-
-
 }
-
-
-
 
 
 .timer-box p{
 
+    color:var(--apagado);
 
-    font-size:13px;
+    font-size:12px;
 
-    color:#91a7c6;
-
+    letter-spacing:.4px;
 
 }
-
-
 
 
 .timer-box h1{
 
+    margin:12px 0 10px;
 
-    font-size:45px;
+    font-size:52px;
 
-    letter-spacing:7px;
+    font-weight:600;
 
-    margin:10px 0;
+    letter-spacing:6px;
 
+    line-height:1;
+
+    font-variant-numeric:tabular-nums;
+
+    background:linear-gradient(180deg, #ffffff, #9fcaff);
+
+    -webkit-background-clip:text;
+
+    background-clip:text;
+
+    color:transparent;
 
 }
 
 
-
-
-
-
-
 .labels{
-
 
     display:flex;
 
     justify-content:center;
 
-    gap:45px;
-
+    gap:52px;
 
 }
-
-
-
 
 
 .labels span{
 
+    color:#7f94b2;
 
     font-size:11px;
 
-    color:#7f94b2;
-
+    letter-spacing:.6px;
 
 }
 
 
 
-
-
-
-
 /* =====================================================
-AVISO
+   AVISO
 ===================================================== */
-
 
 .warning{
 
-
-    text-align:center;
-
     margin-top:18px;
 
-    line-height:18px;
+    color:var(--ambar) !important;
 
-    color:#facc15!important;
+    font-size:12px !important;
 
-    font-size:12px!important;
+    line-height:1.5;
 
+    text-align:center;
 
 }
 
 
 
-
-
-
-
-
 /* =====================================================
-BOTÕES
+   BOTÕES
 ===================================================== */
-
 
 button.extend,
 button.cancel{
 
-
     width:100%;
 
-    height:50px;
+    height:52px;
 
-    border:none;
+    margin-top:14px;
 
-    border-radius:10px;
+    border:1px solid transparent;
 
-    margin-top:15px;
+    border-radius:14px;
 
-    cursor:pointer;
-
-    font-family:'Poppins';
+    font-family:'Poppins', sans-serif;
 
     font-size:14px;
 
-    font-weight:500;
+    font-weight:600;
 
-    transition:.3s;
+    cursor:pointer;
 
+    transition:background .2s, border-color .2s, transform .12s, box-shadow .2s;
 
 }
 
 
+button.extend:active,
+button.cancel:active{
 
+    transform:translateY(1px);
+
+}
 
 
 .extend{
 
+    background:linear-gradient(180deg, #2f7dff, var(--azul));
 
-    background:#1559d6;
+    color:#ffffff;
 
-    color:white;
-
+    box-shadow:0 12px 26px rgba(31, 111, 251, .3);
 
 }
-
-
 
 
 .extend:hover{
 
+    background:linear-gradient(180deg, #4a90ff, #2a76ff);
 
-    background:#2875ff;
-
+    box-shadow:0 16px 32px rgba(31, 111, 251, .4);
 
 }
-
-
-
 
 
 .cancel{
 
+    border-color:rgba(248, 113, 113, .35);
 
-    background:#b91c1c;
+    background:rgba(185, 28, 28, .14);
 
-    color:white;
-
+    color:#ffb4b4;
 
 }
-
-
-
 
 
 .cancel:hover{
 
+    border-color:var(--vermelho);
 
-    background:#dc2626;
+    background:rgba(220, 38, 38, .28);
 
+    color:#ffffff;
 
 }
-
-
-
-
 
 
 
 /* =====================================================
-RESPONSIVO
+   BOTÕES SOLTOS FORA DO BLOCO
+   (#prorrogar e o link "Desejo confirmar reserva")
 ===================================================== */
 
+body > .extend,
+body > a{
 
-@media(max-width:900px){
+    display:block;
+
+    width:850px;
+
+    max-width:calc(100% - 50px);
+
+    margin:12px auto 0;
+
+    text-decoration:none;
+
+}
 
 
-.box{
+body > a .extend,
+body > a button{
 
-    width:95%;
+    margin-top:0;
+
+}
+
+
+/* o segundo deles é o caminho principal: dá o destaque a ele */
+body > .extend{
+
+    background:rgba(31, 111, 251, .12);
+
+    border-color:rgba(99, 176, 255, .3);
+
+    color:#bcd9ff;
+
+    box-shadow:none;
+
+}
+
+
+body > .extend:hover{
+
+    background:rgba(31, 111, 251, .22);
+
+    border-color:var(--azul-claro);
+
+    color:#ffffff;
 
 }
 
 
 
-.info{
+/* =====================================================
+   RESPONSIVO
+===================================================== */
+
+@media (max-width:900px){
+
+    .screen{
+
+        padding:20px 16px 10px;
+
+    }
+
+    .box{
+
+        width:100%;
+
+        padding:20px 18px 24px;
+
+        border-radius:20px;
+
+    }
+
+    .reservation-card{
+
+        padding:22px 18px 24px;
+
+    }
+
+    .reservation-card h2{
+
+        font-size:22px;
+
+    }
+
+    .info{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .timer-box h1{
+
+        font-size:36px;
+
+        letter-spacing:4px;
+
+    }
+
+    .labels{
+
+        gap:34px;
+
+    }
+
+    body > .extend,
+    body > a{
+
+        max-width:calc(100% - 32px);
+
+    }
+
+}
 
 
-    grid-template-columns:1fr;
+@media (max-width:520px){
+
+    .card-top{
+
+        flex-direction:column;
+
+        align-items:flex-start;
+
+    }
+
+    .header span{
+
+        font-size:17px;
+
+    }
 
 }
 
 
 
-.timer-box h1{
+/* =====================================================
+   ACESSIBILIDADE
+===================================================== */
 
+@media (prefers-reduced-motion:reduce){
 
-    font-size:32px;
+    *{
 
+        animation:none !important;
 
-}
+        transition:none !important;
 
+    }
 
 }

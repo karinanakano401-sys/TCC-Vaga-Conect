@@ -61,20 +61,35 @@ Sua vaga foi reservada com sucesso.
 
 <section class="code-box">
 
+    <span>
+        Código de confirmação de presença
+    </span>
 
-<span>
-Código da reserva
-</span>
+    <p class="code-description">
+        Digite o código informado pelo funcionário do estacionamento.
+    </p>
 
+    <div class="codigo-input-area">
 
-<h2 id="codigoReserva">
+        <input
+            type="text"
+            id="codigoPresenca"
+            placeholder="Digite o código"
+            maxlength="10"
+            autocomplete="off"
+        >
 
-VC-000000
+        <button
+            type="button"
+            id="confirmarPresenca">
+            Confirmar presença
+        </button>
 
-</h2>
+    </div>
 
+    <p id="mensagemCodigo" class="mensagem-codigo"></p>
 
-</section>
+</section>  
 
 
 <!-- DADOS -->
@@ -299,12 +314,6 @@ const codigo = gerarCodigo();
 
 function carregarDados(){
 
-
-
-    codigoReserva.textContent = codigo;
-
-
-
     if(pagamento && pagamento.reserva){
 
 
@@ -357,7 +366,36 @@ function carregarDados(){
 
 
 carregarDados();
+// =====================================================
+// CONFIRMAÇÃO DE PRESENÇA
+// =====================================================
 
+const campoCodigo = document.getElementById("codigoPresenca");
+const botaoConfirmar = document.getElementById("confirmarPresenca");
+const mensagemCodigo = document.getElementById("mensagemCodigo");
+
+botaoConfirmar.addEventListener("click", () => {
+
+    const codigoDigitado = campoCodigo.value.trim();
+
+    if (!codigoDigitado) {
+
+        mensagemCodigo.textContent =
+            "Digite o código informado pelo funcionário.";
+
+        mensagemCodigo.className = "mensagem-codigo erro";
+
+        campoCodigo.focus();
+
+        return;
+    }
+
+    mensagemCodigo.textContent =
+        "Código informado. Verificando presença...";
+
+    mensagemCodigo.className = "mensagem-codigo sucesso";
+
+});
 
 
 
