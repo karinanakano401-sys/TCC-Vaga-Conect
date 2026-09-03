@@ -1,10 +1,6 @@
 /* =====================================================
-   VagaConnect · Pagamentos do pátio
-   Mesma direção visual das outras telas:
-   fundo escuro com malha técnica, cantos retos,
-   linhas de 1px no lugar de sombras e rótulos em
-   monoespaçada.
-   Mesmas classes do HTML atual.
+   VagaConnect · Prorrogações
+   Mesma direção visual das outras telas do painel.
 ===================================================== */
 
 
@@ -34,12 +30,6 @@
 
     --mono:        ui-monospace, 'SF Mono', 'Roboto Mono', 'Consolas', monospace;
 
-    /* nomes antigos, mantidos para não quebrar nada */
-    --bg:          #030b16;
-    --border:      rgba(120, 170, 220, .16);
-    --muted:       #6d89a6;
-    --text:        #e9f2fc;
-
 }
 
 
@@ -66,7 +56,7 @@ body{
 
     margin:0;
 
-    font-family:'Poppins', 'Inter', system-ui, sans-serif;
+    font-family:'Poppins', system-ui, sans-serif;
 
     font-size:13px;
 
@@ -226,8 +216,6 @@ select:focus-visible{
 
     gap:11px;
 
-    border-radius:0;
-
     color:var(--apagado);
 
     font-family:var(--mono);
@@ -241,6 +229,19 @@ select:focus-visible{
     text-decoration:none;
 
     transition:background .18s, color .18s;
+
+}
+
+
+.sidebar nav a i{
+
+    width:15px;
+
+    flex:none;
+
+    text-align:center;
+
+    font-size:12px;
 
 }
 
@@ -300,19 +301,6 @@ select:focus-visible{
 }
 
 
-.sidebar svg{
-
-    width:14px;
-
-    height:14px;
-
-    flex:none;
-
-    stroke-width:1.8;
-
-}
-
-
 
 /* =====================================================
    PERFIL
@@ -348,8 +336,6 @@ select:focus-visible{
     place-items:center;
 
     border:1px solid var(--risco-forte);
-
-    border-radius:0;
 
     background:
         linear-gradient(135deg, rgba(47, 125, 255, .3), transparent 70%),
@@ -401,15 +387,6 @@ select:focus-visible{
 }
 
 
-.profile > svg{
-
-    margin-left:auto;
-
-    color:var(--fraco);
-
-}
-
-
 
 /* =====================================================
    CONTEÚDO
@@ -447,8 +424,6 @@ select:focus-visible{
 
     margin:0 0 5px;
 
-    font-family:'Poppins', sans-serif;
-
     font-size:28px;
 
     font-weight:600;
@@ -479,7 +454,7 @@ select:focus-visible{
 
 
 /* =====================================================
-   BOTÃO PRINCIPAL (se houver)
+   BOTÃO PRINCIPAL
 ===================================================== */
 
 .primary-button{
@@ -519,8 +494,6 @@ select:focus-visible{
     text-transform:uppercase;
 
     cursor:pointer;
-
-    box-shadow:none;
 
     transition:color .22s, border-color .22s;
 
@@ -562,9 +535,23 @@ select:focus-visible{
 }
 
 
-.primary-button svg{
+.primary-button i{
 
-    width:14px;
+    font-size:12px;
+
+}
+
+
+.primary-button.girando i{
+
+    animation:girar .8s linear infinite;
+
+}
+
+
+@keyframes girar{
+
+    to{ transform:rotate(360deg); }
 
 }
 
@@ -578,18 +565,116 @@ select:focus-visible{
 
 
 /* =====================================================
+   RESUMO · malha colada
+===================================================== */
+
+.cards{
+
+    display:grid;
+
+    grid-template-columns:repeat(4, 1fr);
+
+    gap:1px;
+
+    margin-bottom:18px;
+
+    border:1px solid var(--risco);
+
+    background:var(--risco);
+
+}
+
+
+.card{
+
+    padding:16px 18px 18px;
+
+    background:var(--superficie);
+
+    transition:background .2s;
+
+}
+
+
+.card:hover{
+
+    background:var(--elevado);
+
+}
+
+
+.card span{
+
+    display:block;
+
+    color:var(--fraco);
+
+    font-family:var(--mono);
+
+    font-size:9.5px;
+
+    letter-spacing:.14em;
+
+    text-transform:uppercase;
+
+}
+
+
+.card h2{
+
+    margin:10px 0 0;
+
+    font-family:var(--mono);
+
+    font-size:24px;
+
+    font-weight:500;
+
+    letter-spacing:-.5px;
+
+    font-variant-numeric:tabular-nums;
+
+}
+
+
+.card p{
+
+    margin:8px 0 0;
+
+    color:var(--fraco);
+
+    font-size:11.5px;
+
+    line-height:1.4;
+
+}
+
+
+/* o primeiro card é o que exige ação */
+.card:first-child{
+
+    box-shadow:inset 2px 0 0 var(--ambar);
+
+}
+
+
+.card:first-child h2{
+
+    color:var(--ambar);
+
+}
+
+
+
+/* =====================================================
    PAINEL
 ===================================================== */
 
 .panel{
 
-    min-height:0;
-
     padding:20px 22px 22px;
 
     border:1px solid var(--risco);
-
-    border-radius:0;
 
     background:var(--superficie);
 
@@ -597,6 +682,14 @@ select:focus-visible{
 
 
 .toolbar{
+
+    display:flex;
+
+    align-items:end;
+
+    flex-wrap:wrap;
+
+    gap:12px;
 
     margin-bottom:18px;
 
@@ -607,16 +700,101 @@ select:focus-visible{
 }
 
 
+.toolbar label:not(.search-box){
 
-/* =====================================================
-   BUSCA
-===================================================== */
+    display:grid;
+
+    gap:6px;
+
+    color:var(--fraco);
+
+    font-family:var(--mono);
+
+    font-size:10px;
+
+    font-weight:500;
+
+    letter-spacing:.14em;
+
+    text-transform:uppercase;
+
+}
+
+
+.toolbar label:not(.search-box):focus-within{
+
+    color:var(--azul-claro);
+
+}
+
+
+.toolbar select{
+
+    width:180px;
+
+    height:42px;
+
+    padding:0 11px;
+
+    border:1px solid var(--risco);
+
+    border-radius:4px;
+
+    background:rgba(10, 29, 51, .55);
+
+    color:var(--texto);
+
+    font-family:'Poppins', sans-serif;
+
+    font-size:12.5px;
+
+    letter-spacing:0;
+
+    text-transform:none;
+
+    cursor:pointer;
+
+    color-scheme:dark;
+
+    outline:0;
+
+    transition:border-color .18s, background .18s, box-shadow .18s;
+
+}
+
+
+.toolbar select option{
+
+    background:#0a1d33;
+
+}
+
+
+.toolbar select:hover{
+
+    border-color:var(--risco-forte);
+
+}
+
+
+.toolbar select:focus{
+
+    border-color:var(--azul);
+
+    background:rgba(10, 29, 51, .9);
+
+    box-shadow:inset 2px 0 0 var(--azul);
+
+}
+
 
 .search-box{
 
     height:42px;
 
-    max-width:420px;
+    flex:1;
+
+    max-width:340px;
 
     padding:0 13px;
 
@@ -624,7 +802,7 @@ select:focus-visible{
 
     align-items:center;
 
-    gap:10px;
+    gap:9px;
 
     border:1px solid var(--risco);
 
@@ -652,11 +830,9 @@ select:focus-visible{
 }
 
 
-.search-box svg{
+.search-box i{
 
-    width:15px;
-
-    flex:none;
+    font-size:12px;
 
 }
 
@@ -703,7 +879,7 @@ table{
 
     width:100%;
 
-    min-width:760px;
+    min-width:900px;
 
     border-collapse:collapse;
 
@@ -721,10 +897,6 @@ th{
     padding:0 12px 0 0;
 
     border-bottom:1px solid var(--risco-forte);
-
-    border-radius:0;
-
-    background:transparent;
 
     color:var(--fraco);
 
@@ -753,7 +925,7 @@ td:first-child{
 
 td{
 
-    height:50px;
+    height:52px;
 
     padding:0 12px 0 0;
 
@@ -785,10 +957,10 @@ tbody tr:last-child td{
 }
 
 
-/* valores em monoespaçada: as casas decimais alinham */
-td.valor,
-.valor,
-.total{
+/* datas, horas e números alinhados */
+.quando,
+.hora,
+.vaga{
 
     font-family:var(--mono);
 
@@ -799,11 +971,108 @@ td.valor,
 }
 
 
-.total{
+.cliente strong{
+
+    display:block;
+
+    font-size:12.5px;
+
+    font-weight:600;
+
+}
+
+
+.cliente small{
+
+    display:block;
+
+    margin-top:2px;
+
+    color:var(--fraco);
+
+    font-family:var(--mono);
+
+    font-size:9.5px;
+
+    letter-spacing:.06em;
+
+}
+
+
+.pedido{
+
+    display:inline-block;
+
+    padding:3px 9px;
+
+    border:1px solid rgba(47, 125, 255, .5);
+
+    border-radius:3px;
+
+    background:rgba(47, 125, 255, .12);
+
+    color:var(--azul-claro);
+
+    font-family:var(--mono);
+
+    font-size:10px;
+
+    font-weight:600;
+
+    letter-spacing:.06em;
+
+    white-space:nowrap;
+
+}
+
+
+.nova-saida{
 
     color:var(--verde);
 
-    font-weight:600;
+    font-family:var(--mono);
+
+    font-variant-numeric:tabular-nums;
+
+    white-space:nowrap;
+
+}
+
+
+.motivo{
+
+    display:block;
+
+    margin-top:3px;
+
+    max-width:34ch;
+
+    color:var(--fraco);
+
+    font-size:11px;
+
+    line-height:1.4;
+
+}
+
+
+.vazio{
+
+    height:auto;
+
+    padding:34px 0;
+
+    color:var(--fraco);
+
+    font-family:var(--mono);
+
+    font-size:11px;
+
+    letter-spacing:.1em;
+
+    text-align:center;
+
+    text-transform:uppercase;
 
 }
 
@@ -811,7 +1080,6 @@ td.valor,
 
 /* =====================================================
    ETIQUETAS DE STATUS
-   (mantidas caso a tabela use alguma)
 ===================================================== */
 
 .status{
@@ -823,8 +1091,6 @@ td.valor,
     border:1px solid var(--risco-forte);
 
     border-radius:3px;
-
-    background:transparent;
 
     color:var(--apagado);
 
@@ -843,22 +1109,7 @@ td.valor,
 }
 
 
-.aprovado,
-.pago,
-.confirmada,
-.concluida{
-
-    border-color:rgba(61, 220, 151, .45);
-
-    background:rgba(61, 220, 151, .1);
-
-    color:var(--verde);
-
-}
-
-
-.pendente,
-.ativa{
+.pendente{
 
     border-color:rgba(245, 183, 49, .45);
 
@@ -869,19 +1120,18 @@ td.valor,
 }
 
 
-.reservada{
+.aprovada{
 
-    border-color:rgba(47, 125, 255, .5);
+    border-color:rgba(61, 220, 151, .45);
 
-    background:rgba(47, 125, 255, .12);
+    background:rgba(61, 220, 151, .1);
 
-    color:var(--azul-claro);
+    color:var(--verde);
 
 }
 
 
-.cancelada,
-.recusado{
+.recusada{
 
     border-color:rgba(255, 122, 122, .45);
 
@@ -916,15 +1166,11 @@ td.valor,
 
 .row-actions button{
 
-    width:30px;
-
     height:30px;
 
     margin:0 2px;
 
-    display:inline-grid;
-
-    place-items:center;
+    padding:0 11px;
 
     border:1px solid var(--risco);
 
@@ -934,38 +1180,53 @@ td.valor,
 
     color:var(--fraco);
 
-    cursor:pointer;
+    font-family:var(--mono);
 
-    vertical-align:middle;
+    font-size:9.5px;
+
+    font-weight:600;
+
+    letter-spacing:.1em;
+
+    text-transform:uppercase;
+
+    cursor:pointer;
 
     transition:border-color .18s, background .18s, color .18s;
 
 }
 
 
-.row-actions button:hover{
+.row-actions .aprovar{
 
-    border-color:var(--azul);
+    border-color:rgba(61, 220, 151, .45);
 
-    background:rgba(47, 125, 255, .16);
-
-    color:var(--azul-claro);
+    color:var(--verde);
 
 }
 
 
-.row-actions .delete{
+.row-actions .aprovar:hover{
+
+    border-color:var(--verde);
+
+    background:rgba(61, 220, 151, .16);
+
+    color:#ffffff;
+
+}
+
+
+.row-actions .recusar{
 
     border-color:rgba(255, 122, 122, .35);
-
-    background:transparent;
 
     color:var(--vermelho);
 
 }
 
 
-.row-actions .delete:hover{
+.row-actions .recusar:hover{
 
     border-color:var(--vermelho);
 
@@ -976,13 +1237,24 @@ td.valor,
 }
 
 
-.row-actions svg{
+.row-actions button:disabled{
 
-    width:14px;
+    border-color:var(--risco);
 
-    height:14px;
+    color:var(--fraco);
 
-    vertical-align:middle;
+    cursor:not-allowed;
+
+}
+
+
+.sem-acao{
+
+    color:var(--fraco);
+
+    font-family:var(--mono);
+
+    font-size:11px;
 
 }
 
@@ -1076,8 +1348,6 @@ td.valor,
 
         cursor:pointer;
 
-        transition:border-color .18s, background .18s, color .18s;
-
     }
 
     .menu-button:hover{
@@ -1087,12 +1357,6 @@ td.valor,
         background:rgba(47, 125, 255, .15);
 
         color:#ffffff;
-
-    }
-
-    .menu-button svg{
-
-        width:16px;
 
     }
 
@@ -1108,9 +1372,9 @@ td.valor,
 
     }
 
-    .primary-button{
+    .cards{
 
-        padding:0 14px;
+        grid-template-columns:repeat(2, 1fr);
 
     }
 
@@ -1147,7 +1411,16 @@ td.valor,
 
     }
 
+    .cards{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .toolbar select,
     .search-box{
+
+        width:100%;
 
         max-width:none;
 
@@ -1177,14 +1450,61 @@ td.valor,
 @media (forced-colors:active){
 
     .panel,
-    .search-box,
+    .cards,
     .status,
-    .primary-button,
+    .pedido,
     .row-actions button,
-    .menu-button{
+    .search-box,
+    .toolbar select{
 
         border:1px solid CanvasText;
 
     }
 
+}   
+
+/* =====================================================
+   ÍCONES SVG (gerados pelo bloco de ícones)
+===================================================== */
+
+.sidebar nav a svg{
+    width:15px;
+    height:15px;
+    flex:none;
+    stroke-width:1.9;
+}
+
+.logo svg{
+    width:18px;
+    height:18px;
+    flex:none;
+    color:var(--azul-claro);
+    stroke-width:1.9;
+}
+
+.profile > svg{
+    width:14px;
+    height:14px;
+    flex:none;
+    margin-left:auto;
+    color:var(--fraco);
+}
+
+.menu-button svg,
+.primary-button svg,
+.search-box svg{
+    width:16px;
+    height:16px;
+    flex:none;
+    stroke-width:1.9;
+}
+
+.search-box svg{
+    width:15px;
+    height:15px;
+}
+
+/* o ícone do botão Atualizar gira enquanto carrega */
+.primary-button.girando svg{
+    animation:girar .8s linear infinite;
 }

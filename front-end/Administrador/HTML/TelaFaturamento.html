@@ -12,7 +12,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap"
+        rel="stylesheet">
 
     <!-- CSS -->
     <link rel="stylesheet" href="../CSS/TelaFaturamento.css">
@@ -30,11 +32,11 @@
         <aside class="sidebar" id="sidebar">
 
             <div class="logo">
-       <i class="fa-solid fa-layer-group"></i>
-       <a href="TelaADM.html" class="logo">
-       <span>Vaga</span>Connect
-       </a>
-     </div>
+                <i class="fa-solid fa-layer-group"></i>
+                <a href="TelaADM.html" class="logo">
+                    <span>Vaga</span>Connect
+                </a>
+            </div>
 
             <nav>
 
@@ -66,6 +68,11 @@
                 <a href="../HTML/TelaFuncionarios.html">
                     <i data-icon="briefcase"></i>
                     Funcionários
+                </a>
+
+                <a href="../HTML/TelaProrrongações.html">
+                    <i data-icon="clock"></i>
+                    Prorrongações
                 </a>
 
                 <a href="../HTML/TelaFeedback.html">
@@ -216,11 +223,7 @@
                         <select id="ano"></select>
                     </label>
 
-                    <input
-                        type="search"
-                        id="buscar"
-                        placeholder="Buscar cliente, pátio ou reserva..."
-                    >
+                    <input type="search" id="buscar" placeholder="Buscar cliente, pátio ou reserva...">
 
                 </div>
 
@@ -262,7 +265,12 @@
             chart: '<path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 15v-3"/><path d="M12 15V8"/><path d="M16 15V5"/>',
             settings: '<circle cx="12" cy="12" r="3"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2"/><path d="M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4m0-14.2-1.4 1.4M6.3 17.7l-1.4 1.4"/>',
             "log-out": '<path d="M10 17l5-5-5-5"/><path d="M15 12H3"/><path d="M21 19V5a2 2 0 0 0-2-2h-5"/>',
-            download: '<path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><path d="M5 21h14"/>'
+            download: '<path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><path d="M5 21h14"/>',
+
+            /* novos, usados na tela de prorrogações */
+            clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3.5 2"/><path d="M3.5 9.5 6 7l2.5 2.5"/>',
+            search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+            refresh: '<path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/>'
         };
 
         document.querySelectorAll("i[data-icon]").forEach((icon) => {
@@ -279,147 +287,147 @@
 
         if (funcionarioLogado) {
 
-        mostrarFuncionarioNoPerfil(funcionarioLogado);
+            mostrarFuncionarioNoPerfil(funcionarioLogado);
 
-        document.querySelector("#btnSair").addEventListener("click", (event) => {
-            event.preventDefault();
-            sair("../../Base/HTML/Abertura.html");
-        });
-
-        const meses = [
-            "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-            "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
-        ];
-
-        const hoje = new Date();
-        const selectMes = document.getElementById("mes");
-        const selectAno = document.getElementById("ano");
-        const tabela = document.getElementById("faturamentoTabela");
-        const campoBusca = document.getElementById("buscar");
-        const cardCrescimento = document.getElementById("crescimento");
-
-        let pagamentos = [];
-
-        meses.forEach((nome, indice) => {
-            const option = document.createElement("option");
-            option.value = String(indice + 1);
-            option.textContent = nome;
-            if (indice === hoje.getMonth()) option.selected = true;
-            selectMes.appendChild(option);
-        });
-
-        for (let ano = 2025; ano <= hoje.getFullYear(); ano++) {
-            const option = document.createElement("option");
-            option.value = String(ano);
-            option.textContent = ano;
-            if (ano === hoje.getFullYear()) option.selected = true;
-            selectAno.appendChild(option);
-        }
-
-        function mostrarPreco(valor) {
-            return Number(valor || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-        }
-
-        function nomeTipo(tipo) {
-            const texto = String(tipo || "").toLowerCase();
-            if (texto.includes("pix")) return "Pix";
-            if (texto.includes("cart")) return "Cartão";
-            return tipo || "--";
-        }
-
-        function dataDoPagamento(item) {
-            return item.reservaCli?.hora || item.reservaCli?.data || null;
-        }
-
-        function dataCurta(texto) {
-            if (!texto) return "--";
-            const data = new Date(texto);
-            return `${String(data.getDate()).padStart(2, "0")}/${String(data.getMonth() + 1).padStart(2, "0")}/${data.getFullYear()}`;
-        }
-
-        function noPeriodo(item, mes, ano) {
-            const texto = dataDoPagamento(item);
-            if (!texto) return false;
-            const data = new Date(texto);
-            return data.getMonth() + 1 === mes && data.getFullYear() === ano;
-        }
-
-        function soma(lista) {
-            return lista.reduce((total, item) => total + Number(item.valor || 0), 0);
-        }
-
-        function reservasUnicas(lista) {
-            return new Set(lista.map((item) => item.fk_reserva || item.reservaCli?.id).filter(Boolean)).size;
-        }
-
-        function linhasVisiveis() {
-            const mes = Number(selectMes.value);
-            const ano = Number(selectAno.value);
-            const busca = campoBusca.value.toLowerCase();
-
-            return pagamentos.filter((item) => {
-                if (!noPeriodo(item, mes, ano)) return false;
-
-                const cliente = item.reservaCli?.usuario?.nome || "";
-                const patio = item.reservaCli?.reserva?.vaga?.estacionamento?.nome || "";
-                const reserva = (item.fk_reserva || item.reservaCli?.id || "").slice(0, 8);
-
-                return `${cliente} ${patio} ${reserva} ${item.nome}`.toLowerCase().includes(busca);
+            document.querySelector("#btnSair").addEventListener("click", (event) => {
+                event.preventDefault();
+                sair("../../Base/HTML/Abertura.html");
             });
-        }
 
-        function atualizarCrescimento(atual, anterior) {
-            cardCrescimento.classList.remove("green", "yellow", "red");
+            const meses = [
+                "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+                "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+            ];
 
-            if (anterior === 0 && atual === 0) {
-                cardCrescimento.textContent = "--";
-                cardCrescimento.classList.add("yellow");
-                return;
+            const hoje = new Date();
+            const selectMes = document.getElementById("mes");
+            const selectAno = document.getElementById("ano");
+            const tabela = document.getElementById("faturamentoTabela");
+            const campoBusca = document.getElementById("buscar");
+            const cardCrescimento = document.getElementById("crescimento");
+
+            let pagamentos = [];
+
+            meses.forEach((nome, indice) => {
+                const option = document.createElement("option");
+                option.value = String(indice + 1);
+                option.textContent = nome;
+                if (indice === hoje.getMonth()) option.selected = true;
+                selectMes.appendChild(option);
+            });
+
+            for (let ano = 2025; ano <= hoje.getFullYear(); ano++) {
+                const option = document.createElement("option");
+                option.value = String(ano);
+                option.textContent = ano;
+                if (ano === hoje.getFullYear()) option.selected = true;
+                selectAno.appendChild(option);
             }
 
-            if (anterior === 0) {
-                cardCrescimento.textContent = "+100%";
-                cardCrescimento.classList.add("green");
-                return;
+            function mostrarPreco(valor) {
+                return Number(valor || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
             }
 
-            const percentual = ((atual - anterior) / anterior) * 100;
-            const sinal = percentual > 0 ? "+" : "";
-            cardCrescimento.textContent = `${sinal}${percentual.toFixed(0)}%`;
-
-            if (percentual > 0) cardCrescimento.classList.add("green");
-            else if (percentual < 0) cardCrescimento.classList.add("red");
-            else cardCrescimento.classList.add("yellow");
-        }
-
-        function render() {
-            const mes = Number(selectMes.value);
-            const ano = Number(selectAno.value);
-            const lista = linhasVisiveis();
-            const doMes = pagamentos.filter((item) => noPeriodo(item, mes, ano));
-
-            const mesAnterior = mes === 1 ? 12 : mes - 1;
-            const anoAnterior = mes === 1 ? ano - 1 : ano;
-            const doMesAnterior = pagamentos.filter((item) => noPeriodo(item, mesAnterior, anoAnterior));
-
-            const total = soma(doMes);
-            const qtdReservas = reservasUnicas(doMes);
-            const media = qtdReservas ? total / qtdReservas : 0;
-
-            document.getElementById("totalMes").textContent = mostrarPreco(total);
-            document.getElementById("totalReservas").textContent = qtdReservas;
-            document.getElementById("ticketMedio").textContent = mostrarPreco(media);
-            atualizarCrescimento(total, soma(doMesAnterior));
-
-            if (lista.length === 0) {
-                tabela.innerHTML = `<tr><td colspan="6">Nenhum pagamento neste período.</td></tr>`;
-                document.getElementById("tableCount").textContent = `Mostrando 0 de ${doMes.length} pagamentos`;
-                return;
+            function nomeTipo(tipo) {
+                const texto = String(tipo || "").toLowerCase();
+                if (texto.includes("pix")) return "Pix";
+                if (texto.includes("cart")) return "Cartão";
+                return tipo || "--";
             }
 
-            tabela.innerHTML = lista.map((item) => {
-                const idCurto = (item.fk_reserva || item.reservaCli?.id || "").slice(0, 8);
-                return `
+            function dataDoPagamento(item) {
+                return item.reservaCli?.hora || item.reservaCli?.data || null;
+            }
+
+            function dataCurta(texto) {
+                if (!texto) return "--";
+                const data = new Date(texto);
+                return `${String(data.getDate()).padStart(2, "0")}/${String(data.getMonth() + 1).padStart(2, "0")}/${data.getFullYear()}`;
+            }
+
+            function noPeriodo(item, mes, ano) {
+                const texto = dataDoPagamento(item);
+                if (!texto) return false;
+                const data = new Date(texto);
+                return data.getMonth() + 1 === mes && data.getFullYear() === ano;
+            }
+
+            function soma(lista) {
+                return lista.reduce((total, item) => total + Number(item.valor || 0), 0);
+            }
+
+            function reservasUnicas(lista) {
+                return new Set(lista.map((item) => item.fk_reserva || item.reservaCli?.id).filter(Boolean)).size;
+            }
+
+            function linhasVisiveis() {
+                const mes = Number(selectMes.value);
+                const ano = Number(selectAno.value);
+                const busca = campoBusca.value.toLowerCase();
+
+                return pagamentos.filter((item) => {
+                    if (!noPeriodo(item, mes, ano)) return false;
+
+                    const cliente = item.reservaCli?.usuario?.nome || "";
+                    const patio = item.reservaCli?.reserva?.vaga?.estacionamento?.nome || "";
+                    const reserva = (item.fk_reserva || item.reservaCli?.id || "").slice(0, 8);
+
+                    return `${cliente} ${patio} ${reserva} ${item.nome}`.toLowerCase().includes(busca);
+                });
+            }
+
+            function atualizarCrescimento(atual, anterior) {
+                cardCrescimento.classList.remove("green", "yellow", "red");
+
+                if (anterior === 0 && atual === 0) {
+                    cardCrescimento.textContent = "--";
+                    cardCrescimento.classList.add("yellow");
+                    return;
+                }
+
+                if (anterior === 0) {
+                    cardCrescimento.textContent = "+100%";
+                    cardCrescimento.classList.add("green");
+                    return;
+                }
+
+                const percentual = ((atual - anterior) / anterior) * 100;
+                const sinal = percentual > 0 ? "+" : "";
+                cardCrescimento.textContent = `${sinal}${percentual.toFixed(0)}%`;
+
+                if (percentual > 0) cardCrescimento.classList.add("green");
+                else if (percentual < 0) cardCrescimento.classList.add("red");
+                else cardCrescimento.classList.add("yellow");
+            }
+
+            function render() {
+                const mes = Number(selectMes.value);
+                const ano = Number(selectAno.value);
+                const lista = linhasVisiveis();
+                const doMes = pagamentos.filter((item) => noPeriodo(item, mes, ano));
+
+                const mesAnterior = mes === 1 ? 12 : mes - 1;
+                const anoAnterior = mes === 1 ? ano - 1 : ano;
+                const doMesAnterior = pagamentos.filter((item) => noPeriodo(item, mesAnterior, anoAnterior));
+
+                const total = soma(doMes);
+                const qtdReservas = reservasUnicas(doMes);
+                const media = qtdReservas ? total / qtdReservas : 0;
+
+                document.getElementById("totalMes").textContent = mostrarPreco(total);
+                document.getElementById("totalReservas").textContent = qtdReservas;
+                document.getElementById("ticketMedio").textContent = mostrarPreco(media);
+                atualizarCrescimento(total, soma(doMesAnterior));
+
+                if (lista.length === 0) {
+                    tabela.innerHTML = `<tr><td colspan="6">Nenhum pagamento neste período.</td></tr>`;
+                    document.getElementById("tableCount").textContent = `Mostrando 0 de ${doMes.length} pagamentos`;
+                    return;
+                }
+
+                tabela.innerHTML = lista.map((item) => {
+                    const idCurto = (item.fk_reserva || item.reservaCli?.id || "").slice(0, 8);
+                    return `
                     <tr>
                         <td>${item.reservaCli?.usuario?.nome || "--"}</td>
                         <td>#${idCurto || "--"}</td>
@@ -429,61 +437,61 @@
                         <td>${dataCurta(dataDoPagamento(item))}</td>
                     </tr>
                 `;
-            }).join("");
+                }).join("");
 
-            document.getElementById("tableCount").textContent =
-                `Mostrando ${lista.length} de ${doMes.length} pagamentos`;
-        }
-
-        document.getElementById("exportar").addEventListener("click", () => {
-            const lista = linhasVisiveis();
-            const mesNome = meses[Number(selectMes.value) - 1];
-            const ano = selectAno.value;
-
-            let relatorio = `RELATÓRIO DE FATURAMENTO\n`;
-            relatorio += `${mesNome}/${ano}\n`;
-            relatorio += `=============================\n\n`;
-
-            if (lista.length === 0) {
-                relatorio += "Nenhum pagamento neste período.\n";
-            } else {
-                lista.forEach((item) => {
-                    const idCurto = (item.fk_reserva || item.reservaCli?.id || "").slice(0, 8);
-                    relatorio +=
-                        `Cliente: ${item.reservaCli?.usuario?.nome || "--"}\n` +
-                        `Reserva: #${idCurto || "--"}\n` +
-                        `Estacionamento: ${item.reservaCli?.reserva?.vaga?.estacionamento?.nome || "--"}\n` +
-                        `Pagamento: ${nomeTipo(item.tipo)}\n` +
-                        `Valor: ${mostrarPreco(item.valor)}\n` +
-                        `Data: ${dataCurta(dataDoPagamento(item))}\n\n`;
-                });
-
-                relatorio += `Total: ${mostrarPreco(soma(lista))}\n`;
+                document.getElementById("tableCount").textContent =
+                    `Mostrando ${lista.length} de ${doMes.length} pagamentos`;
             }
 
-            const arquivo = new Blob([relatorio], { type: "text/plain;charset=utf-8" });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(arquivo);
-            link.download = `Relatorio_Faturamento_${mesNome}_${ano}.txt`;
-            link.click();
-            URL.revokeObjectURL(link.href);
-        });
+            document.getElementById("exportar").addEventListener("click", () => {
+                const lista = linhasVisiveis();
+                const mesNome = meses[Number(selectMes.value) - 1];
+                const ano = selectAno.value;
 
-        selectMes.addEventListener("change", render);
-        selectAno.addEventListener("change", render);
-        campoBusca.addEventListener("input", render);
+                let relatorio = `RELATÓRIO DE FATURAMENTO\n`;
+                relatorio += `${mesNome}/${ano}\n`;
+                relatorio += `=============================\n\n`;
 
-        async function carregar() {
-            const resposta = await fetch(API + "/pagamento");
-            const lista = await resposta.json();
-            if (!resposta.ok) throw new Error(lista.erro || "Erro ao carregar o faturamento");
-            pagamentos = lista;
-            render();
-        }
+                if (lista.length === 0) {
+                    relatorio += "Nenhum pagamento neste período.\n";
+                } else {
+                    lista.forEach((item) => {
+                        const idCurto = (item.fk_reserva || item.reservaCli?.id || "").slice(0, 8);
+                        relatorio +=
+                            `Cliente: ${item.reservaCli?.usuario?.nome || "--"}\n` +
+                            `Reserva: #${idCurto || "--"}\n` +
+                            `Estacionamento: ${item.reservaCli?.reserva?.vaga?.estacionamento?.nome || "--"}\n` +
+                            `Pagamento: ${nomeTipo(item.tipo)}\n` +
+                            `Valor: ${mostrarPreco(item.valor)}\n` +
+                            `Data: ${dataCurta(dataDoPagamento(item))}\n\n`;
+                    });
 
-        carregar().catch((error) => {
-            alert(error.message || "Não foi possível carregar. Verifique se o servidor está ligado.");
-        });
+                    relatorio += `Total: ${mostrarPreco(soma(lista))}\n`;
+                }
+
+                const arquivo = new Blob([relatorio], { type: "text/plain;charset=utf-8" });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(arquivo);
+                link.download = `Relatorio_Faturamento_${mesNome}_${ano}.txt`;
+                link.click();
+                URL.revokeObjectURL(link.href);
+            });
+
+            selectMes.addEventListener("change", render);
+            selectAno.addEventListener("change", render);
+            campoBusca.addEventListener("input", render);
+
+            async function carregar() {
+                const resposta = await fetch(API + "/pagamento");
+                const lista = await resposta.json();
+                if (!resposta.ok) throw new Error(lista.erro || "Erro ao carregar o faturamento");
+                pagamentos = lista;
+                render();
+            }
+
+            carregar().catch((error) => {
+                alert(error.message || "Não foi possível carregar. Verifique se o servidor está ligado.");
+            });
 
         }
     </script>

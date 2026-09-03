@@ -125,3 +125,4 @@ function sair(caminhoSaida){
     window.location.href = caminhoSaida;
 
 }
+
