@@ -1,207 +1,904 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
+/* =====================================================
+   VagaConnect · Cadastro
+   Mesma direção visual das outras telas:
+   fundo escuro com malha técnica, cantos retos,
+   linhas de 1px no lugar de sombras e rótulos em
+   monoespaçada.
+   Mesmas classes do HTML atual.
+===================================================== */
+
+
+/* =====================================================
+   TOKENS
+===================================================== */
+
+:root{
+
+    --tinta:       #030b16;
+    --superficie:  #071426;
+    --elevado:     #0a1d33;
+
+    --risco:       rgba(120, 170, 220, .16);
+    --risco-forte: rgba(120, 170, 220, .34);
+
+    --texto:       #e9f2fc;
+    --apagado:     #93aec9;
+    --fraco:       #6d89a6;
+
+    --azul:        #2f7dff;
+    --azul-claro:  #8cc2ff;
+
+    --verde:       #3ddc97;
+    --vermelho:    #ff7a7a;
+
+    --mono:        ui-monospace, 'SF Mono', 'Roboto Mono', 'Consolas', monospace;
+
 }
 
-body {
-  background: radial-gradient(circle at top, #0b1a3a, #050b1f);
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 30px;
+
+
+/* =====================================================
+   BASE
+===================================================== */
+
+*{
+
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+
 }
 
-.container {
-  width: 100%;
-  display: flex;
-  justify-content: center;
+
+html{
+
+    -webkit-text-size-adjust:100%;
+
 }
 
-.card {
-  width: 520px;
-  background: rgba(255,255,255,0.04);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 18px;
-  padding: 35px;
-  color: #fff;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+
+body{
+
+    min-height:100vh;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    padding:26px 20px;
+
+    font-family:'Poppins', 'Segoe UI', system-ui, sans-serif;
+
+    font-size:13px;
+
+    color:var(--texto);
+
+    background:
+        repeating-linear-gradient(0deg,   rgba(120,170,220,.045) 0 1px, transparent 1px 68px),
+        repeating-linear-gradient(90deg,  rgba(120,170,220,.045) 0 1px, transparent 1px 68px),
+        linear-gradient(180deg, #06182c 0%, var(--tinta) 60%);
+
+    background-attachment:fixed;
+
+    -webkit-font-smoothing:antialiased;
+
 }
 
-.top-bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 12px;
-  opacity: 0.7;
-  margin-bottom: 10px;
+
+/* fio de luz no topo */
+body::before{
+
+    content:"";
+
+    position:fixed;
+
+    top:0;
+    left:0;
+    right:0;
+
+    height:2px;
+
+    z-index:5;
+
+    background:linear-gradient(90deg, transparent, var(--azul) 25%, var(--azul-claro) 50%, var(--azul) 75%, transparent);
+
 }
 
-.back-button {
-  width: 36px;
-  height: 36px;
-  margin: 0;
-  padding: 0;
-  border: none;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.08);
-  color: white;
-  font-size: 18px;
-  cursor: pointer;
+
+::selection{
+
+    background:rgba(47, 125, 255, .35);
+
 }
 
-.back-button:hover {
-  transform: none;
-  background: rgba(255,255,255,0.14);
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+span:focus-visible{
+
+    outline:2px solid var(--azul-claro);
+
+    outline-offset:2px;
+
 }
 
-.logo {
-  width: auto;
-  height: auto;
-  background: none;
-  border-radius: 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 8px;
+
+
+/* =====================================================
+   CONTAINER
+===================================================== */
+
+.container{
+
+    width:100%;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:safe center;
+
 }
 
-.logo i {
-  color: #2d7dff;
+
+
+/* =====================================================
+   CARD · bloco reto, sem vidro
+===================================================== */
+
+.card{
+
+    width:480px;
+
+    max-width:100%;
+
+    padding:26px 28px 28px;
+
+    border:1px solid var(--risco);
+
+    border-top:2px solid var(--azul);
+
+    border-radius:0;
+
+    background:var(--superficie);
+
+    backdrop-filter:none;
+
+    box-shadow:none;
+
+    color:var(--texto);
+
 }
 
-.logo span {
-  color: #2d7dff;
+
+
+/* =====================================================
+   TOPO
+===================================================== */
+
+.top-bar{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    margin-bottom:16px;
+
+    padding-bottom:14px;
+
+    border-bottom:1px solid var(--risco);
+
+    opacity:1;
+
+    color:var(--fraco);
+
+    font-family:var(--mono);
+
+    font-size:10px;
+
+    letter-spacing:.14em;
+
+    text-transform:uppercase;
+
 }
 
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
+
+.header{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    margin-bottom:6px;
+
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
+
+/* marca: funciona com texto+ícone ou como quadrado sozinho */
+.logo{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:9px;
+
+    width:auto;
+
+    height:auto;
+
+    margin:0;
+
+    border-radius:0;
+
+    background:none;
+
+    color:var(--texto);
+
+    font-size:15px;
+
+    font-weight:600;
+
+    letter-spacing:.16em;
+
+    text-transform:uppercase;
+
+    text-decoration:none;
+
 }
 
-.logo {
-  width: 32px;
-  height: 32px;
-  background: #2d7dff;
-  border-radius: 50%;
+
+.logo:empty{
+
+    width:30px;
+
+    height:30px;
+
+    border:1px solid var(--risco-forte);
+
+    background:
+        linear-gradient(135deg, rgba(47, 125, 255, .3), transparent 70%),
+        var(--elevado);
+
 }
 
-h1 {
-  font-size: 20px;
+
+.logo i{
+
+    color:var(--azul-claro);
+
+    font-size:14px;
+
 }
 
-h2 {
-  margin-top: 10px;
-  font-size: 22px;
+
+.logo span{
+
+    color:var(--azul-claro);
+
 }
 
-.subtitle {
-  font-size: 13px;
-  opacity: 0.7;
-  margin-bottom: 20px;
+
+
+/* =====================================================
+   TÍTULOS
+===================================================== */
+
+h1{
+
+    font-size:15px;
+
+    font-weight:600;
+
+    letter-spacing:.14em;
+
+    text-transform:uppercase;
+
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+
+h2{
+
+    max-width:20ch;
+
+    margin-top:12px;
+
+    font-size:26px;
+
+    font-weight:600;
+
+    line-height:1.12;
+
+    letter-spacing:-1px;
+
 }
 
-label {
-  font-size: 12px;
-  opacity: 0.8;
+
+.subtitle{
+
+    margin-bottom:22px;
+
+    opacity:1;
+
+    color:var(--apagado);
+
+    font-size:12.5px;
+
+    line-height:1.6;
+
 }
 
-input {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.1);
-  background: rgba(255,255,255,0.05);
-  color: white;
-  outline: none;
+
+
+/* =====================================================
+   FORMULÁRIO
+===================================================== */
+
+form{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:14px;
+
 }
 
-input:focus {
-  border-color: #2d7dff;
+
+label{
+
+    display:block;
+
+    margin-bottom:6px;
+
+    opacity:1;
+
+    color:var(--fraco);
+
+    font-family:var(--mono);
+
+    font-size:10px;
+
+    font-weight:500;
+
+    letter-spacing:.14em;
+
+    text-transform:uppercase;
+
 }
 
-.row {
-  display: flex;
-  gap: 10px;
+
+input{
+
+    width:100%;
+
+    height:44px;
+
+    padding:0 13px;
+
+    border:1px solid var(--risco);
+
+    border-radius:4px;
+
+    background:rgba(10, 29, 51, .55);
+
+    color:var(--texto);
+
+    font-family:inherit;
+
+    font-size:13px;
+
+    outline:none;
+
+    transition:border-color .18s, background .18s, box-shadow .18s;
+
 }
 
-.row div {
-  flex: 1;
+
+input::placeholder{
+
+    color:#5f7b96;
+
 }
 
-.password-box {
-  display: flex;
-  align-items: center;
-  position: relative;
+
+input:hover{
+
+    border-color:var(--risco-forte);
+
 }
 
-.password-box span {
-  position: absolute;
-  right: 12px;
-  cursor: pointer;
-  opacity: 0.7;
+
+input:focus{
+
+    border-color:var(--azul);
+
+    background:rgba(10, 29, 51, .9);
+
+    box-shadow:inset 2px 0 0 var(--azul);
+
 }
 
-.checkbox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  margin-top: 10px;
+
+input[readonly]{
+
+    opacity:1;
+
+    border-style:dashed;
+
+    background:rgba(10, 29, 51, .3);
+
+    color:var(--apagado);
+
+    cursor:not-allowed;
+
 }
 
-.checkbox a {
-  color: #2d7dff;
-  text-decoration: none;
+
+/* rótulo acende junto com o campo */
+.row div:focus-within label,
+form > div:focus-within label,
+.password-box:focus-within + label{
+
+    color:var(--azul-claro);
+
 }
 
-button {
-  margin-top: 10px;
-  padding: 12px;
-  border: none;
-  border-radius: 10px;
-  background: linear-gradient(90deg, #2d7dff, #1a5cff);
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.3s;
+
+.row{
+
+    display:flex;
+
+    gap:12px;
+
 }
 
-button:hover {
-  transform: translateY(-2px);
+
+.row div{
+
+    flex:1;
+
+    min-width:0;
+
 }
 
-.login {
-  text-align: center;
-  font-size: 12px;
-  margin-top: 10px;
-  opacity: 0.8;
+
+
+/* =====================================================
+   SENHA
+===================================================== */
+
+.password-box{
+
+    position:relative;
+
+    display:flex;
+
+    align-items:center;
+
 }
 
-.login a {
-  color: #2d7dff;
+
+.password-box input{
+
+    padding-right:44px;
+
 }
 
-input[readonly] {
-  opacity: 0.6;
-  cursor: not-allowed;
+
+.password-box span{
+
+    position:absolute;
+
+    right:1px;
+
+    top:1px;
+
+    bottom:1px;
+
+    width:40px;
+
+    display:grid;
+
+    place-items:center;
+
+    border-left:1px solid var(--risco);
+
+    opacity:1;
+
+    color:var(--fraco);
+
+    font-size:14px;
+
+    cursor:pointer;
+
+    transition:color .18s, background .18s;
+
+}
+
+
+.password-box span:hover{
+
+    background:rgba(47, 125, 255, .12);
+
+    color:var(--azul-claro);
+
+}
+
+
+
+/* =====================================================
+   TERMOS
+===================================================== */
+
+.checkbox{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:9px;
+
+    margin-top:6px;
+
+    padding-top:14px;
+
+    border-top:1px solid var(--risco);
+
+    color:var(--apagado);
+
+    font-size:11.5px;
+
+    line-height:1.5;
+
+}
+
+
+.checkbox input[type="checkbox"]{
+
+    width:16px;
+
+    height:16px;
+
+    flex:0 0 auto;
+
+    padding:0;
+
+    accent-color:var(--azul);
+
+    cursor:pointer;
+
+}
+
+
+.checkbox a{
+
+    color:var(--azul-claro);
+
+    text-decoration:none;
+
+    border-bottom:1px solid rgba(140, 194, 255, .35);
+
+    transition:border-color .18s;
+
+}
+
+
+.checkbox a:hover{
+
+    border-bottom-color:var(--azul-claro);
+
+}
+
+
+
+/* =====================================================
+   BOTÃO · vazado, preenche no hover
+===================================================== */
+
+button{
+
+    position:relative;
+
+    margin-top:8px;
+
+    padding:14px;
+
+    overflow:hidden;
+
+    border:1px solid var(--azul);
+
+    border-radius:4px;
+
+    background:transparent;
+
+    color:var(--azul-claro);
+
+    font-family:var(--mono);
+
+    font-size:11px;
+
+    font-weight:600;
+
+    letter-spacing:.16em;
+
+    text-transform:uppercase;
+
+    cursor:pointer;
+
+    transition:color .22s, border-color .22s;
+
+}
+
+
+button::before{
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    z-index:-1;
+
+    background:var(--azul);
+
+    transform:scaleX(0);
+
+    transform-origin:left;
+
+    transition:transform .28s cubic-bezier(.4, 0, .2, 1);
+
+}
+
+
+button:hover{
+
+    color:#ffffff;
+
+    transform:none;
+
+}
+
+
+button:hover::before{
+
+    transform:scaleX(1);
+
+}
+
+
+button:active{
+
+    border-color:var(--azul-claro);
+
+}
+
+
+button:disabled{
+
+    opacity:1;
+
+    border-color:var(--risco-forte);
+
+    color:var(--fraco);
+
+    cursor:not-allowed;
+
+    transform:none;
+
+}
+
+
+button:disabled::before{
+
+    transform:scaleX(0);
+
+}
+
+
+
+/* =====================================================
+   VOLTAR · vem depois para vencer o button genérico
+===================================================== */
+
+.back-button{
+
+    width:34px;
+
+    height:34px;
+
+    flex:0 0 auto;
+
+    display:grid;
+
+    place-items:center;
+
+    margin:0;
+
+    padding:0;
+
+    overflow:visible;
+
+    border:1px solid var(--risco-forte);
+
+    border-radius:4px;
+
+    background:transparent;
+
+    color:var(--texto);
+
+    font-family:inherit;
+
+    font-size:16px;
+
+    letter-spacing:0;
+
+    line-height:1;
+
+    transition:background .18s, border-color .18s, color .18s;
+
+}
+
+
+.back-button::before{
+
+    content:none;
+
+}
+
+
+.back-button:hover{
+
+    border-color:var(--azul);
+
+    background:var(--azul);
+
+    color:#ffffff;
+
+    transform:none;
+
+}
+
+
+
+/* =====================================================
+   RODAPÉ
+===================================================== */
+
+.login{
+
+    margin-top:16px;
+
+    padding-top:14px;
+
+    border-top:1px solid var(--risco);
+
+    opacity:1;
+
+    color:var(--fraco);
+
+    font-family:var(--mono);
+
+    font-size:10px;
+
+    letter-spacing:.1em;
+
+    text-align:center;
+
+    text-transform:uppercase;
+
+}
+
+
+.login a{
+
+    color:var(--azul-claro);
+
+    text-decoration:none;
+
+    border-bottom:1px solid rgba(140, 194, 255, .35);
+
+    transition:border-color .18s;
+
+}
+
+
+.login a:hover{
+
+    border-bottom-color:var(--azul-claro);
+
+}
+
+
+
+/* =====================================================
+   RESPONSIVO
+===================================================== */
+
+@media (max-width:520px){
+
+    body{
+
+        padding:18px 14px;
+
+    }
+
+    .card{
+
+        padding:20px 18px 22px;
+
+    }
+
+    h2{
+
+        max-width:none;
+
+        font-size:22px;
+
+    }
+
+    .row{
+
+        flex-direction:column;
+
+        gap:14px;
+
+    }
+
+}
+
+
+/* telas baixas */
+@media (max-height:700px){
+
+    .card{ padding:18px 22px 20px; }
+
+    h2{ margin-top:8px; font-size:22px; }
+
+    .subtitle{ margin-bottom:16px; }
+
+    form{ gap:11px; }
+
+    input{ height:40px; }
+
+}
+
+
+
+/* =====================================================
+   ACESSIBILIDADE
+===================================================== */
+
+@media (prefers-reduced-motion:reduce){
+
+    *{
+
+        animation:none !important;
+
+        transition:none !important;
+
+    }
+
+}
+
+
+@media (forced-colors:active){
+
+    .card,
+    input,
+    button,
+    .back-button{
+
+        border:1px solid CanvasText;
+
+    }
+
 }

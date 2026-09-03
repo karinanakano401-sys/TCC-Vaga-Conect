@@ -31,17 +31,12 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 <header class="navbar">
 
 
-<div class="logo">
-
-<a href="TelaUsuario.html" class="logo">
-
-<i class="fa-solid fa-layer-group"></i>
-
-<span>Vaga</span>Connect
-
-</a>
-
-</div>
+        <div class="logo">
+            <a href="TelaUsuario.html" class="logo"></a>
+            <i class="fa-solid fa-layer-group"></i>
+            <span>Vaga</span>Connect
+            </a>
+        </div>
 
 
 
@@ -692,8 +687,9 @@ Legenda
 
 
 
-
 <script>
+    
+    
 
 
 // ============================================
@@ -712,6 +708,222 @@ const spotType = document.getElementById("spotType");
 
 const spotPrice = document.getElementById("spotPrice");
 
+
+// ============================================
+// AVISOS BONITOS  (cole este bloco logo no
+// começo do <script>, antes das REFERÊNCIAS)
+// ============================================
+
+(function(){
+
+    const css = document.createElement("style");
+
+    css.textContent = `
+    .vc-avisos{
+        position:fixed; top:66px; right:18px; z-index:9999;
+        display:flex; flex-direction:column; gap:10px;
+        width:min(330px, calc(100vw - 36px)); pointer-events:none;
+    }
+    .vc-aviso{
+        position:relative; display:grid;
+        grid-template-columns:32px 1fr 20px; gap:11px; align-items:start;
+        padding:12px 12px 14px;
+        border:1px solid rgba(126,178,232,.2);
+        border-left:3px solid var(--c);
+        border-radius:12px;
+        background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0)), #0c2440;
+        box-shadow:0 18px 42px rgba(0,0,0,.5);
+        color:#eaf3ff; font-family:'Poppins',sans-serif;
+        pointer-events:auto; overflow:hidden;
+        opacity:0; transform:translateX(16px) scale(.98);
+        transition:opacity .22s, transform .22s cubic-bezier(.2,.9,.3,1.25);
+    }
+    .vc-aviso.on{ opacity:1; transform:none; }
+    .vc-aviso.off{ opacity:0; transform:translateX(16px) scale(.98); }
+    .vc-ico{
+        width:32px; height:32px; display:grid; place-items:center;
+        border-radius:9px; background:var(--f); color:var(--c); font-size:14px;
+    }
+    .vc-aviso b{ display:block; color:var(--c); font-size:12.5px; margin-bottom:2px; }
+    .vc-aviso p{ color:#dceaf8; font-size:12.5px; line-height:1.4; }
+    .vc-aviso small{ display:block; margin-top:4px; color:#a8c1da; font-size:11px; line-height:1.4; }
+    .vc-x{
+        width:20px; height:20px; display:grid; place-items:center;
+        border:none; border-radius:6px; background:none; color:#9fbdd8;
+        font-size:14px; cursor:pointer;
+    }
+    .vc-x:hover{ background:rgba(255,255,255,.08); color:#fff; }
+    .vc-x:focus-visible{ outline:2px solid #7cbaff; outline-offset:2px; }
+    .vc-barra{
+        position:absolute; left:0; right:0; bottom:0; height:3px;
+        background:var(--c); opacity:.7; transform-origin:left;
+        animation:vc-run linear forwards;
+    }
+    .vc-aviso:hover .vc-barra{ animation-play-state:paused; }
+    @keyframes vc-run{ from{transform:scaleX(1)} to{transform:scaleX(0)} }
+    @media (prefers-reduced-motion:reduce){
+        .vc-aviso{transition:none} .vc-barra{animation:none}
+    }
+    @media (max-width:600px){
+        .vc-avisos{ top:auto; bottom:14px; left:14px; right:14px; width:auto; }
+    }`;
+
+    document.head.appendChild(css);
+
+
+    const caixa = document.createElement("div");
+
+    caixa.className = "vc-avisos";
+
+    caixa.setAttribute("role","status");
+
+    caixa.setAttribute("aria-live","polite");
+
+    document.body.appendChild(caixa);
+
+
+    // aparência por tipo
+    const T = {
+        ok:    { c:"#34d399", f:"rgba(52,211,153,.15)",  i:"fa-circle-check" },
+        erro:  { c:"#f87171", f:"rgba(248,113,113,.15)", i:"fa-plug-circle-exclamation" },
+        av:    { c:"#fbbf24", f:"rgba(251,191,36,.15)",  i:"fa-triangle-exclamation" },
+        info:  { c:"#7cbaff", f:"rgba(124,186,255,.15)", i:"fa-circle-info" }
+    };
+
+
+    // cada mensagem desta tela
+    const regras = [
+
+        { re:/já tem uma reserva/i, t:"av", i:"fa-clock",
+          tit:"Reserva em andamento",
+          txt:"Você já tem uma vaga reservada esperando por você.",
+          dica:"Confirme sua chegada no pátio para poder reservar outra." },
+
+        { re:/já foi reservada/i, t:"av", i:"fa-lock",
+          tit:"Vaga já reservada",
+          txt:"Outra pessoa reservou essa vaga.",
+          dica:"As vagas com borda verde estão livres." },
+
+        { re:/está ocupada/i, t:"av", i:"fa-ban",
+          tit:"Vaga ocupada",
+          txt:"Já tem um carro nessa vaga.",
+          dica:"Escolha uma vaga com borda verde no mapa." },
+
+        { re:/escolha um estacionamento/i, t:"info", i:"fa-location-dot",
+          tit:"Falta escolher o local",
+          txt:"Nenhum estacionamento selecionado.",
+          dica:"Clique em um da lista à esquerda." },
+
+        { re:/escolha uma vaga/i, t:"info", i:"fa-car",
+          tit:"Falta escolher a vaga",
+          txt:"Você ainda não marcou nenhuma vaga.",
+          dica:"Toque em uma vaga livre no mapa." },
+
+        { re:/^vaga .* selecionada/i, t:"ok", i:"fa-circle-check",
+          tit:"Vaga reservada",
+          dica:"Agora é só revisar os detalhes e confirmar." },
+
+        { re:/erro|não foi possível|servidor/i, t:"erro", i:"fa-plug-circle-exclamation",
+          tit:"Sem conexão com o servidor",
+          dica:"Confira se o back-end está rodando em localhost:3333." }
+    ];
+
+
+    function aviso(msg){
+
+        const r = regras.find(x => x.re.test(String(msg))) || {};
+
+        const tipo = T[r.t] || T.info;
+
+        const tempo = r.t === "erro" ? 6500 : 4500;
+
+
+        const el = document.createElement("div");
+
+        el.className = "vc-aviso";
+
+        el.style.setProperty("--c", tipo.c);
+
+        el.style.setProperty("--f", tipo.f);
+
+        el.innerHTML = `
+            <div class="vc-ico" aria-hidden="true"><i class="fa-solid ${r.i || tipo.i}"></i></div>
+            <div><b></b><p></p><small></small></div>
+            <button class="vc-x" type="button" aria-label="Fechar aviso">&times;</button>
+            <div class="vc-barra" style="animation-duration:${tempo}ms"></div>`;
+
+        el.querySelector("b").textContent = r.tit || "VagaConnect";
+
+        el.querySelector("p").textContent = r.txt || msg;
+
+        const dica = el.querySelector("small");
+
+        if(r.dica) dica.textContent = r.dica; else dica.remove();
+
+
+        function fechar(){
+
+            if(el.classList.contains("off")) return;
+
+            el.classList.add("off");
+
+            setTimeout(()=> el.remove(), 240);
+
+        }
+
+        el.onclick = fechar;
+
+        caixa.appendChild(el);
+
+        requestAnimationFrame(()=> el.classList.add("on"));
+
+
+        let t = setTimeout(fechar, tempo);
+
+        el.addEventListener("mouseenter", ()=> clearTimeout(t));
+
+        el.addEventListener("mouseleave", ()=> { t = setTimeout(fechar, 1500); });
+
+
+        while(caixa.children.length > 3) caixa.firstElementChild.remove();
+
+    }
+
+
+    // "Vaga X selecionada!" é seguido de redirect:
+    // guarda e mostra já na tela seguinte
+    try{
+
+        const guardado = JSON.parse(sessionStorage.getItem("vcAviso"));
+
+        sessionStorage.removeItem("vcAviso");
+
+        if(guardado && guardado.de !== location.href && Date.now() - guardado.q < 6000){
+
+            setTimeout(()=> aviso(guardado.m), 200);
+
+        }
+
+    }catch(e){}
+
+
+    window.alert = function(msg){
+
+        try{
+
+            sessionStorage.setItem("vcAviso", JSON.stringify({
+
+                m:String(msg), de:location.href, q:Date.now()
+
+            }));
+
+        }catch(e){}
+
+        aviso(msg);
+
+    };
+
+})();
 
 
 function mostrarPreco(valor){
@@ -772,6 +984,65 @@ if(!usuarioLogado){
 
 
 let estacionamentos = [];
+
+// ============================================
+// RESERVA AINDA NÃO CONFIRMADA
+// ============================================
+
+// Enquanto a reserva estiver com um destes status, o
+// usuário não pode reservar outra vaga.
+// Coloque "Ativa" na lista também se quiser barrar
+// quem já está estacionado.
+const STATUS_QUE_BLOQUEIA = ["Reservada"];
+
+let reservaEmAberto = null;
+
+
+async function carregarReservaEmAberto(){
+
+    const resposta = await fetch(api + "/reservacli");
+
+    const lista = await resposta.json();
+
+    if(!resposta.ok) return;
+
+    reservaEmAberto = lista.find(item =>
+
+        item.fk_idCliente === usuarioLogado.id &&
+
+        STATUS_QUE_BLOQUEIA.includes(item.reserva?.status)
+
+    ) || null;
+
+}
+
+
+function mostrarBloqueio(){
+
+    if(!reservaEmAberto) return;
+
+    const numero = reservaEmAberto.reserva.vaga.numero;
+
+    const aviso = document.createElement("div");
+
+    aviso.className = "aviso-reserva";
+
+    aviso.innerHTML = `
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <div>
+            <strong>Você já tem uma reserva em andamento</strong>
+            <span>Vaga ${numero} — confirme sua chegada no pátio para reservar outra.</span>
+        </div>
+        <a href="TelaReserAndamento.html">Ver minha reserva</a>
+    `;
+
+    document.querySelector(".legend").after(aviso);
+
+    btnSelecionar.disabled = true;
+
+    btnSelecionar.textContent = "Reserva em andamento";
+
+}
 
 
 
@@ -1360,6 +1631,7 @@ buscarEstacionamento.addEventListener("keyup",()=>{
 
 
         await carregarEstacionamentos();
+        await carregarReservaEmAberto();
 
 
     } catch (error) {
@@ -1409,6 +1681,8 @@ buscarEstacionamento.addEventListener("keyup",()=>{
 
     }
 
+        mostrarBloqueio();
+
 
 })();
 
@@ -1422,23 +1696,30 @@ buscarEstacionamento.addEventListener("keyup",()=>{
 // SELECIONAR VAGA
 // ============================================
 
-
 function selecionar(vaga,elemento){
 
+    if(reservaEmAberto){
 
-
-    if(vaga.status==="occupied"){
-
-
-        alert(
-
-            "Esta vaga está ocupada."
-
-        );
-
+        alert("Você já tem uma reserva aguardando sua chegada. Confirme a presença no pátio para reservar outra vaga.");
 
         return;
 
+    }
+
+
+    if(vaga.status !== "free"){
+
+        alert(
+
+            vaga.status === "occupied"
+
+            ? "Esta vaga está ocupada."
+
+            : "Esta vaga já foi reservada por outra pessoa."
+
+        );
+
+        return;
 
     }
 

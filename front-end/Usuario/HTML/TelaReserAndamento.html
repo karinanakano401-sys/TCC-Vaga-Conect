@@ -95,6 +95,291 @@ Solicitar prorrogação
 
 <script>
 
+    // ============================================
+// CONFIRMAÇÕES E AVISOS BONITOS
+// Cole este bloco logo no começo do <script>,
+// antes da seção CONFIGURAÇÃO.
+//
+// Não usa Font Awesome: os símbolos são feitos
+// no próprio CSS.
+// ============================================
+
+(function(){
+
+    const css = document.createElement("style");
+
+    css.textContent = `
+    /* ---------- janela de confirmação ---------- */
+
+    .vc-fundo{
+        position:fixed; inset:0; z-index:10000;
+        display:grid; place-items:center; padding:20px;
+        background:rgba(4,12,24,.72);
+        backdrop-filter:blur(4px);
+        opacity:0; transition:opacity .18s ease;
+        font-family:'Poppins', sans-serif;
+    }
+    .vc-fundo.on{ opacity:1; }
+
+    .vc-modal{
+        width:min(360px, 100%);
+        padding:24px 22px 18px;
+        border:1px solid rgba(126,178,232,.2);
+        border-radius:16px;
+        background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0) 130px), #0b2138;
+        box-shadow:0 28px 60px rgba(0,0,0,.55);
+        color:#e8f2ff; text-align:center;
+        transform:translateY(12px) scale(.97);
+        transition:transform .22s cubic-bezier(.2,.9,.3,1.25);
+    }
+    .vc-fundo.on .vc-modal{ transform:none; }
+
+    .vc-simbolo{
+        width:52px; height:52px; margin:0 auto 14px;
+        display:grid; place-items:center;
+        border:1px solid var(--c); border-radius:50%;
+        background:var(--f); color:var(--c);
+        font-size:24px; font-weight:600; line-height:1;
+    }
+
+    .vc-modal h3{ font-size:16.5px; font-weight:600; margin-bottom:6px; }
+    .vc-modal p{ color:#93aecb; font-size:12.5px; line-height:1.55; margin-bottom:20px; }
+
+    .vc-botoes{ display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+
+    .vc-botoes button{
+        height:42px; border-radius:11px; border:1px solid transparent;
+        font-family:inherit; font-size:13px; font-weight:600; cursor:pointer;
+        transition:background .18s, border-color .18s, color .18s;
+    }
+    .vc-nao{ border-color:rgba(126,178,232,.3); background:transparent; color:#dceaf8; }
+    .vc-nao:hover{ background:rgba(111,180,255,.12); }
+
+    .vc-sim{ background:var(--c); color:#06182d; }
+    .vc-sim:hover{ filter:brightness(1.12); }
+
+    .vc-botoes button:focus-visible{ outline:3px solid #6fb4ff; outline-offset:2px; }
+
+
+    /* ---------- avisos ---------- */
+
+    .vc-avisos{
+        position:fixed; top:18px; right:18px; z-index:10001;
+        display:flex; flex-direction:column; gap:10px;
+        width:min(320px, calc(100vw - 36px)); pointer-events:none;
+    }
+    .vc-aviso{
+        position:relative; padding:13px 14px 15px 15px;
+        border:1px solid rgba(126,178,232,.2);
+        border-left:3px solid var(--c);
+        border-radius:12px;
+        background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0)), #0b2138;
+        box-shadow:0 18px 40px rgba(0,0,0,.5);
+        color:#e8f2ff; font-family:'Poppins', sans-serif;
+        pointer-events:auto; overflow:hidden; cursor:pointer;
+        opacity:0; transform:translateX(16px);
+        transition:opacity .2s, transform .2s;
+    }
+    .vc-aviso.on{ opacity:1; transform:none; }
+    .vc-aviso b{ display:block; color:var(--c); font-size:12.5px; margin-bottom:2px; }
+    .vc-aviso span{ display:block; color:#cfe0f2; font-size:12.5px; line-height:1.45; }
+    .vc-barra{
+        position:absolute; left:0; right:0; bottom:0; height:3px;
+        background:var(--c); opacity:.7; transform-origin:left;
+        animation:vc-run linear forwards;
+    }
+    .vc-aviso:hover .vc-barra{ animation-play-state:paused; }
+    @keyframes vc-run{ from{transform:scaleX(1)} to{transform:scaleX(0)} }
+
+    @media (prefers-reduced-motion:reduce){
+        .vc-fundo,.vc-modal,.vc-aviso{ transition:none; }
+        .vc-barra{ animation:none; }
+    }
+    @media (max-width:600px){
+        .vc-avisos{ top:auto; bottom:14px; left:14px; right:14px; width:auto; }
+    }`;
+
+    document.head.appendChild(css);
+
+
+    const tons = {
+        perigo:  { c:"#f87171", f:"rgba(248,113,113,.13)", s:"!" },
+        aviso:   { c:"#fbbf24", f:"rgba(251,191,36,.13)",  s:"?" },
+        azul:    { c:"#6fb4ff", f:"rgba(111,180,255,.13)", s:"?" },
+        sucesso: { c:"#34d399", f:"rgba(52,211,153,.13)",  s:"✓" }
+    };
+
+
+
+    /* =============================================
+       confirmar({ titulo, texto, sim, nao, tom })
+       devolve uma Promise: true ou false
+    ============================================= */
+
+    window.confirmar = function(op){
+
+        op = op || {};
+
+        const tom = tons[op.tom] || tons.aviso;
+
+
+        return new Promise(function(responder){
+
+            const fundo = document.createElement("div");
+
+            fundo.className = "vc-fundo";
+
+            fundo.style.setProperty("--c", tom.c);
+
+            fundo.style.setProperty("--f", tom.f);
+
+            fundo.innerHTML = `
+                <div class="vc-modal" role="dialog" aria-modal="true" aria-labelledby="vcTit">
+                    <div class="vc-simbolo" aria-hidden="true">${op.simbolo || tom.s}</div>
+                    <h3 id="vcTit"></h3>
+                    <p></p>
+                    <div class="vc-botoes">
+                        <button class="vc-nao" type="button"></button>
+                        <button class="vc-sim" type="button"></button>
+                    </div>
+                </div>`;
+
+            fundo.querySelector("h3").textContent = op.titulo || "Tem certeza?";
+
+            fundo.querySelector("p").textContent  = op.texto  || "";
+
+            const naoBtn = fundo.querySelector(".vc-nao");
+
+            const simBtn = fundo.querySelector(".vc-sim");
+
+            naoBtn.textContent = op.nao || "Voltar";
+
+            simBtn.textContent = op.sim || "Confirmar";
+
+
+            const focoAnterior = document.activeElement;
+
+            document.body.appendChild(fundo);
+
+            requestAnimationFrame(()=> fundo.classList.add("on"));
+
+            naoBtn.focus();
+
+
+            function fechar(valor){
+
+                fundo.classList.remove("on");
+
+                setTimeout(()=> fundo.remove(), 200);
+
+                document.removeEventListener("keydown", tecla);
+
+                if(focoAnterior && focoAnterior.focus) focoAnterior.focus();
+
+                responder(valor);
+
+            }
+
+            function tecla(e){ if(e.key === "Escape") fechar(false); }
+
+            document.addEventListener("keydown", tecla);
+
+            naoBtn.onclick = ()=> fechar(false);
+
+            simBtn.onclick = ()=> fechar(true);
+
+            fundo.onclick  = (e)=> { if(e.target === fundo) fechar(false); };
+
+        });
+
+    };
+
+
+
+    /* =============================================
+       AVISOS  (substituem o alert desta tela)
+    ============================================= */
+
+    const caixa = document.createElement("div");
+
+    caixa.className = "vc-avisos";
+
+    caixa.setAttribute("role","status");
+
+    caixa.setAttribute("aria-live","polite");
+
+    document.body.appendChild(caixa);
+
+
+    const regras = [
+
+        { re:/prorrogada/i,               t:"sucesso", tit:"Reserva prorrogada",
+          txt:"Sua saída prevista foi adiada em 1 hora." },
+
+        { re:/cancelada e vaga liberada/i, t:"sucesso", tit:"Reserva cancelada",
+          txt:"A vaga voltou a ficar disponível." },
+
+        { re:/não foi possível prorrogar/i, t:"perigo", tit:"Não deu para prorrogar" },
+
+        { re:/não foi possível cancelar/i,  t:"perigo", tit:"Não deu para cancelar" },
+
+        { re:/erro|servidor/i,              t:"perigo", tit:"Problema com o servidor",
+          txt:"Confira se o back-end está rodando em localhost:3333." }
+
+    ];
+
+
+    window.alert = function(msg){
+
+        const r = regras.find(x => x.re.test(String(msg))) || {};
+
+        const tom = tons[r.t] || tons.azul;
+
+        const tempo = r.t === "perigo" ? 6000 : 4200;
+
+
+        const el = document.createElement("div");
+
+        el.className = "vc-aviso";
+
+        el.style.setProperty("--c", tom.c);
+
+        el.innerHTML = `<b></b><span></span>
+                        <div class="vc-barra" style="animation-duration:${tempo}ms"></div>`;
+
+        el.querySelector("b").textContent    = r.tit || "VagaConnect";
+
+        el.querySelector("span").textContent = r.txt || String(msg);
+
+
+        function fechar(){
+
+            el.classList.remove("on");
+
+            setTimeout(()=> el.remove(), 220);
+
+        }
+
+        el.onclick = fechar;
+
+        caixa.appendChild(el);
+
+        requestAnimationFrame(()=> el.classList.add("on"));
+
+
+        let t = setTimeout(fechar, tempo);
+
+        el.addEventListener("mouseenter", ()=> clearTimeout(t));
+
+        el.addEventListener("mouseleave", ()=> { t = setTimeout(fechar, 1500); });
+
+
+        while(caixa.children.length > 3) caixa.firstElementChild.remove();
+
+    };
+
+})();
+
 // =====================================================
 // CONFIGURAÇÃO
 // =====================================================

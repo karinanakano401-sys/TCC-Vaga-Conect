@@ -1,23 +1,100 @@
 /* =====================================================
+   VagaConnect · Detalhes da Reserva
+   Folha completa — substitui o TelaDetalhesReserva.css
+   Mesmo HTML. Mesma linguagem visual das outras telas.
+===================================================== */
+
+
+/* =====================================================
+   TOKENS
+===================================================== */
+
+:root{
+
+    --fundo:       #050f1c;
+    --painel:      #08192c;
+    --cartao:      #0c2440;
+    --campo:       #0e2a49;
+
+    --linha-cor:   rgba(126, 178, 232, .15);
+    --linha-forte: rgba(126, 178, 232, .32);
+
+    --texto:       #eaf3ff;
+    --apagado:     #a8c1da;
+
+    --azul:        #2472f5;
+    --azul-claro:  #7cbaff;
+
+    --verde:       #34d399;
+    --ambar:       #fbbf24;
+
+    --raio:        13px;
+    --raio-p:      9px;
+
+}
+
+
+
+/* =====================================================
    RESET
 ===================================================== */
 
 *{
+
     margin:0;
     padding:0;
     box-sizing:border-box;
+
+}
+
+
+html{
+
+    -webkit-text-size-adjust:100%;
+
 }
 
 
 body{
 
-    margin:0;
-    padding:0;
     width:100%;
+
     min-height:100vh;
-    background:#031426;
-    font-family:'Poppins',sans-serif;
-    color:white;
+
+    font-family:'Poppins', system-ui, sans-serif;
+
+    font-size:13px;
+
+    color:var(--texto);
+
+    background:
+        radial-gradient(820px 460px at 12% -10%, rgba(36, 114, 245, .18), transparent 62%),
+        radial-gradient(660px 380px at 100% 0%, rgba(124, 186, 255, .08), transparent 58%),
+        var(--fundo);
+
+    background-attachment:fixed;
+
+    -webkit-font-smoothing:antialiased;
+
+}
+
+
+::selection{
+
+    background:rgba(36, 114, 245, .35);
+
+}
+
+
+button:focus-visible,
+input:focus-visible,
+a:focus-visible{
+
+    outline:3px solid var(--azul-claro);
+
+    outline-offset:2px;
+
+    border-radius:8px;
 
 }
 
@@ -27,7 +104,6 @@ body{
    CONTAINER
 ===================================================== */
 
-
 .container{
 
     width:100%;
@@ -38,7 +114,9 @@ body{
 
     justify-content:center;
 
-    padding:30px;
+    align-items:flex-start;
+
+    padding:22px 20px 28px;
 
 }
 
@@ -48,22 +126,27 @@ body{
    CARD PRINCIPAL
 ===================================================== */
 
-
 .card{
 
     width:100%;
 
-    min-height:100vh;
+    max-width:900px;
 
-    border-radius:0;
+    min-height:0;            /* cancela o 100vh antigo */
 
-    background:#061a30;
+    padding:20px 22px 22px;
 
-    padding:25px;
+    border:1px solid var(--linha-cor);
+
+    border-radius:18px;
+
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, 0) 150px),
+        var(--painel);
+
+    box-shadow:0 22px 52px rgba(0, 0, 0, .45);
 
 }
-
-
 
 
 
@@ -71,59 +154,72 @@ body{
    CABEÇALHO
 ===================================================== */
 
-
 .header{
 
     display:flex;
 
     align-items:center;
 
-    gap:20px;
+    gap:12px;
 
-    margin-bottom:25px;
+    margin-bottom:16px;
+
+    padding-bottom:14px;
+
+    border-bottom:1px solid var(--linha-cor);
 
 }
-
 
 
 .header h2{
 
-    font-size:20px;
+    font-size:17px;
 
     font-weight:600;
 
-}
+    letter-spacing:-.2px;
 
+}
 
 
 #voltar{
 
+    width:36px;
 
-    width:40px;
+    height:36px;
 
-    height:40px;
+    flex:0 0 auto;
 
-    border:none;
+    display:grid;
+
+    place-items:center;
+
+    border:1px solid var(--linha-forte);
 
     border-radius:10px;
 
-    background:#132b4d;
+    background:rgba(255, 255, 255, .03);
 
-    color:white;
+    color:#ffffff;
 
-    font-size:22px;
+    font-size:17px;
+
+    line-height:1;
 
     cursor:pointer;
+
+    transition:background .18s, border-color .18s, transform .18s;
 
 }
 
 
-
 #voltar:hover{
 
+    background:rgba(36, 114, 245, .2);
 
-    background:#1e3a66;
+    border-color:var(--azul);
 
+    transform:translateX(-2px);
 
 }
 
@@ -133,98 +229,161 @@ body{
    ESTACIONAMENTO
 ===================================================== */
 
-
 .parking{
-
 
     display:flex;
 
-    gap:15px;
+    align-items:center;
 
-    background:#102540;
+    gap:12px;
 
-    padding:15px;
+    margin-bottom:12px;
 
-    border-radius:14px;
+    padding:13px 15px;
 
-    margin-bottom:20px;
+    border:1px solid var(--linha-cor);
 
+    border-radius:var(--raio);
 
-}
-
-
-
-.parking img{
-
-
-    width:85px;
-
-    height:70px;
-
-    border-radius:10px;
-
-    object-fit:cover;
-
+    background:
+        radial-gradient(420px 140px at 100% 0%, rgba(36, 114, 245, .14), transparent 65%),
+        var(--cartao);
 
 }
 
+
+/* marca do estacionamento, no mesmo estilo da tela do mapa */
+.parking::before{
+
+    content:"P";
+
+    flex:0 0 auto;
+
+    width:38px;
+
+    height:38px;
+
+    display:grid;
+
+    place-items:center;
+
+    border-radius:11px;
+
+    background:linear-gradient(135deg, #3a85ff, #1b5ed8);
+
+    color:#ffffff;
+
+    font-size:17px;
+
+    font-weight:700;
+
+}
 
 
 .parking h3{
 
+    margin-bottom:2px;
 
-    font-size:16px;
+    font-size:15.5px;
 
+    font-weight:600;
+
+    letter-spacing:-.2px;
 
 }
-
 
 
 .parking p{
 
+    color:var(--apagado);
 
-    color:#9db0cc;
+    font-size:12px;
 
-    font-size:13px;
-
+    line-height:1.4;
 
 }
 
 
+.parking p:last-child{
+
+    color:#87a3c0;
+
+    font-size:11px;
+
+}
 
 
 
 /* =====================================================
    BOXES
+   Cada bloco vira um grid de 2 colunas: as linhas de
+   dados ficam lado a lado e a tela encurta pela metade.
 ===================================================== */
-
 
 .box{
 
+    display:grid;
 
-    background:#102540;
+    grid-template-columns:1fr 1fr;
 
-    border-radius:14px;
+    gap:8px;
 
-    padding:18px;
+    margin-bottom:12px;
 
-    margin-bottom:18px;
+    padding:14px 15px;
 
+    border:1px solid var(--linha-cor);
+
+    border-radius:var(--raio);
+
+    background:var(--cartao);
 
 }
 
 
+.box h3,
+.box .spot-info,
+.box .vehicle,
+.box > h4,
+.box > div[id]{
+
+    grid-column:1 / -1;
+
+}
+
 
 .box h3{
 
+    display:flex;
 
-    font-size:15px;
+    align-items:center;
 
-    margin-bottom:15px;
+    gap:8px;
+
+    margin-bottom:2px;
+
+    color:#dceaf8;
+
+    font-size:13px;
+
+    font-weight:600;
+
+    letter-spacing:.2px;
+
+}
 
 
-    color:#d9e5f7;
+.box h3::before{
 
+    content:"";
+
+    width:3px;
+
+    height:13px;
+
+    border-radius:2px;
+
+    background:var(--azul-claro);
 
 }
 
@@ -234,480 +393,291 @@ body{
    VAGA
 ===================================================== */
 
-
 .spot-info{
-
 
     display:flex;
 
     align-items:center;
 
-    gap:15px;
+    gap:13px;
 
+    padding:4px 0 6px;
 
 }
-
 
 
 .icon{
 
+    width:46px;
 
-    width:50px;
+    height:46px;
 
-    height:50px;
+    flex:0 0 auto;
 
+    display:grid;
 
-    background:#0b1220;
+    place-items:center;
 
+    border:1px solid var(--linha-forte);
 
-    border-radius:12px;
+    border-radius:13px;
 
+    background:linear-gradient(160deg, #123256, #0a1c31);
 
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-
-    font-size:28px;
-
-
-    border:1px solid #31517d;
-
+    font-size:24px;
 
 }
-
 
 
 .spot-info h2{
 
-
     font-size:17px;
 
+    font-weight:600;
 
 }
 
+
+.spot-info h2 span{
+
+    color:var(--azul-claro);
+
+}
 
 
 .spot-info p{
 
+    margin-top:2px;
 
-    color:#7fa0c8;
+    color:var(--apagado);
 
-    font-size:13px;
-
+    font-size:12px;
 
 }
-
-
 
 
 
 /* =====================================================
-   LINHAS
+   LINHAS DE DADOS
+   O HTML tem margens inline (margin-top / margin-bottom),
+   por isso o !important: quem espaça agora é o gap.
 ===================================================== */
-
 
 .linha{
 
+    display:flex !important;
 
-    display:flex;
+    flex-direction:column;
 
-    justify-content:space-between;
+    align-items:flex-start;
 
-    align-items:center;
+    justify-content:center;
 
-    margin-bottom:18px;
+    gap:3px;
 
+    min-width:0;
+
+    margin:0 !important;
+
+    padding:9px 11px;
+
+    border:1px solid var(--linha-cor);
+
+    border-radius:var(--raio-p);
+
+    background:var(--campo);
 
 }
-
 
 
 .linha span{
 
-
     display:block;
 
-    color:#8fa6c6;
+    color:var(--apagado);
 
-    font-size:12px;
-
+    font-size:11px;
 
 }
-
 
 
 .linha strong{
 
-
-    font-size:14px;
-
-
-}
-
-
-
-.linha button{
-
-
-    border:none;
-
-    background:none;
-
-    color:#3280ff;
-
-    cursor:pointer;
+    max-width:100%;
 
     font-size:13px;
 
+    font-weight:500;
+
+    line-height:1.35;
+
+    text-align:left;
+
+    word-break:break-word;
 
 }
-
-
 
 
 
 /* =====================================================
-   VEÍCULO
+   VEÍCULO E BOTÕES DE AÇÃO
 ===================================================== */
 
-
 .vehicle{
-
 
     display:flex;
 
     align-items:center;
 
-    justify-content:space-between;
+    flex-wrap:wrap;
 
+    gap:11px;
+
+    padding:2px 0;
 
 }
-
 
 
 .car-icon{
 
+    width:40px;
 
-    width:45px;
+    height:40px;
 
-    height:45px;
+    flex:0 0 auto;
 
-    background:#142f55;
+    display:grid;
+
+    place-items:center;
+
+    border:1px solid var(--linha-forte);
 
     border-radius:50%;
 
-    display:flex;
+    background:linear-gradient(160deg, #143259, #0b2140);
 
-    align-items:center;
-
-    justify-content:center;
-
-
-    font-size:22px;
-
+    font-size:19px;
 
 }
-
 
 
 .vehicle h4{
 
+    font-size:13.5px;
 
-    font-size:14px;
-
+    font-weight:600;
 
 }
-
 
 
 .vehicle p{
 
+    margin-top:2px;
 
-    color:#94a9c7;
+    color:var(--apagado);
 
-    font-size:12px;
+    font-size:11.5px;
 
-
-}
-
-
-
-.vehicle button{
-
-
-    background:none;
-
-    border:none;
-
-    color:#3280ff;
+    letter-spacing:.4px;
 
 }
-
-
-
-
-
-/* =====================================================
-   VALORES
-===================================================== */
-
-
-.values{
-
-
-    background:#0c203b;
-
-    border-radius:15px;
-
-    padding:18px;
-
-    margin-top:10px;
-
-    margin-bottom:20px;
-
-
-}
-
-
-
-.values div{
-
-
-    display:flex;
-
-    justify-content:space-between;
-
-    margin-bottom:12px;
-
-
-}
-
-
-
-.values span{
-
-
-    color:#8fa4c2;
-
-    font-size:13px;
-
-
-}
-
-
-
-.values strong{
-
-
-    font-size:14px;
-
-
-}
-
-
-
-.values div:last-child strong{
-
-
-    color:#fff;
-
-    font-size:18px;
-
-
-}
-
-
-
-
-
-/* =====================================================
-   BOTÃO PAGAMENTO
-===================================================== */
-
-
-#pagamento{
-
-
-    width:100%;
-
-    height:50px;
-
-    border:none;
-
-
-    border-radius:12px;
-
-
-    background:#1559d6;
-
-
-    color:white;
-
-
-    font-size:16px;
-
-
-    font-weight:600;
-
-
-    cursor:pointer;
-
-
-    transition:.3s;
-
-
-}
-
-
-
-#pagamento:hover{
-
-
-    background:#2875ff;
-
-    transform:translateY(-2px);
-
-
-}
-
-
-
-
-
-/* =====================================================
-   RESPONSIVIDADE
-===================================================== */
-
-
-@media(max-width:500px){
-
-
-.container{
-
-
-    padding:15px;
-
-
-}
-
-
-
-.card{
-
-
-    width:100%;
-
-
-    padding:20px;
-
-
-}
-
-
-.parking{
-
-
-    flex-direction:column;
-
-
-}
-
-
-}
-
-/* =====================================================
-   ALTERAÇÃO DE HORÁRIO
-===================================================== */
-
-
-.vehicle{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:15px;
-
-}
-
-
-
-#novoHorario,
-#novaData,
-#novaSaida{
-
-    background:#0b223d;
-
-    border:1px solid #1d4ed8;
-
-    color:white;
-
-    padding:10px;
-
-    border-radius:8px;
-
-    font-family:'Poppins';
-
-    font-size:13px;
-
-}
-
-
-
-.linha strong{
-
-    text-align:right;
-
-    max-width:60%;
-
-}
-
-
-
 
 
 #alterarHorario,
 #salvarHorario,
 #alterarVeiculo{
 
+    height:34px;
 
-    background:#1559d6;
+    margin-left:auto;
 
-    color:white;
+    padding:0 14px;
 
-    border:none;
+    border:1px solid var(--linha-forte);
 
-    padding:8px 15px;
+    border-radius:9px;
 
-    border-radius:8px;
+    background:rgba(36, 114, 245, .14);
 
-    cursor:pointer;
+    color:#cfe4fa;
 
-    font-family:'Poppins';
+    font-family:inherit;
 
     font-size:12px;
 
-    transition:.3s;
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:background .18s, border-color .18s, color .18s;
 
 }
-
 
 
 #alterarHorario:hover,
-#salvarHorario:hover,
 #alterarVeiculo:hover{
 
+    border-color:var(--azul-claro);
 
-    background:#2875ff;
+    background:rgba(36, 114, 245, .26);
+
+    color:#ffffff;
 
 }
 
 
+#salvarHorario{
+
+    border-color:transparent;
+
+    background:linear-gradient(180deg, #3a85ff, var(--azul));
+
+    color:#ffffff;
+
+}
 
 
+#salvarHorario:hover{
+
+    background:linear-gradient(180deg, #519aff, #2a7bff);
+
+}
+
+
+#novaData,
+#novoHorario,
+#novaSaida{
+
+    height:36px;
+
+    padding:0 10px;
+
+    border:1px solid var(--linha-forte);
+
+    border-radius:var(--raio-p);
+
+    background:var(--campo);
+
+    color:var(--texto);
+
+    font-family:inherit;
+
+    font-size:12.5px;
+
+    color-scheme:dark;          /* calendário e relógio no tema escuro */
+
+}
+
+
+#novaData:focus,
+#novoHorario:focus,
+#novaSaida:focus{
+
+    border-color:var(--azul-claro);
+
+    outline:none;
+
+}
 
 
 
@@ -715,178 +685,352 @@ body{
    LISTA DE CARROS
 ===================================================== */
 
-
 #listaCarrosReserva{
 
+    margin-top:6px;
 
-    margin-top:20px;
+    padding:13px;
 
+    border:1px solid var(--linha-cor);
 
-    background:#0b223d;
+    border-radius:var(--raio-p);
 
+    background:rgba(6, 24, 41, .6);
 
-    padding:15px;
-
-
-    border-radius:12px;
-
-
-    border:1px solid rgba(255,255,255,.08);
-
+    animation:abrir .25s ease;
 
 }
-
 
 
 #listaCarrosReserva h4{
 
+    margin-bottom:10px;
 
-    margin-bottom:12px;
+    font-size:12.5px;
 
+    font-weight:600;
 
-    font-size:14px;
-
+    color:var(--apagado);
 
 }
-
-
-
-
 
 
 #opcoesCarros{
 
+    display:grid;
 
-    display:flex;
+    grid-template-columns:repeat(auto-fill, minmax(180px, 1fr));
 
-
-    flex-direction:column;
-
-
-    gap:10px;
-
+    gap:8px;
 
 }
-
-
-
-
 
 
 .opcaoCarro{
 
-
     width:100%;
 
+    padding:11px 12px;
 
-    background:#061a30;
+    border:1px solid var(--linha-cor);
 
+    border-radius:var(--raio-p);
 
-    color:white;
+    background:var(--campo);
 
+    color:var(--texto);
 
-    border:1px solid rgba(255,255,255,.12);
+    font-family:inherit;
 
-
-    border-radius:10px;
-
-
-    padding:12px;
-
+    font-size:12.5px;
 
     text-align:left;
 
+    line-height:1.4;
 
     cursor:pointer;
 
-
-    font-family:'Poppins';
-
-
-    font-size:13px;
-
-
-    transition:.3s;
-
+    transition:background .18s, border-color .18s, transform .12s;
 
 }
-
-
-
-
 
 
 .opcaoCarro:hover{
 
+    border-color:var(--azul);
 
-    background:#1559d6;
-
+    background:rgba(36, 114, 245, .2);
 
     transform:translateY(-2px);
 
-
 }
-
-
-
-
 
 
 .opcaoCarro small{
 
+    display:block;
 
-    color:#91a7c6;
+    margin-top:2px;
 
+    color:var(--apagado);
 
     font-size:11px;
 
+    letter-spacing:.4px;
 
 }
 
 
+#opcoesCarros p{
 
+    color:var(--apagado);
 
-
-
-/* =====================================================
-   ANIMAÇÃO DA ABERTURA
-===================================================== */
-
-
-#listaCarrosReserva{
-
-
-    animation:abrir .3s ease;
-
+    font-size:12px;
 
 }
-
-
 
 
 @keyframes abrir{
 
+    from { opacity:0; transform:translateY(-8px); }
 
-    from{
+    to   { opacity:1; transform:none; }
+
+}
 
 
-        opacity:0;
 
-        transform:translateY(-10px);
+/* =====================================================
+   VALORES
+===================================================== */
 
+.values{
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:10px;
+
+    margin:14px 0 14px;
+
+    padding:14px 15px;
+
+    border:1px solid rgba(52, 211, 153, .22);
+
+    border-radius:var(--raio);
+
+    background:
+        radial-gradient(420px 150px at 100% 0%, rgba(52, 211, 153, .1), transparent 65%),
+        var(--cartao);
+
+}
+
+
+.values div{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:3px;
+
+    margin-bottom:0;
+
+}
+
+
+.values span{
+
+    color:var(--apagado);
+
+    font-size:11.5px;
+
+}
+
+
+.values strong{
+
+    font-size:15px;
+
+    font-weight:600;
+
+    font-variant-numeric:tabular-nums;
+
+}
+
+
+.values div:last-child{
+
+    align-items:flex-end;
+
+    text-align:right;
+
+}
+
+
+.values div:last-child strong{
+
+    color:var(--verde);
+
+    font-size:22px;
+
+}
+
+
+
+/* =====================================================
+   BOTÃO DE PAGAMENTO
+===================================================== */
+
+#pagamento{
+
+    width:100%;
+
+    height:48px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:linear-gradient(180deg, #3a85ff, var(--azul));
+
+    color:#ffffff;
+
+    font-family:inherit;
+
+    font-size:14px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    box-shadow:0 12px 26px rgba(36, 114, 245, .3);
+
+    transition:background .18s, box-shadow .18s, transform .12s;
+
+}
+
+
+#pagamento:hover{
+
+    background:linear-gradient(180deg, #519aff, #2a7bff);
+
+    box-shadow:0 14px 30px rgba(36, 114, 245, .4);
+
+    transform:translateY(-2px);
+
+}
+
+
+#pagamento:active{
+
+    transform:translateY(0);
+
+}
+
+
+
+/* =====================================================
+   RESPONSIVO
+===================================================== */
+
+@media (max-width:640px){
+
+    .container{
+
+        padding:14px 12px 20px;
 
     }
 
+    .card{
 
-    to{
+        padding:16px 14px 18px;
 
-
-        opacity:1;
-
-        transform:translateY(0);
-
+        border-radius:15px;
 
     }
 
+    .box{
+
+        grid-template-columns:1fr;
+
+        padding:13px;
+
+    }
+
+    .parking{
+
+        align-items:flex-start;
+
+    }
+
+    .vehicle{
+
+        align-items:flex-start;
+
+    }
+
+    #alterarHorario,
+    #salvarHorario,
+    #alterarVeiculo{
+
+        margin-left:0;
+
+    }
+
+    .values{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .values div:last-child{
+
+        align-items:flex-start;
+
+        text-align:left;
+
+    }
+
+}
+
+
+
+/* =====================================================
+   ACESSIBILIDADE
+===================================================== */
+
+@media (prefers-reduced-motion:reduce){
+
+    *{
+
+        animation:none !important;
+
+        transition:none !important;
+
+    }
+
+    #pagamento:hover,
+    .opcaoCarro:hover,
+    #voltar:hover{
+
+        transform:none;
+
+    }
+
+}
+
+
+@media (forced-colors:active){
+
+    .box,
+    .linha,
+    .values,
+    .opcaoCarro{
+
+        border:1px solid CanvasText;
+
+    }
 
 }

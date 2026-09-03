@@ -1,50 +1,124 @@
 /* =====================================================
-   RESET
+   VagaConnect · Reserva Confirmada
+   Mesma direção visual das outras telas:
+   fundo escuro com malha técnica, cantos retos,
+   linhas de 1px no lugar de sombras e rótulos em
+   monoespaçada.
+   Mesmas classes do HTML atual.
 ===================================================== */
 
+
+/* =====================================================
+   TOKENS
+===================================================== */
+
+:root{
+
+    --tinta:       #030b16;
+    --superficie:  #071426;
+    --elevado:     #0a1d33;
+
+    --risco:       rgba(120, 170, 220, .16);
+    --risco-forte: rgba(120, 170, 220, .34);
+
+    --texto:       #e9f2fc;
+    --apagado:     #93aec9;
+    --fraco:       #6d89a6;
+
+    --azul:        #2f7dff;
+    --azul-claro:  #8cc2ff;
+
+    --verde:       #3ddc97;
+    --vermelho:    #ff7a7a;
+
+    --mono:        ui-monospace, 'SF Mono', 'Roboto Mono', 'Consolas', monospace;
+
+}
+
+
+
+/* =====================================================
+   BASE
+===================================================== */
 
 *{
 
     margin:0;
-
     padding:0;
-
     box-sizing:border-box;
 
 }
 
 
+html{
 
-
-
-body{
-
-
-    font-family:'Poppins',sans-serif;
-
-
-    background:#061426;
-
-
-    color:white;
-
-
-    min-height:100vh;
-
-
-    display:flex;
-
-
-    justify-content:center;
-
-
-    align-items:center;
-
+    -webkit-text-size-adjust:100%;
 
 }
 
 
+body{
 
+    min-height:100vh;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-family:'Poppins', 'Segoe UI', system-ui, sans-serif;
+
+    font-size:13px;
+
+    color:var(--texto);
+
+    background:
+        repeating-linear-gradient(0deg,   rgba(120,170,220,.045) 0 1px, transparent 1px 68px),
+        repeating-linear-gradient(90deg,  rgba(120,170,220,.045) 0 1px, transparent 1px 68px),
+        linear-gradient(180deg, #06182c 0%, var(--tinta) 60%);
+
+    background-attachment:fixed;
+
+    -webkit-font-smoothing:antialiased;
+
+}
+
+
+/* fio de luz no topo */
+body::before{
+
+    content:"";
+
+    position:fixed;
+
+    top:0;
+    left:0;
+    right:0;
+
+    height:2px;
+
+    z-index:5;
+
+    background:linear-gradient(90deg, transparent, var(--azul) 25%, var(--azul-claro) 50%, var(--azul) 75%, transparent);
+
+}
+
+
+::selection{
+
+    background:rgba(47, 125, 255, .35);
+
+}
+
+
+:focus-visible{
+
+    outline:2px solid var(--azul-claro);
+
+    outline-offset:2px;
+
+}
 
 
 
@@ -52,370 +126,282 @@ body{
    CONTAINER
 ===================================================== */
 
-
 .container{
-
 
     width:100%;
 
-
     min-height:100vh;
-
 
     display:flex;
 
-
     justify-content:center;
 
+    align-items:safe center;
 
-    align-items:center;
-
-
-    padding:25px;
-
+    padding:24px 20px;
 
 }
 
 
 
-
-
-
 /* =====================================================
-   CARD PRINCIPAL
+   CARD PRINCIPAL · bloco reto
 ===================================================== */
-
 
 .success-card{
 
+    width:420px;
 
-    width:430px;
+    max-width:100%;
 
+    padding:28px 26px 26px;
 
-    background:#091c33;
+    border:1px solid var(--risco);
 
+    border-radius:0;
 
-    border-radius:22px;
+    background:var(--superficie);
 
-
-    padding:30px;
-
+    box-shadow:none;
 
     text-align:center;
-
-
-    border:1px solid rgba(255,255,255,.08);
-
-
-    box-shadow:
-
-    0 20px 50px rgba(0,0,0,.45);
-
 
 }
 
 
+/* fio verde no topo do bloco: confirmação */
+.success-card{
 
+    border-top:2px solid var(--verde);
 
-
+}
 
 
 
 /* =====================================================
-   ÍCONE SUCESSO
+   ÍCONE DE SUCESSO · quadrado vazado
 ===================================================== */
-
 
 .success-icon{
 
+    width:66px;
 
-    width:80px;
+    height:66px;
 
+    margin:0 auto 18px;
 
-    height:80px;
+    display:grid;
 
+    place-items:center;
 
-    margin:0 auto 20px;
+    border:1px solid rgba(61, 220, 151, .5);
 
+    border-radius:0;
 
-    border-radius:50%;
+    background:rgba(61, 220, 151, .1);
 
+    box-shadow:none;
 
-    background:#16a34a;
+    color:var(--verde);
 
+    font-size:32px;
 
-    display:flex;
+    font-weight:400;
 
-
-    align-items:center;
-
-
-    justify-content:center;
-
-
-    font-size:45px;
-
-
-    font-weight:700;
-
-
-    color:white;
-
-
-    box-shadow:
-
-    0 0 30px rgba(22,163,74,.5);
-
-
-    animation:aparecer .5s;
-
+    animation:aparecer .4s ease-out;
 
 }
-
-
-
 
 
 @keyframes aparecer{
 
+    from { transform:translateY(-6px); opacity:0; }
 
-    from{
-
-
-        transform:scale(.5);
-
-
-        opacity:0;
-
-
-    }
-
-
-    to{
-
-
-        transform:scale(1);
-
-
-        opacity:1;
-
-
-    }
-
+    to   { transform:none;             opacity:1; }
 
 }
-
-
-
 
 
 
 /* =====================================================
-   TITULO
+   TÍTULO
 ===================================================== */
-
 
 h1{
 
+    max-width:18ch;
 
-    font-size:26px;
+    margin:0 auto 6px;
 
+    font-size:25px;
 
-    margin-bottom:8px;
+    font-weight:600;
 
+    line-height:1.15;
+
+    letter-spacing:-.9px;
 
 }
-
-
-
 
 
 .subtitle{
 
+    margin-bottom:22px;
 
-    color:#91a7c6;
+    color:var(--apagado);
 
+    font-size:12.5px;
 
-    font-size:14px;
-
-
-    margin-bottom:25px;
-
+    line-height:1.6;
 
 }
-
-
-
 
 
 
 /* =====================================================
-   CODIGO
+   CÓDIGO DA RESERVA
 ===================================================== */
-
 
 .code-box{
 
+    margin-bottom:14px;
 
-    background:#102540;
+    padding:14px;
 
+    border:1px dashed var(--risco-forte);
 
-    border-radius:16px;
+    border-radius:4px;
 
-
-    padding:18px;
-
-
-    margin-bottom:20px;
-
+    background:var(--elevado);
 
 }
-
 
 
 .code-box span{
 
+    display:block;
 
-    color:#93a9c8;
+    color:var(--fraco);
 
+    font-family:var(--mono);
 
-    font-size:13px;
+    font-size:9.5px;
 
+    letter-spacing:.14em;
+
+    text-transform:uppercase;
 
 }
-
 
 
 .code-box h2{
 
+    margin-top:7px;
 
-    margin-top:8px;
+    color:var(--azul-claro);
 
+    font-family:var(--mono);
 
-    font-size:28px;
+    font-size:25px;
 
+    font-weight:500;
 
-    letter-spacing:2px;
-
-
-    color:#3280ff;
-
+    letter-spacing:.16em;
 
 }
-
-
-
-
-
 
 
 
 /* =====================================================
-   DETALHES
+   DETALHES · lista separada por fios
 ===================================================== */
-
 
 .details{
 
+    margin-bottom:16px;
 
-    background:#102540;
+    padding:2px 14px;
 
+    border:1px solid var(--risco);
 
-    border-radius:16px;
+    border-radius:0;
 
-
-    padding:18px;
-
+    background:var(--elevado);
 
     text-align:left;
 
-
-    margin-bottom:20px;
-
-
 }
-
-
-
 
 
 .item{
 
-
     display:flex;
-
 
     justify-content:space-between;
 
-
     align-items:center;
 
+    gap:12px;
 
-    padding:12px 0;
+    padding:10px 0;
 
-
-    border-bottom:1px solid rgba(255,255,255,.06);
-
+    border-bottom:1px solid var(--risco);
 
 }
-
-
-
 
 
 .item:last-child{
 
-
     border-bottom:none;
 
-
 }
-
-
 
 
 .item span{
 
+    flex:0 0 auto;
 
-    color:#8fa5c5;
+    color:var(--fraco);
 
+    font-family:var(--mono);
 
-    font-size:13px;
+    font-size:9.5px;
 
+    letter-spacing:.12em;
+
+    text-transform:uppercase;
 
 }
-
-
 
 
 .item strong{
 
+    font-size:12.5px;
 
-    font-size:13px;
+    font-weight:500;
 
+    line-height:1.35;
 
     text-align:right;
 
+    word-break:break-word;
 
 }
-
-
-
-
 
 
 .approved{
 
+    color:var(--verde);
 
-    color:#22c55e;
+    font-family:var(--mono);
 
+    font-size:11px;
+
+    letter-spacing:.1em;
+
+    text-transform:uppercase;
 
 }
-
-
-
-
-
 
 
 
@@ -423,306 +409,440 @@ h1{
    QR CODE
 ===================================================== */
 
-
 .qr{
 
-
-    margin-bottom:25px;
-
+    margin-bottom:20px;
 
 }
-
 
 
 #qrcode{
 
+    width:92px;
 
-    width:100px;
+    height:92px;
 
+    margin:0 auto;
 
-    height:100px;
+    display:grid;
 
+    place-items:center;
 
-    margin:auto;
+    border:1px solid var(--risco-forte);
 
+    border-radius:0;
 
-    background:white;
-
+    background:#ffffff;
 
     color:#061426;
 
+    font-family:var(--mono);
 
-    display:flex;
+    font-size:26px;
 
-
-    align-items:center;
-
-
-    justify-content:center;
-
-
-    font-size:30px;
-
-
-    font-weight:bold;
-
-
-    border-radius:10px;
-
+    font-weight:700;
 
 }
-
-
-
-
-
-
-
-
-
-
-
-/* =====================================================
-   BOTÃO
-===================================================== */
-
-
-#inicio{
-
-
-    width:100%;
-
-
-    height:52px;
-
-
-    border:none;
-
-
-    border-radius:14px;
-
-
-    background:#1559d6;
-
-
-    color:white;
-
-
-    font-size:16px;
-
-
-    font-weight:600;
-
-
-    cursor:pointer;
-
-
-    transition:.3s;
-
-
-}
-
-
-
-
-#inicio:hover{
-
-
-    background:#2875ff;
-
-
-    transform:translateY(-2px);
-
-
-}
-
-
-
-
-
-
-
-
-/* =====================================================
-   RESPONSIVIDADE
-===================================================== */
-
-
-@media(max-width:500px){
-
-
-
-.container{
-
-
-    padding:15px;
-
-
-}
-
-
-
-.success-card{
-
-
-    width:100%;
-
-
-    padding:22px;
-
-
-}
-
-
-
-h1{
-
-
-    font-size:22px;
-
-
-}
-
-
-
-.item{
-
-
-    flex-direction:column;
-
-
-    align-items:flex-start;
-
-
-    gap:5px;
-
-
-}
-
-
-
-.item strong{
-
-
-    text-align:left;
-
-
-}
-
-
-
-}
-/* ==========================
-   QR CODE
-========================== */
 
 
 .qr-real{
 
-    width:80px;
+    width:82px;
 
-    height:80px;
+    height:82px;
 
     display:grid;
 
-    grid-template-columns:repeat(5,1fr);
+    grid-template-columns:repeat(5, 1fr);
 
     gap:2px;
 
-    background:white;
-
     padding:5px;
 
+    border-radius:0;
+
+    background:#ffffff;
+
 }
+
+
 
 /* =====================================================
    CÓDIGO DE CONFIRMAÇÃO DE PRESENÇA
 ===================================================== */
 
-.code-description {
-    margin-top: 8px;
-    margin-bottom: 15px;
-    color: #91a7c6;
-    font-size: 12px;
-    line-height: 1.5;
-}
+.code-description{
 
-.codigo-input-area {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
+    margin:14px 0 12px;
 
-#codigoPresenca {
-    width: 100%;
-    height: 48px;
+    padding-top:14px;
 
-    padding: 0 15px;
+    border-top:1px solid var(--risco);
 
-    border: 1px solid rgba(255,255,255,.12);
-    border-radius: 12px;
+    color:var(--apagado);
 
-    background: #091c33;
-    color: white;
+    font-size:11.5px;
 
-    font-family: 'Poppins', sans-serif;
-    font-size: 16px;
+    line-height:1.6;
 
-    text-align: center;
-    letter-spacing: 2px;
-
-    outline: none;
-
-    transition: .3s;
-}
-
-#codigoPresenca::placeholder {
-    color: #7186a3;
-    letter-spacing: 0;
-}
-
-#codigoPresenca:focus {
-    border-color: #3280ff;
-    box-shadow: 0 0 0 3px rgba(50,128,255,.12);
-}
-
-#confirmarPresenca {
-    width: 100%;
-    height: 45px;
-
-    border: none;
-    border-radius: 12px;
-
-    background: #1559d6;
-    color: white;
-
-    font-family: 'Poppins', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-
-    cursor: pointer;
-
-    transition: .3s;
-}
-
-#confirmarPresenca:hover {
-    background: #2875ff;
-    transform: translateY(-2px);
-}
-
-.mensagem-codigo {
-    min-height: 18px;
-    margin-top: 10px;
-
-    font-size: 11px;
-}
-
-.mensagem-codigo.erro {
-    color: #f87171;
-}
-
-.mensagem-codigo.sucesso {
-    color: #22c55e;
 }
 
 
+.codigo-input-area{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:9px;
+
+}
+
+
+#codigoPresenca{
+
+    width:100%;
+
+    height:46px;
+
+    padding:0 14px;
+
+    border:1px solid var(--risco);
+
+    border-radius:4px;
+
+    background:rgba(10, 29, 51, .55);
+
+    color:var(--texto);
+
+    font-family:var(--mono);
+
+    font-size:17px;
+
+    letter-spacing:.3em;
+
+    text-align:center;
+
+    text-transform:uppercase;
+
+    outline:none;
+
+    transition:border-color .18s, background .18s, box-shadow .18s;
+
+}
+
+
+#codigoPresenca::placeholder{
+
+    color:#5f7b96;
+
+    font-family:'Poppins', sans-serif;
+
+    font-size:13px;
+
+    letter-spacing:0;
+
+    text-transform:none;
+
+}
+
+
+#codigoPresenca:hover{
+
+    border-color:var(--risco-forte);
+
+}
+
+
+#codigoPresenca:focus{
+
+    border-color:var(--azul);
+
+    background:rgba(10, 29, 51, .9);
+
+    box-shadow:inset 2px 0 0 var(--azul);
+
+}
+
+
+.mensagem-codigo{
+
+    min-height:16px;
+
+    margin-top:8px;
+
+    font-family:var(--mono);
+
+    font-size:10px;
+
+    letter-spacing:.1em;
+
+    text-transform:uppercase;
+
+}
+
+
+.mensagem-codigo.erro{
+
+    color:var(--vermelho);
+
+}
+
+
+.mensagem-codigo.sucesso{
+
+    color:var(--verde);
+
+}
+
+
+
+/* =====================================================
+   BOTÕES · vazados, preenchem no hover
+===================================================== */
+
+#inicio,
+#confirmarPresenca{
+
+    position:relative;
+
+    width:100%;
+
+    height:46px;
+
+    overflow:hidden;
+
+    border:1px solid var(--azul);
+
+    border-radius:4px;
+
+    background:transparent;
+
+    color:var(--azul-claro);
+
+    font-family:var(--mono);
+
+    font-size:11px;
+
+    font-weight:600;
+
+    letter-spacing:.16em;
+
+    text-transform:uppercase;
+
+    cursor:pointer;
+
+    transition:color .22s, border-color .22s;
+
+}
+
+
+#inicio::before,
+#confirmarPresenca::before{
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    z-index:-1;
+
+    background:var(--azul);
+
+    transform:scaleX(0);
+
+    transform-origin:left;
+
+    transition:transform .28s cubic-bezier(.4, 0, .2, 1);
+
+}
+
+
+#inicio:hover,
+#confirmarPresenca:hover{
+
+    background:transparent;
+
+    color:#ffffff;
+
+    transform:none;
+
+}
+
+
+#inicio:hover::before,
+#confirmarPresenca:hover::before{
+
+    transform:scaleX(1);
+
+}
+
+
+#inicio:active,
+#confirmarPresenca:active{
+
+    border-color:var(--azul-claro);
+
+}
+
+
+/* voltar ao início é ação secundária */
+#inicio{
+
+    margin-top:16px;
+
+    border-color:var(--risco-forte);
+
+    color:var(--apagado);
+
+}
+
+
+#inicio::before{
+
+    background:rgba(47, 125, 255, .35);
+
+}
+
+
+#inicio:hover{
+
+    border-color:var(--azul-claro);
+
+    color:#ffffff;
+
+}
+
+
+#confirmarPresenca:disabled{
+
+    border-color:var(--risco-forte);
+
+    color:var(--fraco);
+
+    cursor:not-allowed;
+
+}
+
+
+#confirmarPresenca:disabled::before{
+
+    transform:scaleX(0);
+
+}
+
+
+
+/* =====================================================
+   RESPONSIVO
+===================================================== */
+
+@media (max-width:500px){
+
+    .container{
+
+        padding:16px 14px;
+
+    }
+
+    .success-card{
+
+        width:100%;
+
+        padding:22px 18px 20px;
+
+    }
+
+    h1{
+
+        max-width:none;
+
+        font-size:21px;
+
+    }
+
+    .item{
+
+        flex-direction:column;
+
+        align-items:flex-start;
+
+        gap:4px;
+
+    }
+
+    .item strong{
+
+        text-align:left;
+
+    }
+
+    #codigoPresenca{
+
+        letter-spacing:.2em;
+
+    }
+
+}
+
+
+/* telas baixas */
+@media (max-height:720px){
+
+    .success-icon{
+
+        width:54px;
+
+        height:54px;
+
+        margin-bottom:14px;
+
+        font-size:26px;
+
+    }
+
+    h1{ font-size:21px; }
+
+    .subtitle{ margin-bottom:16px; }
+
+    #qrcode{ width:78px; height:78px; font-size:22px; }
+
+    .qr{ margin-bottom:14px; }
+
+}
+
+
+
+/* =====================================================
+   ACESSIBILIDADE
+===================================================== */
+
+@media (prefers-reduced-motion:reduce){
+
+    *{
+
+        animation:none !important;
+
+        transition:none !important;
+
+    }
+
+}
+
+
+@media (forced-colors:active){
+
+    .success-card,
+    .success-icon,
+    .code-box,
+    .details,
+    #codigoPresenca,
+    #inicio,
+    #confirmarPresenca{
+
+        border:1px solid CanvasText;
+
+    }
+
+}
