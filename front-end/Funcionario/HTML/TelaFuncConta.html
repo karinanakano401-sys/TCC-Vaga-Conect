@@ -1,0 +1,859 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>VagaConnect | Minha conta</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+rel="stylesheet">
+
+<link rel="stylesheet" href="../CSS/TelaFuncConta.css">
+
+</head>
+
+
+<body>
+
+
+<div class="app-shell">
+
+
+<!-- ================= SIDEBAR ================= -->
+
+
+<aside class="sidebar" id="sidebar">
+
+
+<a href="TelaFunc.html" class="logo">
+    <i data-icon="layers"></i>
+    <span>Vaga</span>Connect
+</a>
+
+
+<nav>
+
+    <a href="TelaFunc.html"><i data-icon="grid"></i>Dashboard</a>
+
+    <a href="TelaFuncVagas.html"><i data-icon="car"></i>Vagas</a>
+
+    <a href="TelaFuncReservas.html"><i data-icon="calendar"></i>Reservas</a>
+
+    <a href="TelaFuncProrrogacoes.html"><i data-icon="clock"></i>Prorrogações</a>
+
+    <a href="TelaFuncPagamentos.html"><i data-icon="credit-card"></i>Pagamentos</a>
+
+    <a class="active" href="#"><i data-icon="user"></i>Minha conta</a>
+
+    <a href="#" id="btnSair"><i data-icon="log-out"></i>Sair</a>
+
+</nav>
+
+
+<div class="profile">
+
+    <span class="avatar" id="avatarMenu">F</span>
+
+    <div>
+        <strong id="nomeMenu">Funcionário</strong>
+        <small id="cargoMenu">carregando</small>
+    </div>
+
+</div>
+
+
+</aside>
+
+
+
+
+<!-- ================= CONTEÚDO ================= -->
+
+
+<main class="content">
+
+
+<div class="topbar">
+
+    <button class="menu-button" id="menuButton" aria-label="Abrir menu">
+        <i data-icon="menu"></i>
+    </button>
+
+    <div>
+        <h1>Minha conta</h1>
+        <p>Seus dados de acesso ao painel</p>
+    </div>
+
+</div>
+
+
+
+<section class="form-panel">
+
+
+<!-- ---------- identidade ---------- -->
+
+<div class="conta-topo">
+
+    <span class="avatar-grande" id="avatarGrande">F</span>
+
+    <div>
+        <strong id="nomePreview">Funcionário</strong>
+        <small id="cargoPreview">carregando</small>
+    </div>
+
+    <div class="conta-marca">
+        <span>Pátio</span>
+        <strong id="patioNome">--</strong>
+    </div>
+
+</div>
+
+
+
+<!-- ---------- dados ---------- -->
+
+<div class="form-heading">
+
+    <span class="heading-icon"><i data-icon="user"></i></span>
+
+    <div>
+        <h2>Dados pessoais</h2>
+        <p>Como seu nome aparece no sistema</p>
+    </div>
+
+</div>
+
+
+<div class="form-grid">
+
+    <label class="field field-wide">
+        Nome completo
+        <input type="text" id="campoNome" maxlength="80" placeholder="Seu nome">
+    </label>
+
+    <label class="field">
+        E-mail
+        <input type="email" id="campoEmail" placeholder="voce@email.com">
+    </label>
+
+    <label class="field">
+        Telefone
+        <input type="tel" id="campoTelefone" placeholder="(00) 00000-0000">
+    </label>
+
+    <label class="field">
+        Cargo
+        <input type="text" id="campoCargo" readonly>
+    </label>
+
+</div>
+
+
+
+<!-- ---------- senha ---------- -->
+
+<div class="form-heading segunda">
+
+    <span class="heading-icon"><i data-icon="lock"></i></span>
+
+    <div>
+        <h2>Alterar senha</h2>
+        <p>Deixe em branco para manter a atual</p>
+    </div>
+
+</div>
+
+
+<div class="form-grid">
+
+    <label class="field">
+        Senha atual
+        <div class="senha-box">
+            <input type="password" id="senhaAtual" placeholder="••••••••">
+            <button type="button" class="ver-senha" data-alvo="senhaAtual" aria-label="Mostrar senha">
+                <i data-icon="eye"></i>
+            </button>
+        </div>
+    </label>
+
+    <label class="field">
+        Nova senha
+        <div class="senha-box">
+            <input type="password" id="senhaNova" placeholder="mínimo 6 caracteres">
+            <button type="button" class="ver-senha" data-alvo="senhaNova" aria-label="Mostrar senha">
+                <i data-icon="eye"></i>
+            </button>
+        </div>
+    </label>
+
+    <label class="field">
+        Repetir nova senha
+        <div class="senha-box">
+            <input type="password" id="senhaRepetir" placeholder="digite de novo">
+            <button type="button" class="ver-senha" data-alvo="senhaRepetir" aria-label="Mostrar senha">
+                <i data-icon="eye"></i>
+            </button>
+        </div>
+    </label>
+
+</div>
+
+
+<p class="dica-senha" id="dicaSenha"></p>
+
+
+
+<!-- ---------- ações ---------- -->
+
+<div class="form-actions">
+
+    <button class="secondary" type="button" id="btnDesfazer">Desfazer</button>
+
+    <button class="primary" type="button" id="btnSalvar">
+        <i data-icon="check"></i>
+        Salvar alterações
+    </button>
+
+</div>
+
+
+</section>
+
+
+</main>
+
+
+</div>
+
+
+
+<script src="../../Base/JS/sessao.js"></script>
+
+<script>
+
+/* ícones em SVG, iguais aos das outras telas */
+const icons = {
+  layers: '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
+  grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
+  car: '<path d="M5 17H3v-4l2-5h14l2 5v4h-2M5 17h14M7 17v2m10-2v2M5 13h14"/><circle cx="7" cy="15" r="1"/><circle cx="17" cy="15" r="1"/>',
+  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3.5 2"/><path d="M3.5 9.5 6 7l2.5 2.5"/>',
+  "credit-card": '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h2"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/>',
+  lock: '<rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
+  eye: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+  "eye-off": '<path d="M3 3l18 18"/><path d="M10.6 6.2A9.7 9.7 0 0 1 12 6c6.4 0 10 6 10 6a17 17 0 0 1-3.3 3.9M6.6 7.6A17 17 0 0 0 2 12s3.6 6 10 6a9.6 9.6 0 0 0 3.3-.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',
+  check: '<path d="M4 12.5 9 17.5 20 6.5"/>',
+  "log-out": '<path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-5"/>',
+  menu: '<path d="M4 6h16M4 12h16M4 18h16"/>'
+};
+
+document.querySelectorAll("i[data-icon]").forEach(function(elemento){
+    const desenho = icons[elemento.dataset.icon] || icons.grid;
+    elemento.outerHTML =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+        'stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ' +
+        'aria-hidden="true">' + desenho + '</svg>';
+});
+
+</script>
+
+<script>
+    /* =====================================================
+   VagaConnect · Minha conta (funcionário)
+
+   Carrega os dados do funcionário logado, permite mudar
+   nome, e-mail, telefone e senha, e grava com
+   PUT /funcionario/:id.
+
+   Depois de salvar, a sessão do localStorage também é
+   atualizada, para o nome novo já aparecer nas outras
+   telas sem precisar entrar de novo.
+===================================================== */
+
+
+// =====================================================
+// CONFIGURAÇÃO
+// =====================================================
+
+
+const api = (typeof API !== "undefined") ? API : "http://localhost:3333";
+
+
+const funcionario = (typeof exigirLogin === "function")
+    ? exigirLogin("funcionario", "../../Base/HTML/OpçãoLogin.html")
+    : JSON.parse(localStorage.getItem("funcionarioLogado") || "null");
+
+
+if(!funcionario){
+
+    throw new Error("sem sessão");
+
+}
+
+
+// dados como vieram do banco, usados para desfazer
+let original = null;
+
+
+
+// =====================================================
+// ELEMENTOS
+// =====================================================
+
+
+const campoNome     = document.getElementById("campoNome");
+
+const campoEmail    = document.getElementById("campoEmail");
+
+const campoTelefone = document.getElementById("campoTelefone");
+
+const campoCargo    = document.getElementById("campoCargo");
+
+
+const senhaAtual    = document.getElementById("senhaAtual");
+
+const senhaNova     = document.getElementById("senhaNova");
+
+const senhaRepetir  = document.getElementById("senhaRepetir");
+
+const dicaSenha     = document.getElementById("dicaSenha");
+
+
+const btnSalvar     = document.getElementById("btnSalvar");
+
+const btnDesfazer   = document.getElementById("btnDesfazer");
+
+const menuButton    = document.getElementById("menuButton");
+
+const sidebar       = document.getElementById("sidebar");
+
+
+
+// =====================================================
+// AJUDANTES
+// =====================================================
+
+
+function inicial(nome){
+
+    return String(nome || "F").trim().charAt(0).toUpperCase();
+
+}
+
+
+function marcarErro(campo, tem){
+
+    const caixa = campo.closest(".field");
+
+    if(caixa) caixa.classList.toggle("erro", tem);
+
+}
+
+
+function limparErros(){
+
+    document.querySelectorAll(".field.erro")
+        .forEach(caixa => caixa.classList.remove("erro"));
+
+}
+
+
+// máscara simples de telefone
+function formatarTelefone(valor){
+
+    const numeros = String(valor || "").replace(/\D/g, "").slice(0, 11);
+
+    if(numeros.length <= 10){
+
+        return numeros
+            .replace(/(\d{2})(\d)/, "($1) $2")
+            .replace(/(\d{4})(\d)/, "$1-$2");
+
+    }
+
+    return numeros
+        .replace(/(\d{2})(\d)/, "($1) $2")
+        .replace(/(\d{5})(\d)/, "$1-$2");
+
+}
+
+
+
+// =====================================================
+// MOSTRAR OS DADOS NA TELA
+// =====================================================
+
+
+function preencher(dados){
+
+    campoNome.value     = dados.nome     || "";
+
+    campoEmail.value    = dados.email    || "";
+
+    campoTelefone.value = formatarTelefone(dados.telefone || "");
+
+    campoCargo.value    = dados.cargo    || "Funcionário";
+
+
+    document.getElementById("patioNome").textContent =
+        dados.estacionamento?.nome || dados.patio || "Sem pátio";
+
+
+    atualizarPreview();
+
+}
+
+
+// nome e inicial acompanham o que está sendo digitado
+function atualizarPreview(){
+
+    const nome = campoNome.value.trim() || "Funcionário";
+
+    document.getElementById("nomePreview").textContent   = nome;
+
+    document.getElementById("nomeMenu").textContent      = nome;
+
+    document.getElementById("avatarGrande").textContent  = inicial(nome);
+
+    document.getElementById("avatarMenu").textContent    = inicial(nome);
+
+
+    const cargo = campoCargo.value || "Funcionário";
+
+    document.getElementById("cargoPreview").textContent = cargo;
+
+    document.getElementById("cargoMenu").textContent    = cargo;
+
+}
+
+
+
+// =====================================================
+// CARREGAR DO BANCO
+// =====================================================
+
+
+async function carregar(){
+
+    try {
+
+        const resposta = await fetch(api + "/funcionario/" + funcionario.id);
+
+        const dados = await resposta.json();
+
+        if(!resposta.ok) throw new Error(dados.erro || "Erro ao carregar seus dados");
+
+        original = dados;
+
+    } catch (error) {
+
+        // sem servidor: mostra o que está guardado na sessão
+        original = funcionario;
+
+        aviso("erro", "Sem conexão com o servidor", "Mostrando os dados salvos no navegador.");
+
+    }
+
+    preencher(original);
+
+}
+
+
+
+// =====================================================
+// VALIDAÇÃO
+// =====================================================
+
+
+function validar(){
+
+    limparErros();
+
+    let ok = true;
+
+
+    const nome = campoNome.value.trim();
+
+    if(nome.length < 3){
+
+        marcarErro(campoNome, true);
+
+        aviso("aviso", "Nome muito curto", "Escreva seu nome completo, com pelo menos 3 letras.");
+
+        ok = false;
+
+    }
+
+
+    const email = campoEmail.value.trim();
+
+    if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+
+        marcarErro(campoEmail, true);
+
+        aviso("aviso", "E-mail inválido", "Confira se você digitou o endereço certo.");
+
+        ok = false;
+
+    }
+
+
+    // senha só é validada se a pessoa quiser trocar
+    if(senhaNova.value || senhaRepetir.value || senhaAtual.value){
+
+        if(!senhaAtual.value){
+
+            marcarErro(senhaAtual, true);
+
+            aviso("aviso", "Falta a senha atual", "Digite sua senha de hoje para confirmar a troca.");
+
+            ok = false;
+
+        }
+
+        else if(original.senha && senhaAtual.value !== original.senha){
+
+            marcarErro(senhaAtual, true);
+
+            aviso("erro", "Senha atual não confere", "Verifique e tente de novo.");
+
+            ok = false;
+
+        }
+
+
+        if(senhaNova.value.length < 6){
+
+            marcarErro(senhaNova, true);
+
+            aviso("aviso", "Senha curta demais", "Use pelo menos 6 caracteres.");
+
+            ok = false;
+
+        }
+
+
+        if(senhaNova.value !== senhaRepetir.value){
+
+            marcarErro(senhaRepetir, true);
+
+            aviso("aviso", "As senhas não batem", "Os dois campos precisam ter o mesmo texto.");
+
+            ok = false;
+
+        }
+
+    }
+
+
+    return ok;
+
+}
+
+
+
+// =====================================================
+// SALVAR
+// =====================================================
+
+
+async function salvar(){
+
+    if(!validar()) return;
+
+
+    btnSalvar.disabled = true;
+
+
+    // manda o registro inteiro de volta, trocando o que mudou
+    const corpo = {
+
+        ...original,
+
+        nome:     campoNome.value.trim(),
+
+        email:    campoEmail.value.trim(),
+
+        telefone: campoTelefone.value.replace(/\D/g, "")
+
+    };
+
+
+    if(senhaNova.value){
+
+        corpo.senha = senhaNova.value;
+
+    }
+
+
+    delete corpo.estacionamento;   // relação, não é campo da tabela
+
+
+    try {
+
+        const resposta = await fetch(api + "/funcionario/" + funcionario.id, {
+
+            method: "PUT",
+
+            headers: { "Content-Type": "application/json" },
+
+            body: JSON.stringify(corpo)
+
+        });
+
+
+        const retorno = await resposta.json();
+
+        if(!resposta.ok) throw new Error(retorno.erro || "Erro ao salvar seus dados");
+
+
+        original = { ...original, ...corpo };
+
+
+        // atualiza a sessão para o nome novo valer nas outras telas
+        const sessao = { ...funcionario, nome: corpo.nome, email: corpo.email };
+
+        localStorage.setItem("funcionarioLogado", JSON.stringify(sessao));
+
+
+        senhaAtual.value = senhaNova.value = senhaRepetir.value = "";
+
+        dicaSenha.textContent = "";
+
+        dicaSenha.className = "dica-senha";
+
+
+        aviso("sucesso", "Dados salvos", "Suas informações foram atualizadas.");
+
+    } catch (error) {
+
+        aviso("erro", "Não deu para salvar", error.message);
+
+    } finally {
+
+        btnSalvar.disabled = false;
+
+    }
+
+}
+
+
+
+// =====================================================
+// EVENTOS
+// =====================================================
+
+
+campoNome.addEventListener("input", atualizarPreview);
+
+
+campoTelefone.addEventListener("input", (evento) => {
+
+    evento.target.value = formatarTelefone(evento.target.value);
+
+});
+
+
+// força da nova senha
+senhaNova.addEventListener("input", () => {
+
+    const valor = senhaNova.value;
+
+    if(!valor){
+
+        dicaSenha.textContent = "";
+
+        dicaSenha.className = "dica-senha";
+
+        return;
+
+    }
+
+    let pontos = 0;
+
+    if(valor.length >= 6)    pontos++;
+
+    if(valor.length >= 10)   pontos++;
+
+    if(/\d/.test(valor))     pontos++;
+
+    if(/[^\w\s]/.test(valor)) pontos++;
+
+
+    const nivel = pontos <= 1 ? "fraca" : pontos <= 3 ? "media" : "forte";
+
+    const texto = { fraca:"Senha fraca", media:"Senha razoável", forte:"Senha forte" };
+
+    dicaSenha.textContent = texto[nivel];
+
+    dicaSenha.className = "dica-senha " + nivel;
+
+});
+
+
+// mostrar / esconder senha
+document.querySelectorAll(".ver-senha").forEach((botao) => {
+
+    botao.addEventListener("click", () => {
+
+        const campo = document.getElementById(botao.dataset.alvo);
+
+        const escondida = campo.type === "password";
+
+        campo.type = escondida ? "text" : "password";
+
+        botao.setAttribute("aria-label", escondida ? "Esconder senha" : "Mostrar senha");
+
+        campo.focus();
+
+    });
+
+});
+
+
+btnSalvar.addEventListener("click", salvar);
+
+
+btnDesfazer.addEventListener("click", () => {
+
+    preencher(original);
+
+    senhaAtual.value = senhaNova.value = senhaRepetir.value = "";
+
+    dicaSenha.textContent = "";
+
+    dicaSenha.className = "dica-senha";
+
+    limparErros();
+
+    aviso("azul", "Alterações desfeitas", "Os campos voltaram como estavam.");
+
+});
+
+
+// Ctrl+S salva
+document.addEventListener("keydown", (evento) => {
+
+    if((evento.ctrlKey || evento.metaKey) && evento.key === "s"){
+
+        evento.preventDefault();
+
+        salvar();
+
+    }
+
+});
+
+
+if(menuButton){
+
+    menuButton.addEventListener("click", () => sidebar.classList.toggle("open"));
+
+    document.addEventListener("click", (evento) => {
+
+        if(window.innerWidth <= 850
+
+            && !sidebar.contains(evento.target)
+
+            && !evento.target.closest("#menuButton")){
+
+            sidebar.classList.remove("open");
+
+        }
+
+    });
+
+}
+
+
+document.getElementById("btnSair").addEventListener("click", (evento) => {
+
+    evento.preventDefault();
+
+    if(typeof sair === "function") sair("../../Base/HTML/Abertura.html");
+
+    else window.location.href = "../../Base/HTML/Abertura.html";
+
+});
+
+
+carregar();
+
+
+
+// =====================================================
+// AVISOS
+// =====================================================
+
+
+const cores = {
+
+    sucesso: "#3ddc97",
+
+    aviso:   "#f5b731",
+
+    erro:    "#ff7a7a",
+
+    azul:    "#8cc2ff"
+
+};
+
+
+const caixaAvisos = document.createElement("div");
+
+caixaAvisos.className = "vc-avisos";
+
+caixaAvisos.setAttribute("role", "status");
+
+caixaAvisos.setAttribute("aria-live", "polite");
+
+document.body.appendChild(caixaAvisos);
+
+
+function aviso(tom, titulo, texto){
+
+    const el = document.createElement("div");
+
+    el.className = "vc-aviso";
+
+    el.style.setProperty("--c", cores[tom] || cores.azul);
+
+    el.innerHTML = "<b></b><span></span>";
+
+    el.querySelector("b").textContent = titulo;
+
+    el.querySelector("span").textContent = texto || "";
+
+
+    function fechar(){
+
+        el.classList.remove("on");
+
+        setTimeout(() => el.remove(), 220);
+
+    }
+
+
+    el.onclick = fechar;
+
+    caixaAvisos.appendChild(el);
+
+    requestAnimationFrame(() => el.classList.add("on"));
+
+    setTimeout(fechar, tom === "erro" ? 6000 : 4200);
+
+
+    while(caixaAvisos.children.length > 3) caixaAvisos.firstElementChild.remove();
+
+}
+</script>
+
+
+</body>
+</html>

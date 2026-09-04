@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,30 +18,31 @@
     <aside class="sidebar" id="sidebar">
       <div class="logo">
         <a href="TelaFunc.html" class="logo">
-       <i class="fa-solid fa-layer-group"></i>
-       <span>Vaga</span>Connect
-       </a>
-     </div>
+          <i class="fa-solid fa-layer-group"></i>
+          <span>Vaga</span>Connect
+        </a>
+      </div>
 
       <nav>
         <a class="active" href="TelaFunc.html"><i data-icon="grid"></i>Dashboard</a>
         <a href="TelaFuncVagas.html"><i data-icon="car"></i>Vagas</a>
         <a href="TelaFuncReservas.html"><i data-icon="calendar"></i>Reservas</a>
-        <a class="active" href="../HTML/TelaProrrongações.html"><i data-icon="clock"></i>Prorrongações</a>
+        <a href="TelaFuncProrrongações.html"><i data-icon="clock"></i>Prorrongações</a>
         <a href="TelaFuncPagamentos.html"><i data-icon="credit-card"></i>Pagamentos Reserva</a>
         <a href="TelaPagamentosTempo.html"><i data-icon="credit-card"></i>Pagamentos Tempos</a>
-        <a href="#" id="btnSair"><i data-icon="log-out"></i>Sair</a>
+        <a href="TelaFuncConta.html"><i data-icon="settings"></i>Configurações</a>
+        <a href="../../Base/HTML/Abertura.html" id="btnSair"><i data-icon="log-out"></i>Sair</a>
       </nav>
 
-  <div class="sidebar-user">
-    <div class="user-avatar">F</div>
+      <div class="sidebar-user">
+        <div class="user-avatar">F</div>
 
-    <div class="user-info">
-      <strong>Funcionário</strong>
-      <span>Carregando...</span>
-    </div>
-  </div>
-</aside>
+        <div class="user-info">
+          <strong>Funcionário</strong>
+          <span>Carregando...</span>
+        </div>
+      </div>
+    </aside>
 
     <main class="main-content" id="dashboard">
       <header class="topbar">
@@ -177,9 +179,12 @@
         <h2>Ações rápidas</h2>
 
         <div>
-          <button type="button" onclick="window.location.href='TelaFuncReservas.html'">↪ <span>Registrar entrada</span></button>
-          <button type="button" onclick="window.location.href='TelaFuncVagas.html'">⌕ <span>Consultar vaga</span></button>
-          <button type="button" onclick="window.location.href='TelaFuncPagamentos.html'">R$ <span>Ver pagamentos</span></button>
+          <button type="button" onclick="window.location.href='TelaFuncReservas.html'">↪ <span>Registrar
+              entrada</span></button>
+          <button type="button" onclick="window.location.href='TelaFuncVagas.html'">⌕ <span>Consultar
+              vaga</span></button>
+          <button type="button" onclick="window.location.href='TelaFuncPagamentos.html'">R$ <span>Ver
+              pagamentos</span></button>
         </div>
       </section>
     </main>
@@ -189,12 +194,19 @@
   <script>
 
     const icons = {
-  grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
-  car: '<path d="M5 17H3v-4l2-5h14l2 5v4h-2M5 17h14M7 17v2m10-2v2M5 13h14"/><circle cx="7" cy="15" r="1"/><circle cx="17" cy="15" r="1"/>',
-  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>',
-  "credit-card": '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h2"/>',
-  "log-out": '<path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-5"/>'
-};
+      grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
+      car: '<path d="M5 17H3v-4l2-5h14l2 5v4h-2M5 17h14M7 17v2m10-2v2M5 13h14"/><circle cx="7" cy="15" r="1"/><circle cx="17" cy="15" r="1"/>',
+      calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>',
+      "credit-card": '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h2"/>',
+      "log-out": '<path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-5"/>',
+      settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2 2-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5v.2h-2.8v-.2a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1-2-2 .1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H5.7v-2.8h.2a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9L7 8.2l2-2 .1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.5V4.9h2.8v.2a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1 2 2-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1h.2V14h-.2a1.7 1.7 0 0 0-1.5 1Z"/>',
+      "log-out": '<path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-5"/>',
+
+      /* novos, usados na tela de prorrogações */
+      clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3.5 2"/><path d="M3.5 9.5 6 7l2.5 2.5"/>',
+      search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+      refresh: '<path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/>'
+    };
 
     const svg = (name) => `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -210,97 +222,97 @@
 
     if (funcionario) {
 
-    mostrarFuncionarioNoPerfil(funcionario);
+      mostrarFuncionarioNoPerfil(funcionario);
 
-    document.querySelector("#btnSair").addEventListener("click", (event) => {
-      event.preventDefault();
-      sair("../../Base/HTML/Abertura.html");
-    });
+      document.querySelector("#btnSair").addEventListener("click", (event) => {
+        event.preventDefault();
+        sair("../../Base/HTML/Abertura.html");
+      });
 
-    document.querySelector(".mobile-menu")?.addEventListener("click", () => {
-      document.querySelector("#sidebar").classList.toggle("open");
-    });
+      document.querySelector(".mobile-menu")?.addEventListener("click", () => {
+        document.querySelector("#sidebar").classList.toggle("open");
+      });
 
-    const api = API;
-    const idPatio = funcionario.fk_est;
+      const api = API;
+      const idPatio = funcionario.fk_est;
 
-    function mostrarPreco(valor) {
-      return Number(valor || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-    }
-
-    function horaCurta(texto) {
-      if (!texto) return "--";
-      const data = new Date(texto);
-      return `${String(data.getHours()).padStart(2, "0")}:${String(data.getMinutes()).padStart(2, "0")}`;
-    }
-
-    function iniciaisPessoa(nome) {
-      return iniciais(nome);
-    }
-
-    const hoje = new Date();
-    document.getElementById("dataHoje").textContent = hoje
-      .toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })
-      .toUpperCase();
-
-    document.getElementById("saudacao").textContent = `Olá, ${funcionario.nome.split(" ")[0]}!`;
-    document.getElementById("nomeEstacionamento").textContent =
-      funcionario.estacionamento?.nome || "Seu estacionamento";
-
-    async function carregarPainel() {
-      const [vagas, reservasCli, pagamentos] = await Promise.all([
-        fetch(api + "/vaga").then(r => r.json()),
-        fetch(api + "/reservacli").then(r => r.json()),
-        fetch(api + "/pagamento").then(r => r.json())
-      ]);
-
-      const minhasVagas = vagas.filter(vaga => vaga.fk_est === idPatio);
-      const minhasReservas = reservasCli
-        .filter(item => item.reserva?.vaga?.fk_est === idPatio)
-        .sort((a, b) => new Date(b.hora) - new Date(a.hora));
-      const meusPagamentos = pagamentos.filter(item =>
-        item.reservaCli?.reserva?.vaga?.fk_est === idPatio
-      );
-
-      const livres = minhasVagas.filter(v => v.status === "Livre").length;
-      const ocupadas = minhasVagas.filter(v => v.status === "Ocupada").length;
-      const reservadas = minhasVagas.filter(v => v.status === "Reservada").length;
-      const ativas = minhasReservas.filter(item =>
-        item.reserva.status === "Reservada" || item.reserva.status === "Ativa"
-      ).length;
-      const totalPago = meusPagamentos.reduce((soma, item) => soma + Number(item.valor || 0), 0);
-      const percentual = minhasVagas.length
-        ? Math.round(((ocupadas + reservadas) / minhasVagas.length) * 100)
-        : 0;
-
-      document.getElementById("statLivres").textContent = livres;
-      document.getElementById("statTotalVagas").textContent = `de ${minhasVagas.length} vagas`;
-      document.getElementById("statReservas").textContent = ativas;
-      document.getElementById("statOcupadas").textContent = ocupadas;
-      document.getElementById("statPagamentos").textContent = mostrarPreco(totalPago);
-
-      document.getElementById("legLivre").textContent = livres;
-      document.getElementById("legOcupada").textContent = ocupadas;
-      document.getElementById("legReservada").textContent = reservadas;
-      document.getElementById("percentualOcupacao").textContent = percentual + "%";
-      document.getElementById("donut").style.setProperty("--percent", percentual);
-      document.getElementById("capacidadeTotal").textContent = `${minhasVagas.length} vagas`;
-      document.getElementById("barraCapacidade").style.width = percentual + "%";
-
-      const corpo = document.getElementById("tabelaReservas");
-      const recentes = minhasReservas.slice(0, 5);
-
-      if (recentes.length === 0) {
-        corpo.innerHTML = `<tr><td colspan="4" class="vazio">Nenhuma reserva neste pátio.</td></tr>`;
-        return;
+      function mostrarPreco(valor) {
+        return Number(valor || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
       }
 
-      corpo.innerHTML = recentes.map(item => {
-        const nome = item.usuario?.nome || "Cliente";
-        const placa = item.carro?.placacarro || "--";
-        const status = item.reserva.status;
+      function horaCurta(texto) {
+        if (!texto) return "--";
+        const data = new Date(texto);
+        return `${String(data.getHours()).padStart(2, "0")}:${String(data.getMinutes()).padStart(2, "0")}`;
+      }
 
-        return `
+      function iniciaisPessoa(nome) {
+        return iniciais(nome);
+      }
+
+      const hoje = new Date();
+      document.getElementById("dataHoje").textContent = hoje
+        .toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })
+        .toUpperCase();
+
+      document.getElementById("saudacao").textContent = `Olá, ${funcionario.nome.split(" ")[0]}!`;
+      document.getElementById("nomeEstacionamento").textContent =
+        funcionario.estacionamento?.nome || "Seu estacionamento";
+
+      async function carregarPainel() {
+        const [vagas, reservasCli, pagamentos] = await Promise.all([
+          fetch(api + "/vaga").then(r => r.json()),
+          fetch(api + "/reservacli").then(r => r.json()),
+          fetch(api + "/pagamento").then(r => r.json())
+        ]);
+
+        const minhasVagas = vagas.filter(vaga => vaga.fk_est === idPatio);
+        const minhasReservas = reservasCli
+          .filter(item => item.reserva?.vaga?.fk_est === idPatio)
+          .sort((a, b) => new Date(b.hora) - new Date(a.hora));
+        const meusPagamentos = pagamentos.filter(item =>
+          item.reservaCli?.reserva?.vaga?.fk_est === idPatio
+        );
+
+        const livres = minhasVagas.filter(v => v.status === "Livre").length;
+        const ocupadas = minhasVagas.filter(v => v.status === "Ocupada").length;
+        const reservadas = minhasVagas.filter(v => v.status === "Reservada").length;
+        const ativas = minhasReservas.filter(item =>
+          item.reserva.status === "Reservada" || item.reserva.status === "Ativa"
+        ).length;
+        const totalPago = meusPagamentos.reduce((soma, item) => soma + Number(item.valor || 0), 0);
+        const percentual = minhasVagas.length
+          ? Math.round(((ocupadas + reservadas) / minhasVagas.length) * 100)
+          : 0;
+
+        document.getElementById("statLivres").textContent = livres;
+        document.getElementById("statTotalVagas").textContent = `de ${minhasVagas.length} vagas`;
+        document.getElementById("statReservas").textContent = ativas;
+        document.getElementById("statOcupadas").textContent = ocupadas;
+        document.getElementById("statPagamentos").textContent = mostrarPreco(totalPago);
+
+        document.getElementById("legLivre").textContent = livres;
+        document.getElementById("legOcupada").textContent = ocupadas;
+        document.getElementById("legReservada").textContent = reservadas;
+        document.getElementById("percentualOcupacao").textContent = percentual + "%";
+        document.getElementById("donut").style.setProperty("--percent", percentual);
+        document.getElementById("capacidadeTotal").textContent = `${minhasVagas.length} vagas`;
+        document.getElementById("barraCapacidade").style.width = percentual + "%";
+
+        const corpo = document.getElementById("tabelaReservas");
+        const recentes = minhasReservas.slice(0, 5);
+
+        if (recentes.length === 0) {
+          corpo.innerHTML = `<tr><td colspan="4" class="vazio">Nenhuma reserva neste pátio.</td></tr>`;
+          return;
+        }
+
+        corpo.innerHTML = recentes.map(item => {
+          const nome = item.usuario?.nome || "Cliente";
+          const placa = item.carro?.placacarro || "--";
+          const status = item.reserva.status;
+
+          return `
           <tr>
             <td>
               <div class="person">
@@ -316,14 +328,16 @@
             <td><span class="status ${status.toLowerCase()}">${status}</span></td>
           </tr>
         `;
-      }).join("");
-    }
+        }).join("");
+      }
 
-    carregarPainel().catch((error) => {
-      alert(error.message || "Não foi possível carregar o painel. Verifique se o servidor está ligado.");
-    });
+      carregarPainel().catch((error) => {
+        alert(error.message || "Não foi possível carregar o painel. Verifique se o servidor está ligado.");
+      });
 
     }
+    
   </script>
 </body>
+
 </html>

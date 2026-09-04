@@ -2488,3 +2488,90 @@ tbody tr:last-child td{
     }
 
 }
+
+
+/* =====================================================
+   PERFIL NO TOPO (botão da topbar)
+===================================================== */
+
+.top-actions .profile{
+
+    height:38px;
+
+    padding:0 12px 0 8px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:9px;
+
+    border:1px solid var(--risco);
+
+    border-radius:4px;
+
+    background:transparent;
+
+    color:var(--texto);
+
+    font-family:inherit;
+
+    cursor:pointer;
+
+    transition:border-color .18s, background .18s;
+
+}
+
+
+.top-actions .profile:hover{
+
+    border-color:var(--azul);
+
+    background:rgba(47, 125, 255, .12);
+
+}
+
+
+.profile-info{
+
+    display:grid;
+
+    gap:2px;
+
+    text-align:left;
+
+}
+
+
+.profile-info strong{
+
+    font-size:11px;
+
+    font-weight:600;
+
+}
+
+
+.profile-info small{
+
+    color:var(--fraco);
+
+    font-family:var(--mono);
+
+    font-size:9px;
+
+    letter-spacing:.1em;
+
+    text-transform:uppercase;
+
+}
+
+
+/* o botão de menu do celular usa o caractere ☰ */
+.mobile-menu{
+
+    font-size:16px;
+
+    line-height:1;
+
+}

@@ -4,21 +4,17 @@
 <head>
 
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-
-<title>
-VagaConnect | Minhas Reservas
-</title>
-
+<title>VagaConnect | Minhas Reservas</title>
 
 <link rel="stylesheet" href="../CSS/TelaReserAndamento.css">
-
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
 rel="stylesheet">
 
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 </head>
 
@@ -26,83 +22,100 @@ rel="stylesheet">
 <body>
 
 
-
-<div class="screen">
-
+<div class="app">
 
 
-<div class="box">
+<!-- =========================================================
+     COLUNA DA ESQUERDA
+     Marca, título, atalhos e as duas ações gerais da tela.
+     Os botões que antes ficavam soltos no rodapé estão aqui.
+========================================================= -->
+
+<aside class="rail">
+
+
+    <div class="rail-topo">
+
+        <a href="TelaUsuario.html" class="logo">
+            <i class="fa-solid fa-layer-group"></i>
+            <span>Vaga</span>Connect
+        </a>
+
+        <button id="voltar" aria-label="Voltar">←</button>
+
+    </div>
+
+
+    <div class="rail-titulo">
+        <p>Sua conta</p>
+        <h1>Minhas Reservas</h1>
+        <span>Acompanhe o tempo, prorrogue ou confirme sua chegada no pátio.</span>
+    </div>
+
+
+    <div class="rail-acoes">
+
+        <p class="rail-rotulo">Ações</p>
+
+        <button class="extend" id="prorrogar">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            Solicitar prorrogação
+        </button>
+
+        <a href="../HTML/TelaReserConfirmada.html">
+            <button class="extend destaque">
+                <i class="fa-solid fa-circle-check"></i>
+                Desejo confirmar reserva
+            </button>
+        </a>
+
+    </div>
+
+
+    <div class="rail-dica">
+        <i class="fa-solid fa-circle-info"></i>
+        <span>Ao chegar no estacionamento, informe o código de confirmação ao funcionário.</span>
+    </div>
+
+
+</aside>
 
 
 
+<!-- =========================================================
+     COLUNA DA DIREITA
+     A lista de reservas. O JS continua desenhando aqui dentro.
+========================================================= -->
 
-<div class="header">
-
-
-<button id="voltar">
-
-←
-
-</button>
+<main class="lista">
 
 
-<span>
+    <div class="lista-topo">
+        <h2>Suas reservas</h2>
+        <span>Mais recentes primeiro</span>
+    </div>
 
-Minhas Reservas
 
-</span>
+    <div id="listaReservas">
+
+        <p class="carregando">Carregando suas reservas...</p>
+
+    </div>
+
+
+</main>
 
 
 </div>
 
 
 
-
-<div id="listaReservas">
-
-
-<p class="carregando">
-
-Carregando suas reservas...
-
-</p>
-
-
-</div>
-
-
-
-
-</div>
-
-
-
-
-</div>
-
-<button class="extend" id="prorrogar">
-
-Solicitar prorrogação
-
-</button>
-
-<a href="../HTML/TelaReserConfirmada.html">
-<button class="extend">
-    Desejo confirmar reserva
-
-</button>
-
+<!-- =========================================================
+     SEU SCRIPT
+     Cole aqui o <script> que você já tem, sem mudar nada.
+========================================================= -->
 
 <script>
-
-    // ============================================
-// CONFIRMAÇÕES E AVISOS BONITOS
-// Cole este bloco logo no começo do <script>,
-// antes da seção CONFIGURAÇÃO.
-//
-// Não usa Font Awesome: os símbolos são feitos
-// no próprio CSS.
-// ============================================
 
 (function(){
 
@@ -995,10 +1008,9 @@ voltar.onclick = ()=>{
 
 carregarReservas();
 
+
 </script>
 
 
 </body>
-
-
 </html>

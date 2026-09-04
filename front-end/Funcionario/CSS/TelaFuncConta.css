@@ -1,10 +1,6 @@
 /* =====================================================
-   VagaConnect · Formulário de cadastro (painel)
-   Mesma direção visual das outras telas:
-   fundo escuro com malha técnica, cantos retos,
-   linhas de 1px no lugar de sombras e rótulos em
-   monoespaçada.
-   Mesmas classes do HTML atual.
+   VagaConnect · Minha conta (funcionário)
+   Mesma direção visual das outras telas do painel.
 ===================================================== */
 
 
@@ -29,16 +25,10 @@
     --azul-claro:  #8cc2ff;
 
     --verde:       #3ddc97;
+    --ambar:       #f5b731;
     --vermelho:    #ff7a7a;
 
     --mono:        ui-monospace, 'SF Mono', 'Roboto Mono', 'Consolas', monospace;
-
-    /* nomes antigos, mantidos para não quebrar nada */
-    --bg:     #030b16;
-    --border: rgba(120, 170, 220, .16);
-    --muted:  #6d89a6;
-    --text:   #e9f2fc;
-    --blue:   #2f7dff;
 
 }
 
@@ -66,7 +56,7 @@ body{
 
     margin:0;
 
-    font-family:'Poppins', 'Inter', system-ui, sans-serif;
+    font-family:'Poppins', system-ui, sans-serif;
 
     font-size:13px;
 
@@ -93,8 +83,7 @@ body{
 
 a:focus-visible,
 button:focus-visible,
-input:focus-visible,
-select:focus-visible{
+input:focus-visible{
 
     outline:2px solid var(--azul-claro);
 
@@ -110,27 +99,11 @@ select:focus-visible{
 ::-webkit-scrollbar-thumb{ background:var(--risco-forte); }
 
 
-
-/* =====================================================
-   LAYOUT
-===================================================== */
-
 .app-shell{
 
     min-height:100vh;
 
     display:flex;
-
-}
-
-
-.content{
-
-    width:100%;
-
-    min-height:100vh;
-
-    padding:26px 34px 30px;
 
 }
 
@@ -159,7 +132,6 @@ select:focus-visible{
 }
 
 
-/* fio de luz no topo da coluna */
 .sidebar::before{
 
     content:"";
@@ -202,7 +174,6 @@ select:focus-visible{
 }
 
 
-.logo i,
 .logo svg{
 
     width:18px;
@@ -212,8 +183,6 @@ select:focus-visible{
     flex:none;
 
     color:var(--azul-claro);
-
-    font-size:16px;
 
     stroke-width:1.9;
 
@@ -251,8 +220,6 @@ select:focus-visible{
     align-items:center;
 
     gap:11px;
-
-    border-radius:0;
 
     color:var(--apagado);
 
@@ -326,7 +293,7 @@ select:focus-visible{
 }
 
 
-.sidebar svg{
+.sidebar nav a svg{
 
     width:15px;
 
@@ -341,7 +308,7 @@ select:focus-visible{
 
 
 /* =====================================================
-   PERFIL
+   PERFIL DA SIDEBAR
 ===================================================== */
 
 .profile{
@@ -374,8 +341,6 @@ select:focus-visible{
     place-items:center;
 
     border:1px solid var(--risco-forte);
-
-    border-radius:0;
 
     background:
         linear-gradient(135deg, rgba(47, 125, 255, .3), transparent 70%),
@@ -427,25 +392,21 @@ select:focus-visible{
 }
 
 
-.profile > svg{
 
-    width:14px;
+/* =====================================================
+   CONTEÚDO
+===================================================== */
 
-    height:14px;
+.content{
 
-    flex:none;
+    width:100%;
 
-    margin-left:auto;
+    min-height:100vh;
 
-    color:var(--fraco);
+    padding:26px 34px 30px;
 
 }
 
-
-
-/* =====================================================
-   TOPO
-===================================================== */
 
 .topbar{
 
@@ -467,8 +428,6 @@ select:focus-visible{
 .topbar h1{
 
     margin:0 0 5px;
-
-    font-family:'Poppins', sans-serif;
 
     font-size:28px;
 
@@ -507,20 +466,16 @@ select:focus-visible{
 
 
 /* =====================================================
-   PAINEL DO FORMULÁRIO
+   PAINEL
 ===================================================== */
 
 .form-panel{
 
-    max-width:1080px;
-
-    min-height:0;                 /* cancela o calc(100vh) antigo */
+    max-width:880px;
 
     padding:22px 24px 24px;
 
     border:1px solid var(--risco);
-
-    border-radius:0;
 
     background:var(--superficie);
 
@@ -529,10 +484,10 @@ select:focus-visible{
 
 
 /* =====================================================
-   CABEÇALHO DO FORMULÁRIO
+   IDENTIDADE
 ===================================================== */
 
-.form-heading{
+.conta-topo{
 
     display:flex;
 
@@ -542,18 +497,157 @@ select:focus-visible{
 
     margin-bottom:22px;
 
-    padding-bottom:18px;
+    padding:14px 16px;
+
+    border:1px solid var(--risco);
+
+    border-left:2px solid var(--azul);
+
+    background:
+        linear-gradient(90deg, rgba(47, 125, 255, .1), transparent 60%),
+        var(--elevado);
+
+}
+
+
+.avatar-grande{
+
+    width:52px;
+
+    height:52px;
+
+    flex:none;
+
+    display:grid;
+
+    place-items:center;
+
+    border:1px solid var(--risco-forte);
+
+    background:
+        linear-gradient(135deg, rgba(47, 125, 255, .3), transparent 70%),
+        var(--superficie);
+
+    color:#ffffff;
+
+    font-family:var(--mono);
+
+    font-size:20px;
+
+    font-weight:600;
+
+}
+
+
+.conta-topo > div strong{
+
+    display:block;
+
+    font-size:16px;
+
+    font-weight:600;
+
+    letter-spacing:-.3px;
+
+}
+
+
+.conta-topo > div small{
+
+    display:block;
+
+    margin-top:3px;
+
+    color:var(--fraco);
+
+    font-family:var(--mono);
+
+    font-size:9.5px;
+
+    letter-spacing:.14em;
+
+    text-transform:uppercase;
+
+}
+
+
+.conta-marca{
+
+    margin-left:auto;
+
+    padding-left:16px;
+
+    border-left:1px solid var(--risco);
+
+    text-align:right;
+
+}
+
+
+.conta-marca span{
+
+    display:block;
+
+    color:var(--fraco);
+
+    font-family:var(--mono);
+
+    font-size:9px;
+
+    letter-spacing:.14em;
+
+    text-transform:uppercase;
+
+}
+
+
+.conta-marca strong{
+
+    display:block;
+
+    margin-top:4px;
+
+    font-size:13px;
+
+    font-weight:600;
+
+}
+
+
+
+/* =====================================================
+   CABEÇALHO DE SEÇÃO
+===================================================== */
+
+.form-heading{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:13px;
+
+    margin-bottom:18px;
+
+    padding-bottom:14px;
 
     border-bottom:1px solid var(--risco);
 
 }
 
 
+.form-heading.segunda{
+
+    margin-top:26px;
+
+}
+
+
 .heading-icon{
 
-    width:40px;
+    width:38px;
 
-    height:40px;
+    height:38px;
 
     flex:none;
 
@@ -562,8 +656,6 @@ select:focus-visible{
     place-items:center;
 
     border:1px solid rgba(47, 125, 255, .5);
-
-    border-radius:0;
 
     background:rgba(47, 125, 255, .12);
 
@@ -574,9 +666,9 @@ select:focus-visible{
 
 .heading-icon svg{
 
-    width:19px;
+    width:18px;
 
-    height:19px;
+    height:18px;
 
     stroke-width:1.8;
 
@@ -585,11 +677,9 @@ select:focus-visible{
 
 .form-heading h2{
 
-    margin:0 0 5px;
+    margin:0 0 4px;
 
-    font-family:'Poppins', sans-serif;
-
-    font-size:16px;
+    font-size:15px;
 
     font-weight:600;
 
@@ -617,14 +707,14 @@ select:focus-visible{
 
 
 /* =====================================================
-   GRID DOS CAMPOS
+   CAMPOS
 ===================================================== */
 
 .form-grid{
 
     display:grid;
 
-    grid-template-columns:repeat(3, 1fr);
+    grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
 
     gap:16px 20px;
 
@@ -663,18 +753,12 @@ select:focus-visible{
 
 .field-wide{
 
-    grid-column:span 2;
+    grid-column:1 / -1;
 
 }
 
 
-
-/* =====================================================
-   CAMPOS
-===================================================== */
-
-.field input,
-.field select{
+.field input{
 
     width:100%;
 
@@ -712,34 +796,14 @@ select:focus-visible{
 }
 
 
-.field select{
-
-    appearance:auto;
-
-    cursor:pointer;
-
-    color-scheme:dark;          /* menu e calendário no tema escuro */
-
-}
-
-
-.field select option{
-
-    background:#0a1d33;
-
-}
-
-
-.field input:hover,
-.field select:hover{
+.field input:hover{
 
     border-color:var(--risco-forte);
 
 }
 
 
-.field input:focus,
-.field select:focus{
+.field input:focus{
 
     border-color:var(--azul);
 
@@ -750,9 +814,7 @@ select:focus-visible{
 }
 
 
-.field input[readonly],
-.field input:disabled,
-.field select:disabled{
+.field input[readonly]{
 
     border-style:dashed;
 
@@ -765,9 +827,126 @@ select:focus-visible{
 }
 
 
+/* campo com erro */
+.field.erro input{
+
+    border-color:var(--vermelho);
+
+    box-shadow:inset 2px 0 0 var(--vermelho);
+
+}
+
+
+.field.erro{
+
+    color:var(--vermelho);
+
+}
+
+
 
 /* =====================================================
-   BOTÕES · vazados, preenchem no hover
+   SENHA
+===================================================== */
+
+.senha-box{
+
+    position:relative;
+
+    display:flex;
+
+    align-items:center;
+
+}
+
+
+.senha-box input{
+
+    padding-right:44px;
+
+}
+
+
+.ver-senha{
+
+    position:absolute;
+
+    right:1px;
+
+    top:1px;
+
+    bottom:1px;
+
+    width:40px;
+
+    display:grid;
+
+    place-items:center;
+
+    border:none;
+
+    border-left:1px solid var(--risco);
+
+    background:transparent;
+
+    color:var(--fraco);
+
+    cursor:pointer;
+
+    transition:background .18s, color .18s;
+
+}
+
+
+.ver-senha:hover{
+
+    background:rgba(47, 125, 255, .14);
+
+    color:var(--azul-claro);
+
+}
+
+
+.ver-senha svg{
+
+    width:15px;
+
+    height:15px;
+
+    stroke-width:1.8;
+
+}
+
+
+.dica-senha{
+
+    margin:12px 0 0;
+
+    min-height:15px;
+
+    color:var(--fraco);
+
+    font-family:var(--mono);
+
+    font-size:9.5px;
+
+    letter-spacing:.1em;
+
+    text-transform:uppercase;
+
+}
+
+
+.dica-senha.fraca{  color:var(--vermelho); }
+
+.dica-senha.media{  color:var(--ambar); }
+
+.dica-senha.forte{  color:var(--verde); }
+
+
+
+/* =====================================================
+   AÇÕES
 ===================================================== */
 
 .form-actions{
@@ -790,6 +969,12 @@ select:focus-visible{
 .form-actions button{
 
     position:relative;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:9px;
 
     height:42px;
 
@@ -842,7 +1027,6 @@ select:focus-visible{
 }
 
 
-/* ação secundária */
 .secondary{
 
     border:1px solid var(--risco-forte);
@@ -870,14 +1054,7 @@ select:focus-visible{
 }
 
 
-/* ação principal */
 .primary{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:9px;
 
     border:1px solid var(--azul);
 
@@ -908,13 +1085,12 @@ select:focus-visible{
 
     height:14px;
 
-    stroke-width:1.8;
+    stroke-width:2;
 
 }
 
 
-.primary:disabled,
-.secondary:disabled{
+.form-actions button:disabled{
 
     border-color:var(--risco);
 
@@ -925,8 +1101,7 @@ select:focus-visible{
 }
 
 
-.primary:disabled::before,
-.secondary:disabled::before{
+.form-actions button:disabled::before{
 
     transform:scaleX(0);
 
@@ -935,19 +1110,104 @@ select:focus-visible{
 
 
 /* =====================================================
-   RESPONSIVO
+   AVISOS
 ===================================================== */
 
-@media (max-width:1050px){
+.vc-avisos{
 
-    .form-grid{
+    position:fixed;
 
-        grid-template-columns:repeat(2, 1fr);
+    top:18px;
 
-    }
+    right:18px;
+
+    z-index:9999;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:9px;
+
+    width:min(320px, calc(100vw - 36px));
+
+    pointer-events:none;
 
 }
 
+
+.vc-aviso{
+
+    padding:12px 14px;
+
+    border:1px solid var(--risco);
+
+    border-left:2px solid var(--c);
+
+    background:var(--superficie);
+
+    box-shadow:0 18px 40px rgba(0, 0, 0, .5);
+
+    color:var(--texto);
+
+    pointer-events:auto;
+
+    cursor:pointer;
+
+    opacity:0;
+
+    transform:translateX(14px);
+
+    transition:opacity .2s, transform .2s;
+
+}
+
+
+.vc-aviso.on{
+
+    opacity:1;
+
+    transform:none;
+
+}
+
+
+.vc-aviso b{
+
+    display:block;
+
+    margin-bottom:3px;
+
+    color:var(--c);
+
+    font-family:var(--mono);
+
+    font-size:9.5px;
+
+    letter-spacing:.14em;
+
+    text-transform:uppercase;
+
+}
+
+
+.vc-aviso span{
+
+    display:block;
+
+    color:#cfe0f2;
+
+    font-size:12.5px;
+
+    line-height:1.45;
+
+}
+
+
+
+/* =====================================================
+   RESPONSIVO
+===================================================== */
 
 @media (max-width:850px){
 
@@ -1007,8 +1267,6 @@ select:focus-visible{
 
         cursor:pointer;
 
-        transition:border-color .18s, background .18s, color .18s;
-
     }
 
     .menu-button:hover{
@@ -1047,16 +1305,10 @@ select:focus-visible{
 
     }
 
-    .field-wide{
-
-        grid-column:span 2;
-
-    }
-
 }
 
 
-@media (max-width:520px){
+@media (max-width:560px){
 
     .content{
 
@@ -1064,43 +1316,31 @@ select:focus-visible{
 
     }
 
-    .topbar h1{
+    .conta-topo{
 
-        font-size:20px;
-
-    }
-
-    .form-panel{
-
-        padding:16px 14px 18px;
+        flex-wrap:wrap;
 
     }
 
-    .form-heading{
+    .conta-marca{
 
-        gap:11px;
+        width:100%;
 
-    }
+        margin-left:0;
 
-    .form-grid{
+        padding:12px 0 0;
 
-        grid-template-columns:1fr;
+        border-left:none;
 
-        gap:14px;
+        border-top:1px solid var(--risco);
 
-    }
-
-    .field-wide{
-
-        grid-column:span 1;
+        text-align:left;
 
     }
 
     .form-actions{
 
         flex-direction:column-reverse;
-
-        margin-top:22px;
 
     }
 
@@ -1109,6 +1349,20 @@ select:focus-visible{
         width:100%;
 
         justify-content:center;
+
+    }
+
+    .vc-avisos{
+
+        top:auto;
+
+        bottom:14px;
+
+        left:14px;
+
+        right:14px;
+
+        width:auto;
 
     }
 
@@ -1136,12 +1390,11 @@ select:focus-visible{
 @media (forced-colors:active){
 
     .form-panel,
+    .conta-topo,
     .field input,
-    .field select,
     .heading-icon,
     .primary,
-    .secondary,
-    .menu-button{
+    .secondary{
 
         border:1px solid CanvasText;
 
