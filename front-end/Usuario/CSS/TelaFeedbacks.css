@@ -233,6 +233,34 @@ textarea:focus-visible{
 
 }
 
+/* o HTML tem um .logo dentro do outro: o de dentro
+   herda só a tipografia, sem repetir borda e espaço */
+.logo .logo{
+
+    display:flex;
+
+    align-items:center;
+
+    padding:0;
+
+    margin:0;
+
+    border:none;
+
+    color:var(--texto);
+
+    font-size:inherit;
+
+    font-weight:inherit;
+
+    letter-spacing:inherit;
+
+    text-transform:inherit;
+
+    text-decoration:none;
+
+}
+
 
 .logo i{
 

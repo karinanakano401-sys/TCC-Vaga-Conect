@@ -1,274 +1,576 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login VagaConnect</title>
-<link rel="stylesheet" href="../CSS/OpçãoLogin.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login VagaConnect</title>
+    <link rel="stylesheet" href="../CSS/OpçãoLogin.css">
 
 </head>
 
 <body>
 
-<div class="bg"></div>
+    <div class="bg"></div>
 
-<div class="container">
+    <div class="container">
 
-    <div class="logo">
-        <h1>Vaga<span>Connect</span></h1>
-        <p>Sistema Inteligente de Estacionamento</p>
-    </div>
-
-    <!-- BOTÕES -->
-    <div class="toggle-buttons">
-
-        <button id="usuarioBtn" class="active">
-            Usuário
-        </button>
-
-        <button id="adminBtn">
-            Admin
-        </button>
-
-        <button id="funcionarioBtn">
-            Funcionário
-        </button>
-
-    </div>
-
-    <!-- TEXTO -->
-    <div class="tipo-login" id="tipoTexto">
-        Entrando como Usuário
-    </div>
-
-    <!-- FORM -->
-    <form id="formularioLogin">
-
-        <div class="input-box">
-            <label>Email</label>
-            <input id="email" type="email" placeholder="Digite seu email">
+        <div class="logo">
+            <h1>Vaga<span>Connect</span></h1>
+            <p>Sistema Inteligente de Estacionamento</p>
         </div>
 
-        <div class="input-box">
-            <label>Senha</label>
-            <input id="senha" type="password" placeholder="Digite sua senha">
+        <!-- BOTÕES -->
+        <div class="toggle-buttons">
+
+            <button id="usuarioBtn" class="active">
+                Usuário
+            </button>
+
+            <button id="adminBtn">
+                Admin
+            </button>
+
+            <button id="funcionarioBtn">
+                Funcionário
+            </button>
+
         </div>
 
-        <button class="btn" id="btnEntrar" type="button">
-            Entrar
-        </button>
+        <!-- TEXTO -->
+        <div class="tipo-login" id="tipoTexto">
+            Entrando como Usuário
+        </div>
 
-    </form>
+        <!-- FORM -->
+        <form id="formularioLogin">
 
-    <div class="extra">
-        Não possui conta?
-        <a href="../HTML/OpçãoCadastro.html">Cadastrar</a>
+            <div class="input-box">
+                <label>Email</label>
+                <input id="email" type="email" placeholder="Digite seu email">
+            </div>
+
+            <div class="input-box">
+                <label>Senha</label>
+                <input id="senha" type="password" placeholder="Digite sua senha">
+            </div>
+
+            <button class="btn" id="btnEntrar" type="button">
+                Entrar
+            </button>
+
+        </form>
+
+        <div class="extra">
+            Não possui conta?
+            <a href="../HTML/OpçãoCadastro.html">Cadastrar</a>
+        </div>
+
     </div>
 
-</div>
+    <script>
 
-<script>
+        /* =====================================================
+       VagaConnect · Avisos da tela de Cadastro
+    
+       Cole este bloco logo no COMEÇO do <script>, antes da
+       seção ELEMENTOS. Nada mais precisa mudar: todos os
+       alert() que já existem passam a usar este formato.
+    ===================================================== */
 
-const usuarioBtn = document.getElementById("usuarioBtn");
-const adminBtn = document.getElementById("adminBtn");
-const funcionarioBtn = document.getElementById("funcionarioBtn");
-const tipoTexto = document.getElementById("tipoTexto");
+        (function () {
 
-const formularioLogin = document.getElementById("formularioLogin");
-const emailInput = document.getElementById("email");
-const senhaInput = document.getElementById("senha");
-const btnEntrar = document.getElementById("btnEntrar");
+            /* =================================================
+               ESTILO
+            ================================================= */
 
-const api = "http://localhost:3333";
+            const css = document.createElement("style");
 
-let tipoLogin = "usuario";
+            css.textContent = `
+    .vc-avisos{
+        position:fixed; top:18px; right:18px; z-index:9999;
+        display:flex; flex-direction:column; gap:10px;
+        width:min(330px, calc(100vw - 36px));
+        pointer-events:none;
+    }
 
-function removerActive(){
-    usuarioBtn.classList.remove("active");
-    adminBtn.classList.remove("active");
-    funcionarioBtn.classList.remove("active");
-}
+    .vc-aviso{
+        position:relative;
+        display:grid; grid-template-columns:34px 1fr 20px;
+        gap:11px; align-items:start;
+        padding:13px 13px 15px;
+        border:1px solid #244866;
+        border-left:3px solid var(--c);
+        border-radius:9px;
+        background:#081f34;
+        box-shadow:0 12px 32px rgba(0,0,0,.45);
+        color:#ffffff;
+        font-family:Arial, Helvetica, sans-serif;
+        pointer-events:auto; overflow:hidden;
+        opacity:0; transform:translateX(16px);
+        transition:opacity .2s, transform .2s;
+    }
 
-usuarioBtn.addEventListener("click", () => {
+    .vc-aviso.on{ opacity:1; transform:none; }
+    .vc-aviso.off{ opacity:0; transform:translateX(16px); }
 
-    removerActive();
-    usuarioBtn.classList.add("active");
+    .vc-simbolo{
+        width:34px; height:34px;
+        display:grid; place-items:center;
+        border:1px solid var(--c);
+        border-radius:50%;
+        background:var(--f); color:var(--c);
+        font-size:17px; font-weight:700; line-height:1;
+    }
 
-    tipoLogin = "usuario";
+    .vc-aviso b{ display:block; color:var(--c); font-size:13px; margin-bottom:3px; }
+    .vc-aviso span{ display:block; color:#cbd5e1; font-size:12.5px; line-height:1.45; }
 
-    tipoTexto.innerHTML = "Entrando como Usuário";
+    .vc-x{
+        width:20px; height:20px;
+        display:grid; place-items:center;
+        border:none; border-radius:5px;
+        background:none; color:#8fa5b9;
+        font-size:15px; cursor:pointer;
+    }
+    .vc-x:hover{ background:rgba(255,255,255,.08); color:#fff; }
+    .vc-x:focus-visible{ outline:2px solid #60a5fa; outline-offset:2px; }
 
-});
+    .vc-barra{
+        position:absolute; left:0; right:0; bottom:0; height:3px;
+        background:var(--c); opacity:.7;
+        transform-origin:left;
+        animation:vc-run linear forwards;
+    }
+    .vc-aviso:hover .vc-barra{ animation-play-state:paused; }
+    @keyframes vc-run{ from{transform:scaleX(1)} to{transform:scaleX(0)} }
 
-adminBtn.addEventListener("click", () => {
+    /* campo com problema */
+    .input-box.erro input{
+        border-color:#f87171;
+        background:rgba(248,113,113,.07);
+    }
+    .input-box.erro label{ color:#fca5a5; }
 
-    removerActive();
-    adminBtn.classList.add("active");
+    @media (prefers-reduced-motion:reduce){
+        .vc-aviso{ transition:none; }
+        .vc-barra{ animation:none; }
+    }
+    @media (max-width:600px){
+        .vc-avisos{ top:auto; bottom:14px; left:14px; right:14px; width:auto; }
+    }`;
 
-    tipoLogin = "admin";
-
-    tipoTexto.innerHTML = "Entrando como Administrador";
-
-});
-
-funcionarioBtn.addEventListener("click", () => {
-
-    removerActive();
-    funcionarioBtn.classList.add("active");
-
-    tipoLogin = "funcionario";
-
-    tipoTexto.innerHTML = "Entrando como Funcionário";
-
-});
+            document.head.appendChild(css);
 
 
-/* =====================================================
-   LOGIN DO USUÁRIO
-===================================================== */
+            const caixa = document.createElement("div");
 
-async function entrarComoUsuario(email, senha){
+            caixa.className = "vc-avisos";
 
-    try {
+            caixa.setAttribute("role", "status");
 
-        const resposta = await fetch(api + "/usuario/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                email: email,
-                senha: senha
-            })
+            caixa.setAttribute("aria-live", "polite");
+
+            document.body.appendChild(caixa);
+
+
+
+            /* =================================================
+               APARÊNCIA POR TIPO
+            ================================================= */
+
+            const tons = {
+
+                erro: { c: "#f87171", f: "rgba(248,113,113,.12)", s: "!" },
+
+                aviso: { c: "#facc15", f: "rgba(250,204,21,.12)", s: "!" },
+
+                sucesso: { c: "#4ade80", f: "rgba(74,222,128,.12)", s: "✓" },
+
+                info: { c: "#60a5fa", f: "rgba(96,165,250,.12)", s: "i" }
+
+            };
+
+
+
+            /* =================================================
+               MENSAGENS DESTA TELA
+               campo = id do input que deve acender em vermelho
+            ================================================= */
+
+            const regras = [
+
+                {
+                    re: /bem-vind/i, t: "sucesso",
+                    tit: "Acesso liberado",
+                    txt: "Entrando no sistema..."
+                },
+
+                {
+                    re: /email ou senha inválidos/i, t: "erro",
+                    tit: "Não conseguimos entrar",
+                    txt: "Confira o e-mail e a senha e tente de novo.",
+                    campo: ["senha"]
+                },
+
+                {
+                    re: /preencha email e senha/i, t: "aviso",
+                    tit: "Faltam dados",
+                    txt: "Digite seu e-mail e sua senha para continuar.",
+                    campo: ["email"]
+                },
+
+                {
+                    re: /não é de administrador/i, t: "aviso",
+                    tit: "Aba errada",
+                    txt: "Essa conta é de funcionário. Troque para a aba Funcionário."
+                },
+
+                {
+                    re: /é de administrador/i, t: "aviso",
+                    tit: "Aba errada",
+                    txt: "Essa conta é de administrador. Troque para a aba Admin."
+                },
+
+                {
+                    re: /não foi possível|servidor/i, t: "erro",
+                    tit: "Sem conexão com o servidor",
+                    txt: "Confira se o back-end está rodando em localhost:3333."
+                }
+
+            ];
+
+
+
+            /* =================================================
+               DESTACAR O CAMPO COM PROBLEMA
+            ================================================= */
+
+            function limparErros() {
+
+                document.querySelectorAll(".input-box.erro")
+
+                    .forEach(caixa => caixa.classList.remove("erro"));
+
+            }
+
+
+            function marcarCampo(ids) {
+
+                if (!ids) return;
+
+                for (const id of ids) {
+
+                    const campo = document.getElementById(id);
+
+                    if (campo) {
+
+                        const caixa = campo.closest(".input-box");
+
+                        if (caixa) caixa.classList.add("erro");
+
+                        campo.focus();
+
+                        return;
+
+                    }
+
+                }
+
+            }
+
+
+
+            /* =================================================
+               TROCA DO alert()
+            ================================================= */
+
+            window.alert = function (msg) {
+
+                const r = regras.find(x => x.re.test(String(msg))) || {};
+
+                const tom = tons[r.t] || tons.info;
+
+                const tempo = r.t === "erro" ? 6000 : 4500;
+
+
+                limparErros();
+
+                marcarCampo(r.campo);
+
+
+                const el = document.createElement("div");
+
+                el.className = "vc-aviso";
+
+                el.style.setProperty("--c", tom.c);
+
+                el.style.setProperty("--f", tom.f);
+
+                el.innerHTML = `
+            <div class="vc-simbolo" aria-hidden="true">${tom.s}</div>
+            <div><b></b><span></span></div>
+            <button class="vc-x" type="button" aria-label="Fechar aviso">&times;</button>
+            <div class="vc-barra" style="animation-duration:${tempo}ms"></div>`;
+
+                el.querySelector("b").textContent = r.tit || "VagaConnect";
+
+                el.querySelector("span").textContent = r.txt || String(msg);
+
+
+                function fechar() {
+
+                    if (el.classList.contains("off")) return;
+
+                    el.classList.add("off");
+
+                    setTimeout(() => el.remove(), 220);
+
+                }
+
+                el.onclick = fechar;
+
+                caixa.appendChild(el);
+
+                requestAnimationFrame(() => el.classList.add("on"));
+
+
+                let t = setTimeout(fechar, tempo);
+
+                el.addEventListener("mouseenter", () => clearTimeout(t));
+
+                el.addEventListener("mouseleave", () => { t = setTimeout(fechar, 1500); });
+
+
+                while (caixa.children.length > 3) caixa.firstElementChild.remove();
+
+            };
+
+
+
+            /* =================================================
+               O erro some quando a pessoa começa a corrigir
+            ================================================= */
+
+            document.addEventListener("input", function (evento) {
+
+                const caixa = evento.target.closest(".input-box.erro");
+
+                if (caixa) caixa.classList.remove("erro");
+
+            });
+
+        })();
+
+        const usuarioBtn = document.getElementById("usuarioBtn");
+        const adminBtn = document.getElementById("adminBtn");
+        const funcionarioBtn = document.getElementById("funcionarioBtn");
+        const tipoTexto = document.getElementById("tipoTexto");
+
+        const formularioLogin = document.getElementById("formularioLogin");
+        const emailInput = document.getElementById("email");
+        const senhaInput = document.getElementById("senha");
+        const btnEntrar = document.getElementById("btnEntrar");
+
+        const api = "http://localhost:3333";
+
+        let tipoLogin = "usuario";
+
+        function removerActive() {
+            usuarioBtn.classList.remove("active");
+            adminBtn.classList.remove("active");
+            funcionarioBtn.classList.remove("active");
+        }
+
+        usuarioBtn.addEventListener("click", () => {
+
+            removerActive();
+            usuarioBtn.classList.add("active");
+
+            tipoLogin = "usuario";
+
+            tipoTexto.innerHTML = "Entrando como Usuário";
+
         });
 
-        const usuario = await resposta.json();
+        adminBtn.addEventListener("click", () => {
 
-        if(!resposta.ok){
-            throw new Error(usuario.erro || "Email ou senha inválidos");
-        }
+            removerActive();
+            adminBtn.classList.add("active");
 
-        localStorage.setItem(
-            "usuarioLogado",
-            JSON.stringify(usuario)
-        );
+            tipoLogin = "admin";
 
-        window.location.replace("../../Usuario/HTML/TelaUsuario.html");
+            tipoTexto.innerHTML = "Entrando como Administrador";
 
-    } catch (error) {
-
-        alert(error.message || "Não foi possível entrar. Verifique se o servidor está ligado.");
-
-    }
-
-}
-
-
-/* =====================================================
-   LOGIN DO ADMIN E DO FUNCIONÁRIO
-===================================================== */
-
-async function entrarComoFuncionario(email, senha){
-
-    try {
-
-        const resposta = await fetch(api + "/funcionario/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                email: email,
-                senha: senha
-            })
         });
 
-        const funcionario = await resposta.json();
+        funcionarioBtn.addEventListener("click", () => {
 
-        if(!resposta.ok){
-            throw new Error(funcionario.erro || "Email ou senha inválidos");
+            removerActive();
+            funcionarioBtn.classList.add("active");
+
+            tipoLogin = "funcionario";
+
+            tipoTexto.innerHTML = "Entrando como Funcionário";
+
+        });
+
+
+        /* =====================================================
+           LOGIN DO USUÁRIO
+        ===================================================== */
+
+        async function entrarComoUsuario(email, senha) {
+
+            try {
+
+                const resposta = await fetch(api + "/usuario/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        senha: senha
+                    })
+                });
+
+                const usuario = await resposta.json();
+
+                if (!resposta.ok) {
+                    throw new Error(usuario.erro || "Email ou senha inválidos");
+                }
+
+                localStorage.setItem(
+                    "usuarioLogado",
+                    JSON.stringify(usuario)
+                );
+
+                alert(`Bem-vindo, ${usuario.nome.split(" ")[0]}!`);
+
+                setTimeout(() => {
+                    window.location.replace("../../Usuario/HTML/TelaUsuario.html");
+                }, 1300);
+
+            } catch (error) {
+
+                alert(error.message || "Não foi possível entrar. Verifique se o servidor está ligado.");
+
+            }
+
         }
 
 
-        const ehAdmin = funcionario.tipoFunc.tipo === "admin";
+        /* =====================================================
+           LOGIN DO ADMIN E DO FUNCIONÁRIO
+        ===================================================== */
+
+        async function entrarComoFuncionario(email, senha) {
+
+            try {
+
+                const resposta = await fetch(api + "/funcionario/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        senha: senha
+                    })
+                });
+
+                const funcionario = await resposta.json();
+
+                if (!resposta.ok) {
+                    throw new Error(funcionario.erro || "Email ou senha inválidos");
+                }
 
 
-        if(tipoLogin === "admin" && !ehAdmin){
+                const ehAdmin = funcionario.tipoFunc.tipo === "admin";
 
-            throw new Error("Esta conta não é de administrador. Entre na aba Funcionário.");
+
+                if (tipoLogin === "admin" && !ehAdmin) {
+
+                    throw new Error("Esta conta não é de administrador. Entre na aba Funcionário.");
+
+                }
+
+
+                if (tipoLogin === "funcionario" && ehAdmin) {
+
+                    throw new Error("Esta conta é de administrador. Entre na aba Admin.");
+
+                }
+
+
+                localStorage.setItem(
+                    "funcionarioLogado",
+                    JSON.stringify(funcionario)
+                );
+
+
+                alert(`Bem-vindo, ${funcionario.nome.split(" ")[0]}!`);
+
+                setTimeout(() => {
+
+                    if (ehAdmin) {
+                        window.location.replace("../../Administrador/HTML/TelaADM.html");
+                    } else {
+                        window.location.replace("../../Funcionario/HTML/TelaFunc.html");
+                    }
+
+                }, 1300); 
+                
+                
+
+            } catch (error) {
+
+                alert(error.message || "Não foi possível entrar. Verifique se o servidor está ligado.");
+
+            }
 
         }
 
 
-        if(tipoLogin === "funcionario" && ehAdmin){
-
-            throw new Error("Esta conta é de administrador. Entre na aba Admin.");
-
-        }
+        formularioLogin.addEventListener("submit", (e) => {
+            e.preventDefault();
+        });
 
 
-        localStorage.setItem(
-            "funcionarioLogado",
-            JSON.stringify(funcionario)
-        );
+        btnEntrar.addEventListener("click", async (e) => {
 
+            e.preventDefault();
 
-        if(ehAdmin){
+            const email = emailInput.value.trim();
+            const senha = senhaInput.value;
 
-            window.location.replace("../../Administrador/HTML/TelaADM.html");
+            if (!email || !senha) {
 
-        }else{
+                alert("Preencha email e senha!");
 
-            window.location.replace("../../Funcionario/HTML/TelaFunc.html");
+                return;
 
-        }
+            }
 
-    } catch (error) {
+            btnEntrar.disabled = true;
 
-        alert(error.message || "Não foi possível entrar. Verifique se o servidor está ligado.");
+            if (tipoLogin === "usuario") {
 
-    }
+                await entrarComoUsuario(email, senha);
 
-}
+            } else {
 
+                await entrarComoFuncionario(email, senha);
 
-formularioLogin.addEventListener("submit", (e) => {
-    e.preventDefault();
-});
+            }
 
+            btnEntrar.disabled = false;
 
-btnEntrar.addEventListener("click", async (e) => {
+        });
 
-    e.preventDefault();
-
-    const email = emailInput.value.trim();
-    const senha = senhaInput.value;
-
-    if(!email || !senha){
-
-        alert("Preencha email e senha!");
-
-        return;
-
-    }
-
-    btnEntrar.disabled = true;
-
-    if(tipoLogin === "usuario"){
-
-        await entrarComoUsuario(email, senha);
-
-    }else{
-
-        await entrarComoFuncionario(email, senha);
-
-    }
-
-    btnEntrar.disabled = false;
-
-});
-
-</script>
+    </script>
 
 </body>
+
 </html>
