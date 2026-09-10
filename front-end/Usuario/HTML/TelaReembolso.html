@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>VagaConnect | Reembolso</title>
+
+<link rel="stylesheet" href="../CSS/TelaReembolso.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+rel="stylesheet">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+</head>
+
+
+<body>
+
+
+<div class="app">
+
+
+<!-- =========================================================
+     COLUNA DA ESQUERDA · contexto e regras
+========================================================= -->
+
+<aside class="rail">
+
+
+    <div class="rail-topo">
+
+        <a href="TelaUsuario.html" class="logo">
+            <i class="fa-solid fa-layer-group"></i>
+            <span>Vaga</span>Connect
+        </a>
+
+        <button id="voltar" aria-label="Voltar">←</button>
+
+    </div>
+
+
+    <div class="rail-titulo">
+        <p>Cancelamento</p>
+        <h1>Reembolso da taxa</h1>
+        <span>Cancelou antes de chegar? Metade da taxa volta para você.</span>
+    </div>
+
+
+    <div class="regras">
+
+        <p class="rail-rotulo">Como funciona</p>
+
+        <div class="regra">
+            <i class="fa-solid fa-percent"></i>
+            <div>
+                <strong>50% da taxa de volta</strong>
+                <small>A outra metade cobre a vaga que ficou bloqueada esperando você.</small>
+            </div>
+        </div>
+
+        <div class="regra">
+            <i class="fa-solid fa-clock"></i>
+            <div>
+                <strong>Só antes de confirmar a chegada</strong>
+                <small>Depois que o pátio registra sua entrada, a reserva já foi usada.</small>
+            </div>
+        </div>
+
+        <div class="regra">
+            <i class="fa-solid fa-user-check"></i>
+            <div>
+                <strong>O pátio analisa o pedido</strong>
+                <small>Você acompanha o status por aqui até a resposta.</small>
+            </div>
+        </div>
+
+    </div>
+
+
+</aside>
+
+
+
+<!-- =========================================================
+     COLUNA DA DIREITA
+========================================================= -->
+
+<main class="conteudo">
+
+
+    <!-- ---------- ESTADO 1 · SOLICITAR ---------- -->
+
+    <section class="painel" id="telaSolicitar" hidden>
+
+        <div class="painel-topo">
+            <h2>Confirmar o cancelamento</h2>
+            <span>Revise os dados antes de continuar</span>
+        </div>
+
+
+        <!-- resumo da reserva -->
+        <div class="resumo" id="resumoReserva"></div>
+
+
+        <!-- cálculo -->
+        <div class="calculo">
+
+            <div class="linha">
+                <span>Valor pago na reserva</span>
+                <strong id="valorPago">--</strong>
+            </div>
+
+            <div class="linha">
+                <span>Retido pelo pátio (50%)</span>
+                <strong class="retido" id="valorRetido">--</strong>
+            </div>
+
+            <div class="linha total">
+                <span>Você recebe de volta</span>
+                <strong id="valorReembolso">--</strong>
+            </div>
+
+        </div>
+
+
+        <label class="campo">
+            Motivo do cancelamento
+            <textarea id="motivo" rows="3" maxlength="200"
+                placeholder="Conte rapidamente o que aconteceu (opcional)"></textarea>
+            <small class="contador"><span id="contador">0</span>/200</small>
+        </label>
+
+
+        <label class="aceite">
+            <input type="checkbox" id="aceite">
+            <span>
+                Entendi que a reserva será cancelada na hora e que o reembolso
+                de <b id="aceiteValor">--</b> depende da aprovação do pátio.
+            </span>
+        </label>
+
+
+        <div class="acoes">
+
+            <button class="btn-voltar" id="btnDesistir">Manter minha reserva</button>
+
+            <button class="btn-perigo" id="btnConfirmar" disabled>
+                <i class="fa-solid fa-rotate-left"></i>
+                Cancelar e pedir reembolso
+            </button>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ---------- ESTADO 2 · BLOQUEADO ---------- -->
+
+    <section class="painel bloqueio" id="telaBloqueio" hidden>
+
+        <div class="bloqueio-icone"><i class="fa-solid fa-ban"></i></div>
+
+        <h2 id="bloqueioTitulo">Não é possível pedir reembolso</h2>
+
+        <p id="bloqueioTexto">Esta reserva não está mais na janela de cancelamento.</p>
+
+        <a href="TelaReserAndamento.html" class="btn-voltar">Voltar para minhas reservas</a>
+
+    </section>
+
+
+
+    <!-- ---------- ESTADO 3 · ACOMPANHAR ---------- -->
+
+    <section class="painel" id="telaStatus" hidden>
+
+        <div class="painel-topo">
+            <h2>Seus pedidos de reembolso</h2>
+            <span id="contagemPedidos">--</span>
+        </div>
+
+        <div id="listaPedidos"></div>
+
+        <a href="TelaReserAndamento.html" class="btn-voltar largo">
+            Voltar para minhas reservas
+        </a>
+
+    </section>
+
+
+    <p class="carregando" id="carregando">Carregando...</p>
+
+
+</main>
+
+
+</div>
+
+
+<script>
+    /* =====================================================
+   VagaConnect · Reembolso (usuário)
+
+   Fluxo:
+   1. A tela de reservas manda o id da reserva pela URL
+      (?id=...) ou pelo localStorage.
+   2. Aqui a pessoa confere o cálculo e confirma.
+   3. Ao confirmar: a reserva é cancelada, a vaga volta a
+      ficar livre e o pedido de reembolso nasce Pendente.
+   4. Sem id na URL, a tela mostra o acompanhamento dos
+      pedidos já feitos.
+
+   Enquanto o back não tiver a rota /reembolso, os pedidos
+   ficam no localStorage — igual fizemos nas prorrogações.
+===================================================== */
+
+
+// =====================================================
+// CONFIGURAÇÃO
+// =====================================================
+
+
+const api = "http://localhost:3333";
+
+
+// quanto da taxa volta para o cliente
+const PERCENTUAL_REEMBOLSO = 0.5;
+
+
+// só dá para pedir reembolso com a reserva nestes status
+const STATUS_QUE_PERMITE = ["Reservada"];
+
+
+const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
+
+
+if(!usuarioLogado){
+
+    window.location.replace("../../Base/HTML/OpçãoLogin.html");
+
+}
+
+
+let modoLocal = false;
+
+let reserva   = null;
+
+let pedidos   = [];
+
+
+
+// =====================================================
+// ELEMENTOS
+// =====================================================
+
+
+const telaSolicitar = document.getElementById("telaSolicitar");
+
+const telaBloqueio  = document.getElementById("telaBloqueio");
+
+const telaStatus    = document.getElementById("telaStatus");
+
+const carregando    = document.getElementById("carregando");
+
+
+const resumoReserva = document.getElementById("resumoReserva");
+
+const motivo        = document.getElementById("motivo");
+
+const contador      = document.getElementById("contador");
+
+const aceite        = document.getElementById("aceite");
+
+const btnConfirmar  = document.getElementById("btnConfirmar");
+
+const btnDesistir   = document.getElementById("btnDesistir");
+
+
+
+// =====================================================
+// AJUDANTES
+// =====================================================
+
+
+function mostrarPreco(valor){
+
+    return Number(valor || 0).toLocaleString("pt-BR", {
+
+        style: "currency",
+
+        currency: "BRL"
+
+    });
+
+}
+
+
+function mostrarDataHora(texto){
+
+    if(!texto) return "--";
+
+    const data = new Date(texto);
+
+    if(isNaN(data)) return "--";
+
+    const dia    = String(data.getDate()).padStart(2, "0");
+
+    const mes    = String(data.getMonth() + 1).padStart(2, "0");
+
+    const hora   = String(data.getHours()).padStart(2, "0");
+
+    const minuto = String(data.getMinutes()).padStart(2, "0");
+
+    return `${dia}/${mes}/${data.getFullYear()} às ${hora}:${minuto}`;
+
+}
+
+
+function totalPago(item){
+
+    if(!item.pagamentos) return 0;
+
+    return item.pagamentos.reduce((soma, p) => soma + Number(p.valor || 0), 0);
+
+}
+
+
+function calcularReembolso(pago){
+
+    return Math.round(pago * PERCENTUAL_REEMBOLSO * 100) / 100;
+
+}
+
+
+// número curto para a pessoa citar no atendimento
+function gerarProtocolo(id){
+
+    const texto = String(id);
+
+    let numero = 5381;
+
+    for(let i = 0; i < texto.length; i++){
+
+        numero = ((numero * 33) ^ texto.charCodeAt(i)) >>> 0;
+
+    }
+
+    return "RB-" + String(numero % 100000).padStart(5, "0");
+
+}
+
+
+function idDaUrl(){
+
+    const url = new URLSearchParams(window.location.search);
+
+    return url.get("id") || localStorage.getItem("reservaParaCancelar");
+
+}
+
+
+function mostrarTela(qual){
+
+    carregando.hidden    = true;
+
+    telaSolicitar.hidden = qual !== "solicitar";
+
+    telaBloqueio.hidden  = qual !== "bloqueio";
+
+    telaStatus.hidden    = qual !== "status";
+
+}
+
+
+function bloquear(titulo, texto){
+
+    document.getElementById("bloqueioTitulo").textContent = titulo;
+
+    document.getElementById("bloqueioTexto").textContent  = texto;
+
+    mostrarTela("bloqueio");
+
+}
+
+
+
+// =====================================================
+// PEDIDOS · API ou navegador
+// =====================================================
+
+
+async function listarPedidos(){
+
+    try {
+
+        const resposta = await fetch(api + "/reembolso");
+
+        if(!resposta.ok) throw new Error("sem endpoint");
+
+        modoLocal = false;
+
+        return await resposta.json();
+
+    } catch (error) {
+
+        modoLocal = true;
+
+        return JSON.parse(localStorage.getItem("reembolsos") || "[]");
+
+    }
+
+}
+
+
+async function salvarPedido(pedido){
+
+    try {
+
+        const resposta = await fetch(api + "/reembolso", {
+
+            method: "POST",
+
+            headers: { "Content-Type": "application/json" },
+
+            body: JSON.stringify({
+
+                valorPago:     pedido.valorPago,
+
+                valorDevolver: pedido.valorDevolver,
+
+                motivo:        pedido.motivo,
+
+                status:        "Pendente",
+
+                fk_reservacli: pedido.fk_reservacli,
+
+                fk_idCliente:  pedido.fk_idCliente
+
+            })
+
+        });
+
+        if(!resposta.ok) throw new Error("sem endpoint");
+
+        return await resposta.json();
+
+    } catch (error) {
+
+        const todos = JSON.parse(localStorage.getItem("reembolsos") || "[]");
+
+        todos.push(pedido);
+
+        localStorage.setItem("reembolsos", JSON.stringify(todos));
+
+        return pedido;
+
+    }
+
+}
+
+
+
+// =====================================================
+// CARREGAR
+// =====================================================
+
+
+async function carregar(){
+
+    const id = idDaUrl();
+
+
+    // sem id: a pessoa veio só acompanhar os pedidos
+    if(!id){
+
+        await mostrarAcompanhamento();
+
+        return;
+
+    }
+
+
+    try {
+
+        const resposta = await fetch(api + "/reservacli");
+
+        const lista = await resposta.json();
+
+        if(!resposta.ok) throw new Error(lista.erro || "Erro ao carregar a reserva");
+
+
+        reserva = lista.find(item => item.id === id);
+
+
+        if(!reserva){
+
+            bloquear("Reserva não encontrada", "Não localizamos essa reserva na sua conta.");
+
+            return;
+
+        }
+
+
+        if(reserva.fk_idCliente !== usuarioLogado.id){
+
+            bloquear("Reserva de outra pessoa", "Você só pode cancelar as suas próprias reservas.");
+
+            return;
+
+        }
+
+
+        // já confirmou a chegada? não cabe mais reembolso
+        if(!STATUS_QUE_PERMITE.includes(reserva.reserva.status)){
+
+            const status = reserva.reserva.status;
+
+            bloquear(
+
+                status === "Ativa"
+
+                    ? "Sua chegada já foi confirmada"
+
+                    : `Esta reserva está ${status.toLowerCase()}`,
+
+                status === "Ativa"
+
+                    ? "O pátio já registrou sua entrada, então a vaga foi usada e a taxa não é devolvida."
+
+                    : "O reembolso só vale para reservas que ainda não foram usadas nem canceladas."
+
+            );
+
+            return;
+
+        }
+
+
+        // já existe pedido em aberto para esta reserva?
+        pedidos = await listarPedidos();
+
+        const jaPediu = pedidos.find(p =>
+
+            p.fk_reservacli === reserva.id && p.status === "Pendente"
+
+        );
+
+
+        if(jaPediu){
+
+            await mostrarAcompanhamento();
+
+            aviso("aviso", "Pedido já enviado", "Esta reserva já tem um reembolso em análise.");
+
+            return;
+
+        }
+
+
+        preencherSolicitacao();
+
+    } catch (error) {
+
+        bloquear("Não deu para carregar", error.message || "Verifique se o servidor está ligado.");
+
+    }
+
+}
+
+
+
+// =====================================================
+// ESTADO 1 · SOLICITAR
+// =====================================================
+
+
+function preencherSolicitacao(){
+
+    const vaga  = reserva.reserva.vaga;
+
+    const pago  = totalPago(reserva);
+
+    const volta = calcularReembolso(pago);
+
+
+    resumoReserva.innerHTML = `
+
+        <div class="destaque">
+            <span>Estacionamento</span>
+            <strong>${vaga.estacionamento?.nome || "Estacionamento"}</strong>
+        </div>
+
+        <div>
+            <span>Vaga</span>
+            <strong>${vaga.numero} · ${vaga.tipo}</strong>
+        </div>
+
+        <div>
+            <span>Entrada marcada</span>
+            <strong>${mostrarDataHora(reserva.hora)}</strong>
+        </div>
+
+        <div>
+            <span>Veículo</span>
+            <strong>${reserva.carro ? reserva.carro.modelo + " · " + reserva.carro.placacarro : "--"}</strong>
+        </div>
+
+        <div>
+            <span>Situação</span>
+            <strong>${reserva.reserva.status}</strong>
+        </div>
+    `;
+
+
+    document.getElementById("valorPago").textContent      = mostrarPreco(pago);
+
+    document.getElementById("valorRetido").textContent    = mostrarPreco(pago - volta);
+
+    document.getElementById("valorReembolso").textContent = mostrarPreco(volta);
+
+    document.getElementById("aceiteValor").textContent    = mostrarPreco(volta);
+
+
+    mostrarTela("solicitar");
+
+}
+
+
+// o botão só libera com o aceite marcado
+aceite.addEventListener("change", () => {
+
+    btnConfirmar.disabled = !aceite.checked;
+
+});
+
+
+motivo.addEventListener("input", () => {
+
+    contador.textContent = motivo.value.length;
+
+});
+
+
+btnDesistir.addEventListener("click", () => {
+
+    localStorage.removeItem("reservaParaCancelar");
+
+    window.location.href = "TelaReserAndamento.html";
+
+});
+
+
+
+// =====================================================
+// CONFIRMAR O CANCELAMENTO
+// =====================================================
+
+
+btnConfirmar.addEventListener("click", async () => {
+
+    btnConfirmar.disabled = true;
+
+    btnConfirmar.textContent = "Enviando...";
+
+
+    const pago  = totalPago(reserva);
+
+    const volta = calcularReembolso(pago);
+
+
+    try {
+
+        // 1. cancela a reserva
+        const respostaReserva = await fetch(api + "/reserva/" + reserva.fk_idReserva, {
+
+            method: "PUT",
+
+            headers: { "Content-Type": "application/json" },
+
+            body: JSON.stringify({
+
+                status:  "Cancelada",
+
+                fk_vaga: reserva.reserva.fk_vaga
+
+            })
+
+        });
+
+
+        const retorno = await respostaReserva.json();
+
+        if(!respostaReserva.ok) throw new Error(retorno.erro || "Erro ao cancelar a reserva");
+
+
+        // 2. libera a vaga
+        const vaga = reserva.reserva.vaga;
+
+        await fetch(api + "/vaga/" + vaga.id, {
+
+            method: "PUT",
+
+            headers: { "Content-Type": "application/json" },
+
+            body: JSON.stringify({
+
+                numero: vaga.numero,
+
+                tipo:   vaga.tipo,
+
+                status: "Livre",
+
+                preco:  vaga.preco,
+
+                fk_est: vaga.fk_est
+
+            })
+
+        });
+
+
+        // 3. registra o pedido de reembolso
+        await salvarPedido({
+
+            id:            "rb" + Date.now(),
+
+            fk_reservacli: reserva.id,
+
+            fk_idCliente:  usuarioLogado.id,
+
+            valorPago:     pago,
+
+            valorDevolver: volta,
+
+            motivo:        motivo.value.trim(),
+
+            status:        "Pendente",
+
+            criadoEm:      new Date().toISOString(),
+
+            respondido:    null
+
+        });
+
+
+        localStorage.removeItem("reservaParaCancelar");
+
+
+        aviso("sucesso", "Pedido enviado", `Você receberá ${mostrarPreco(volta)} após a aprovação do pátio.`);
+
+
+        await mostrarAcompanhamento();
+
+    } catch (error) {
+
+        aviso("erro", "Não deu para cancelar", error.message);
+
+        btnConfirmar.disabled = false;
+
+        btnConfirmar.innerHTML = '<i class="fa-solid fa-rotate-left"></i> Cancelar e pedir reembolso';
+
+    }
+
+});
+
+
+
+// =====================================================
+// ESTADO 3 · ACOMPANHAR
+// =====================================================
+
+
+async function mostrarAcompanhamento(){
+
+    pedidos = (await listarPedidos())
+
+        .filter(p => p.fk_idCliente === usuarioLogado.id)
+
+        .sort((a, b) => new Date(b.criadoEm) - new Date(a.criadoEm));
+
+
+    const lista = document.getElementById("listaPedidos");
+
+
+    document.getElementById("contagemPedidos").textContent =
+
+        pedidos.length === 1 ? "1 pedido" : `${pedidos.length} pedidos`;
+
+
+    if(pedidos.length === 0){
+
+        lista.innerHTML = `<p class="vazio">Você ainda não pediu nenhum reembolso.</p>`;
+
+        mostrarTela("status");
+
+        return;
+
+    }
+
+
+    lista.innerHTML = pedidos.map(p => {
+
+        const classe = String(p.status).toLowerCase();
+
+        const respondido = p.status !== "Pendente";
+
+
+        return `
+        <article class="pedido ${classe}">
+
+            <div class="pedido-topo">
+                <span class="selo ${classe}">${p.status}</span>
+                <span class="protocolo">${gerarProtocolo(p.id)}</span>
+            </div>
+
+            <h3>${mostrarPreco(p.valorDevolver)}</h3>
+
+            <p class="sub">Pedido em ${mostrarDataHora(p.criadoEm)}</p>
+
+            <div class="pedido-valores">
+
+                <div>
+                    <span>Valor pago</span>
+                    <strong>${mostrarPreco(p.valorPago)}</strong>
+                </div>
+
+                <div>
+                    <span>Retido</span>
+                    <strong>${mostrarPreco(p.valorPago - p.valorDevolver)}</strong>
+                </div>
+
+                <div>
+                    <span>A devolver</span>
+                    <strong class="verde">${mostrarPreco(p.valorDevolver)}</strong>
+                </div>
+
+            </div>
+
+            ${p.motivo ? `<p class="motivo-texto">"${p.motivo}"</p>` : ""}
+
+            <div class="trilha">
+
+                <div class="etapa feita">
+                    <i></i><span>Solicitado</span>
+                </div>
+
+                <div class="etapa ${respondido ? "feita" : "feita"}">
+                    <i></i><span>Em análise</span>
+                </div>
+
+                <div class="etapa ${p.status === "Aprovada" ? "ok" : p.status === "Recusada" ? "nao" : ""}">
+                    <i></i><span>${respondido ? p.status : "Resultado"}</span>
+                </div>
+
+            </div>
+
+        </article>`;
+
+    }).join("");
+
+
+    mostrarTela("status");
+
+}
+
+
+
+// =====================================================
+// VOLTAR
+// =====================================================
+
+
+document.getElementById("voltar").addEventListener("click", () => {
+
+    window.location.href = "TelaReserAndamento.html";
+
+});
+
+
+
+carregar();
+
+
+
+// =====================================================
+// AVISOS
+// =====================================================
+
+
+const cores = {
+
+    sucesso: "#34d399",
+
+    aviso:   "#fbbf24",
+
+    erro:    "#f87171",
+
+    azul:    "#6fb4ff"
+
+};
+
+
+const caixaAvisos = document.createElement("div");
+
+caixaAvisos.className = "vc-avisos";
+
+caixaAvisos.setAttribute("role", "status");
+
+caixaAvisos.setAttribute("aria-live", "polite");
+
+document.body.appendChild(caixaAvisos);
+
+
+function aviso(tom, titulo, texto){
+
+    const el = document.createElement("div");
+
+    el.className = "vc-aviso";
+
+    el.style.setProperty("--c", cores[tom] || cores.azul);
+
+    el.innerHTML = "<b></b><span></span>";
+
+    el.querySelector("b").textContent = titulo;
+
+    el.querySelector("span").textContent = texto || "";
+
+
+    function fechar(){
+
+        el.classList.remove("on");
+
+        setTimeout(() => el.remove(), 220);
+
+    }
+
+
+    el.onclick = fechar;
+
+    caixaAvisos.appendChild(el);
+
+    requestAnimationFrame(() => el.classList.add("on"));
+
+    setTimeout(fechar, tom === "erro" ? 6000 : 4500);
+
+
+    while(caixaAvisos.children.length > 3) caixaAvisos.firstElementChild.remove();
+
+
+}
+</script>
+
+
+</body>
+</html>

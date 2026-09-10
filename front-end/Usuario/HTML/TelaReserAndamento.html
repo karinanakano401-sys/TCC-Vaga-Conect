@@ -27,8 +27,6 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 
 <!-- =========================================================
      COLUNA DA ESQUERDA
-     Marca, título, atalhos e as duas ações gerais da tela.
-     Os botões que antes ficavam soltos no rodapé estão aqui.
 ========================================================= -->
 
 <aside class="rail">
@@ -65,7 +63,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
         <a href="../HTML/TelaReserConfirmada.html">
             <button class="extend destaque">
                 <i class="fa-solid fa-circle-check"></i>
-                Desejo confirmar reserva
+                Desejo confirmar Presença
             </button>
         </a>
 
@@ -84,7 +82,6 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 
 <!-- =========================================================
      COLUNA DA DIREITA
-     A lista de reservas. O JS continua desenhando aqui dentro.
 ========================================================= -->
 
 <main class="lista">
@@ -109,19 +106,18 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 </div>
 
 
-
-<!-- =========================================================
-     SEU SCRIPT
-     Cole aqui o <script> que você já tem, sem mudar nada.
-========================================================= -->
-
 <script>
+
+/* =====================================================
+   JANELA DE CONFIRMAÇÃO E AVISOS
+===================================================== */
 
 (function(){
 
     const css = document.createElement("style");
 
     css.textContent = `
+
     /* ---------- janela de confirmação ---------- */
 
     .vc-fundo{
@@ -129,105 +125,322 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
         display:grid; place-items:center; padding:20px;
         background:rgba(4,12,24,.72);
         backdrop-filter:blur(4px);
-        opacity:0; transition:opacity .18s ease;
+        opacity:0;
+        transition:opacity .18s ease;
         font-family:'Poppins', sans-serif;
     }
-    .vc-fundo.on{ opacity:1; }
+
+    .vc-fundo.on{
+        opacity:1;
+    }
 
     .vc-modal{
         width:min(360px, 100%);
         padding:24px 22px 18px;
         border:1px solid rgba(126,178,232,.2);
         border-radius:16px;
-        background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0) 130px), #0b2138;
+        background:
+            linear-gradient(
+                180deg,
+                rgba(255,255,255,.05),
+                rgba(255,255,255,0) 130px
+            ),
+            #0b2138;
         box-shadow:0 28px 60px rgba(0,0,0,.55);
-        color:#e8f2ff; text-align:center;
+        color:#e8f2ff;
+        text-align:center;
         transform:translateY(12px) scale(.97);
-        transition:transform .22s cubic-bezier(.2,.9,.3,1.25);
+        transition:
+            transform .22s cubic-bezier(.2,.9,.3,1.25);
     }
-    .vc-fundo.on .vc-modal{ transform:none; }
+
+    .vc-fundo.on .vc-modal{
+        transform:none;
+    }
 
     .vc-simbolo{
-        width:52px; height:52px; margin:0 auto 14px;
-        display:grid; place-items:center;
-        border:1px solid var(--c); border-radius:50%;
-        background:var(--f); color:var(--c);
-        font-size:24px; font-weight:600; line-height:1;
+        width:52px;
+        height:52px;
+        margin:0 auto 14px;
+        display:grid;
+        place-items:center;
+        border:1px solid var(--c);
+        border-radius:50%;
+        background:var(--f);
+        color:var(--c);
+        font-size:24px;
+        font-weight:600;
+        line-height:1;
     }
 
-    .vc-modal h3{ font-size:16.5px; font-weight:600; margin-bottom:6px; }
-    .vc-modal p{ color:#93aecb; font-size:12.5px; line-height:1.55; margin-bottom:20px; }
+    .vc-modal h3{
+        font-size:16.5px;
+        font-weight:600;
+        margin-bottom:6px;
+    }
 
-    .vc-botoes{ display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+    .vc-modal p{
+        color:#93aecb;
+        font-size:12.5px;
+        line-height:1.55;
+        margin-bottom:20px;
+    }
+
+    .vc-botoes{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:9px;
+    }
 
     .vc-botoes button{
-        height:42px; border-radius:11px; border:1px solid transparent;
-        font-family:inherit; font-size:13px; font-weight:600; cursor:pointer;
-        transition:background .18s, border-color .18s, color .18s;
+        height:42px;
+        border-radius:11px;
+        border:1px solid transparent;
+        font-family:inherit;
+        font-size:13px;
+        font-weight:600;
+        cursor:pointer;
+        transition:
+            background .18s,
+            border-color .18s,
+            color .18s;
     }
-    .vc-nao{ border-color:rgba(126,178,232,.3); background:transparent; color:#dceaf8; }
-    .vc-nao:hover{ background:rgba(111,180,255,.12); }
 
-    .vc-sim{ background:var(--c); color:#06182d; }
-    .vc-sim:hover{ filter:brightness(1.12); }
+    .vc-nao{
+        border-color:rgba(126,178,232,.3);
+        background:transparent;
+        color:#dceaf8;
+    }
 
-    .vc-botoes button:focus-visible{ outline:3px solid #6fb4ff; outline-offset:2px; }
+    .vc-nao:hover{
+        background:rgba(111,180,255,.12);
+    }
+
+    .vc-sim{
+        background:var(--c);
+        color:#06182d;
+    }
+
+    .vc-sim:hover{
+        filter:brightness(1.12);
+    }
+
+    .vc-botoes button:focus-visible{
+        outline:3px solid #6fb4ff;
+        outline-offset:2px;
+    }
 
 
     /* ---------- avisos ---------- */
 
     .vc-avisos{
-        position:fixed; top:18px; right:18px; z-index:10001;
-        display:flex; flex-direction:column; gap:10px;
-        width:min(320px, calc(100vw - 36px)); pointer-events:none;
+        position:fixed;
+        top:18px;
+        right:18px;
+        z-index:10001;
+        display:flex;
+        flex-direction:column;
+        gap:10px;
+        width:min(320px, calc(100vw - 36px));
+        pointer-events:none;
     }
+
     .vc-aviso{
-        position:relative; padding:13px 14px 15px 15px;
+        position:relative;
+        padding:13px 14px 15px 15px;
         border:1px solid rgba(126,178,232,.2);
         border-left:3px solid var(--c);
         border-radius:12px;
-        background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0)), #0b2138;
+        background:
+            linear-gradient(
+                180deg,
+                rgba(255,255,255,.05),
+                rgba(255,255,255,0)
+            ),
+            #0b2138;
         box-shadow:0 18px 40px rgba(0,0,0,.5);
-        color:#e8f2ff; font-family:'Poppins', sans-serif;
-        pointer-events:auto; overflow:hidden; cursor:pointer;
-        opacity:0; transform:translateX(16px);
-        transition:opacity .2s, transform .2s;
+        color:#e8f2ff;
+        font-family:'Poppins', sans-serif;
+        pointer-events:auto;
+        overflow:hidden;
+        cursor:pointer;
+        opacity:0;
+        transform:translateX(16px);
+        transition:
+            opacity .2s,
+            transform .2s;
     }
-    .vc-aviso.on{ opacity:1; transform:none; }
-    .vc-aviso b{ display:block; color:var(--c); font-size:12.5px; margin-bottom:2px; }
-    .vc-aviso span{ display:block; color:#cfe0f2; font-size:12.5px; line-height:1.45; }
+
+    .vc-aviso.on{
+        opacity:1;
+        transform:none;
+    }
+
+    .vc-aviso b{
+        display:block;
+        color:var(--c);
+        font-size:12.5px;
+        margin-bottom:2px;
+    }
+
+    .vc-aviso span{
+        display:block;
+        color:#cfe0f2;
+        font-size:12.5px;
+        line-height:1.45;
+    }
+
     .vc-barra{
-        position:absolute; left:0; right:0; bottom:0; height:3px;
-        background:var(--c); opacity:.7; transform-origin:left;
+        position:absolute;
+        left:0;
+        right:0;
+        bottom:0;
+        height:3px;
+        background:var(--c);
+        opacity:.7;
+        transform-origin:left;
         animation:vc-run linear forwards;
     }
-    .vc-aviso:hover .vc-barra{ animation-play-state:paused; }
-    @keyframes vc-run{ from{transform:scaleX(1)} to{transform:scaleX(0)} }
+
+    .vc-aviso:hover .vc-barra{
+        animation-play-state:paused;
+    }
+
+    @keyframes vc-run{
+        from{
+            transform:scaleX(1);
+        }
+
+        to{
+            transform:scaleX(0);
+        }
+    }
+
+
+    /* =====================================================
+       NOVO — INFORMAÇÃO DA PRORROGAÇÃO
+    ===================================================== */
+
+    .prorrogacao-info{
+        display:flex;
+        align-items:center;
+        gap:12px;
+        margin-top:14px;
+        padding:12px 14px;
+        border:1px solid rgba(52,211,153,.22);
+        border-radius:12px;
+        background:rgba(52,211,153,.07);
+        color:#dffaf0;
+        animation:prorrogacaoEntrada .35s ease;
+    }
+
+    .prorrogacao-info i{
+        width:34px;
+        height:34px;
+        flex-shrink:0;
+        display:grid;
+        place-items:center;
+        border-radius:50%;
+        background:rgba(52,211,153,.13);
+        color:#34d399;
+        font-size:14px;
+    }
+
+    .prorrogacao-info div{
+        display:flex;
+        flex-direction:column;
+        gap:2px;
+    }
+
+    .prorrogacao-info strong{
+        color:#34d399;
+        font-size:12.5px;
+        font-weight:600;
+    }
+
+    .prorrogacao-info span{
+        color:#a8c5dc;
+        font-size:11px;
+        line-height:1.4;
+    }
+
+    @keyframes prorrogacaoEntrada{
+
+        from{
+            opacity:0;
+            transform:translateY(-6px);
+        }
+
+        to{
+            opacity:1;
+            transform:translateY(0);
+        }
+
+    }
+
 
     @media (prefers-reduced-motion:reduce){
-        .vc-fundo,.vc-modal,.vc-aviso{ transition:none; }
-        .vc-barra{ animation:none; }
+
+        .vc-fundo,
+        .vc-modal,
+        .vc-aviso,
+        .prorrogacao-info{
+            transition:none;
+            animation:none;
+        }
+
+        .vc-barra{
+            animation:none;
+        }
+
     }
+
+
     @media (max-width:600px){
-        .vc-avisos{ top:auto; bottom:14px; left:14px; right:14px; width:auto; }
+
+        .vc-avisos{
+            top:auto;
+            bottom:14px;
+            left:14px;
+            right:14px;
+            width:auto;
+        }
+
     }`;
 
     document.head.appendChild(css);
 
 
     const tons = {
-        perigo:  { c:"#f87171", f:"rgba(248,113,113,.13)", s:"!" },
-        aviso:   { c:"#fbbf24", f:"rgba(251,191,36,.13)",  s:"?" },
-        azul:    { c:"#6fb4ff", f:"rgba(111,180,255,.13)", s:"?" },
-        sucesso: { c:"#34d399", f:"rgba(52,211,153,.13)",  s:"✓" }
+
+        perigo: {
+            c:"#f87171",
+            f:"rgba(248,113,113,.13)",
+            s:"!"
+        },
+
+        aviso: {
+            c:"#fbbf24",
+            f:"rgba(251,191,36,.13)",
+            s:"?"
+        },
+
+        azul: {
+            c:"#6fb4ff",
+            f:"rgba(111,180,255,.13)",
+            s:"?"
+        },
+
+        sucesso: {
+            c:"#34d399",
+            f:"rgba(52,211,153,.13)",
+            s:"✓"
+        }
+
     };
 
 
-
-    /* =============================================
-       confirmar({ titulo, texto, sim, nao, tom })
-       devolve uma Promise: true ou false
-    ============================================= */
+    /* confirmar({ titulo, texto, sim, nao, tom }) devolve uma Promise */
 
     window.confirmar = function(op){
 
@@ -247,34 +460,74 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
             fundo.style.setProperty("--f", tom.f);
 
             fundo.innerHTML = `
-                <div class="vc-modal" role="dialog" aria-modal="true" aria-labelledby="vcTit">
-                    <div class="vc-simbolo" aria-hidden="true">${op.simbolo || tom.s}</div>
-                    <h3 id="vcTit"></h3>
-                    <p></p>
-                    <div class="vc-botoes">
-                        <button class="vc-nao" type="button"></button>
-                        <button class="vc-sim" type="button"></button>
+                <div
+                    class="vc-modal"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="vcTit">
+
+                    <div
+                        class="vc-simbolo"
+                        aria-hidden="true">
+                        ${op.simbolo || tom.s}
                     </div>
+
+                    <h3 id="vcTit"></h3>
+
+                    <p></p>
+
+                    <div class="vc-botoes">
+
+                        <button
+                            class="vc-nao"
+                            type="button">
+                        </button>
+
+                        <button
+                            class="vc-sim"
+                            type="button">
+                        </button>
+
+                    </div>
+
                 </div>`;
 
-            fundo.querySelector("h3").textContent = op.titulo || "Tem certeza?";
 
-            fundo.querySelector("p").textContent  = op.texto  || "";
-
-            const naoBtn = fundo.querySelector(".vc-nao");
-
-            const simBtn = fundo.querySelector(".vc-sim");
-
-            naoBtn.textContent = op.nao || "Voltar";
-
-            simBtn.textContent = op.sim || "Confirmar";
+            fundo.querySelector("h3").textContent =
+                op.titulo || "Tem certeza?";
 
 
-            const focoAnterior = document.activeElement;
+            fundo.querySelector("p").textContent =
+                op.texto || "";
+
+
+            const naoBtn =
+                fundo.querySelector(".vc-nao");
+
+
+            const simBtn =
+                fundo.querySelector(".vc-sim");
+
+
+            naoBtn.textContent =
+                op.nao || "Voltar";
+
+
+            simBtn.textContent =
+                op.sim || "Confirmar";
+
+
+            const focoAnterior =
+                document.activeElement;
+
 
             document.body.appendChild(fundo);
 
-            requestAnimationFrame(()=> fundo.classList.add("on"));
+
+            requestAnimationFrame(() =>
+                fundo.classList.add("on")
+            );
+
 
             naoBtn.focus();
 
@@ -283,35 +536,68 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 
                 fundo.classList.remove("on");
 
-                setTimeout(()=> fundo.remove(), 200);
+                setTimeout(
+                    () => fundo.remove(),
+                    200
+                );
 
-                document.removeEventListener("keydown", tecla);
+                document.removeEventListener(
+                    "keydown",
+                    tecla
+                );
 
-                if(focoAnterior && focoAnterior.focus) focoAnterior.focus();
+
+                if(
+                    focoAnterior &&
+                    focoAnterior.focus
+                ){
+                    focoAnterior.focus();
+                }
+
 
                 responder(valor);
 
             }
 
-            function tecla(e){ if(e.key === "Escape") fechar(false); }
 
-            document.addEventListener("keydown", tecla);
+            function tecla(e){
 
-            naoBtn.onclick = ()=> fechar(false);
+                if(e.key === "Escape"){
+                    fechar(false);
+                }
 
-            simBtn.onclick = ()=> fechar(true);
+            }
 
-            fundo.onclick  = (e)=> { if(e.target === fundo) fechar(false); };
+
+            document.addEventListener(
+                "keydown",
+                tecla
+            );
+
+
+            naoBtn.onclick =
+                () => fechar(false);
+
+
+            simBtn.onclick =
+                () => fechar(true);
+
+
+            fundo.onclick =
+                (e) => {
+
+                    if(e.target === fundo){
+                        fechar(false);
+                    }
+
+                };
 
         });
 
     };
 
 
-
-    /* =============================================
-       AVISOS  (substituem o alert desta tela)
-    ============================================= */
+    /* avisos no lugar do alert */
 
     const caixa = document.createElement("div");
 
@@ -326,92 +612,202 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 
     const regras = [
 
-        { re:/prorrogada/i,               t:"sucesso", tit:"Reserva prorrogada",
-          txt:"Sua saída prevista foi adiada em 1 hora." },
+        {
+            re:/prorrogada/i,
+            t:"sucesso",
+            tit:"Reserva prorrogada",
+            txt:"Sua saída prevista foi adiada em 1 hora."
+        },
 
-        { re:/cancelada e vaga liberada/i, t:"sucesso", tit:"Reserva cancelada",
-          txt:"A vaga voltou a ficar disponível." },
+        {
+            re:/já usou a prorrogação/i,
+            t:"aviso",
+            tit:"Prorrogação já usada",
+            txt:"Cada reserva pode ser prorrogada uma vez só."
+        },
 
-        { re:/não foi possível prorrogar/i, t:"perigo", tit:"Não deu para prorrogar" },
+        {
+            re:/cancelada e vaga liberada/i,
+            t:"sucesso",
+            tit:"Reserva cancelada",
+            txt:"A vaga voltou a ficar disponível."
+        },
 
-        { re:/não foi possível cancelar/i,  t:"perigo", tit:"Não deu para cancelar" },
+        {
+            re:/nenhuma reserva em andamento/i,
+            t:"aviso",
+            tit:"Nada para prorrogar",
+            txt:"Você não tem reserva em andamento no momento."
+        },
 
-        { re:/erro|servidor/i,              t:"perigo", tit:"Problema com o servidor",
-          txt:"Confira se o back-end está rodando em localhost:3333." }
+        {
+            re:/abrindo a tela de reembolso/i,
+            t:"azul",
+            tit:"Reembolso",
+            txt:"Abrindo a tela para você confirmar o cancelamento..."
+        },
+
+        {
+            re:/chegada já foi confirmada/i,
+            t:"aviso",
+            tit:"Chegada confirmada",
+            txt:"A vaga já foi usada, então não cabe mais reembolso."
+        },
+
+        {
+            re:/não foi possível prorrogar/i,
+            t:"perigo",
+            tit:"Não deu para prorrogar"
+        },
+
+        {
+            re:/não foi possível cancelar/i,
+            t:"perigo",
+            tit:"Não deu para cancelar"
+        },
+
+        {
+            re:/erro|servidor/i,
+            t:"perigo",
+            tit:"Problema com o servidor",
+            txt:"Confira se o back-end está rodando em localhost:3333."
+        }
 
     ];
 
 
     window.alert = function(msg){
 
-        const r = regras.find(x => x.re.test(String(msg))) || {};
+        const r =
+            regras.find(
+                x => x.re.test(String(msg))
+            ) || {};
 
-        const tom = tons[r.t] || tons.azul;
 
-        const tempo = r.t === "perigo" ? 6000 : 4200;
+        const tom =
+            tons[r.t] || tons.azul;
 
 
-        const el = document.createElement("div");
+        const tempo =
+            r.t === "perigo"
+                ? 6000
+                : 4200;
+
+
+        const el =
+            document.createElement("div");
+
 
         el.className = "vc-aviso";
 
-        el.style.setProperty("--c", tom.c);
 
-        el.innerHTML = `<b></b><span></span>
-                        <div class="vc-barra" style="animation-duration:${tempo}ms"></div>`;
+        el.style.setProperty(
+            "--c",
+            tom.c
+        );
 
-        el.querySelector("b").textContent    = r.tit || "VagaConnect";
 
-        el.querySelector("span").textContent = r.txt || String(msg);
+        el.innerHTML = `
+            <b></b>
+            <span></span>
+
+            <div
+                class="vc-barra"
+                style="animation-duration:${tempo}ms">
+            </div>`;
+
+
+        el.querySelector("b").textContent =
+            r.tit || "VagaConnect";
+
+
+        el.querySelector("span").textContent =
+            r.txt || String(msg);
 
 
         function fechar(){
 
             el.classList.remove("on");
 
-            setTimeout(()=> el.remove(), 220);
+            setTimeout(
+                () => el.remove(),
+                220
+            );
 
         }
 
+
         el.onclick = fechar;
+
 
         caixa.appendChild(el);
 
-        requestAnimationFrame(()=> el.classList.add("on"));
+
+        requestAnimationFrame(() =>
+            el.classList.add("on")
+        );
 
 
-        let t = setTimeout(fechar, tempo);
+        let t =
+            setTimeout(
+                fechar,
+                tempo
+            );
 
-        el.addEventListener("mouseenter", ()=> clearTimeout(t));
 
-        el.addEventListener("mouseleave", ()=> { t = setTimeout(fechar, 1500); });
+        el.addEventListener(
+            "mouseenter",
+            () => clearTimeout(t)
+        );
 
 
-        while(caixa.children.length > 3) caixa.firstElementChild.remove();
+        el.addEventListener(
+            "mouseleave",
+            () => {
+
+                t = setTimeout(
+                    fechar,
+                    1500
+                );
+
+            }
+        );
+
+
+        while(caixa.children.length > 3){
+
+            caixa.firstElementChild.remove();
+
+        }
 
     };
 
 })();
+
+
 
 // =====================================================
 // CONFIGURAÇÃO
 // =====================================================
 
 
-const api = "http://localhost:3333";
+const api =
+    "http://localhost:3333";
 
 
-const usuarioLogado = JSON.parse(
-    localStorage.getItem("usuarioLogado")
-);
+const usuarioLogado =
+    JSON.parse(
+        localStorage.getItem("usuarioLogado")
+    );
 
 
 if(!usuarioLogado){
 
-    window.location.replace("../../Base/HTML/OpçãoLogin.html");
+    window.location.replace(
+        "../../Base/HTML/OpçãoLogin.html"
+    );
 
 }
-
 
 
 
@@ -420,9 +816,16 @@ if(!usuarioLogado){
 // =====================================================
 
 
-const listaReservas = document.getElementById("listaReservas");
+const listaReservas =
+    document.getElementById("listaReservas");
 
-const voltar = document.getElementById("voltar");
+
+const voltar =
+    document.getElementById("voltar");
+
+
+const btnProrrogar =
+    document.getElementById("prorrogar");
 
 
 
@@ -430,6 +833,7 @@ let reservas = [];
 
 let contador = null;
 
+let reembolsos = [];
 
 
 
@@ -440,10 +844,13 @@ let contador = null;
 
 function mostrarPreco(valor){
 
-    return Number(valor || 0).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-    });
+    return Number(valor || 0).toLocaleString(
+        "pt-BR",
+        {
+            style:"currency",
+            currency:"BRL"
+        }
+    );
 
 }
 
@@ -454,16 +861,32 @@ function mostrarDataHora(texto){
     if(!texto) return "--";
 
 
-    const data = new Date(texto);
+    const data =
+        new Date(texto);
 
 
-    const dia = String(data.getDate()).padStart(2, "0");
+    const dia =
+        String(
+            data.getDate()
+        ).padStart(2,"0");
 
-    const mes = String(data.getMonth() + 1).padStart(2, "0");
 
-    const hora = String(data.getHours()).padStart(2, "0");
+    const mes =
+        String(
+            data.getMonth() + 1
+        ).padStart(2,"0");
 
-    const minuto = String(data.getMinutes()).padStart(2, "0");
+
+    const hora =
+        String(
+            data.getHours()
+        ).padStart(2,"0");
+
+
+    const minuto =
+        String(
+            data.getMinutes()
+        ).padStart(2,"0");
 
 
     return `${dia}/${mes}/${data.getFullYear()} - ${hora}:${minuto}`;
@@ -474,7 +897,10 @@ function mostrarDataHora(texto){
 
 function formatar(valor){
 
-    return String(valor).padStart(2, "0");
+    return String(valor).padStart(
+        2,
+        "0"
+    );
 
 }
 
@@ -483,7 +909,8 @@ function formatar(valor){
 function totalPago(reservaCli){
 
     return reservaCli.pagamentos.reduce(
-        (soma, pagamento) => soma + pagamento.valor,
+        (soma, pagamento) =>
+            soma + pagamento.valor,
         0
     );
 
@@ -493,9 +920,12 @@ function totalPago(reservaCli){
 
 function estaAtiva(item){
 
-    const status = item.reserva.status;
+    const status =
+        item.reserva.status;
 
-    return status !== "Cancelada" && status !== "Concluída";
+
+    return status !== "Cancelada" &&
+           status !== "Concluída";
 
 }
 
@@ -503,9 +933,13 @@ function estaAtiva(item){
 
 function classeDoStatus(status){
 
-    if(status === "Cancelada") return "cancelada";
+    if(status === "Cancelada")
+        return "cancelada";
 
-    if(status === "Concluída") return "concluida";
+
+    if(status === "Concluída")
+        return "concluida";
+
 
     return "";
 
@@ -515,10 +949,123 @@ function classeDoStatus(status){
 
 function distanciaDoHorario(item){
 
-    return Math.abs(new Date(item.hora).getTime() - Date.now());
+    return Math.abs(
+        new Date(item.hora).getTime()
+        - Date.now()
+    );
 
 }
 
+
+
+// =====================================================
+// PRORROGAÇÃO ÚNICA
+// Cada reserva só pode ser prorrogada uma vez.
+// O controle fica guardado no navegador.
+// =====================================================
+
+
+function listaProrrogadas(){
+
+    return JSON.parse(
+        localStorage.getItem(
+            "prorrogacoesUsadas"
+        ) || "[]"
+    );
+
+}
+
+
+
+function jaProrrogou(idReservaCli){
+
+    return listaProrrogadas()
+        .includes(idReservaCli);
+
+}
+
+
+
+function marcarProrrogada(idReservaCli){
+
+    const usadas =
+        listaProrrogadas();
+
+
+    if(!usadas.includes(idReservaCli)){
+
+        usadas.push(idReservaCli);
+
+
+        localStorage.setItem(
+            "prorrogacoesUsadas",
+            JSON.stringify(usadas)
+        );
+
+    }
+
+}
+
+
+
+// =====================================================
+// REEMBOLSOS
+// =====================================================
+
+
+// lê os pedidos da API; se a rota não existir,
+// usa o navegador
+
+async function carregarReembolsos(){
+
+    try {
+
+        const resposta =
+            await fetch(
+                api + "/reembolso"
+            );
+
+
+        if(!resposta.ok)
+            throw new Error("sem endpoint");
+
+
+        reembolsos =
+            await resposta.json();
+
+
+    } catch(error){
+
+        reembolsos =
+            JSON.parse(
+                localStorage.getItem(
+                    "reembolsos"
+                ) || "[]"
+            );
+
+    }
+
+
+    reembolsos =
+        reembolsos.filter(
+            p =>
+                p.fk_idCliente ===
+                usuarioLogado.id
+        );
+
+}
+
+
+
+function reembolsoDaReserva(idReservaCli){
+
+    return reembolsos.find(
+        p =>
+            p.fk_reservacli ===
+            idReservaCli
+    ) || null;
+
+}
 
 
 
@@ -529,67 +1076,95 @@ function distanciaDoHorario(item){
 
 async function carregarReservas(){
 
-
     try {
 
+        const resposta =
+            await fetch(
+                api + "/reservacli"
+            );
 
-        const resposta = await fetch(api + "/reservacli");
 
-
-        const lista = await resposta.json();
+        const lista =
+            await resposta.json();
 
 
         if(!resposta.ok){
 
-            throw new Error(lista.erro || "Erro ao carregar suas reservas");
+            throw new Error(
+                lista.erro ||
+                "Erro ao carregar suas reservas"
+            );
 
         }
 
 
 
-        // Ativas primeiro; entre elas, a mais perto do horário de entrada
-        reservas = lista
+        // Ativas primeiro; entre elas,
+        // a mais perto do horário de entrada
 
-            .filter(item => item.fk_idCliente === usuarioLogado.id)
+        reservas =
+            lista
 
-            .sort((a, b) => {
+            .filter(
+                item =>
+                    item.fk_idCliente ===
+                    usuarioLogado.id
+            )
 
-                const ativaA = estaAtiva(a);
+            .sort((a,b) => {
 
-                const ativaB = estaAtiva(b);
+                const ativaA =
+                    estaAtiva(a);
+
+
+                const ativaB =
+                    estaAtiva(b);
 
 
                 if(ativaA !== ativaB){
 
-                    return ativaA ? -1 : 1;
+                    return ativaA
+                        ? -1
+                        : 1;
 
                 }
 
 
-                return distanciaDoHorario(a) - distanciaDoHorario(b);
+                return (
+                    distanciaDoHorario(a) -
+                    distanciaDoHorario(b)
+                );
 
             });
 
 
 
+        await carregarReembolsos();
+
+
         render();
 
 
-    } catch (error) {
+        pintarReembolsos();
 
+
+        atualizarBotaoProrrogar();
+
+
+    } catch(error){
 
         listaReservas.innerHTML = `
             <p class="carregando">
-                ${error.message || "Não foi possível carregar. Verifique se o servidor está ligado."}
+                ${
+                    error.message ||
+                    "Não foi possível carregar. Verifique se o servidor está ligado."
+                }
             </p>
         `;
 
-
     }
 
-
 }
-
 
 
 
@@ -599,7 +1174,6 @@ async function carregarReservas(){
 
 
 function render(){
-
 
     if(contador){
 
@@ -613,15 +1187,18 @@ function render(){
 
     if(reservas.length === 0){
 
-
         listaReservas.innerHTML = `
 
             <p class="carregando">
                 Você ainda não tem reservas.
             </p>
 
-            <button class="extend" onclick="window.location.href='TelaReservas.html'">
+            <button
+                class="extend"
+                onclick="window.location.href='TelaReservas.html'">
+
                 Reservar uma vaga
+
             </button>
 
         `;
@@ -629,31 +1206,54 @@ function render(){
 
         return;
 
-
     }
 
 
 
-    listaReservas.innerHTML = reservas.map((item, indice) => {
+    listaReservas.innerHTML =
+        reservas.map(
+            (item, indice) => {
+
+        const reserva =
+            item.reserva;
 
 
-        const reserva = item.reserva;
+        const vaga =
+            reserva.vaga;
 
-        const vaga = reserva.vaga;
 
-        const privilegiada = indice === 0 && estaAtiva(item);
+        const privilegiada =
+            indice === 0 &&
+            estaAtiva(item);
 
-        const emAndamento = privilegiada;
+
+        const emAndamento =
+            privilegiada;
+
+
+        const usou =
+            jaProrrogou(item.id);
+
 
 
         return `
 
-        <div class="reservation-card${privilegiada ? " privilegiada" : ""}">
+        <div
+            class="reservation-card${
+                privilegiada
+                    ? " privilegiada"
+                    : ""
+            }">
 
 
             <div class="card-top">
 
-                <div class="status ${classeDoStatus(reserva.status)}">
+                <div
+                    class="status ${
+                        classeDoStatus(
+                            reserva.status
+                        )
+                    }">
 
                     <span>◉</span>
 
@@ -661,85 +1261,458 @@ function render(){
 
                 </div>
 
-                ${privilegiada ? `<div class="selo-privilegio">Privilégio</div>` : ""}
+
+                ${
+                    privilegiada
+                        ? `
+                        <div class="selo-privilegio">
+                            Privilégio
+                        </div>
+                        `
+                        : ""
+                }
 
             </div>
 
 
-            <h2>${vaga.estacionamento.nome}</h2>
+            <h2>
+                ${vaga.estacionamento.nome}
+            </h2>
 
 
-            <p>Vaga ${vaga.numero} (${vaga.tipo})</p>
+            <p>
+                Vaga ${vaga.numero}
+                (${vaga.tipo})
+            </p>
 
 
             <div class="info">
 
                 <div>
-                    <span>Entrada</span>
-                    <strong>${mostrarDataHora(item.hora)}</strong>
+
+                    <span>
+                        Entrada
+                    </span>
+
+                    <strong>
+                        ${mostrarDataHora(
+                            item.hora
+                        )}
+                    </strong>
+
                 </div>
 
-                <div>
-                    <span>Saída prevista</span>
-                    <strong>${mostrarDataHora(item.horaSaida)}</strong>
-                </div>
 
                 <div>
-                    <span>Veículo</span>
-                    <strong>${item.carro ? `${item.carro.modelo} - ${item.carro.placacarro}` : "--"}</strong>
+
+                    <span>
+                        Saída prevista
+                    </span>
+
+                    <strong>
+                        ${mostrarDataHora(
+                            item.horaSaida
+                        )}
+                    </strong>
+
                 </div>
 
+
                 <div>
-                    <span>Valor pago</span>
-                    <strong>${mostrarPreco(totalPago(item))}</strong>
+
+                    <span>
+                        Veículo
+                    </span>
+
+                    <strong>
+                        ${
+                            item.carro
+                                ? `${item.carro.modelo} - ${item.carro.placacarro}`
+                                : "--"
+                        }
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Valor pago
+                    </span>
+
+                    <strong>
+                        ${mostrarPreco(
+                            totalPago(item)
+                        )}
+                    </strong>
+
                 </div>
 
             </div>
 
 
-            ${emAndamento ? `
+            ${
+                emAndamento
+                    ? `
 
             <div class="timer-box">
 
-                <p id="tituloTimer">Tempo restante</p>
+                <p id="tituloTimer">
+                    Tempo restante
+                </p>
 
-                <h1 id="timer">00 : 00 : 00</h1>
+
+                <h1 id="timer">
+                    00 : 00 : 00
+                </h1>
+
 
                 <div class="labels">
-                    <span>Hora</span>
-                    <span>Min</span>
-                    <span>Seg</span>
+
+                    <span>
+                        Hora
+                    </span>
+
+                    <span>
+                        Min
+                    </span>
+
+                    <span>
+                        Seg
+                    </span>
+
                 </div>
 
             </div>
 
 
-            <button class="extend" onclick="prorrogar('${item.id}')">
-                Solicitar prorrogação
-            </button>
+            ${
+                usou
+                    ? `
+
+                <!-- =====================================
+                     PRORROGAÇÃO REALIZADA
+                ====================================== -->
+
+                <div class="prorrogacao-info">
+
+                    <i class="fa-solid fa-clock"></i>
+
+                    <div>
+
+                        <strong>
+                            Prorrogação realizada
+                        </strong>
+
+                        <span>
+                            Seu tempo foi estendido
+                            em mais 1 hora.
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <button
+                    class="extend"
+                    disabled
+                    style="
+                        opacity:.5;
+                        cursor:not-allowed;
+                    ">
+
+                    <i class="fa-solid fa-check"></i>
+
+                    Prorrogação já usada
+
+                </button>
+
+                `
+                    : `
+
+                <button
+                    class="extend"
+                    onclick="prorrogar('${item.id}')">
+
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+
+                    Solicitar prorrogação
+
+                </button>
+
+                `
+            }
 
 
-            <button class="cancel" onclick="cancelar('${item.id}')">
+            <button
+                class="cancel"
+                onclick="cancelar('${item.id}')">
+
                 Cancelar reserva
+
             </button>
 
-            ` : ""}
+            `
+                    : ""
+            }
 
 
         </div>
 
         `;
 
-
     }).join("");
 
 
+    /*
+     * Depois de desenhar os cards,
+     * inicia o cronômetro novamente.
+     *
+     * Isso é importante porque, depois da
+     * prorrogação, a nova hora de saída
+     * já estará dentro de reservas.
+     */
 
     iniciarTimer();
 
+}
+
+
+
+// =====================================================
+// STATUS DO REEMBOLSO DENTRO DOS CARDS
+// =====================================================
+
+
+function pintarReembolsos(){
+
+    const cards =
+        document.querySelectorAll(
+            ".reservation-card"
+        );
+
+
+    cards.forEach(
+        (card, indice) => {
+
+        const item =
+            reservas[indice];
+
+
+        if(!item) return;
+
+
+        const pedido =
+            reembolsoDaReserva(
+                item.id
+            );
+
+
+        if(!pedido) return;
+
+
+        const classe =
+            String(
+                pedido.status
+            ).toLowerCase();
+
+
+        const texto = {
+
+            pendente:
+                "Reembolso em análise pelo pátio",
+
+            aprovada:
+                "Reembolso aprovado · o valor será devolvido",
+
+            recusada:
+                "Reembolso recusado pelo pátio"
+
+        }[classe]
+        ||
+        "Reembolso solicitado";
+
+
+        const faixa =
+            document.createElement("a");
+
+
+        faixa.className =
+            "faixa-reembolso " +
+            classe;
+
+
+        faixa.href =
+            "TelaReembolso.html";
+
+
+        faixa.innerHTML = `
+
+            <i class="fa-solid fa-rotate-left"></i>
+
+            <div>
+
+                <strong>
+                    ${mostrarPreco(
+                        pedido.valorDevolver
+                    )}
+                </strong>
+
+                <small>
+                    ${texto}
+                </small>
+
+            </div>
+
+            <span class="ver">
+
+                Ver
+
+                <i class="fa-solid fa-arrow-right"></i>
+
+            </span>
+        `;
+
+
+        card.appendChild(faixa);
+
+    });
+
+
+    mostrarResumoNaColuna();
 
 }
 
+
+
+// =====================================================
+// RESUMO DOS REEMBOLSOS NA COLUNA DA ESQUERDA
+// =====================================================
+
+
+function mostrarResumoNaColuna(){
+
+    const antigo =
+        document.getElementById(
+            "resumoReembolsos"
+        );
+
+
+    if(antigo)
+        antigo.remove();
+
+
+    if(reembolsos.length === 0)
+        return;
+
+
+    const pendentes =
+        reembolsos.filter(
+            p =>
+                p.status ===
+                "Pendente"
+        );
+
+
+    const aprovados =
+        reembolsos.filter(
+            p =>
+                p.status ===
+                "Aprovada"
+        );
+
+
+    const total =
+        aprovados.reduce(
+            (soma,p) =>
+                soma +
+                Number(
+                    p.valorDevolver ||
+                    0
+                ),
+            0
+        );
+
+
+    const bloco =
+        document.createElement("a");
+
+
+    bloco.id =
+        "resumoReembolsos";
+
+
+    bloco.className =
+        "resumo-reembolso";
+
+
+    bloco.href =
+        "TelaReembolso.html";
+
+
+    bloco.innerHTML = `
+
+        <p class="rail-rotulo">
+            Reembolsos
+        </p>
+
+
+        <div class="resumo-linha">
+
+            <span>
+                Em análise
+            </span>
+
+            <strong class="ambar">
+                ${pendentes.length}
+            </strong>
+
+        </div>
+
+
+        <div class="resumo-linha">
+
+            <span>
+                Aprovados
+            </span>
+
+            <strong class="verde">
+                ${aprovados.length}
+            </strong>
+
+        </div>
+
+
+        <div class="resumo-linha total">
+
+            <span>
+                Total a receber
+            </span>
+
+            <strong>
+                ${mostrarPreco(total)}
+            </strong>
+
+        </div>
+
+
+        <span class="resumo-link">
+
+            Ver todos os pedidos
+
+            <i class="fa-solid fa-arrow-right"></i>
+
+        </span>
+
+    `;
+
+
+    document
+        .querySelector(".rail-dica")
+        .before(bloco);
+
+}
 
 
 
@@ -750,53 +1723,107 @@ function render(){
 
 function iniciarTimer(){
 
-
-    const timer = document.getElementById("timer");
-
-    const tituloTimer = document.getElementById("tituloTimer");
-
-
-    if(!timer) return;
+    const timer =
+        document.getElementById(
+            "timer"
+        );
 
 
+    const tituloTimer =
+        document.getElementById(
+            "tituloTimer"
+        );
 
-    const reservaAtiva = reservas[0];
+
+    if(!timer)
+        return;
 
 
-    const chegada = new Date(reservaAtiva.hora);
 
-    const saida = reservaAtiva.horaSaida
-        ? new Date(reservaAtiva.horaSaida)
-        : chegada;
+    /*
+     * A primeira reserva ativa é a reserva
+     * que possui o cronômetro.
+     */
+
+    const reservaAtiva =
+        reservas[0];
+
+
+    if(!reservaAtiva)
+        return;
+
+
+
+    const chegada =
+        new Date(
+            reservaAtiva.hora
+        );
+
+
+    const saida =
+        reservaAtiva.horaSaida
+            ? new Date(
+                reservaAtiva.horaSaida
+            )
+            : chegada;
 
 
 
     function atualizar(){
 
-
-        const agora = new Date();
-
-
-        // Antes da hora marcada conta para a chegada, depois para a saída
-        const alvo = agora < chegada ? chegada : saida;
-
-
-        tituloTimer.textContent = agora < chegada
-            ? "Tempo até a chegada"
-            : "Tempo restante";
+        const agora =
+            new Date();
 
 
 
-        let segundos = Math.floor((alvo - agora) / 1000);
+        /*
+         * Antes da hora marcada:
+         * conta até a chegada.
+         *
+         * Depois da chegada:
+         * conta até a hora de saída.
+         *
+         * Como a hora de saída foi aumentada
+         * em 1 hora na prorrogação, este mesmo
+         * cronômetro automaticamente passa a
+         * contar até o novo horário.
+         */
+
+        const alvo =
+            agora < chegada
+                ? chegada
+                : saida;
+
+
+
+        tituloTimer.textContent =
+            agora < chegada
+                ? "Tempo até a chegada"
+                : "Tempo restante";
+
+
+
+        let segundos =
+            Math.floor(
+                (alvo - agora) / 1000
+            );
+
 
 
         if(segundos <= 0){
 
-            timer.textContent = "00 : 00 : 00";
+            timer.textContent =
+                "00 : 00 : 00";
 
-            tituloTimer.textContent = "Tempo esgotado";
+
+            tituloTimer.textContent =
+                "Tempo esgotado";
+
 
             clearInterval(contador);
+
+            contador = null;
+
 
             return;
 
@@ -804,16 +1831,27 @@ function iniciarTimer(){
 
 
 
-        const horas = Math.floor(segundos / 3600);
+        const horas =
+            Math.floor(
+                segundos / 3600
+            );
 
-        const minutos = Math.floor((segundos % 3600) / 60);
 
-        const resto = segundos % 60;
+        const minutos =
+            Math.floor(
+                (segundos % 3600) / 60
+            );
+
+
+        const resto =
+            segundos % 60;
+
 
 
         timer.textContent =
-            `${formatar(horas)} : ${formatar(minutos)} : ${formatar(resto)}`;
-
+            `${formatar(horas)} : ` +
+            `${formatar(minutos)} : ` +
+            `${formatar(resto)}`;
 
     }
 
@@ -822,173 +1860,466 @@ function iniciarTimer(){
     atualizar();
 
 
-    contador = setInterval(atualizar, 1000);
-
+    contador =
+        setInterval(
+            atualizar,
+            1000
+        );
 
 }
 
 
 
-
 // =====================================================
-// PRORROGAR (soma 1 hora na saída prevista)
+// PRORROGAR
+// Soma exatamente 1 hora na saída prevista.
+// Só pode ser usada uma vez por reserva.
 // =====================================================
 
 
 async function prorrogar(idReservaCli){
 
+    const reservaCli =
+        reservas.find(
+            item =>
+                item.id ===
+                idReservaCli
+        );
 
-    const reservaCli = reservas.find(item => item.id === idReservaCli);
+
+    if(!reservaCli)
+        return;
 
 
-    if(!confirm("Deseja mais 1 hora nessa reserva?")) return;
+
+    if(jaProrrogou(idReservaCli)){
+
+        alert(
+            "Você já usou a prorrogação dessa reserva."
+        );
+
+
+        return;
+
+    }
 
 
 
-    const novaSaida = new Date(reservaCli.horaSaida || reservaCli.hora);
+    const ok =
+        await confirmar({
 
-    novaSaida.setHours(novaSaida.getHours() + 1);
+            tom:"azul",
+
+            titulo:
+                "Prorrogar por 1 hora?",
+
+            texto:
+                "Atenção: cada reserva pode " +
+                "ser prorrogada uma única vez. " +
+                "A saída prevista será adiada " +
+                "em uma hora.",
+
+            nao:
+                "Agora não",
+
+            sim:
+                "Prorrogar"
+
+        });
+
+
+
+    if(!ok)
+        return;
+
+
+
+    /*
+     * =================================================
+     * NOVA SAÍDA
+     *
+     * Pega a hora de saída atual e adiciona
+     * exatamente 1 hora.
+     * =================================================
+     */
+
+    const novaSaida =
+        new Date(
+            reservaCli.horaSaida ||
+            reservaCli.hora
+        );
+
+
+    novaSaida.setHours(
+        novaSaida.getHours() + 1
+    );
 
 
 
     try {
 
+        /*
+         * Envia a nova hora para o backend.
+         */
 
-        const resposta = await fetch(api + "/reservacli/" + idReservaCli, {
+        const resposta =
+            await fetch(
+                api +
+                "/reservacli/" +
+                idReservaCli,
+                {
 
-            method: "PUT",
+                    method:"PUT",
 
-            headers: {
-                "Content-Type": "application/json"
-            },
+                    headers:{
+                        "Content-Type":
+                            "application/json"
+                    },
 
-            body: JSON.stringify({
-                data:         reservaCli.data,
-                hora:         reservaCli.hora,
-                horaSaida:    novaSaida.toISOString(),
-                fk_idCliente: reservaCli.fk_idCliente,
-                fk_idReserva: reservaCli.fk_idReserva,
-                fk_idCarro:   reservaCli.fk_idCarro
-            })
+                    body:JSON.stringify({
 
-        });
+                        data:
+                            reservaCli.data,
+
+                        hora:
+                            reservaCli.hora,
+
+                        /*
+                         * A nova saída contém
+                         * a hora original + 1 hora.
+                         */
+
+                        horaSaida:
+                            novaSaida.toISOString(),
+
+                        fk_idCliente:
+                            reservaCli.fk_idCliente,
+
+                        fk_idReserva:
+                            reservaCli.fk_idReserva,
+
+                        fk_idCarro:
+                            reservaCli.fk_idCarro
+
+                    })
+
+                }
+            );
 
 
-        const retorno = await resposta.json();
+
+        const retorno =
+            await resposta.json();
+
 
 
         if(!resposta.ok){
 
-            throw new Error(retorno.erro || "Erro ao prorrogar a reserva");
+            throw new Error(
+                retorno.erro ||
+                "Erro ao prorrogar a reserva"
+            );
 
         }
 
 
-        alert("Reserva prorrogada por mais 1 hora!");
+
+        /*
+         * =================================================
+         * ATUALIZA IMEDIATAMENTE O OBJETO LOCAL
+         *
+         * Isso faz com que o cronômetro já passe
+         * a utilizar a nova saída sem precisar
+         * esperar outra busca no servidor.
+         * =================================================
+         */
+
+        reservaCli.horaSaida =
+            novaSaida.toISOString();
 
 
-        await carregarReservas();
+
+        /*
+         * Marca que esta reserva já utilizou
+         * a única prorrogação permitida.
+         */
+
+        marcarProrrogada(
+            idReservaCli
+        );
 
 
-    } catch (error) {
+
+        /*
+         * Mostra a confirmação para o usuário.
+         */
+
+        alert(
+            "Reserva prorrogada por mais 1 hora!"
+        );
 
 
-        alert(error.message || "Não foi possível prorrogar a reserva.");
 
+        /*
+         * =================================================
+         * REDESENHA A TELA
+         *
+         * O render():
+         *
+         * 1. mostra "Prorrogação realizada";
+         * 2. muda o botão;
+         * 3. atualiza a saída prevista;
+         * 4. chama iniciarTimer();
+         *
+         * Portanto o cronômetro começa a contar
+         * usando a nova hora de saída.
+         * =================================================
+         */
+
+        render();
+
+
+
+        /*
+         * Atualiza também o botão da lateral.
+         */
+
+        atualizarBotaoProrrogar();
+
+
+
+    } catch(error){
+
+        alert(
+            error.message ||
+            "Não foi possível prorrogar a reserva."
+        );
 
     }
-
 
 }
 
 
 
+// =====================================================
+// BOTÃO DE PRORROGAR DA COLUNA DA ESQUERDA
+// Ele age sobre a reserva que está em andamento.
+// =====================================================
+
+
+btnProrrogar.addEventListener(
+    "click",
+    () => {
+
+    const ativa =
+        reservas.find(
+            item =>
+                estaAtiva(item)
+        );
+
+
+    if(!ativa){
+
+        alert(
+            "Você não tem nenhuma reserva em andamento para prorrogar."
+        );
+
+
+        return;
+
+    }
+
+
+
+    if(jaProrrogou(ativa.id)){
+
+        alert(
+            "Você já usou a prorrogação dessa reserva."
+        );
+
+
+        return;
+
+    }
+
+
+
+    prorrogar(
+        ativa.id
+    );
+
+});
+
+
 
 // =====================================================
-// CANCELAR (libera a vaga)
+// ATUALIZA BOTÃO DE PRORROGAR
+// =====================================================
+
+
+function atualizarBotaoProrrogar(){
+
+    const ativa =
+        reservas.find(
+            item =>
+                estaAtiva(item)
+        );
+
+
+    const pode =
+        Boolean(ativa) &&
+        !jaProrrogou(
+            ativa.id
+        );
+
+
+    btnProrrogar.disabled =
+        !pode;
+
+
+    btnProrrogar.style.opacity =
+        pode
+            ? "1"
+            : ".55";
+
+
+    btnProrrogar.style.cursor =
+        pode
+            ? "pointer"
+            : "not-allowed";
+
+
+
+    btnProrrogar.innerHTML =
+        (
+            ativa &&
+            jaProrrogou(
+                ativa.id
+            )
+        )
+
+        ? `
+            <i class="fa-solid fa-check"></i>
+            Prorrogação já usada
+          `
+
+        : `
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            Solicitar prorrogação
+          `;
+
+}
+
+
+
+// =====================================================
+// CANCELAR · leva para a tela de reembolso
 // =====================================================
 
 
 async function cancelar(idReservaCli){
 
-
-    const reservaCli = reservas.find(item => item.id === idReservaCli);
-
-
-    if(!confirm("Deseja cancelar sua reserva?")) return;
-
-
-
-    try {
+    const reservaCli =
+        reservas.find(
+            item =>
+                item.id ===
+                idReservaCli
+        );
 
 
-        const resposta = await fetch(api + "/reserva/" + reservaCli.fk_idReserva, {
-
-            method: "PUT",
-
-            headers: {
-                "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify({
-                status:  "Cancelada",
-                fk_vaga: reservaCli.reserva.fk_vaga
-            })
-
-        });
-
-
-        const retorno = await resposta.json();
-
-
-        if(!resposta.ok){
-
-            throw new Error(retorno.erro || "Erro ao cancelar a reserva");
-
-        }
+    if(!reservaCli)
+        return;
 
 
 
-        const vaga = reservaCli.reserva.vaga;
+    /*
+     * Depois da chegada confirmada
+     * não cabe mais reembolso.
+     */
+
+    if(
+        reservaCli.reserva.status !==
+        "Reservada"
+    ){
+
+        alert(
+            "Sua chegada já foi confirmada. Não é possível cancelar com reembolso."
+        );
 
 
-        await fetch(api + "/vaga/" + vaga.id, {
-
-            method: "PUT",
-
-            headers: {
-                "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify({
-                numero: vaga.numero,
-                tipo:   vaga.tipo,
-                status: "Livre",
-                preco:  vaga.preco,
-                fk_est: vaga.fk_est
-            })
-
-        });
-
-
-
-        alert("Reserva cancelada e vaga liberada.");
-
-
-        await carregarReservas();
-
-
-    } catch (error) {
-
-
-        alert(error.message || "Não foi possível cancelar a reserva.");
-
+        return;
 
     }
 
 
-}
 
+    const pago =
+        totalPago(
+            reservaCli
+        );
+
+
+    const volta =
+        Math.round(
+            pago * 0.5 * 100
+        ) / 100;
+
+
+
+    const ok =
+        await confirmar({
+
+            tom:"aviso",
+
+            titulo:
+                "Cancelar e pedir reembolso?",
+
+            texto:
+                `Você pagou ${mostrarPreco(pago)} nessa reserva. ` +
+                `Cancelando agora, ${mostrarPreco(volta)} voltam para você ` +
+                `depois da análise do pátio. Vamos abrir a tela de reembolso ` +
+                `para você confirmar.`,
+
+            nao:
+                "Manter reserva",
+
+            sim:
+                "Ir para o reembolso"
+
+        });
+
+
+
+    if(!ok)
+        return;
+
+
+
+    alert(
+        "Abrindo a tela de reembolso..."
+    );
+
+
+
+    localStorage.setItem(
+        "reservaParaCancelar",
+        idReservaCli
+    );
+
+
+
+    setTimeout(
+        () => {
+
+            window.location.href =
+                "TelaReembolso.html?id=" +
+                idReservaCli;
+
+        },
+        900
+    );
+
+}
 
 
 
@@ -997,17 +2328,22 @@ async function cancelar(idReservaCli){
 // =====================================================
 
 
-voltar.onclick = ()=>{
+voltar.onclick =
+    () => {
 
-    window.location.href = "TelaUsuario.html";
+        window.location.href =
+            "TelaUsuario.html";
 
-};
+    };
 
 
+
+// =====================================================
+// INICIAR
+// =====================================================
 
 
 carregarReservas();
-
 
 </script>
 
