@@ -1,5 +1,40 @@
 /* =====================================================
-RESET
+   VagaConnect · Tela de finalização da reserva
+   Padrão visual azul-escuro, técnico e moderno
+===================================================== */
+
+
+/* =====================================================
+   TOKENS
+===================================================== */
+
+:root{
+
+    --tinta:       #030b16;
+    --superficie:  #071426;
+    --elevado:     #0a1d33;
+
+    --risco:       rgba(120, 170, 220, .16);
+    --risco-forte: rgba(120, 170, 220, .34);
+
+    --texto:       #e9f2fc;
+    --apagado:     #93aec9;
+    --fraco:       #6d89a6;
+
+    --azul:        #2f7dff;
+    --azul-claro:  #8cc2ff;
+
+    --verde:       #3ddc97;
+    --verde-forte: #22c55e;
+
+    --mono: ui-monospace, 'SF Mono', 'Roboto Mono',
+            'Consolas', monospace;
+
+}
+
+
+/* =====================================================
+   RESET
 ===================================================== */
 
 *{
@@ -11,32 +46,100 @@ RESET
 }
 
 
+html{
 
-body{
-
-    font-family:'Poppins',sans-serif;
-
-    background:#031426;
-
-    color:white;
-
-    min-height:100vh;
+    -webkit-text-size-adjust:100%;
 
 }
 
 
+body{
+
+    min-height:100vh;
+
+    font-family:'Poppins', 'Segoe UI', system-ui, sans-serif;
+
+    font-size:13px;
+
+    color:var(--texto);
+
+    background:
+        repeating-linear-gradient(
+            0deg,
+            rgba(120,170,220,.045) 0 1px,
+            transparent 1px 68px
+        ),
+
+        repeating-linear-gradient(
+            90deg,
+            rgba(120,170,220,.045) 0 1px,
+            transparent 1px 68px
+        ),
+
+        linear-gradient(
+            180deg,
+            #06182c 0%,
+            var(--tinta) 60%
+        );
+
+    background-attachment:fixed;
+
+    -webkit-font-smoothing:antialiased;
+
+}
 
 
+/* Linha azul no topo */
 
+body::before{
+
+    content:"";
+
+    position:fixed;
+
+    top:0;
+    left:0;
+    right:0;
+
+    height:2px;
+
+    z-index:5;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            var(--azul) 25%,
+            var(--azul-claro) 50%,
+            var(--azul) 75%,
+            transparent
+        );
+
+}
+
+
+::selection{
+
+    background:rgba(47,125,255,.35);
+
+}
+
+
+button:focus-visible,
+a:focus-visible{
+
+    outline:2px solid var(--azul-claro);
+
+    outline-offset:3px;
+
+}
 
 
 /* =====================================================
-CONTAINER
+   CONTAINER
 ===================================================== */
 
-
 .container{
-
 
     width:100%;
 
@@ -48,86 +151,93 @@ CONTAINER
 
     align-items:center;
 
-    padding:25px;
-
+    padding:32px 24px;
 
 }
 
 
-
-
-
-
-
-
 /* =====================================================
-CARD PRINCIPAL
+   CARD PRINCIPAL
 ===================================================== */
-
 
 .card{
 
+    position:relative;
 
-    width:850px;
+    width:100%;
+
+    max-width:850px;
 
     min-height:600px;
 
-    background:#061a30;
-
-
-    border:1px solid rgba(255,255,255,.12);
-
-
-    border-radius:18px;
-
-
     padding:30px;
 
+    background:var(--superficie);
 
-    box-shadow:
+    border:1px solid var(--risco-forte);
 
-    0 15px 40px rgba(0,0,0,.45);
+    border-radius:0;
 
+    box-shadow:none;
 
 }
 
 
+/* Linha azul superior do card */
 
+.card::before{
 
+    content:"";
 
+    position:absolute;
 
+    top:-1px;
+    left:-1px;
+    right:-1px;
+
+    height:2px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            var(--azul),
+            var(--azul-claro),
+            var(--azul),
+            transparent
+        );
+
+}
 
 
 /* =====================================================
-TITULO
+   TÍTULO
 ===================================================== */
-
 
 .titulo{
 
+    margin-bottom:20px;
 
-    font-size:12px;
+    color:var(--azul-claro);
+
+    font-family:var(--mono);
+
+    font-size:10px;
 
     font-weight:600;
 
-    margin-bottom:20px;
+    letter-spacing:.16em;
 
+    text-transform:uppercase;
 
 }
 
 
-
-
-
-
-
 /* =====================================================
-HEADER
+   HEADER
 ===================================================== */
 
-
 .header{
-
 
     display:flex;
 
@@ -137,164 +247,186 @@ HEADER
 
     margin-bottom:25px;
 
+    padding-bottom:16px;
+
+    border-bottom:1px solid var(--risco);
 
 }
 
 
-
 .header span{
 
+    color:var(--texto);
 
     font-size:20px;
 
     font-weight:500;
 
+    letter-spacing:-.3px;
 
 }
-
-
-
 
 
 #voltar{
 
+    width:38px;
 
-    background:none;
+    height:38px;
 
-    border:none;
+    display:grid;
 
-    color:white;
+    place-items:center;
 
-    font-size:28px;
+    flex:0 0 auto;
+
+    border:1px solid var(--risco-forte);
+
+    border-radius:0;
+
+    background:transparent;
+
+    color:var(--azul-claro);
+
+    font-size:23px;
 
     cursor:pointer;
 
+    transition:
+        background .2s,
+        color .2s,
+        border-color .2s;
 
 }
 
 
+#voltar:hover{
 
+    background:rgba(47,125,255,.14);
 
+    border-color:var(--azul);
 
+    color:#ffffff;
 
+}
 
 
 /* =====================================================
-SUBTITULO
+   SUBTÍTULO
 ===================================================== */
-
 
 .subtitle{
 
-
-    text-align:center;
-
-    color:#91a7c6;
-
-    font-size:14px;
-
     margin:20px 0;
 
+    color:var(--apagado);
+
+    font-family:var(--mono);
+
+    font-size:11px;
+
+    line-height:1.7;
+
+    letter-spacing:.05em;
+
+    text-align:center;
 
 }
 
 
-
-
-
-
-
-
 /* =====================================================
-TEMPO
+   TEMPO
 ===================================================== */
-
 
 .time-card{
 
-
-    background:#0b223d;
-
-    border-radius:15px;
+    position:relative;
 
     padding:30px;
 
     text-align:center;
 
-    border:1px solid rgba(255,255,255,.06);
+    background:var(--elevado);
 
+    border:1px solid var(--risco);
+
+    border-radius:0;
 
 }
 
 
+/* Linha lateral decorativa */
 
+.time-card::before{
 
+    content:"";
 
+    position:absolute;
+
+    top:0;
+    bottom:0;
+    left:0;
+
+    width:2px;
+
+    background:var(--azul);
+
+}
 
 
 .time-card span{
 
+    color:var(--apagado);
 
-    color:#91a7c6;
+    font-family:var(--mono);
 
-    font-size:13px;
+    font-size:11px;
 
+    letter-spacing:.12em;
+
+    text-transform:uppercase;
 
 }
-
-
-
-
-
 
 
 .time-card h1{
 
-
     margin-top:15px;
+
+    color:var(--azul-claro);
+
+    font-family:var(--mono);
 
     font-size:50px;
 
-    letter-spacing:6px;
-
     font-weight:500;
 
+    line-height:1.1;
+
+    letter-spacing:5px;
 
 }
 
 
-
-
-
-
-
-
 /* =====================================================
-VALORES
+   VALORES
 ===================================================== */
 
-
 .price-card{
-
-
-    background:#0b223d;
 
     margin-top:25px;
 
     padding:25px;
 
-    border-radius:15px;
+    background:var(--elevado);
 
+    border:1px solid var(--risco);
+
+    border-radius:0;
 
 }
 
 
-
-
-
-
 .price-card div{
-
 
     display:flex;
 
@@ -302,201 +434,375 @@ VALORES
 
     align-items:center;
 
+    gap:20px;
+
     padding:15px 0;
 
-
 }
-
-
-
-
-
 
 
 .price-card span{
 
+    color:var(--apagado);
 
-    color:#91a7c6;
+    font-family:var(--mono);
 
-    font-size:13px;
-
+    font-size:11px;
 
 }
 
 
-
-
-
-
-
 .price-card strong{
 
+    color:var(--texto);
 
     font-size:15px;
 
     font-weight:500;
 
-
 }
-
-
-
-
-
 
 
 .price-card hr{
 
-
-    border:none;
-
     height:1px;
-
-    background:rgba(255,255,255,.08);
 
     margin:12px 0;
 
+    border:none;
+
+    background:var(--risco);
 
 }
 
 
-
-
-
-
-
-
 /* =====================================================
-TOTAL
+   TOTAL
 ===================================================== */
+
+.total{
+
+    border-top:1px solid var(--risco);
+
+}
 
 
 .total span{
 
-
-    color:white;
+    color:var(--texto);
 
     font-weight:500;
-
 
 }
 
 
-
-
 .total strong{
 
+    color:var(--verde);
+
+    font-family:var(--mono);
 
     font-size:24px;
 
     font-weight:600;
 
-
 }
-
-
-
-
-
-
 
 
 /* =====================================================
-BOTÃO FINALIZAR
+   BOTÃO FINALIZAR
 ===================================================== */
-
 
 #finalizar{
 
+    position:relative;
 
     width:100%;
 
-
     height:55px;
-
 
     margin-top:30px;
 
+    overflow:hidden;
 
-    border:none;
+    border:1px solid var(--verde);
 
+    border-radius:0;
 
-    border-radius:10px;
+    background:transparent;
 
+    color:var(--verde);
 
-    background:#22c55e;
+    font-family:var(--mono);
 
-
-    color:white;
-
-
-    font-family:'Poppins';
-
-
-    font-size:15px;
-
+    font-size:11px;
 
     font-weight:600;
 
+    letter-spacing:.16em;
+
+    text-transform:uppercase;
 
     cursor:pointer;
 
-
-    transition:.3s;
-
+    transition:
+        background .25s,
+        color .25s,
+        border-color .25s;
 
 }
 
 
+#finalizar::before{
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    z-index:0;
+
+    background:var(--verde-forte);
+
+    transform:scaleX(0);
+
+    transform-origin:left;
+
+    transition:transform .28s ease;
+
+}
 
 
+#finalizar:hover::before{
 
+    transform:scaleX(1);
+
+}
 
 
 #finalizar:hover{
 
+    color:#ffffff;
 
-    background:#16a34a;
-
+    border-color:var(--verde-forte);
 
 }
 
 
+/* Mantém o texto do botão acima do efeito */
+
+#finalizar{
+
+    isolation:isolate;
+
+}
 
 
+#finalizar{
+
+    position:relative;
+
+}
 
 
+#finalizar::after{
+
+    content:"";
+
+}
 
 
 /* =====================================================
-RESPONSIVO
+   RESPONSIVO
 ===================================================== */
-
 
 @media(max-width:900px){
 
+    .container{
+
+        padding:24px 16px;
+
+        align-items:flex-start;
+
+    }
 
 
-.card{
+    .card{
+
+        width:100%;
+
+        min-height:auto;
+
+        padding:24px;
+
+    }
 
 
-    width:95%;
+    .header span{
 
+        font-size:18px;
+
+    }
+
+
+    .time-card{
+
+        padding:25px 18px;
+
+    }
+
+
+    .time-card h1{
+
+        font-size:35px;
+
+        letter-spacing:3px;
+
+    }
+
+
+    .price-card{
+
+        padding:20px;
+
+    }
 
 }
 
 
+@media(max-width:560px){
+
+    .container{
+
+        padding:16px 12px;
+
+    }
 
 
+    .card{
 
-.time-card h1{
+        padding:20px 16px;
+
+    }
 
 
-    font-size:35px;
+    .titulo{
 
+        font-size:9px;
+
+    }
+
+
+    .header{
+
+        gap:10px;
+
+    }
+
+
+    .header span{
+
+        font-size:16px;
+
+    }
+
+
+    #voltar{
+
+        width:34px;
+
+        height:34px;
+
+        font-size:21px;
+
+    }
+
+
+    .subtitle{
+
+        font-size:10px;
+
+    }
+
+
+    .time-card h1{
+
+        font-size:28px;
+
+        letter-spacing:2px;
+
+        word-break:break-word;
+
+    }
+
+
+    .price-card div{
+
+        gap:12px;
+
+    }
+
+
+    .price-card span{
+
+        font-size:10px;
+
+    }
+
+
+    .price-card strong{
+
+        font-size:13px;
+
+    }
+
+
+    .total strong{
+
+        font-size:20px;
+
+    }
+
+
+    #finalizar{
+
+        height:52px;
+
+        font-size:10px;
+
+    }
 
 }
 
 
+/* =====================================================
+   ACESSIBILIDADE
+===================================================== */
+
+@media(prefers-reduced-motion:reduce){
+
+    *{
+
+        animation:none !important;
+
+        transition:none !important;
+
+    }
+
+}
+
+
+@media(forced-colors:active){
+
+    .card,
+    .time-card,
+    .price-card,
+    #voltar,
+    #finalizar{
+
+        border:1px solid CanvasText;
+
+    }
 
 }

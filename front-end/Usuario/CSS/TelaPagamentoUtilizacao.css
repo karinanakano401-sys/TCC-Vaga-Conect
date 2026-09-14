@@ -1,398 +1,614 @@
+
+/* =====================================================
+   VagaConnect · Tela de pagamento
+   Padrão visual azul-escuro, técnico e moderno
+===================================================== */
+
+/* =====================================================
+   TOKENS
+===================================================== */
+
+:root {
+    --tinta: #030b16;
+    --superficie: #071426;
+    --elevado: #0a1d33;
+
+    --risco: rgba(120, 170, 220, 0.16);
+    --risco-forte: rgba(120, 170, 220, 0.34);
+
+    --texto: #e9f2fc;
+    --apagado: #93aec9;
+    --fraco: #6d89a6;
+
+    --azul: #2f7dff;
+    --azul-claro: #8cc2ff;
+
+    --verde: #3ddc97;
+    --verde-forte: #22c55e;
+
+    --mono: ui-monospace, 'SF Mono', 'Roboto Mono',
+            'Consolas', monospace;
+}
+
 /* =====================================================
    RESET
 ===================================================== */
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-body{
+html {
+    -webkit-text-size-adjust: 100%;
+}
 
-    font-family:'Poppins',sans-serif;
-    background:#031426;
-    color:#fff;
-    min-height:100vh;
+body {
+    min-height: 100vh;
+    font-family: 'Poppins', 'Segoe UI', system-ui, sans-serif;
+    font-size: 13px;
+    color: var(--texto);
 
+    background:
+        repeating-linear-gradient(
+            0deg,
+            rgba(120, 170, 220, 0.045) 0 1px,
+            transparent 1px 68px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            rgba(120, 170, 220, 0.045) 0 1px,
+            transparent 1px 68px
+        ),
+        linear-gradient(
+            180deg,
+            #06182c 0%,
+            var(--tinta) 60%
+        );
+
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* =====================================================
+   LINHA AZUL SUPERIOR
+===================================================== */
+
+body::before {
+    content: "";
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+
+    height: 2px;
+    z-index: 5;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            var(--azul) 25%,
+            var(--azul-claro) 50%,
+            var(--azul) 75%,
+            transparent
+        );
+}
+
+::selection {
+    background: rgba(47, 125, 255, 0.35);
+}
+
+button:focus-visible,
+a:focus-visible {
+    outline: 2px solid var(--azul-claro);
+    outline-offset: 3px;
 }
 
 /* =====================================================
    CONTAINER
 ===================================================== */
 
-.container{
+.container {
+    width: 100%;
+    min-height: 100vh;
 
-    width:100%;
-    min-height:100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-    display:flex;
-    justify-content:center;
-    align-items:center;
-
-    padding:40px;
-
+    padding: 32px 24px;
 }
 
 /* =====================================================
-   CARD
+   CARD DE PAGAMENTO
 ===================================================== */
 
-.payment-card{
+.payment-card {
+    position: relative;
 
-    width:600px;
-    background:#0b2038;
+    width: 100%;
+    max-width: 600px;
 
-    border:1px solid rgba(255,255,255,.08);
+    padding: 30px;
 
-    border-radius:18px;
+    background: var(--superficie);
+    border: 1px solid var(--risco-forte);
+    border-radius: 0;
+    box-shadow: none;
+}
 
-    padding:28px;
+/* Linha azul superior do card */
 
-    box-shadow:0 20px 40px rgba(0,0,0,.35);
+.payment-card::before {
+    content: "";
 
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+
+    height: 2px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            var(--azul),
+            var(--azul-claro),
+            var(--azul),
+            transparent
+        );
 }
 
 /* =====================================================
    HEADER
 ===================================================== */
 
-header{
+header {
+    width: 100%;
 
-    width:430px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
 
-    display:flex;
-    align-items:center;
+    margin-bottom: 25px;
+    padding-bottom: 16px;
 
-    gap:18px;
-
-    margin-bottom:25px;
-
+    border-bottom: 1px solid var(--risco);
 }
 
-.voltar{
-
-    width:45px;
-    height:45px;
-
-    border:none;
-
-    border-radius:12px;
-
-    cursor:pointer;
-
-    color:#fff;
-
-    background:#0d2747;
-
-    transition:.25s;
-
+header h2 {
+    color: var(--texto);
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: -0.3px;
 }
 
-.voltar:hover{
+header span {
+    display: block;
 
-    background:#1856d8;
+    margin-top: 3px;
 
-}
-
-header h2{
-
-    font-size:27px;
-    font-weight:600;
-
-}
-
-header span{
-
-    color:#8da6c7;
-
-    font-size:14px;
-
+    color: var(--apagado);
+    font-family: var(--mono);
+    font-size: 11px;
 }
 
 /* =====================================================
-   TÍTULO
+   BOTÃO VOLTAR
 ===================================================== */
 
-.payment-card h3{
+.voltar {
+    width: 38px;
+    height: 38px;
 
-    font-size:17px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
 
-    margin-bottom:22px;
+    border: 1px solid var(--risco-forte);
+    border-radius: 0;
 
-    color:#cddcf4;
+    background: transparent;
+    color: var(--azul-claro);
 
+    font-size: 23px;
+    cursor: pointer;
+
+    transition:
+        background 0.2s,
+        color 0.2s,
+        border-color 0.2s;
+}
+
+.voltar:hover {
+    background: rgba(47, 125, 255, 0.14);
+    border-color: var(--azul);
+    color: #ffffff;
 }
 
 /* =====================================================
-   OPÇÕES
+   TÍTULO DA SEÇÃO
 ===================================================== */
 
-.payment-option{
+.payment-card h3 {
+    margin-bottom: 22px;
 
-    display:flex;
+    color: var(--azul-claro);
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
 
-    justify-content:space-between;
-
-    align-items:center;
-
-    background:#102844;
-
-    border:2px solid transparent;
-
-    border-radius:14px;
-
-    padding:16px;
-
-    margin-bottom:15px;
-
-    cursor:pointer;
-
-    transition:.30s;
-
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
 }
 
-.payment-option:hover{
+/* =====================================================
+   OPÇÕES DE PAGAMENTO
+===================================================== */
 
-    background:#16375e;
+.payment-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 18px;
 
+    padding: 17px;
+
+    margin-bottom: 14px;
+
+    background: var(--elevado);
+    border: 1px solid var(--risco);
+    border-radius: 0;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s,
+        border-color 0.2s;
 }
 
-.payment-option.active{
+.payment-option:hover {
+    background: #102844;
+    border-color: var(--risco-forte);
+}
 
-    border-color:#2b6cff;
-
+.payment-option.active {
+    border-color: var(--azul);
+    background: rgba(47, 125, 255, 0.08);
 }
 
 /* =====================================================
    LADO ESQUERDO
 ===================================================== */
 
-.payment-left{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:16px;
-
+.payment-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
 
-.icon{
+.icon {
+    width: 45px;
+    height: 45px;
 
-    width:52px;
-    height:52px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
 
-    display:flex;
+    background: rgba(47, 125, 255, 0.12);
+    border: 1px solid var(--risco);
 
-    justify-content:center;
+    border-radius: 0;
 
-    align-items:center;
-
-    border-radius:14px;
-
-    background:#163d6e;
-
-    color:#5d8cff;
-
-    font-size:22px;
-
+    color: var(--azul-claro);
+    font-size: 20px;
 }
 
-.payment-left h4{
-
-    font-size:16px;
-
-    font-weight:600;
-
+.payment-left h4 {
+    color: var(--texto);
+    font-size: 14px;
+    font-weight: 500;
 }
 
-.payment-left p{
+.payment-left p {
+    margin-top: 5px;
 
-    font-size:13px;
-
-    color:#90a8c8;
-
-    margin-top:4px;
-
+    color: var(--apagado);
+    font-family: var(--mono);
+    font-size: 10px;
+    line-height: 1.5;
 }
 
 /* =====================================================
    RADIO
 ===================================================== */
 
-.payment-option input{
+.payment-option input {
+    width: 18px;
+    height: 18px;
 
-    width:19px;
-    height:19px;
-
-    accent-color:#2b6cff;
-
-    cursor:pointer;
-
+    accent-color: var(--azul);
+    cursor: pointer;
 }
 
 /* =====================================================
    RESUMO
 ===================================================== */
 
-.resumo{
+.resumo {
+    margin-top: 25px;
+    padding: 20px;
 
-    margin-top:25px;
-
-    background:#081a2f;
-
-    border-radius:14px;
-
-    padding:18px;
-
+    background: var(--elevado);
+    border: 1px solid var(--risco);
+    border-radius: 0;
 }
 
-.linha{
+.linha {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
 
-    display:flex;
+    padding: 12px 0;
 
-    justify-content:space-between;
-
-    margin-bottom:14px;
-
-    font-size:15px;
-
+    color: var(--apagado);
+    font-family: var(--mono);
+    font-size: 11px;
 }
 
-.linha:last-child{
-
-    margin-bottom:0;
-
+.linha:last-child {
+    margin-bottom: 0;
 }
 
-.desconto{
-
-    color:#7cb7ff;
-
-}
-
-.total{
-
-    margin-top:10px;
-
-    padding-top:14px;
-
-    border-top:1px solid rgba(255,255,255,.08);
-
-    font-size:18px;
-
-    font-weight:600;
-
+.desconto {
+    color: var(--azul-claro);
 }
 
 /* =====================================================
-   BOTÃO
+   TOTAL
 ===================================================== */
 
-#btnPagar{
+.total {
+    margin-top: 12px;
+    padding-top: 16px;
 
-    width:100%;
-
-    margin-top:25px;
-
-    border:none;
-
-    border-radius:14px;
-
-    padding:17px;
-
-    background:#2db14f;
-
-    color:#fff;
-
-    font-size:17px;
-
-    font-weight:600;
-
-    cursor:pointer;
-
-    transition:.25s;
-
+    border-top: 1px solid var(--risco);
 }
 
-#btnPagar:hover{
+.total span {
+    color: var(--texto);
+    font-weight: 500;
+}
 
-    transform:translateY(-2px);
-
-    background:#39c85d;
-
+.total strong {
+    color: var(--verde);
+    font-family: var(--mono);
+    font-size: 24px;
+    font-weight: 600;
 }
 
 /* =====================================================
-   LINK
+   BOTÃO PAGAR
 ===================================================== */
 
-#detalhes{
+#btnPagar {
+    position: relative;
 
-    display:block;
+    width: 100%;
+    height: 55px;
 
-    margin-top:20px;
+    margin-top: 30px;
+    overflow: hidden;
 
-    text-align:center;
+    border: 1px solid var(--verde);
+    border-radius: 0;
 
-    text-decoration:none;
+    background: transparent;
+    color: var(--verde);
 
-    color:#4d8dff;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
 
-    font-size:14px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
 
-    transition:.25s;
+    cursor: pointer;
 
+    isolation: isolate;
+
+    transition:
+        background 0.25s,
+        color 0.25s,
+        border-color 0.25s;
 }
 
-#detalhes:hover{
+#btnPagar::before {
+    content: "";
 
-    color:#82b2ff;
+    position: absolute;
+    inset: 0;
+    z-index: -1;
 
+    background: var(--verde-forte);
+
+    transform: scaleX(0);
+    transform-origin: left;
+
+    transition: transform 0.28s ease;
+}
+
+#btnPagar:hover::before {
+    transform: scaleX(1);
+}
+
+#btnPagar:hover {
+    color: #ffffff;
+    border-color: var(--verde-forte);
+}
+
+/* =====================================================
+   LINK DE DETALHES
+===================================================== */
+
+#detalhes {
+    display: block;
+
+    margin-top: 20px;
+
+    color: var(--azul-claro);
+    font-family: var(--mono);
+    font-size: 10px;
+
+    text-align: center;
+    text-decoration: none;
+
+    transition: color 0.2s;
+}
+
+#detalhes:hover {
+    color: #ffffff;
+    text-decoration: underline;
 }
 
 /* =====================================================
    RESPONSIVO
 ===================================================== */
 
-@media(max-width:520px){
+@media (max-width: 900px) {
 
-.container{
+    .container {
+        padding: 24px 16px;
+        align-items: flex-start;
+    }
 
-padding:20px;
+    .payment-card {
+        width: 100%;
+        padding: 24px;
+    }
 
+    header h2 {
+        font-size: 18px;
+    }
+
+    .payment-option {
+        padding: 15px;
+    }
+
+    .resumo {
+        padding: 18px;
+    }
 }
 
-header,
-.payment-card{
+@media (max-width: 560px) {
 
-width:100%;
+    .container {
+        padding: 16px 12px;
+    }
 
+    .payment-card {
+        padding: 20px 16px;
+    }
+
+    header {
+        gap: 10px;
+    }
+
+    header h2 {
+        font-size: 16px;
+    }
+
+    header span {
+        font-size: 10px;
+    }
+
+    .voltar {
+        width: 34px;
+        height: 34px;
+        font-size: 21px;
+    }
+
+    .payment-card h3 {
+        font-size: 10px;
+    }
+
+    .payment-option {
+        gap: 10px;
+        padding: 13px;
+    }
+
+    .payment-left {
+        gap: 10px;
+    }
+
+    .icon {
+        width: 40px;
+        height: 40px;
+        font-size: 17px;
+    }
+
+    .payment-left h4 {
+        font-size: 13px;
+    }
+
+    .payment-left p {
+        font-size: 9px;
+    }
+
+    .payment-option input {
+        width: 16px;
+        height: 16px;
+    }
+
+    .resumo {
+        padding: 16px;
+    }
+
+    .linha {
+        gap: 12px;
+        font-size: 10px;
+    }
+
+    .total strong {
+        font-size: 20px;
+    }
+
+    #btnPagar {
+        height: 52px;
+        font-size: 10px;
+    }
+
+    #detalhes {
+        font-size: 9px;
+    }
 }
 
-header h2{
+/* =====================================================
+   ACESSIBILIDADE
+===================================================== */
 
-font-size:23px;
+@media (prefers-reduced-motion: reduce) {
 
+    *,
+    *::before,
+    *::after {
+        animation: none !important;
+        transition: none !important;
+    }
 }
 
-.payment-left h4{
+@media (forced-colors: active) {
 
-font-size:15px;
-
-}
-
-.payment-left p{
-
-font-size:12px;
-
-}
-
-#btnPagar{
-
-font-size:16px;
-
-}
-
+    .payment-card,
+    .payment-option,
+    .resumo,
+    .voltar,
+    #btnPagar {
+        border: 1px solid CanvasText;
+    }
 }

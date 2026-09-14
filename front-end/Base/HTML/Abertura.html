@@ -1,327 +1,742 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VagaConnect</title>
+
+<title>VagaConnect · Sua vaga, quando e onde precisar</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <link rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
 <link rel="stylesheet" href="../CSS/Abertura.css">
+
 </head>
+
+
 <body>
 
-<!-- HEADER -->
-<header class="header">
 
-    <div class="logo">
-        <div class="logo-icon">
-            <i class="fa-solid fa-location-dot"></i>
-        </div>
+<!-- =====================================================
+     HEADER
+===================================================== -->
 
-        <h2>
-            Vaga<span>Connect</span>
-        </h2>
-    </div>
+<header class="header" id="header">
 
-    <nav>
-        <a href="#hero">Início</a>
-        <a href="#why">Como Funciona</a>
-        <a href="#location">Localização</a>
+    <a href="#hero" class="logo">
+        <span class="logo-icon"><i class="fa-solid fa-layer-group"></i></span>
+        <h2>Vaga<span>Connect</span></h2>
+    </a>
+
+    <nav id="menu">
+        <a href="#como">Como funciona</a>
+        <a href="#recursos">Recursos</a>
+        <a href="#local">Onde estamos</a>
         <a href="#contato">Contato</a>
     </nav>
 
-  <div class="header-buttons">
-    <a href="../HTML/OpçãoLogin.html" class="card">
+    <div class="header-buttons">
 
-        <button class="login">Entrar</button>
-    </a>
-     <a href="../HTML/OpçãoCadastro.html" class="card">
-        <button class="register">Cadastrar</button>   
-     </a>    
-  </div>
+        <a href="../HTML/OpçãoLogin.html" class="login">Entrar</a>
+
+        <a href="../HTML/OpçãoCadastro.html" class="register">
+            Criar conta
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+
+        <button class="menu-mobile" id="menuMobile" aria-label="Abrir menu" aria-expanded="false">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+
+    </div>
 
 </header>
 
-<!-- HERO -->
 
-<section id="hero" class="hero">
 
-<div class="hero-content">
+<!-- =====================================================
+     HERO
+===================================================== -->
 
-<div class="badge">
-● Estacionamento em tempo real
-</div>
+<section class="hero" id="hero">
 
-<h1>
-Sua vaga,
-<span class="blue">quando</span>
-<br>
-e <span class="purple">onde</span>
-precisar.
-</h1>
 
-<p>
-A VagaConnect revoluciona sua forma de estacionar.
-Reserve seu lugar antecipadamente e pague apenas
-pelos minutos que utilizar.
-Sem estresse, sem voltas no quarteirão.
-</p>
+    <div class="hero-texto">
 
-<div class="hero-buttons">
+        <div class="badge">
+            <span class="ponto"></span>
+            Vagas em tempo real
+        </div>
 
-<button class="primary">
-Encontrar Vaga →
-</button>
+        <h1>
+            Sua vaga,
+            <span class="azul">quando</span>
+            e <span class="claro">onde</span>
+            precisar.
+        </h1>
 
-<button class="secondary">
-Saber Mais
-</button>
+        <p>
+            Reserve seu lugar antes de sair de casa e pague apenas pelos minutos
+            que usar. Sem dar voltas no quarteirão, sem discussão na cancela.
+        </p>
 
-</div>
+        <div class="hero-botoes">
 
-</div>
+            <a href="../HTML/OpçãoCadastro.html" class="btn-principal">
+                Encontrar uma vaga
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
 
-<div class="hero-image">
-<img src="../IMG/image.png">
-</div>
+            <a href="#como" class="btn-vazado">
+                Ver como funciona
+            </a>
+
+        </div>
+
+        <ul class="hero-provas">
+            <li><i class="fa-solid fa-check"></i> Sem mensalidade</li>
+            <li><i class="fa-solid fa-check"></i> Cancelamento livre</li>
+            <li><i class="fa-solid fa-check"></i> Confirmação por código</li>
+        </ul>
+
+    </div>
+
+
+    <!-- mapa de vagas ao vivo, desenhado em CSS -->
+    <div class="hero-mapa">
+
+        <div class="mapa-janela">
+
+            <div class="mapa-topo">
+                <span class="mapa-titulo">Pátio Centro · ao vivo</span>
+                <span class="mapa-status"><i></i> conectado</span>
+            </div>
+
+            <div class="mapa-pista">FRENTE · ENTRADA E SAÍDA</div>
+
+            <div class="mapa-grade" id="grade"></div>
+
+            <div class="mapa-legenda">
+                <span><i class="pt-livre"></i> Livre</span>
+                <span><i class="pt-reservada"></i> Reservada</span>
+                <span><i class="pt-ocupada"></i> Ocupada</span>
+            </div>
+
+        </div>
+
+        <div class="mapa-flutuante">
+            <strong id="vagaAtual">Vaga 12</strong>
+            <small>reservada agora há pouco</small>
+        </div>
+
+    </div>
+
 
 </section>
 
-<!-- COMO FUNCIONA -->
 
-<section id="why" class="how">
 
-<h2>Como Funciona?</h2>
+<!-- =====================================================
+     FAIXA ROLANTE
+===================================================== -->
 
-<p>
-Processo simples e intuitivo para que você foque
-no que realmente importa.
-</p>
+<div class="faixa" aria-hidden="true">
 
-<div class="cards">
-
-<div class="card">
-<div class="icon">
-<i class="fa-solid fa-magnifying-glass"></i>
-</div>
-
-<h3>Busque</h3>
-
-<p>
-Encontre vagas disponíveis próximas ao seu destino em tempo real.
-</p>
-
-<span>1</span>
-</div>
-
-<div class="card">
-<div class="icon purple-bg">
-<i class="fa-regular fa-calendar-check"></i>
-</div>
-
-<h3>Reserve</h3>
-
-<p>
-Garanta seu lugar com um clique. A vaga fica te esperando.
-</p>
-
-<span>2</span>
-</div>
-
-<div class="card">
-<div class="icon">
-<i class="fa-solid fa-location-dot"></i>
-</div>
-
-<h3>Estacione</h3>
-
-<p>
-Navegue até a vaga e ocupe-a sem preocupações.
-</p>
-
-<span>3</span>
-</div>
-
-<div class="card">
-<div class="icon purple-bg">
-<i class="fa-regular fa-credit-card"></i>
-</div>
-
-<h3>Pague</h3>
-
-<p>
-O pagamento é automático, proporcional apenas ao tempo de uso.
-</p>
-
-<span>4</span>
-</div>
+    <div class="faixa-trilho">
+        <span>Reserve antes de sair de casa</span><i>◆</i>
+        <span>Vagas em tempo real</span><i>◆</i>
+        <span>Pague pelo tempo usado</span><i>◆</i>
+        <span>Confirmação por código</span><i>◆</i>
+        <span>Prorrogue sem sair do carro</span><i>◆</i>
+        <span>Reserve antes de sair de casa</span><i>◆</i>
+        <span>Vagas em tempo real</span><i>◆</i>
+        <span>Pague pelo tempo usado</span><i>◆</i>
+        <span>Confirmação por código</span><i>◆</i>
+        <span>Prorrogue sem sair do carro</span><i>◆</i>
+    </div>
 
 </div>
+
+
+
+<!-- =====================================================
+     NÚMEROS
+===================================================== -->
+
+<section class="numeros" id="numeros">
+
+    <div class="numero">
+        <strong data-alvo="500" data-sufixo="+">0</strong>
+        <span>Estabelecimentos</span>
+    </div>
+
+    <div class="numero">
+        <strong data-alvo="18" data-sufixo="k+">0</strong>
+        <span>Reservas por mês</span>
+    </div>
+
+    <div class="numero">
+        <strong data-alvo="97" data-sufixo="%">0</strong>
+        <span>Chegam na hora</span>
+    </div>
+
+    <div class="numero">
+        <strong data-texto="24/7">0</strong>
+        <span>Monitoramento</span>
+    </div>
 
 </section>
 
-<!-- LOCALIZAÇÃO -->
-
-<section id="location" class="location">
-
-<div class="location-image">
-
-<img src="../IMG/pngtree-an-image-of-parked-cars-in-a-parking-lot-picture-image_2496914.jpg">
-
-<div class="pin">
-<i class="fa-solid fa-location-dot"></i>
-</div>
-
-</div>
-
-<div class="location-content">
-
-<h2>
-Estamos em todos os lugares
-</h2>
-
-<p>
-Nossa rede de estacionamentos parceiros cresce a cada dia.
-De centros comerciais agitados a ruas residenciais tranquilas,
-a VagaConnect está presente onde você precisa estar.
-</p>
-
-<div class="stats">
-
-<div class="stat">
-<h3>500+</h3>
-<p>Estabelecimentos</p>
-</div>
-
-<div class="stat">
-<h3>24/7</h3>
-<p>Monitoramento</p>
-</div>
-
-</div>
-
-<button>
-Ver cidades disponíveis
-</button>
-
-</div>
-
-</section>
-
-<!-- CTA -->
-
-<section id="contato" class="cta">
-
-<div class="cta-left">
-
-<h2>
-Pronto para transformar sua experiência?
-</h2>
-
-<p>
-Junte-se a milhares de motoristas que já economizam tempo e dinheiro com a VagaConnect.
-</p>
-
-<div class="cta-buttons">
-
-<button class="primary">
-Se Cadastre Agora →
-</button>
 
 
-</div>
+<!-- =====================================================
+     COMO FUNCIONA
+===================================================== -->
 
-</div>
+<section class="como" id="como">
 
-<div class="reviews">
+    <header class="secao-topo revelar">
+        <p class="rotulo">Passo a passo</p>
+        <h2>Da busca à cancela, em quatro passos</h2>
+        <span>Tudo acontece no celular. O pátio só confirma sua chegada.</span>
+    </header>
 
-<div class="avatars">
+    <div class="passos">
 
-<img src="images/avatar1.jpg">
-<img src="images/avatar2.jpg">
-<img src="images/avatar3.jpg">
-<img src="images/avatar4.jpg">
-<img src="images/avatar5.jpg">
+        <article class="passo revelar">
+            <span class="passo-num">01</span>
+            <div class="passo-icone"><i class="fa-solid fa-magnifying-glass"></i></div>
+            <h3>Busque</h3>
+            <p>Veja no mapa quais vagas estão livres perto do seu destino, agora.</p>
+        </article>
 
-</div>
+        <article class="passo revelar">
+            <span class="passo-num">02</span>
+            <div class="passo-icone"><i class="fa-regular fa-calendar-check"></i></div>
+            <h3>Reserve</h3>
+            <p>Escolha a vaga e o horário. Ela fica guardada esperando por você.</p>
+        </article>
 
-<div class="stars">
-★★★★★
-</div>
+        <article class="passo revelar">
+            <span class="passo-num">03</span>
+            <div class="passo-icone"><i class="fa-solid fa-key"></i></div>
+            <h3>Confirme</h3>
+            <p>Ao chegar, informe seu código de confirmação ao funcionário do pátio.</p>
+        </article>
 
-<p>+10k usuários satisfeitos</p>
+        <article class="passo revelar">
+            <span class="passo-num">04</span>
+            <div class="passo-icone"><i class="fa-regular fa-credit-card"></i></div>
+            <h3>Pague</h3>
+            <p>O valor é calculado pelo tempo real de uso. Precisou de mais? É só prorrogar.</p>
+        </article>
 
-</div>
+    </div>
 
 </section>
 
-<!-- FOOTER -->
+
+
+<!-- =====================================================
+     RECURSOS
+===================================================== -->
+
+<section class="recursos" id="recursos">
+
+    <header class="secao-topo revelar">
+        <p class="rotulo">Por dentro</p>
+        <h2>Feito para os dois lados da cancela</h2>
+        <span>Quem estaciona resolve pelo celular. Quem administra enxerga o pátio inteiro.</span>
+    </header>
+
+    <div class="recursos-grade">
+
+        <article class="recurso destaque revelar">
+            <div class="recurso-icone"><i class="fa-solid fa-map-location-dot"></i></div>
+            <h3>Mapa do pátio em tempo real</h3>
+            <p>
+                Cada vaga aparece com seu estado atual: livre, reservada ou ocupada.
+                Você escolhe olhando, não adivinhando.
+            </p>
+            <div class="mini-grade" id="miniGrade"></div>
+        </article>
+
+        <article class="recurso revelar">
+            <div class="recurso-icone"><i class="fa-solid fa-clock-rotate-left"></i></div>
+            <h3>Prorrogação com um toque</h3>
+            <p>A reunião atrasou? Peça mais tempo pelo app e o pátio aprova na hora.</p>
+        </article>
+
+        <article class="recurso revelar">
+            <div class="recurso-icone"><i class="fa-solid fa-shield-halved"></i></div>
+            <h3>Código de confirmação</h3>
+            <p>Sua chegada só é registrada com o código. Ninguém ocupa a vaga por engano.</p>
+        </article>
+
+        <article class="recurso revelar">
+            <div class="recurso-icone"><i class="fa-solid fa-chart-line"></i></div>
+            <h3>Painel para o administrador</h3>
+            <p>Ocupação, faturamento e reservas do dia em uma tela só.</p>
+        </article>
+
+        <article class="recurso revelar">
+            <div class="recurso-icone"><i class="fa-solid fa-car-side"></i></div>
+            <h3>Seus veículos salvos</h3>
+            <p>Cadastre uma vez e reserve nas próximas em segundos.</p>
+        </article>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     LOCALIZAÇÃO
+===================================================== -->
+
+<section class="local" id="local">
+
+    <div class="local-imagem revelar">
+
+        <img src="../IMG/pngtree-an-image-of-parked-cars-in-a-parking-lot-picture-image_2496914.jpg"
+             alt="Vista de um estacionamento com carros">
+
+        <span class="pin pin-1"><i class="fa-solid fa-location-dot"></i></span>
+        <span class="pin pin-2"><i class="fa-solid fa-location-dot"></i></span>
+        <span class="pin pin-3"><i class="fa-solid fa-location-dot"></i></span>
+
+        <div class="local-selo">
+            <strong>Pátio Centro</strong>
+            <small>12 vagas livres agora</small>
+        </div>
+
+    </div>
+
+    <div class="local-texto revelar">
+
+        <p class="rotulo">Cobertura</p>
+
+        <h2>Estamos onde você precisa estacionar</h2>
+
+        <p>
+            A rede de pátios parceiros cresce toda semana. De shopping lotado a
+            rua residencial tranquila, a VagaConnect mostra o que está livre por perto.
+        </p>
+
+        <ul class="local-lista">
+            <li><i class="fa-solid fa-circle-check"></i> Centros comerciais e shoppings</li>
+            <li><i class="fa-solid fa-circle-check"></i> Hospitais e universidades</li>
+            <li><i class="fa-solid fa-circle-check"></i> Estacionamentos de bairro</li>
+        </ul>
+
+        <a href="../HTML/OpçãoCadastro.html" class="btn-vazado">
+            Ver cidades disponíveis
+        </a>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     DEPOIMENTOS
+===================================================== -->
+
+<section class="depoimentos">
+
+    <header class="secao-topo revelar">
+        <p class="rotulo">Quem usa</p>
+        <h2>Menos volta no quarteirão</h2>
+    </header>
+
+    <div class="depoimentos-grade">
+
+        <figure class="depoimento revelar">
+            <div class="estrelas">★★★★★</div>
+            <blockquote>
+                Chego no centro às 8h e a vaga já está minha. Ganhei uns 20 minutos
+                todo dia útil.
+            </blockquote>
+            <figcaption>
+                <span class="avatar">MR</span>
+                <div><strong>Marina R.</strong><small>São Paulo · SP</small></div>
+            </figcaption>
+        </figure>
+
+        <figure class="depoimento revelar">
+            <div class="estrelas">★★★★★</div>
+            <blockquote>
+                O código de confirmação acabou com a confusão na entrada.
+                O pessoal do pátio adorou.
+            </blockquote>
+            <figcaption>
+                <span class="avatar">JS</span>
+                <div><strong>João S.</strong><small>Administrador de pátio</small></div>
+            </figcaption>
+        </figure>
+
+        <figure class="depoimento revelar">
+            <div class="estrelas">★★★★★</div>
+            <blockquote>
+                Precisei de mais uma hora, pedi pelo app e foi aprovado antes de eu
+                voltar para o carro.
+            </blockquote>
+            <figcaption>
+                <span class="avatar">CL</span>
+                <div><strong>Camila L.</strong><small>Campinas · SP</small></div>
+            </figcaption>
+        </figure>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     CHAMADA FINAL
+===================================================== -->
+
+<section class="cta" id="contato">
+
+    <div class="cta-brilho"></div>
+
+    <div class="cta-texto revelar">
+
+        <p class="rotulo">Comece agora</p>
+
+        <h2>Sua próxima vaga já está esperando</h2>
+
+        <p>
+            Criar a conta leva menos de dois minutos e não custa nada.
+            Você só paga quando estacionar.
+        </p>
+
+        <div class="cta-botoes">
+
+            <a href="../HTML/OpçãoCadastro.html" class="btn-principal">
+                Criar minha conta
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+
+            <a href="../HTML/OpçãoLogin.html" class="btn-vazado">
+                Já tenho conta
+            </a>
+
+        </div>
+
+    </div>
+
+    <div class="cta-cartao revelar">
+
+        <div class="cartao-topo">
+            <span class="cartao-status">Reserva confirmada</span>
+            <i class="fa-solid fa-circle-check"></i>
+        </div>
+
+        <strong class="cartao-vaga">Vaga 12</strong>
+
+        <div class="cartao-linhas">
+            <div><span>Entrada</span><b>08:30</b></div>
+            <div><span>Saída</span><b>12:30</b></div>
+            <div><span>Código</span><b class="codigo">KP-4417</b></div>
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     RODAPÉ
+===================================================== -->
 
 <footer>
 
-<div class="footer-grid">
+    <div class="footer-grade">
 
-<div>
+        <div>
 
-<div class="logo footer-logo">
+            <a href="#hero" class="logo">
+                <span class="logo-icon"><i class="fa-solid fa-layer-group"></i></span>
+                <h2>Vaga<span>Connect</span></h2>
+            </a>
 
-<div class="logo-icon">
-<i class="fa-solid fa-location-dot"></i>
-</div>
+            <p class="footer-sobre">
+                Sistema inteligente de reserva de vagas. Um projeto que conecta
+                motoristas e estacionamentos em tempo real.
+            </p>
 
-<h2>
-Vaga<span>Connect</span>
-</h2>
+            <div class="footer-redes">
+                <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                <a href="#" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+            </div>
 
-</div>
+        </div>
 
-<p>
-A VagaConnect é a solução moderna para estacionamentos urbanos.
-</p>
+        <div>
+            <h4>Navegar</h4>
+            <a href="#como">Como funciona</a>
+            <a href="#recursos">Recursos</a>
+            <a href="#local">Onde estamos</a>
+            <a href="../HTML/OpçãoCadastro.html">Criar conta</a>
+        </div>
 
-</div>
+        <div>
+            <h4>Suporte</h4>
+            <a href="#">Perguntas frequentes</a>
+            <a href="#">Central de ajuda</a>
+            <a href="#">Status do sistema</a>
+            <a href="#">Segurança</a>
+        </div>
 
-<div>
+        <div>
+            <h4>Contato</h4>
+            <a href="#"><i class="fa-regular fa-envelope"></i> contato@vagaconnect.com</a>
+            <a href="#"><i class="fa-solid fa-phone"></i> (11) 99999-9999</a>
+            <a href="#"><i class="fa-solid fa-location-dot"></i> São Paulo · SP</a>
+        </div>
 
-<h4>Links Úteis</h4>
+    </div>
 
-<a href="#">Início</a>
-<a href="#">Como Funciona</a>
-<a href="#">Localização</a>
-<a href="#">Trabalhe Conosco</a>
-
-</div>
-
-<div>
-
-<h4>Suporte</h4>
-
-<a href="#">FAQ</a>
-<a href="#">Central de Ajuda</a>
-<a href="#">Status do Sistema</a>
-<a href="#">Segurança</a>
-
-</div>
-
-<div>
-
-<h4>Contato</h4>
-
-<a href="#">contato@vagaconnect.com</a>
-<a href="#">(11) 99999-9999</a>
-<a href="#">São Paulo - SP</a>
-
-</div>
-
-</div>
-
-<div class="copyright">
-© 2026 VagaConnect. Todos os direitos reservados.
-</div>
+    <div class="copyright">
+        © 2026 VagaConnect · Todos os direitos reservados
+    </div>
 
 </footer>
+
+
+
+<script>
+
+/* =====================================================
+   1. MAPA DE VAGAS ANIMADO
+   Desenha as vagas e vai trocando os estados sozinho.
+===================================================== */
+
+const grade = document.getElementById("grade");
+
+const vagaAtual = document.getElementById("vagaAtual");
+
+const estados = ["livre", "livre", "livre", "reservada", "ocupada"];
+
+const totalVagas = 30;
+
+const celulas = [];
+
+
+for(let i = 1; i <= totalVagas; i++){
+
+    const celula = document.createElement("span");
+
+    celula.className = "vaga " + estados[Math.floor(Math.random() * estados.length)];
+
+    celula.textContent = i;
+
+    celula.style.animationDelay = (i * 40) + "ms";
+
+    grade.appendChild(celula);
+
+    celulas.push(celula);
+
+}
+
+
+/* muda uma vaga a cada 1,8s, como se fosse tempo real */
+function moverVagas(){
+
+    const sorteada = celulas[Math.floor(Math.random() * celulas.length)];
+
+    const novo = estados[Math.floor(Math.random() * estados.length)];
+
+    sorteada.className = "vaga " + novo + " piscando";
+
+    setTimeout(() => sorteada.classList.remove("piscando"), 700);
+
+
+    if(novo === "reservada"){
+
+        vagaAtual.textContent = "Vaga " + sorteada.textContent;
+
+    }
+
+}
+
+
+/* mini grade da seção de recursos */
+const miniGrade = document.getElementById("miniGrade");
+
+for(let i = 0; i < 24; i++){
+
+    const celula = document.createElement("span");
+
+    celula.className = "mini " + estados[Math.floor(Math.random() * estados.length)];
+
+    miniGrade.appendChild(celula);
+
+}
+
+
+
+/* =====================================================
+   2. CONTADORES
+   Sobem quando a seção aparece na tela.
+===================================================== */
+
+function contar(elemento){
+
+    const alvo = Number(elemento.dataset.alvo);
+
+    const sufixo = elemento.dataset.sufixo || "";
+
+    if(elemento.dataset.texto){
+
+        elemento.textContent = elemento.dataset.texto;
+
+        return;
+
+    }
+
+    let atual = 0;
+
+    const passo = Math.max(1, Math.round(alvo / 45));
+
+
+    const relogio = setInterval(() => {
+
+        atual += passo;
+
+        if(atual >= alvo){
+
+            atual = alvo;
+
+            clearInterval(relogio);
+
+        }
+
+        elemento.textContent = atual + sufixo;
+
+    }, 24);
+
+}
+
+
+
+/* =====================================================
+   3. APARIÇÃO AO ROLAR
+===================================================== */
+
+const semMovimento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+
+if(semMovimento){
+
+    document.querySelectorAll(".revelar").forEach(el => el.classList.add("visivel"));
+
+    document.querySelectorAll("[data-alvo], [data-texto]").forEach(contar);
+
+} else {
+
+    const observador = new IntersectionObserver((entradas) => {
+
+        entradas.forEach(entrada => {
+
+            if(!entrada.isIntersecting) return;
+
+            entrada.target.classList.add("visivel");
+
+            entrada.target.querySelectorAll?.("[data-alvo], [data-texto]")
+                .forEach(contar);
+
+            observador.unobserve(entrada.target);
+
+        });
+
+    }, { threshold: .18 });
+
+
+    document.querySelectorAll(".revelar").forEach(el => observador.observe(el));
+
+    observador.observe(document.getElementById("numeros"));
+
+
+    setInterval(moverVagas, 1800);
+
+}
+
+
+
+/* =====================================================
+   3.5 BRILHO QUE ACOMPANHA O MOUSE NO HERO
+===================================================== */
+
+const hero = document.getElementById("hero");
+
+if(!semMovimento && window.matchMedia("(pointer: fine)").matches){
+
+    hero.addEventListener("pointermove", (evento) => {
+
+        const area = hero.getBoundingClientRect();
+
+        const x = ((evento.clientX - area.left) / area.width) * 100;
+
+        const y = ((evento.clientY - area.top) / area.height) * 100;
+
+        hero.style.setProperty("--mx", x + "%");
+
+        hero.style.setProperty("--my", y + "%");
+
+    });
+
+}
+
+
+
+/* =====================================================
+   4. HEADER AO ROLAR + MENU DO CELULAR
+===================================================== */
+
+const header = document.getElementById("header");
+
+window.addEventListener("scroll", () => {
+
+    header.classList.toggle("encolhido", window.scrollY > 20);
+
+});
+
+
+const menuMobile = document.getElementById("menuMobile");
+
+const menu = document.getElementById("menu");
+
+
+menuMobile.addEventListener("click", () => {
+
+    const aberto = menu.classList.toggle("aberto");
+
+    menuMobile.setAttribute("aria-expanded", aberto ? "true" : "false");
+
+});
+
+
+menu.querySelectorAll("a").forEach(link => {
+
+    link.addEventListener("click", () => menu.classList.remove("aberto"));
+
+});
+
+</script>
+
 
 </body>
 </html>
