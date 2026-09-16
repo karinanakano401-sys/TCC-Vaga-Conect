@@ -2,144 +2,1290 @@
 <html lang="pt-BR">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VagaConnect | Pagamentos do pátio</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="stylesheet" href="../CSS/TelaFunc.css">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>VagaConnect | Cobrança por tempo</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+rel="stylesheet">
+
+<link rel="stylesheet" href="../CSS/TelaFuncProrrogacoes.css">
+
 </head>
 
+
 <body>
-  <div class="app-shell">
-    <aside class="sidebar" id="sidebar">
-      <div class="logo">
-        <a href="TelaFunc.html" class="logo">
-          <i class="fa-solid fa-layer-group"></i>
-          <span>Vaga</span>Connect
-        </a>
-      </div>
-      <nav>
-        <a href="TelaFunc.html"><i data-icon="grid"></i>Dashboard</a>
-        <a href="TelaFuncVagas.html"><i data-icon="car"></i>Vagas</a>
-        <a href="TelaFuncReservas.html"><i data-icon="calendar"></i>Reservas</a>
-        <a href="TelaFuncProrrongações.html"><i data-icon="clock"></i>Prorrongações</a>
-        <a href="TelaFuncPagamentos.html"><i data-icon="credit-card"></i>Pagamentos Reserva</a>
-        <a class="active" href="TelaFuncVagas.html"><i data-icon="credit-card"></i>Pagamentos Tempo</a>
-        <a href="TelaFuncConta.html"><i data-icon="settings"></i>Configurações</a>
-        <a href="../../Base/HTML/Abertura.html" id="btnSair"><i data-icon="log-out"></i>Sair</a>
-      </nav>
-      <div class="sidebar-user">
-        <div class="user-avatar">F</div>
-        <div class="user-info">
-          <strong>Funcionário</strong>
-          <span>Carregando...</span>
+
+
+<div class="app-shell">
+
+
+<!-- ================= SIDEBAR ================= -->
+
+
+<aside class="sidebar" id="sidebar">
+
+
+<a href="TelaFunc.html" class="logo">
+    <i data-icon="layers"></i>
+    <span>Vaga</span>Connect
+</a>
+
+
+<nav>
+
+    <a href="TelaFunc.html"><i data-icon="grid"></i>Dashboard</a>
+
+    <a href="TelaFuncVagas.html"><i data-icon="car"></i>Vagas</a>
+
+    <a href="TelaFuncReservas.html"><i data-icon="calendar"></i>Reservas</a>
+
+    <a href="TelaFuncProrrogacoes.html"><i data-icon="clock"></i>Prorrogações</a>
+
+    <a href="TelaFuncReembolsos.html"><i data-icon="refund"></i>Reembolsos</a>
+
+    <a href="TelaFuncPagamentos.html"><i data-icon="credit-card"></i>Pagamentos Reserva</a>
+
+    <a class="active" href="#"><i data-icon="credit-card"></i>Pagamentos Tempo</a>
+
+    <a href="TelaFuncConta.html"><i data-icon="user"></i>Conta</a>
+
+    <a href="#" id="btnSair"><i data-icon="log-out"></i>Sair</a>
+
+</nav>
+
+
+<div class="profile">
+
+    <span class="avatar" id="inicialFuncionario">F</span>
+
+    <div>
+        <strong id="nomeFuncionario">Funcionário</strong>
+        <small id="cargoFuncionario">carregando</small>
+    </div>
+
+</div>
+
+
+</aside>
+
+
+
+
+<!-- ================= CONTEÚDO ================= -->
+
+
+<main class="content">
+
+
+<div class="topbar">
+
+    <button class="menu-button" id="menuButton" aria-label="Abrir menu">
+        <i data-icon="menu"></i>
+    </button>
+
+    <div>
+        <h1>Cobrança por tempo</h1>
+        <p>Valor a receber pelo tempo de permanência no pátio</p>
+    </div>
+
+    <button class="primary-button" id="btnAtualizar">
+        <i data-icon="refresh"></i>
+        Atualizar
+    </button>
+
+</div>
+
+
+
+<!-- ================= INDICADORES ================= -->
+
+
+<div class="cards">
+
+    <div class="card">
+        <span>No pátio agora</span>
+        <h2 id="totalAtivos">0</h2>
+        <p>Veículos acumulando tempo</p>
+    </div>
+
+    <div class="card">
+        <span>A receber</span>
+        <h2 id="totalReceber">R$ 0,00</h2>
+        <p>Somando o que ainda não foi pago</p>
+    </div>
+
+    <div class="card">
+        <span>Recebido hoje</span>
+        <h2 id="totalRecebido">R$ 0,00</h2>
+        <p>Pagamentos confirmados no dia</p>
+    </div>
+
+    <div class="card">
+        <span>Pendências</span>
+        <h2 id="totalPendencias">0</h2>
+        <p>Saíram sem acertar o valor</p>
+    </div>
+
+</div>
+
+
+
+<!-- ================= PAINEL ================= -->
+
+
+<section class="panel">
+
+
+<div class="toolbar">
+
+    <label>
+        Situação
+        <select id="filtroStatus">
+            <option value="">Todas</option>
+            <option value="A pagar">A pagar</option>
+            <option value="Em uso">Em uso</option>
+            <option value="Pago">Pagos</option>
+            <option value="Pendente">Pendências</option>
+        </select>
+    </label>
+
+    <label class="search-box">
+        <i data-icon="search"></i>
+        <input type="search" id="busca" placeholder="Cliente, vaga ou placa">
+    </label>
+
+</div>
+
+
+<div class="table-wrap">
+
+<table>
+
+    <thead>
+        <tr>
+            <th>Vaga</th>
+            <th>Cliente</th>
+            <th>Entrada</th>
+            <th>Permanência</th>
+            <th>Tarifa</th>
+            <th>Tempo</th>
+            <th>Já pago</th>
+            <th>A pagar</th>
+            <th>Situação</th>
+            <th class="actions-title">Ações</th>
+        </tr>
+    </thead>
+
+    <tbody id="linhas"></tbody>
+
+</table>
+
+</div>
+
+
+<p class="table-count" id="contagem">Carregando...</p>
+
+
+</section>
+
+
+</main>
+
+
+</div>
+
+
+
+<!-- ================= JANELA DE COBRANÇA ================= -->
+
+
+<div class="modal-fundo" id="modalFundo" hidden>
+
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitulo">
+
+        <div class="modal-icone" id="modalIcone"></div>
+
+        <h3 id="modalTitulo">Confirmar pagamento</h3>
+
+        <p id="modalTexto"></p>
+
+        <div class="modal-valores" id="modalValores"></div>
+
+        <div class="modal-campo" id="campoMetodo">
+
+            <span>Forma de pagamento</span>
+
+            <div class="metodos" id="metodos">
+                <button type="button" class="metodo escolhido" data-valor="Dinheiro">Dinheiro</button>
+                <button type="button" class="metodo" data-valor="PIX">PIX</button>
+                <button type="button" class="metodo" data-valor="Cartão">Cartão</button>
+            </div>
+
         </div>
-      </div>
-    </aside>
 
-    <main class="main-content">
-      <header class="topbar">
-        <div class="page-title">
-          <p>SEU PÁTIO</p>
-          <h1>Pagamentos Tempo de Uso</h1>
+        <label class="modal-campo" id="campoValor">
+            <span>Valor recebido</span>
+            <input type="text" id="valorRecebido" inputmode="decimal" placeholder="0,00">
+        </label>
+
+        <label class="modal-campo" id="campoNota" hidden>
+            <span>O que aconteceu</span>
+            <textarea id="notaPendencia" rows="3" maxlength="200"
+                placeholder="Ex.: saiu sem passar no caixa; cobrar na próxima visita"></textarea>
+        </label>
+
+        <div class="modal-botoes">
+            <button class="btn-nao" type="button" id="modalCancelar">Voltar</button>
+            <button class="btn-sim" type="button" id="modalConfirmar">Confirmar</button>
         </div>
-      </header>
 
-      <section class="stats-grid">
-        <article class="stat-card">
-          <span class="stat-icon green">R$</span>
-          <div>
-            <p>Total deste pátio</p>
-            <strong id="totalPatio">R$ 0,00</strong>
-            <small id="qtdPagamentos">0 pagamentos</small>
-          </div>
-        </article>
-      </section>
+    </div>
 
-      <section class="panel">
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>CLIENTE</th>
-                <th>VAGA</th>
-                <th>FORMA</th>
-                <th>VALOR</th>
-              </tr>
-            </thead>
-            <tbody id="linhas"></tbody>
-          </table>
-        </div>
-      </section>
-    </main>
-  </div>
+</div>
 
-  <script src="../../Base/JS/sessao.js"></script>
-  <script>
-    const icons = {
-      grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
-      car: '<path d="M5 17H3v-4l2-5h14l2 5v4h-2M5 17h14M7 17v2m10-2v2M5 13h14"/><circle cx="7" cy="15" r="1"/><circle cx="17" cy="15" r="1"/>',
-      calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>',
-      "credit-card": '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h2"/>',
-      "log-out": '<path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-5"/>',
-      settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2 2-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5v.2h-2.8v-.2a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1-2-2 .1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H5.7v-2.8h.2a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9L7 8.2l2-2 .1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.5V4.9h2.8v.2a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1 2 2-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1h.2V14h-.2a1.7 1.7 0 0 0-1.5 1Z"/>',
-      "log-out": '<path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-5"/>',
 
-      /* novos, usados na tela de prorrogações */
-      clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3.5 2"/><path d="M3.5 9.5 6 7l2.5 2.5"/>',
-      search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
-      refresh: '<path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/>'
-    };
-    document.querySelectorAll("i[data-icon]").forEach((icon) => {
-      icon.outerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${icons[icon.dataset.icon]}</svg>`;
+
+<script src="../../Base/JS/sessao.js"></script>
+
+<script>
+
+/* ícones em SVG, iguais aos das outras telas */
+const icons = {
+
+  layers: '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
+
+  grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
+
+  car: '<path d="M5 17H3v-4l2-5h14l2 5v4h-2M5 17h14M7 17v2m10-2v2M5 13h14"/><circle cx="7" cy="15" r="1"/><circle cx="17" cy="15" r="1"/>',
+
+  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>',
+
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3.5 2"/><path d="M3.5 9.5 6 7l2.5 2.5"/>',
+
+  cash: '<rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 9.5v5M18 9.5v5"/>',
+
+  "credit-card": '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h2"/>',
+
+  "log-out": '<path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-5"/>',
+
+  menu: '<path d="M4 6h16M4 12h16M4 18h16"/>',
+
+  search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+
+  refresh: '<path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/>',
+
+  check: '<path d="M4 12.5 9 17.5 20 6.5"/>',
+
+  alerta: '<path d="M12 3.5 21 19H3l9-15.5Z"/><path d="M12 10v4M12 16.5v.01"/>',
+
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/>',
+
+  refund: '<path d="M3 12a9 9 0 1 0 3.2-6.9"/><path d="M3 4.5V10h5.5"/>'
+
+};
+
+
+document.querySelectorAll("i[data-icon]").forEach(function(elemento){
+
+    const desenho = icons[elemento.dataset.icon] || icons.grid;
+
+    elemento.outerHTML =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+        'stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ' +
+        'aria-hidden="true">' + desenho + '</svg>';
+
+});
+
+</script>
+
+<script>
+  /* =====================================================
+   VagaConnect · Cobrança por tempo (funcionário)
+
+   Mostra quanto cada cliente deve pelo tempo de
+   permanência e permite confirmar o pagamento ou
+   registrar uma pendência.
+
+   Regra do valor:
+   valor do tempo = horas iniciadas x preço da vaga
+   a pagar        = valor do tempo - o que já foi pago
+                    (a taxa da reserva entra como crédito)
+===================================================== */
+
+
+// =====================================================
+// CONFIGURAÇÃO
+// =====================================================
+
+
+const api = (typeof API !== "undefined") ? API : "http://localhost:3333";
+
+
+const funcionario = (typeof exigirLogin === "function")
+
+    ? exigirLogin("funcionario", "../../Base/HTML/OpçãoLogin.html")
+
+    : JSON.parse(localStorage.getItem("funcionarioLogado") || "null");
+
+
+if(!funcionario){
+
+    throw new Error("sem sessão");
+
+}
+
+
+// tolerância antes de começar a cobrar (em minutos)
+const CORTESIA = 15;
+
+
+let modoLocal  = false;
+
+let reservas   = [];
+
+let pendencias = [];     // marcações de quem saiu sem pagar
+
+
+// linha que está sendo cobrada na janela
+let emCobranca = null;
+
+let acaoAtual  = null;   // "cobrar" ou "pendencia"
+
+let metodo     = "Dinheiro";
+
+
+
+// =====================================================
+// ELEMENTOS
+// =====================================================
+
+
+const linhas        = document.getElementById("linhas");
+
+const contagem      = document.getElementById("contagem");
+
+const filtroStatus  = document.getElementById("filtroStatus");
+
+const busca         = document.getElementById("busca");
+
+const btnAtualizar  = document.getElementById("btnAtualizar");
+
+const menuButton    = document.getElementById("menuButton");
+
+const sidebar       = document.getElementById("sidebar");
+
+
+const modalFundo    = document.getElementById("modalFundo");
+
+const modalIcone    = document.getElementById("modalIcone");
+
+const modalTitulo   = document.getElementById("modalTitulo");
+
+const modalTexto    = document.getElementById("modalTexto");
+
+const modalValores  = document.getElementById("modalValores");
+
+const campoMetodo   = document.getElementById("campoMetodo");
+
+const campoValor    = document.getElementById("campoValor");
+
+const campoNota     = document.getElementById("campoNota");
+
+const valorRecebido = document.getElementById("valorRecebido");
+
+const notaPendencia = document.getElementById("notaPendencia");
+
+const modalCancelar = document.getElementById("modalCancelar");
+
+const modalConfirmar= document.getElementById("modalConfirmar");
+
+
+
+// =====================================================
+// PERFIL
+// =====================================================
+
+
+(function mostrarPerfil(){
+
+    const nome = funcionario.nome || "Funcionário";
+
+    document.getElementById("nomeFuncionario").textContent    = nome;
+
+    document.getElementById("inicialFuncionario").textContent = nome.charAt(0).toUpperCase();
+
+    document.getElementById("cargoFuncionario").textContent   = funcionario.cargo || "Recepcionista";
+
+})();
+
+
+
+// =====================================================
+// AJUDANTES
+// =====================================================
+
+
+function mostrarPreco(valor){
+
+    return Number(valor || 0).toLocaleString("pt-BR", {
+
+        style: "currency",
+
+        currency: "BRL"
+
     });
 
-    const funcionario = exigirLogin("funcionario", "../../Base/HTML/OpçãoLogin.html");
-    if (!funcionario) { /* redirecionado */ } else {
+}
 
-      mostrarFuncionarioNoPerfil(funcionario);
-      document.querySelector("#btnSair").addEventListener("click", (e) => {
-        e.preventDefault();
-        sair("../../Base/HTML/Abertura.html");
-      });
 
-      function mostrarPreco(valor) {
-        return Number(valor || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-      }
+function mostrarDataHora(texto){
 
-      async function carregar() {
-        const resposta = await fetch(API + "/pagamento");
+    if(!texto) return "--";
+
+    const data = new Date(texto);
+
+    if(isNaN(data)) return "--";
+
+    const dia    = String(data.getDate()).padStart(2, "0");
+
+    const mes    = String(data.getMonth() + 1).padStart(2, "0");
+
+    const hora   = String(data.getHours()).padStart(2, "0");
+
+    const minuto = String(data.getMinutes()).padStart(2, "0");
+
+    return `${dia}/${mes} ${hora}:${minuto}`;
+
+}
+
+
+function ehHoje(texto){
+
+    const data = new Date(texto);
+
+    return data.toDateString() === new Date().toDateString();
+
+}
+
+
+// texto amigável do tempo: "2h 15min"
+function mostrarDuracao(minutos){
+
+    if(minutos < 60) return minutos + "min";
+
+    const h = Math.floor(minutos / 60);
+
+    const m = minutos % 60;
+
+    return m === 0 ? h + "h" : `${h}h ${String(m).padStart(2, "0")}min`;
+
+}
+
+
+function totalPago(item){
+
+    if(!item.pagamentos) return 0;
+
+    return item.pagamentos.reduce((soma, p) => soma + Number(p.valor || 0), 0);
+
+}
+
+
+function pendenciaDe(id){
+
+    return pendencias.find(p => p.fk_reservacli === id) || null;
+
+}
+
+
+
+// =====================================================
+// O CÁLCULO
+// =====================================================
+
+
+function calcular(item){
+
+    const vaga = item.reserva.vaga;
+
+    const tarifa = Number(vaga.preco || 0);
+
+
+    const entrada = new Date(item.hora);
+
+    const ativa   = item.reserva.status === "Ativa";
+
+
+    // enquanto está no pátio conta até agora; depois, até a saída
+    const fim = ativa
+
+        ? new Date()
+
+        : new Date(item.horaSaida || item.hora);
+
+
+    let minutos = Math.max(0, Math.floor((fim - entrada) / 60000));
+
+
+    // cortesia inicial
+    const cobraveis = Math.max(0, minutos - CORTESIA);
+
+
+    // cobra por hora iniciada
+    const horas = cobraveis === 0 ? 0 : Math.ceil(cobraveis / 60);
+
+
+    const valorTempo = horas * tarifa;
+
+    const pago       = totalPago(item);
+
+    const aPagar     = Math.max(0, Math.round((valorTempo - pago) * 100) / 100);
+
+
+    return { tarifa, minutos, horas, valorTempo, pago, aPagar, ativa };
+
+}
+
+
+function situacao(item, conta){
+
+    if(pendenciaDe(item.id))            return "Pendente";
+
+    if(conta.ativa)                     return "Em uso";
+
+    if(conta.aPagar <= 0)               return "Pago";
+
+    return "A pagar";
+
+}
+
+
+function classeSituacao(nome){
+
+    return {
+
+        "Em uso":   "emuso",
+
+        "A pagar":  "apagarstatus",
+
+        "Pago":     "pagostatus",
+
+        "Pendente": "pendentestatus"
+
+    }[nome] || "";
+
+}
+
+
+
+// =====================================================
+// CARREGAR
+// =====================================================
+
+
+function carregarPendencias(){
+
+    pendencias = JSON.parse(localStorage.getItem("pendenciasCobranca") || "[]");
+
+}
+
+
+async function carregar(){
+
+    btnAtualizar.classList.add("girando");
+
+
+    try {
+
+        const resposta = await fetch(api + "/reservacli");
+
         const lista = await resposta.json();
-        if (!resposta.ok) throw new Error(lista.erro || "Erro ao carregar os pagamentos");
 
-        const meus = lista.filter((item) =>
-          item.reservaCli?.reserva?.vaga?.fk_est === funcionario.fk_est
-        );
+        if(!resposta.ok) throw new Error(lista.erro || "Erro ao carregar as reservas");
 
-        const total = meus.reduce((soma, item) => soma + Number(item.valor || 0), 0);
-        document.getElementById("totalPatio").textContent = mostrarPreco(total);
-        document.getElementById("qtdPagamentos").textContent = `${meus.length} pagamento(s)`;
 
-        const corpo = document.getElementById("linhas");
-        if (meus.length === 0) {
-          corpo.innerHTML = `<tr><td colspan="4" class="vazio">Nenhum pagamento neste pátio.</td></tr>`;
-          return;
+        carregarPendencias();
+
+
+        // só o pátio deste funcionário, e só quem já entrou
+        reservas = lista
+
+            .filter(item => item.reserva?.vaga?.fk_est === funcionario.fk_est)
+
+            .filter(item => ["Ativa", "Concluída"].includes(item.reserva.status))
+
+            .sort((a, b) => new Date(b.hora) - new Date(a.hora));
+
+
+        render();
+
+    } catch (error) {
+
+        linhas.innerHTML = `<tr><td colspan="10" class="vazio">
+            ${error.message || "Não foi possível carregar. Verifique se o servidor está ligado."}
+        </td></tr>`;
+
+        contagem.textContent = "Erro ao carregar";
+
+    } finally {
+
+        btnAtualizar.classList.remove("girando");
+
+    }
+
+}
+
+
+
+// =====================================================
+// REGISTRAR O PAGAMENTO
+// =====================================================
+
+
+async function registrarPagamento(item, valor, forma){
+
+    const corpo = {
+
+        valor:         Number(valor),
+
+        metodo:        forma,
+
+        data:          new Date().toISOString(),
+
+        tipo:          "Tempo de permanência",
+
+        fk_reservacli: item.id
+
+    };
+
+
+    try {
+
+        const resposta = await fetch(api + "/pagamento", {
+
+            method: "POST",
+
+            headers: { "Content-Type": "application/json" },
+
+            body: JSON.stringify(corpo)
+
+        });
+
+        if(!resposta.ok) throw new Error("sem endpoint");
+
+        modoLocal = false;
+
+        return await resposta.json();
+
+    } catch (error) {
+
+        // sem a rota, guarda no navegador para não perder o registro
+        modoLocal = true;
+
+        const todos = JSON.parse(localStorage.getItem("pagamentosTempo") || "[]");
+
+        todos.push({ ...corpo, id: "pg" + Date.now() });
+
+        localStorage.setItem("pagamentosTempo", JSON.stringify(todos));
+
+        return corpo;
+
+    }
+
+}
+
+
+function salvarPendencia(item, nota){
+
+    const todos = JSON.parse(localStorage.getItem("pendenciasCobranca") || "[]");
+
+    const existente = todos.find(p => p.fk_reservacli === item.id);
+
+    if(existente){
+
+        existente.nota = nota;
+
+    } else {
+
+        todos.push({
+
+            fk_reservacli: item.id,
+
+            nota:          nota,
+
+            criadoEm:      new Date().toISOString(),
+
+            registradoPor: funcionario.nome || "Funcionário"
+
+        });
+
+    }
+
+    localStorage.setItem("pendenciasCobranca", JSON.stringify(todos));
+
+}
+
+
+function limparPendencia(id){
+
+    const todos = JSON.parse(localStorage.getItem("pendenciasCobranca") || "[]")
+
+        .filter(p => p.fk_reservacli !== id);
+
+    localStorage.setItem("pendenciasCobranca", JSON.stringify(todos));
+
+}
+
+
+
+// =====================================================
+// JANELA
+// =====================================================
+
+
+function abrirJanela(id, acao){
+
+    const item = reservas.find(r => r.id === id);
+
+    if(!item) return;
+
+
+    emCobranca = item;
+
+    acaoAtual  = acao;
+
+
+    const conta = calcular(item);
+
+    const cliente = item.usuario?.nome || "o cliente";
+
+    const cobrar = acao === "cobrar";
+
+
+    modalFundo.style.setProperty("--c", cobrar ? "#3ddc97" : "#f5b731");
+
+    modalFundo.style.setProperty("--f", cobrar ? "rgba(61,220,151,.12)" : "rgba(245,183,49,.12)");
+
+
+    modalIcone.innerHTML =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+        'stroke-linecap="round" stroke-linejoin="round">' +
+        (cobrar
+
+            ? '<path d="M4 12.5 9 17.5 20 6.5"/>'
+
+            : '<path d="M12 3.5 21 19H3l9-15.5Z"/><path d="M12 10v4M12 16.5v.01"/>') +
+        '</svg>';
+
+
+    modalTitulo.textContent = cobrar ? "Confirmar pagamento" : "Registrar pendência";
+
+
+    modalTexto.textContent = cobrar
+
+        ? `Vaga ${item.reserva.vaga.numero} · ${cliente} ficou `
+          + `${mostrarDuracao(conta.minutos)} no pátio.`
+
+        : `${cliente} saiu sem acertar ${mostrarPreco(conta.aPagar)}. `
+          + `A pendência fica registrada para cobrança depois.`;
+
+
+    modalValores.innerHTML = `
+
+        <div>
+            <span>Tempo</span>
+            <strong>${conta.horas}h × ${mostrarPreco(conta.tarifa)}</strong>
+        </div>
+
+        <div>
+            <span>Já pago</span>
+            <strong>${mostrarPreco(conta.pago)}</strong>
+        </div>
+
+        <div>
+            <span>A pagar</span>
+            <strong class="verde">${mostrarPreco(conta.aPagar)}</strong>
+        </div>
+    `;
+
+
+    campoMetodo.hidden = !cobrar;
+
+    campoValor.hidden  = !cobrar;
+
+    campoNota.hidden   = cobrar;
+
+
+    if(cobrar){
+
+        valorRecebido.value = conta.aPagar.toFixed(2).replace(".", ",");
+
+        modalConfirmar.textContent = "Confirmar recebimento";
+
+        modalConfirmar.disabled = false;
+
+        conferirTroco();
+
+    } else {
+
+        notaPendencia.value = "";
+
+        modalConfirmar.textContent = "Registrar pendência";
+
+        modalConfirmar.disabled = true;
+
+    }
+
+
+    modalFundo.hidden = false;
+
+    requestAnimationFrame(() => modalFundo.classList.add("on"));
+
+    (cobrar ? valorRecebido : notaPendencia).focus();
+
+}
+
+
+function fecharJanela(){
+
+    modalFundo.classList.remove("on");
+
+    setTimeout(() => { modalFundo.hidden = true; }, 200);
+
+    emCobranca = null;
+
+    acaoAtual  = null;
+
+}
+
+
+window.abrirJanela = abrirJanela;
+
+
+
+// escolha da forma de pagamento
+document.getElementById("metodos").addEventListener("click", (evento) => {
+
+    const botao = evento.target.closest(".metodo");
+
+    if(!botao) return;
+
+    document.querySelectorAll(".metodo").forEach(b => b.classList.remove("escolhido"));
+
+    botao.classList.add("escolhido");
+
+    metodo = botao.dataset.valor;
+
+});
+
+
+// mostra troco ou quanto falta
+function conferirTroco(){
+
+    if(!emCobranca) return;
+
+    const conta = calcular(emCobranca);
+
+    const recebido = Number(String(valorRecebido.value).replace(",", ".")) || 0;
+
+    const diferenca = Math.round((recebido - conta.aPagar) * 100) / 100;
+
+
+    let aviso = document.getElementById("troco");
+
+    if(!aviso){
+
+        aviso = document.createElement("p");
+
+        aviso.id = "troco";
+
+        aviso.className = "troco";
+
+        campoValor.after(aviso);
+
+    }
+
+
+    if(diferenca > 0){
+
+        aviso.textContent = "Troco: " + mostrarPreco(diferenca);
+
+        aviso.className = "troco";
+
+    } else if(diferenca < 0){
+
+        aviso.textContent = "Faltam " + mostrarPreco(Math.abs(diferenca));
+
+        aviso.className = "troco falta";
+
+    } else {
+
+        aviso.textContent = "Valor exato";
+
+        aviso.className = "troco";
+
+    }
+
+}
+
+
+valorRecebido.addEventListener("input", conferirTroco);
+
+
+notaPendencia.addEventListener("input", () => {
+
+    modalConfirmar.disabled = notaPendencia.value.trim().length < 5;
+
+});
+
+
+modalCancelar.addEventListener("click", fecharJanela);
+
+
+modalFundo.addEventListener("click", (evento) => {
+
+    if(evento.target === modalFundo) fecharJanela();
+
+});
+
+
+document.addEventListener("keydown", (evento) => {
+
+    if(evento.key === "Escape" && !modalFundo.hidden) fecharJanela();
+
+});
+
+
+modalConfirmar.addEventListener("click", async () => {
+
+    if(!emCobranca) return;
+
+
+    const item  = emCobranca;
+
+    const conta = calcular(item);
+
+
+    modalConfirmar.disabled = true;
+
+
+    try {
+
+        if(acaoAtual === "cobrar"){
+
+            await registrarPagamento(item, conta.aPagar, metodo);
+
+            limparPendencia(item.id);
+
+            fecharJanela();
+
+            aviso("sucesso", "Pagamento confirmado",
+
+                `${mostrarPreco(conta.aPagar)} recebidos em ${metodo}.`);
+
+        } else {
+
+            salvarPendencia(item, notaPendencia.value.trim());
+
+            fecharJanela();
+
+            aviso("aviso", "Pendência registrada",
+
+                `Vaga ${item.reserva.vaga.numero} ficou devendo ${mostrarPreco(conta.aPagar)}.`);
+
         }
 
-        corpo.innerHTML = meus.map((item) => `
-        <tr>
-          <td>${item.reservaCli?.usuario?.nome || "--"}</td>
-          <td>${item.reservaCli?.reserva?.vaga?.numero || "--"}</td>
-          <td>${item.nome}</td>
-          <td><b>${mostrarPreco(item.valor)}</b></td>
-        </tr>
-      `).join("");
-      }
 
-      carregar().catch((error) => alert(error.message || "Verifique se o servidor está ligado."));
+        await carregar();
+
+    } catch (error) {
+
+        modalConfirmar.disabled = false;
+
+        aviso("erro", "Não deu para registrar", error.message);
+
     }
-  </script>
-</body>
 
+});
+
+
+
+// =====================================================
+// DESENHAR A TABELA
+// =====================================================
+
+
+function render(){
+
+    const status = filtroStatus.value;
+
+    const texto  = busca.value.trim().toLowerCase();
+
+
+    const filtrados = reservas.filter(item => {
+
+        const conta = calcular(item);
+
+        const procura = `
+            ${item.usuario?.nome || ""}
+            ${item.reserva.vaga.numero}
+            ${item.carro?.placacarro || ""}
+        `.toLowerCase();
+
+        return (!status || situacao(item, conta) === status) && procura.includes(texto);
+
+    });
+
+
+    atualizarResumo();
+
+
+    if(filtrados.length === 0){
+
+        linhas.innerHTML = `<tr><td colspan="10" class="vazio">Nada para cobrar por aqui</td></tr>`;
+
+        contagem.textContent = "0 registros";
+
+        return;
+
+    }
+
+
+    linhas.innerHTML = filtrados.map(item => {
+
+        const conta = calcular(item);
+
+        const nome  = situacao(item, conta);
+
+        const pend  = pendenciaDe(item.id);
+
+        const deve  = conta.aPagar > 0;
+
+
+        return `
+        <tr>
+
+            <td class="vaga">${item.reserva.vaga.numero}</td>
+
+            <td class="cliente">
+                <strong>${item.usuario?.nome || "Cliente"}</strong>
+                <small>${item.carro?.placacarro || "sem veículo"}</small>
+            </td>
+
+            <td class="permanencia">${mostrarDataHora(item.hora)}</td>
+
+            <td class="permanencia ${conta.ativa ? "correndo" : ""}">
+                ${mostrarDuracao(conta.minutos)}
+            </td>
+
+            <td class="tarifa">${mostrarPreco(conta.tarifa)}/h</td>
+
+            <td class="permanencia">${conta.horas}h</td>
+
+            <td class="pago">${mostrarPreco(conta.pago)}</td>
+
+            <td class="apagar ${deve ? "deve" : "quitado"}">
+                ${mostrarPreco(conta.aPagar)}
+            </td>
+
+            <td>
+                <span class="status ${classeSituacao(nome)}">${nome}</span>
+                ${pend ? `<span class="nota">${pend.nota}</span>` : ""}
+            </td>
+
+            <td class="row-actions">
+                ${deve ? `
+                    <button class="cobrar" onclick="abrirJanela('${item.id}', 'cobrar')">Confirmar</button>
+                    ${conta.ativa || pend ? "" :
+                      `<button class="pendencia" onclick="abrirJanela('${item.id}', 'pendencia')">Pendência</button>`}
+                ` : `<span class="sem-acao">quitado</span>`}
+            </td>
+
+        </tr>`;
+
+    }).join("");
+
+
+    contagem.textContent = `${filtrados.length} de ${reservas.length} registros`
+
+        + (modoLocal ? " · modo local" : "");
+
+}
+
+
+function atualizarResumo(){
+
+    let ativos = 0;
+
+    let receber = 0;
+
+    let recebido = 0;
+
+    let pendentes = 0;
+
+
+    reservas.forEach(item => {
+
+        const conta = calcular(item);
+
+        if(conta.ativa) ativos++;
+
+        if(conta.aPagar > 0) receber += conta.aPagar;
+
+        if(pendenciaDe(item.id)) pendentes++;
+
+
+        (item.pagamentos || []).forEach(p => {
+
+            if(ehHoje(p.data)) recebido += Number(p.valor || 0);
+
+        });
+
+    });
+
+
+    // pagamentos guardados no navegador também entram na conta do dia
+    JSON.parse(localStorage.getItem("pagamentosTempo") || "[]")
+
+        .forEach(p => { if(ehHoje(p.data)) recebido += Number(p.valor || 0); });
+
+
+    document.getElementById("totalAtivos").textContent     = ativos;
+
+    document.getElementById("totalReceber").textContent    = mostrarPreco(receber);
+
+    document.getElementById("totalRecebido").textContent   = mostrarPreco(recebido);
+
+    document.getElementById("totalPendencias").textContent = pendentes;
+
+}
+
+
+
+// =====================================================
+// EVENTOS
+// =====================================================
+
+
+filtroStatus.addEventListener("change", render);
+
+busca.addEventListener("input", render);
+
+btnAtualizar.addEventListener("click", carregar);
+
+
+if(menuButton){
+
+    menuButton.addEventListener("click", () => sidebar.classList.toggle("open"));
+
+    document.addEventListener("click", (evento) => {
+
+        if(window.innerWidth <= 850
+
+            && !sidebar.contains(evento.target)
+
+            && !evento.target.closest("#menuButton")){
+
+            sidebar.classList.remove("open");
+
+        }
+
+    });
+
+}
+
+
+document.getElementById("btnSair").addEventListener("click", (evento) => {
+
+    evento.preventDefault();
+
+    if(typeof sair === "function") sair("../../Base/HTML/Abertura.html");
+
+    else window.location.href = "../../Base/HTML/Abertura.html";
+
+});
+
+
+// o tempo corre: redesenha a cada minuto e busca no servidor a cada 2
+setInterval(() => { if(modalFundo.hidden) render(); }, 60000);
+
+setInterval(() => { if(modalFundo.hidden) carregar(); }, 120000);
+
+
+carregar();
+
+
+
+// =====================================================
+// AVISOS
+// =====================================================
+
+
+const cores = {
+
+    sucesso: "#3ddc97",
+
+    aviso:   "#f5b731",
+
+    erro:    "#ff7a7a",
+
+    azul:    "#8cc2ff"
+
+};
+
+
+const caixaAvisos = document.createElement("div");
+
+caixaAvisos.className = "vc-avisos";
+
+caixaAvisos.setAttribute("role", "status");
+
+caixaAvisos.setAttribute("aria-live", "polite");
+
+document.body.appendChild(caixaAvisos);
+
+
+function aviso(tom, titulo, texto){
+
+    const el = document.createElement("div");
+
+    el.className = "vc-aviso";
+
+    el.style.setProperty("--c", cores[tom] || cores.azul);
+
+    el.innerHTML = "<b></b><span></span>";
+
+    el.querySelector("b").textContent = titulo;
+
+    el.querySelector("span").textContent = texto || "";
+
+
+    function fechar(){
+
+        el.classList.remove("on");
+
+        setTimeout(() => el.remove(), 220);
+
+    }
+
+
+    el.onclick = fechar;
+
+    caixaAvisos.appendChild(el);
+
+    requestAnimationFrame(() => el.classList.add("on"));
+
+    setTimeout(fechar, tom === "erro" ? 6000 : 4200);
+
+
+    while(caixaAvisos.children.length > 3) caixaAvisos.firstElementChild.remove();
+
+}
+</script>
+
+
+</body>
 </html>

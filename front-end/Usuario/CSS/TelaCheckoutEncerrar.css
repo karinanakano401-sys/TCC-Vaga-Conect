@@ -1,6 +1,8 @@
 /* =====================================================
-   VagaConnect · Tela de finalização da reserva
-   Padrão visual azul-escuro, técnico e moderno
+   VagaConnect · Tempo de vaga em uso
+   Padrão visual azul-escuro, técnico e moderno.
+   Mesma base da tela de finalização, com o relógio
+   contando para cima e o valor acompanhando.
 ===================================================== */
 
 
@@ -27,10 +29,13 @@
     --verde:       #3ddc97;
     --verde-forte: #22c55e;
 
+    --ambar:       #f5b731;
+
     --mono: ui-monospace, 'SF Mono', 'Roboto Mono',
             'Consolas', monospace;
 
 }
+
 
 
 /* =====================================================
@@ -89,8 +94,7 @@ body{
 }
 
 
-/* Linha azul no topo */
-
+/* linha azul no topo */
 body::before{
 
     content:"";
@@ -135,6 +139,7 @@ a:focus-visible{
 }
 
 
+
 /* =====================================================
    CONTAINER
 ===================================================== */
@@ -156,6 +161,7 @@ a:focus-visible{
 }
 
 
+
 /* =====================================================
    CARD PRINCIPAL
 ===================================================== */
@@ -168,7 +174,7 @@ a:focus-visible{
 
     max-width:850px;
 
-    min-height:600px;
+    min-height:0;
 
     padding:30px;
 
@@ -182,8 +188,6 @@ a:focus-visible{
 
 }
 
-
-/* Linha azul superior do card */
 
 .card::before{
 
@@ -210,6 +214,7 @@ a:focus-visible{
 }
 
 
+
 /* =====================================================
    TÍTULO
 ===================================================== */
@@ -231,6 +236,7 @@ a:focus-visible{
     text-transform:uppercase;
 
 }
+
 
 
 /* =====================================================
@@ -310,13 +316,16 @@ a:focus-visible{
 }
 
 
+
 /* =====================================================
    SUBTÍTULO
 ===================================================== */
 
 .subtitle{
 
-    margin:20px 0;
+    max-width:62ch;
+
+    margin:20px auto;
 
     color:var(--apagado);
 
@@ -333,8 +342,9 @@ a:focus-visible{
 }
 
 
+
 /* =====================================================
-   TEMPO
+   RELÓGIO
 ===================================================== */
 
 .time-card{
@@ -351,10 +361,10 @@ a:focus-visible{
 
     border-radius:0;
 
+    overflow:hidden;
+
 }
 
-
-/* Linha lateral decorativa */
 
 .time-card::before{
 
@@ -404,7 +414,66 @@ a:focus-visible{
 
     letter-spacing:5px;
 
+    font-variant-numeric:tabular-nums;
+
 }
+
+
+/* selo de "ao vivo" embaixo do relógio */
+.pulso{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    margin-top:14px;
+
+    padding:5px 12px;
+
+    border:1px solid rgba(61, 220, 151, .32);
+
+    background:rgba(61, 220, 151, .08);
+
+    color:var(--verde);
+
+    font-family:var(--mono);
+
+    font-size:9.5px;
+
+    letter-spacing:.14em;
+
+    text-transform:uppercase;
+
+}
+
+
+.pulso::before{
+
+    content:"";
+
+    width:7px;
+
+    height:7px;
+
+    border-radius:50%;
+
+    background:var(--verde);
+
+    animation:bater 2s ease-in-out infinite;
+
+}
+
+
+@keyframes bater{
+
+    0%, 100%{ opacity:1;  box-shadow:0 0 0 0 rgba(61, 220, 151, .5); }
+
+    60%     { opacity:.5; box-shadow:0 0 0 7px rgba(61, 220, 151, 0); }
+
+}
+
 
 
 /* =====================================================
@@ -436,7 +505,7 @@ a:focus-visible{
 
     gap:20px;
 
-    padding:15px 0;
+    padding:13px 0;
 
 }
 
@@ -476,6 +545,7 @@ a:focus-visible{
 }
 
 
+
 /* =====================================================
    TOTAL
 ===================================================== */
@@ -506,16 +576,54 @@ a:focus-visible{
 
     font-weight:600;
 
+    font-variant-numeric:tabular-nums;
+
 }
 
 
+/* linha que explica o que falta pagar */
+.aviso-saida{
+
+    margin-top:14px;
+
+    padding-top:14px;
+
+    border-top:1px solid var(--risco);
+
+    color:var(--fraco);
+
+    font-family:var(--mono);
+
+    font-size:10px;
+
+    line-height:1.6;
+
+    letter-spacing:.08em;
+
+    text-align:center;
+
+    text-transform:uppercase;
+
+}
+
+
+.aviso-saida.destaque{
+
+    color:var(--ambar);
+
+}
+
+
+
 /* =====================================================
-   BOTÃO FINALIZAR
+   BOTÃO · orienta, não encerra
 ===================================================== */
 
 #finalizar{
 
     position:relative;
+
+    isolation:isolate;
 
     width:100%;
 
@@ -525,13 +633,13 @@ a:focus-visible{
 
     overflow:hidden;
 
-    border:1px solid var(--verde);
+    border:1px dashed var(--risco-forte);
 
     border-radius:0;
 
     background:transparent;
 
-    color:var(--verde);
+    color:var(--apagado);
 
     font-family:var(--mono);
 
@@ -546,7 +654,6 @@ a:focus-visible{
     cursor:pointer;
 
     transition:
-        background .25s,
         color .25s,
         border-color .25s;
 
@@ -561,15 +668,26 @@ a:focus-visible{
 
     inset:0;
 
-    z-index:0;
+    z-index:-1;
 
-    background:var(--verde-forte);
+    background:rgba(47, 125, 255, .22);
 
     transform:scaleX(0);
 
     transform-origin:left;
 
     transition:transform .28s ease;
+
+}
+
+
+#finalizar:hover{
+
+    border-color:var(--azul-claro);
+
+    border-style:solid;
+
+    color:#ffffff;
 
 }
 
@@ -581,36 +699,114 @@ a:focus-visible{
 }
 
 
-#finalizar:hover{
+.rodape{
 
-    color:#ffffff;
+    margin-top:14px;
 
-    border-color:var(--verde-forte);
+    color:var(--fraco);
 
-}
+    font-size:11px;
 
+    line-height:1.6;
 
-/* Mantém o texto do botão acima do efeito */
-
-#finalizar{
-
-    isolation:isolate;
+    text-align:center;
 
 }
 
 
-#finalizar{
 
-    position:relative;
+/* =====================================================
+   AVISO FLUTUANTE
+===================================================== */
+
+.vc-avisos{
+
+    position:fixed;
+
+    top:20px;
+
+    right:20px;
+
+    z-index:50;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+    width:min(330px, calc(100vw - 40px));
+
+    pointer-events:none;
 
 }
 
 
-#finalizar::after{
+.vc-aviso{
 
-    content:"";
+    padding:14px 15px;
+
+    border:1px solid var(--risco);
+
+    border-left:2px solid var(--azul-claro);
+
+    background:var(--superficie);
+
+    box-shadow:0 20px 44px rgba(0, 0, 0, .55);
+
+    pointer-events:auto;
+
+    cursor:pointer;
+
+    opacity:0;
+
+    transform:translateX(16px);
+
+    transition:opacity .2s, transform .2s;
 
 }
+
+
+.vc-aviso.on{
+
+    opacity:1;
+
+    transform:none;
+
+}
+
+
+.vc-aviso b{
+
+    display:block;
+
+    margin-bottom:4px;
+
+    color:var(--azul-claro);
+
+    font-family:var(--mono);
+
+    font-size:9.5px;
+
+    letter-spacing:.14em;
+
+    text-transform:uppercase;
+
+}
+
+
+.vc-aviso span{
+
+    display:block;
+
+    color:#cfe0f2;
+
+    font-size:12.5px;
+
+    line-height:1.5;
+
+}
+
 
 
 /* =====================================================
@@ -627,17 +823,13 @@ a:focus-visible{
 
     }
 
-
     .card{
 
         width:100%;
 
-        min-height:auto;
-
         padding:24px;
 
     }
-
 
     .header span{
 
@@ -645,13 +837,11 @@ a:focus-visible{
 
     }
 
-
     .time-card{
 
         padding:25px 18px;
 
     }
-
 
     .time-card h1{
 
@@ -660,7 +850,6 @@ a:focus-visible{
         letter-spacing:3px;
 
     }
-
 
     .price-card{
 
@@ -679,13 +868,11 @@ a:focus-visible{
 
     }
 
-
     .card{
 
         padding:20px 16px;
 
     }
-
 
     .titulo{
 
@@ -693,20 +880,17 @@ a:focus-visible{
 
     }
 
-
     .header{
 
         gap:10px;
 
     }
 
-
     .header span{
 
         font-size:16px;
 
     }
-
 
     #voltar{
 
@@ -718,13 +902,11 @@ a:focus-visible{
 
     }
 
-
     .subtitle{
 
         font-size:10px;
 
     }
-
 
     .time-card h1{
 
@@ -736,13 +918,13 @@ a:focus-visible{
 
     }
 
-
     .price-card div{
 
         gap:12px;
 
-    }
+        padding:11px 0;
 
+    }
 
     .price-card span{
 
@@ -750,20 +932,17 @@ a:focus-visible{
 
     }
 
-
     .price-card strong{
 
         font-size:13px;
 
     }
 
-
     .total strong{
 
         font-size:20px;
 
     }
-
 
     #finalizar{
 
@@ -773,7 +952,22 @@ a:focus-visible{
 
     }
 
+    .vc-avisos{
+
+        top:auto;
+
+        bottom:14px;
+
+        left:14px;
+
+        right:14px;
+
+        width:auto;
+
+    }
+
 }
+
 
 
 /* =====================================================

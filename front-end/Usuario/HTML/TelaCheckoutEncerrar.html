@@ -23,356 +23,583 @@ rel="stylesheet">
 </head>
 
 
-<body>
+<!DOCTYPE html>
+<html lang="pt-BR">
 
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>VagaConnect | Tempo de vaga</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+rel="stylesheet">
+
+<link rel="stylesheet" href="../CSS/TelaFinalizarReserva.css">
+
+</head>
+
+
+<body>
 
 
 <div class="container">
 
 
-<div class="card">
+<section class="card">
+
+
+    <p class="titulo">Reserva em andamento</p>
+
+
+    <div class="header">
+
+        <button id="voltar" aria-label="Voltar">←</button>
+
+        <span id="nomeEstacionamento">Carregando...</span>
+
+    </div>
+
+
+    <p class="subtitle" id="subtitulo">
+        Buscando os dados da sua reserva...
+    </p>
 
 
 
-<h3 class="titulo">
+    <!-- ================= RELÓGIO ================= -->
 
-11. CHECK-OUT (ENCERRAMENTO)
+    <div class="time-card">
 
-</h3>
+        <span id="rotuloTempo">Tempo de vaga em uso</span>
 
+        <h1 id="cronometro">00 : 00 : 00</h1>
 
+        <p class="pulso" id="pulso">contando em tempo real</p>
 
-
-
-<div class="header">
-
-<a href="../HTML/TelaReservaAtiva.html">
-<button id="voltar">
-
-←
-
-</button>
-</a>
-
-<span>
-
-Check-out
-
-</span>
-
-
-</div>
+    </div>
 
 
 
+    <!-- ================= VALORES ================= -->
+
+    <div class="price-card">
+
+        <div>
+            <span>Vaga</span>
+            <strong id="linhaVaga">--</strong>
+        </div>
+
+        <div>
+            <span>Entrada registrada</span>
+            <strong id="linhaEntrada">--</strong>
+        </div>
+
+        <div>
+            <span>Tarifa da vaga</span>
+            <strong id="linhaTarifa">--</strong>
+        </div>
+
+        <div>
+            <span>Tempo cobrado</span>
+            <strong id="linhaTempo">--</strong>
+        </div>
+
+        <hr>
+
+        <div>
+            <span>Já pago na reserva</span>
+            <strong id="linhaPago">--</strong>
+        </div>
+
+        <div class="total">
+            <span>Valor acumulado</span>
+            <strong id="linhaTotal">R$ 0,00</strong>
+        </div>
+
+        <p class="aviso-saida" id="avisoSaida">
+            O valor final é fechado pelo funcionário na saída.
+        </p>
+
+    </div>
 
 
 
-<div class="subtitle">
+    <!-- ================= BOTÃO ================= -->
 
-Encerrar utilização da vaga
-
-</div>
-
-
+    <button id="finalizar">
+        Encerrar tempo de vaga
+    </button>
 
 
+    <p class="rodape">
+        O encerramento é feito no pátio, com o funcionário conferindo a saída do veículo.
+    </p>
 
 
-
-<div class="time-card">
-
-
-<span>
-
-Tempo total de utilização
-
-</span>
-
-
-<h1 id="tempo">
-
-00:00:00
-
-</h1>
-
-
-</div>
-
-
-
-
-
-
-
-
-<div class="price-card">
-
-
-
-<div>
-
-
-<span>
-
-Valor da utilização
-
-</span>
-
-
-<strong>
-
-R$ 00,00
-
-</strong>
+</section>
 
 
 </div>
-
-
-
-
-
-<div>
-
-
-<span>
-
-O valor é de 2,50 o min
-
-</span>
-
-
-
-
-</div>
-
-
-
-
-
-
-<hr>
-
-
-
-
-
-<div class="total">
-
-
-<span>
-
-Total a pagar
-
-</span>
-
-
-<strong id="total">
-
-R$ 2,50
-
-</strong>
-
-
-</div>
-
-
-
-</div>
-
-<button id="finalizar">
-
-Finalizar e pagar R$ 24,00
-
-</button>
-
-
-</div>
-
-
-</div>
-
-
-
-
 
 
 <script>
+    /* =====================================================
+   VagaConnect · Tempo de vaga em uso
+
+   O relógio conta para cima desde a entrada e o valor
+   acompanha, para a pessoa ter noção do que está
+   acumulando.
+
+   Quem encerra o tempo é o funcionário do pátio: o botão
+   daqui apenas orienta a procurá-lo.
+
+   Regra do valor (a mesma da tela de cobrança do
+   funcionário, para os dois verem o mesmo número):
+   15 minutos de cortesia e cobrança por hora iniciada.
+===================================================== */
+
+
+// =====================================================
+// CONFIGURAÇÃO
+// =====================================================
+
+
+const api = "http://localhost:3333";
+
+
+const CORTESIA = 15;   // minutos de tolerância
+
+
+const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
+
+
+if(!usuarioLogado){
+
+    window.location.replace("../../Base/HTML/OpçãoLogin.html");
+
+}
+
+
+let reserva  = null;
+
+let contador = null;
+
+
 
 // =====================================================
 // ELEMENTOS
 // =====================================================
 
-const tempo = document.getElementById("tempo");
-const valorUtilizacao = document.querySelector(".price-card strong");
-const total = document.getElementById("total");
-const botaoFinalizar = document.getElementById("finalizar");
-const voltar = document.getElementById("voltar");
+
+const nomeEstacionamento = document.getElementById("nomeEstacionamento");
+
+const subtitulo   = document.getElementById("subtitulo");
+
+const rotuloTempo = document.getElementById("rotuloTempo");
+
+const cronometro  = document.getElementById("cronometro");
+
+const pulso       = document.getElementById("pulso");
+
+
+const linhaVaga    = document.getElementById("linhaVaga");
+
+const linhaEntrada = document.getElementById("linhaEntrada");
+
+const linhaTarifa  = document.getElementById("linhaTarifa");
+
+const linhaTempo   = document.getElementById("linhaTempo");
+
+const linhaPago    = document.getElementById("linhaPago");
+
+const linhaTotal   = document.getElementById("linhaTotal");
+
+const avisoSaida   = document.getElementById("avisoSaida");
+
+
+const btnFinalizar = document.getElementById("finalizar");
+
+
 
 // =====================================================
-// BUSCAR RESERVAS
+// AJUDANTES
 // =====================================================
 
-let reservas = JSON.parse(localStorage.getItem("reservas")) || [];
-let reservaAtual = reservas[reservas.length - 1];
 
-// =====================================================
-// INÍCIO DO CHECK-IN
-// =====================================================
+function mostrarPreco(valor){
 
-let inicioUso = localStorage.getItem("inicioUso");
+    return Number(valor || 0).toLocaleString("pt-BR", {
 
-if (!inicioUso) {
+        style: "currency",
 
-    inicioUso = new Date().getTime();
+        currency: "BRL"
 
-    localStorage.setItem("inicioUso", inicioUso);
+    });
 
 }
 
-inicioUso = Number(inicioUso);
 
-// =====================================================
-// FORMATAR
-// =====================================================
+function formatar(valor){
 
-function formatar(numero) {
-
-    return numero.toString().padStart(2, "0");
+    return String(valor).padStart(2, "0");
 
 }
 
-// =====================================================
-// CALCULAR VALOR
-// =====================================================
 
-function calcularValor(segundos) {
+function mostrarDataHora(texto){
 
-    // R$ 2,50 por minuto
+    if(!texto) return "--";
 
-    const minutos = Math.floor(segundos / 60);
+    const data = new Date(texto);
 
-    return minutos * 2.50;
+    if(isNaN(data)) return "--";
+
+    const dia    = String(data.getDate()).padStart(2, "0");
+
+    const mes    = String(data.getMonth() + 1).padStart(2, "0");
+
+    const hora   = String(data.getHours()).padStart(2, "0");
+
+    const minuto = String(data.getMinutes()).padStart(2, "0");
+
+    return `${dia}/${mes} às ${hora}:${minuto}`;
 
 }
 
+
+function totalPago(item){
+
+    if(!item.pagamentos) return 0;
+
+    return item.pagamentos.reduce((soma, p) => soma + Number(p.valor || 0), 0);
+
+}
+
+
+function estaEmUso(item){
+
+    return ["Reservada", "Ativa"].includes(item.reserva.status);
+
+}
+
+
+
 // =====================================================
-// ATUALIZAR TEMPO E VALOR
+// CARREGAR A RESERVA
 // =====================================================
 
-function atualizarTela() {
 
-    const agora = new Date().getTime();
+async function carregar(){
 
-    const segundos = Math.floor((agora - inicioUso) / 1000);
+    try {
 
-    const horas = Math.floor(segundos / 3600);
+        const resposta = await fetch(api + "/reservacli");
 
-    const minutos = Math.floor((segundos % 3600) / 60);
+        const lista = await resposta.json();
 
-    const seg = segundos % 60;
+        if(!resposta.ok) throw new Error(lista.erro || "Erro ao carregar sua reserva");
 
-    tempo.textContent =
-        formatar(horas) + ":" +
-        formatar(minutos) + ":" +
-        formatar(seg);
 
-    const valorUso = calcularValor(segundos);
+        // a reserva em uso mais recente deste cliente
+        const minhas = lista
 
-    const garantia = 10;
+            .filter(item => item.fk_idCliente === usuarioLogado.id)
 
-    let pagamento = valorUso - garantia;
+            .filter(estaEmUso)
 
-    if (pagamento < 0) {
+            .sort((a, b) => new Date(b.hora) - new Date(a.hora));
 
-        pagamento = 0;
+
+        // permite abrir uma reserva específica por ?id=
+        const pedido = new URLSearchParams(window.location.search).get("id");
+
+        reserva = pedido
+
+            ? minhas.find(item => item.id === pedido) || minhas[0]
+
+            : minhas[0];
+
+
+        if(!reserva){
+
+            semReserva();
+
+            return;
+
+        }
+
+
+        preencher();
+
+        iniciarRelogio();
+
+    } catch (error) {
+
+        subtitulo.textContent = error.message
+
+            || "Não foi possível carregar. Verifique se o servidor está ligado.";
 
     }
 
-    valorUtilizacao.textContent =
-        "R$ " +
-        valorUso.toFixed(2).replace(".", ",");
-
-    total.textContent =
-        "R$ " +
-        pagamento.toFixed(2).replace(".", ",");
-
-    botaoFinalizar.textContent =
-        "Finalizar e pagar " +
-        total.textContent;
-
 }
 
-// Atualiza imediatamente
 
-atualizarTela();
+function semReserva(){
 
-// Atualiza a cada segundo
+    nomeEstacionamento.textContent = "Nenhuma reserva em uso";
 
-setInterval(atualizarTela, 1000);
+    subtitulo.textContent = "Você não tem nenhuma vaga ocupada no momento.";
 
-// =====================================================
-// FINALIZAR
-// =====================================================
+    cronometro.textContent = "00 : 00 : 00";
 
-botaoFinalizar.addEventListener("click", function () {
+    pulso.hidden = true;
 
-    const pagamento = {
+    btnFinalizar.textContent = "Ver minhas reservas";
 
-        tempo: tempo.textContent,
+    btnFinalizar.onclick = () => {
 
-        valorUtilizacao: valorUtilizacao.textContent,
-
-        total: total.textContent
+        window.location.href = "TelaReserAndamento.html";
 
     };
 
-    // Envia dados para a Tela 12
+}
 
-    localStorage.setItem(
 
-        "dadosPagamento",
 
-        JSON.stringify(pagamento)
+// =====================================================
+// DADOS FIXOS DA TELA
+// =====================================================
 
-    );
 
-    // Atualiza status da reserva
+function preencher(){
 
-    if (reservaAtual) {
+    const vaga = reserva.reserva.vaga;
 
-        reservaAtual.status = "Finalizada";
 
-        localStorage.setItem(
+    nomeEstacionamento.textContent = vaga.estacionamento?.nome || "Estacionamento";
 
-            "reservas",
+    subtitulo.textContent =
+        "O tempo corre desde a sua entrada. O valor abaixo sobe junto, "
+      + "para você acompanhar quanto está acumulando.";
 
-            JSON.stringify(reservas)
 
-        );
+    linhaVaga.textContent    = `${vaga.numero} · ${vaga.tipo}`;
+
+    linhaEntrada.textContent = mostrarDataHora(reserva.hora);
+
+    linhaTarifa.textContent  = `${mostrarPreco(vaga.preco)} / hora`;
+
+    linhaPago.textContent    = mostrarPreco(totalPago(reserva));
+
+}
+
+
+
+// =====================================================
+// O RELÓGIO E O VALOR
+// =====================================================
+
+
+function iniciarRelogio(){
+
+    const vaga    = reserva.reserva.vaga;
+
+    const tarifa  = Number(vaga.preco || 0);
+
+    const entrada = new Date(reserva.hora);
+
+    const jaPago  = totalPago(reserva);
+
+
+    function atualizar(){
+
+        const agora = new Date();
+
+
+
+        // ---------- ainda não chegou a hora da entrada ----------
+
+        if(agora < entrada){
+
+            rotuloTempo.textContent = "Tempo até a sua entrada";
+
+            pulso.textContent = "a cobrança começa quando você entrar";
+
+
+            const faltam = Math.floor((entrada - agora) / 1000);
+
+            cronometro.textContent =
+                `${formatar(Math.floor(faltam / 3600))} : `
+              + `${formatar(Math.floor((faltam % 3600) / 60))} : `
+              + `${formatar(faltam % 60)}`;
+
+
+            linhaTempo.textContent = "não iniciado";
+
+            linhaTotal.textContent = mostrarPreco(0);
+
+            avisoSaida.textContent = "O valor final é fechado pelo funcionário na saída.";
+
+            return;
+
+        }
+
+
+
+        // ---------- tempo correndo ----------
+
+        rotuloTempo.textContent = "Tempo de vaga em uso";
+
+        pulso.textContent = "contando em tempo real";
+
+
+        const segundos = Math.floor((agora - entrada) / 1000);
+
+
+        cronometro.textContent =
+            `${formatar(Math.floor(segundos / 3600))} : `
+          + `${formatar(Math.floor((segundos % 3600) / 60))} : `
+          + `${formatar(segundos % 60)}`;
+
+
+
+        // ---------- valor ----------
+
+        const minutos   = Math.floor(segundos / 60);
+
+        const cobraveis = Math.max(0, minutos - CORTESIA);
+
+        const horas     = cobraveis === 0 ? 0 : Math.ceil(cobraveis / 60);
+
+        const valor     = horas * tarifa;
+
+        const aPagar    = Math.max(0, Math.round((valor - jaPago) * 100) / 100);
+
+
+        linhaTempo.textContent = cobraveis === 0
+
+            ? `cortesia de ${CORTESIA} min`
+
+            : `${horas}h × ${mostrarPreco(tarifa)}`;
+
+
+        linhaTotal.textContent = mostrarPreco(valor);
+
+
+        avisoSaida.textContent = cobraveis === 0
+
+            ? `Você ainda está na cortesia de ${CORTESIA} minutos.`
+
+            : `A pagar na saída: ${mostrarPreco(aPagar)} · o valor final é fechado pelo funcionário.`;
+
+
+        avisoSaida.classList.toggle("destaque", aPagar > 0);
 
     }
 
-    // Abre a Tela 12
 
-    window.location.href = "../HTML/TelaPagamentoUtilizacao.html";
+    atualizar();
+
+    contador = setInterval(atualizar, 1000);
+
+}
+
+
+
+// =====================================================
+// BOTÃO · só orienta, não encerra
+// =====================================================
+
+
+btnFinalizar.addEventListener("click", () => {
+
+    if(!reserva) return;
+
+
+    aviso(
+
+        "Encerramento no pátio",
+
+        "Para encerrar o tempo de vaga, procure o funcionário do estacionamento. "
+      + "Ele confere a saída do veículo e fecha o valor devido."
+
+    );
 
 });
+
+
 
 // =====================================================
 // VOLTAR
 // =====================================================
 
-voltar.addEventListener("click", function () {
 
-    history.back();
+document.getElementById("voltar").addEventListener("click", () => {
+
+    window.location.href = "TelaReservaAtiva.html";
 
 });
+
+
+
+carregar();
+
+
+
+// =====================================================
+// AVISO
+// =====================================================
+
+
+const caixaAvisos = document.createElement("div");
+
+caixaAvisos.className = "vc-avisos";
+
+caixaAvisos.setAttribute("role", "status");
+
+caixaAvisos.setAttribute("aria-live", "polite");
+
+document.body.appendChild(caixaAvisos);
+
+
+function aviso(titulo, texto){
+
+    const el = document.createElement("div");
+
+    el.className = "vc-aviso";
+
+    el.innerHTML = "<b></b><span></span>";
+
+    el.querySelector("b").textContent = titulo;
+
+    el.querySelector("span").textContent = texto;
+
+
+    function fechar(){
+
+        el.classList.remove("on");
+
+        setTimeout(() => el.remove(), 220);
+
+    }
+
+
+    el.onclick = fechar;
+
+    caixaAvisos.appendChild(el);
+
+    requestAnimationFrame(() => el.classList.add("on"));
+
+    setTimeout(fechar, 6000);
+
+
+    while(caixaAvisos.children.length > 2) caixaAvisos.firstElementChild.remove();
+
+}
 </script>
 
 
 </body>
-
-
 </html>

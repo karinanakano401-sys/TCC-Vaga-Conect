@@ -1,6 +1,9 @@
 /* =====================================================
-   VagaConnect · Prorrogações
-   Mesma direção visual das outras telas do painel.
+   VagaConnect · Cobrança por tempo (funcionário)
+   Mesma direção visual das outras telas do painel:
+   fundo escuro com malha técnica, cantos retos,
+   linhas de 1px no lugar de sombras e rótulos em
+   monoespaçada.
 ===================================================== */
 
 
@@ -84,7 +87,8 @@ body{
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
-select:focus-visible{
+select:focus-visible,
+textarea:focus-visible{
 
     outline:2px solid var(--azul-claro);
 
@@ -175,11 +179,17 @@ select:focus-visible{
 }
 
 
-.logo i{
+.logo svg{
+
+    width:18px;
+
+    height:18px;
+
+    flex:none;
 
     color:var(--azul-claro);
 
-    font-size:15px;
+    stroke-width:1.9;
 
 }
 
@@ -206,7 +216,7 @@ select:focus-visible{
 
     position:relative;
 
-    height:36px;
+    height:34px;
 
     padding:0 12px;
 
@@ -229,19 +239,6 @@ select:focus-visible{
     text-decoration:none;
 
     transition:background .18s, color .18s;
-
-}
-
-
-.sidebar nav a i{
-
-    width:15px;
-
-    flex:none;
-
-    text-align:center;
-
-    font-size:12px;
 
 }
 
@@ -297,6 +294,19 @@ select:focus-visible{
     transform:scaleY(1);
 
     background:var(--azul);
+
+}
+
+
+.sidebar nav a svg{
+
+    width:14px;
+
+    height:14px;
+
+    flex:none;
+
+    stroke-width:1.8;
 
 }
 
@@ -383,6 +393,21 @@ select:focus-visible{
     letter-spacing:.1em;
 
     text-transform:uppercase;
+
+}
+
+
+.profile > svg{
+
+    width:14px;
+
+    height:14px;
+
+    flex:none;
+
+    margin-left:auto;
+
+    color:var(--fraco);
 
 }
 
@@ -535,14 +560,16 @@ select:focus-visible{
 }
 
 
-.primary-button i{
+.primary-button svg{
 
-    font-size:12px;
+    width:14px;
+
+    height:14px;
 
 }
 
 
-.primary-button.girando i{
+.primary-button.girando svg{
 
     animation:girar .8s linear infinite;
 
@@ -565,7 +592,7 @@ select:focus-visible{
 
 
 /* =====================================================
-   RESUMO · malha colada
+   INDICADORES · malha colada
 ===================================================== */
 
 .cards{
@@ -626,13 +653,15 @@ select:focus-visible{
 
     font-family:var(--mono);
 
-    font-size:24px;
+    font-size:23px;
 
     font-weight:500;
 
     letter-spacing:-.5px;
 
     font-variant-numeric:tabular-nums;
+
+    white-space:nowrap;
 
 }
 
@@ -650,17 +679,38 @@ select:focus-visible{
 }
 
 
-/* o primeiro card é o que exige ação */
+/* o primeiro mostra o pátio agora */
 .card:first-child{
 
-    box-shadow:inset 2px 0 0 var(--ambar);
+    box-shadow:inset 2px 0 0 var(--azul);
 
 }
 
 
 .card:first-child h2{
 
+    color:var(--azul-claro);
+
+}
+
+
+.card:nth-child(2) h2{
+
     color:var(--ambar);
+
+}
+
+
+.card:nth-child(3) h2{
+
+    color:var(--verde);
+
+}
+
+
+.card:nth-child(4) h2{
+
+    color:var(--vermelho);
 
 }
 
@@ -730,7 +780,7 @@ select:focus-visible{
 
 .toolbar select{
 
-    width:180px;
+    width:190px;
 
     height:42px;
 
@@ -794,7 +844,7 @@ select:focus-visible{
 
     flex:1;
 
-    max-width:340px;
+    max-width:320px;
 
     padding:0 13px;
 
@@ -830,9 +880,13 @@ select:focus-visible{
 }
 
 
-.search-box i{
+.search-box svg{
 
-    font-size:12px;
+    width:15px;
+
+    height:15px;
+
+    flex:none;
 
 }
 
@@ -879,7 +933,7 @@ table{
 
     width:100%;
 
-    min-width:900px;
+    min-width:1120px;
 
     border-collapse:collapse;
 
@@ -925,7 +979,7 @@ td:first-child{
 
 td{
 
-    height:52px;
+    height:54px;
 
     padding:0 12px 0 0;
 
@@ -957,12 +1011,35 @@ tbody tr:last-child td{
 }
 
 
-/* datas, horas e números alinhados */
+.protocolo,
 .quando,
-.hora,
-.vaga{
+.valor{
 
     font-family:var(--mono);
+
+    font-variant-numeric:tabular-nums;
+
+    white-space:nowrap;
+
+}
+
+
+.protocolo{
+
+    color:var(--azul-claro);
+
+    letter-spacing:.06em;
+
+}
+
+
+.devolver{
+
+    color:var(--verde);
+
+    font-family:var(--mono);
+
+    font-weight:600;
 
     font-variant-numeric:tabular-nums;
 
@@ -999,57 +1076,74 @@ tbody tr:last-child td{
 }
 
 
-.pedido{
-
-    display:inline-block;
-
-    padding:3px 9px;
-
-    border:1px solid rgba(47, 125, 255, .5);
-
-    border-radius:3px;
-
-    background:rgba(47, 125, 255, .12);
-
-    color:var(--azul-claro);
-
-    font-family:var(--mono);
-
-    font-size:10px;
-
-    font-weight:600;
-
-    letter-spacing:.06em;
-
-    white-space:nowrap;
-
-}
-
-
-.nova-saida{
-
-    color:var(--verde);
-
-    font-family:var(--mono);
-
-    font-variant-numeric:tabular-nums;
-
-    white-space:nowrap;
-
-}
-
-
-.motivo{
+.reserva strong{
 
     display:block;
 
-    margin-top:3px;
+    font-size:12px;
 
-    max-width:34ch;
+    font-weight:500;
+
+}
+
+
+.reserva small{
+
+    display:block;
+
+    margin-top:2px;
 
     color:var(--fraco);
 
-    font-size:11px;
+    font-size:10.5px;
+
+}
+
+
+/* etiqueta do motivo escolhido pelo cliente */
+.motivo{
+
+    display:inline-block;
+
+    max-width:190px;
+
+    padding:4px 9px;
+
+    border:1px solid var(--risco-forte);
+
+    border-radius:3px;
+
+    color:var(--apagado);
+
+    font-size:10.5px;
+
+    line-height:1.35;
+
+}
+
+
+.motivo.livre{
+
+    border-style:dashed;
+
+    border-color:rgba(245, 183, 49, .45);
+
+    color:#f8d68a;
+
+}
+
+
+.observacao{
+
+    display:block;
+
+    margin-top:5px;
+
+    max-width:190px;
+
+    color:var(--fraco);
+
+    font-size:10px;
 
     line-height:1.4;
 
@@ -1058,9 +1152,7 @@ tbody tr:last-child td{
 
 .vazio{
 
-    height:auto;
-
-    padding:34px 0;
+    padding:36px 0;
 
     color:var(--fraco);
 
@@ -1237,24 +1329,15 @@ tbody tr:last-child td{
 }
 
 
-.row-actions button:disabled{
-
-    border-color:var(--risco);
-
-    color:var(--fraco);
-
-    cursor:not-allowed;
-
-}
-
-
 .sem-acao{
 
     color:var(--fraco);
 
     font-family:var(--mono);
 
-    font-size:11px;
+    font-size:10px;
+
+    letter-spacing:.06em;
 
 }
 
@@ -1281,6 +1364,496 @@ tbody tr:last-child td{
     letter-spacing:.12em;
 
     text-transform:uppercase;
+
+}
+
+
+
+/* =====================================================
+   JANELA DE DECISÃO
+===================================================== */
+
+.modal-fundo{
+
+    position:fixed;
+
+    inset:0;
+
+    z-index:100;
+
+    display:grid;
+
+    place-items:center;
+
+    padding:20px;
+
+    background:rgba(3, 11, 22, .74);
+
+    backdrop-filter:blur(4px);
+
+    opacity:0;
+
+    transition:opacity .18s ease;
+
+}
+
+
+.modal-fundo.on{
+
+    opacity:1;
+
+}
+
+
+/* o atributo hidden precisa vencer o display:grid acima,
+   senão a camada invisível bloqueia os cliques da tela  */
+.modal-fundo[hidden]{
+
+    display:none;
+
+}
+
+
+.modal{
+
+    width:min(420px, 100%);
+
+    padding:24px 24px 20px;
+
+    border:1px solid var(--risco);
+
+    border-top:2px solid var(--c, var(--azul));
+
+    background:var(--superficie);
+
+    box-shadow:0 30px 70px rgba(0, 0, 0, .6);
+
+    text-align:center;
+
+    transform:translateY(10px);
+
+    transition:transform .2s ease;
+
+}
+
+
+.modal-fundo.on .modal{
+
+    transform:none;
+
+}
+
+
+.modal-icone{
+
+    width:48px;
+
+    height:48px;
+
+    margin:0 auto 14px;
+
+    display:grid;
+
+    place-items:center;
+
+    border:1px solid var(--c, var(--azul));
+
+    background:var(--f, rgba(47, 125, 255, .12));
+
+    color:var(--c, var(--azul-claro));
+
+}
+
+
+.modal-icone svg{
+
+    width:21px;
+
+    height:21px;
+
+}
+
+
+.modal h3{
+
+    margin:0 0 7px;
+
+    font-size:17px;
+
+    font-weight:600;
+
+    letter-spacing:-.3px;
+
+}
+
+
+.modal > p{
+
+    margin:0 0 16px;
+
+    color:var(--apagado);
+
+    font-size:12.5px;
+
+    line-height:1.6;
+
+}
+
+
+.modal-valores{
+
+    display:grid;
+
+    grid-template-columns:repeat(3, 1fr);
+
+    gap:1px;
+
+    margin-bottom:16px;
+
+    border:1px solid var(--risco);
+
+    background:var(--risco);
+
+    text-align:left;
+
+}
+
+
+.modal-valores div{
+
+    padding:9px 11px;
+
+    background:var(--elevado);
+
+}
+
+
+.modal-valores span{
+
+    display:block;
+
+    margin-bottom:3px;
+
+    color:var(--fraco);
+
+    font-family:var(--mono);
+
+    font-size:9px;
+
+    letter-spacing:.12em;
+
+    text-transform:uppercase;
+
+}
+
+
+.modal-valores strong{
+
+    font-family:var(--mono);
+
+    font-size:12.5px;
+
+    font-variant-numeric:tabular-nums;
+
+}
+
+
+.modal-valores .verde{
+
+    color:var(--verde);
+
+}
+
+
+.modal-campo{
+
+    display:block;
+
+    margin-bottom:18px;
+
+    text-align:left;
+
+}
+
+
+.modal-campo span{
+
+    display:block;
+
+    margin-bottom:6px;
+
+    color:var(--fraco);
+
+    font-family:var(--mono);
+
+    font-size:10px;
+
+    letter-spacing:.12em;
+
+    text-transform:uppercase;
+
+}
+
+
+.modal-campo textarea{
+
+    width:100%;
+
+    padding:11px 12px;
+
+    border:1px solid var(--risco);
+
+    border-radius:4px;
+
+    background:rgba(10, 29, 51, .55);
+
+    color:var(--texto);
+
+    font-family:'Poppins', sans-serif;
+
+    font-size:12.5px;
+
+    line-height:1.55;
+
+    resize:vertical;
+
+    outline:none;
+
+    transition:border-color .18s, background .18s, box-shadow .18s;
+
+}
+
+
+.modal-campo textarea::placeholder{
+
+    color:#5f7b96;
+
+}
+
+
+.modal-campo textarea:focus{
+
+    border-color:var(--azul);
+
+    background:rgba(10, 29, 51, .9);
+
+    box-shadow:inset 2px 0 0 var(--azul);
+
+}
+
+
+.modal-botoes{
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:9px;
+
+}
+
+
+.modal-botoes button{
+
+    position:relative;
+
+    height:42px;
+
+    overflow:hidden;
+
+    border:1px solid transparent;
+
+    border-radius:4px;
+
+    background:transparent;
+
+    font-family:var(--mono);
+
+    font-size:10.5px;
+
+    font-weight:600;
+
+    letter-spacing:.14em;
+
+    text-transform:uppercase;
+
+    cursor:pointer;
+
+    transition:border-color .2s, color .2s;
+
+}
+
+
+.btn-nao{
+
+    border-color:var(--risco-forte);
+
+    color:var(--apagado);
+
+}
+
+
+.btn-nao:hover{
+
+    border-color:var(--azul-claro);
+
+    color:#ffffff;
+
+}
+
+
+.btn-sim{
+
+    border-color:var(--c, var(--azul));
+
+    color:var(--c, var(--azul-claro));
+
+}
+
+
+.btn-sim::before{
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    z-index:-1;
+
+    background:var(--c, var(--azul));
+
+    transform:scaleX(0);
+
+    transform-origin:left;
+
+    transition:transform .26s cubic-bezier(.4, 0, .2, 1);
+
+}
+
+
+.btn-sim:hover{
+
+    color:#04121f;
+
+}
+
+
+.btn-sim:hover::before{
+
+    transform:scaleX(1);
+
+}
+
+
+.btn-sim:disabled{
+
+    border-color:var(--risco);
+
+    color:var(--fraco);
+
+    cursor:not-allowed;
+
+}
+
+
+.btn-sim:disabled::before{
+
+    transform:scaleX(0);
+
+}
+
+
+
+/* =====================================================
+   AVISOS
+===================================================== */
+
+.vc-avisos{
+
+    position:fixed;
+
+    top:18px;
+
+    right:18px;
+
+    z-index:200;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:9px;
+
+    width:min(320px, calc(100vw - 36px));
+
+    pointer-events:none;
+
+}
+
+
+.vc-aviso{
+
+    padding:12px 14px;
+
+    border:1px solid var(--risco);
+
+    border-left:2px solid var(--c);
+
+    background:var(--superficie);
+
+    box-shadow:0 18px 40px rgba(0, 0, 0, .5);
+
+    pointer-events:auto;
+
+    cursor:pointer;
+
+    opacity:0;
+
+    transform:translateX(14px);
+
+    transition:opacity .2s, transform .2s;
+
+}
+
+
+.vc-aviso.on{
+
+    opacity:1;
+
+    transform:none;
+
+}
+
+
+.vc-aviso b{
+
+    display:block;
+
+    margin-bottom:3px;
+
+    color:var(--c);
+
+    font-family:var(--mono);
+
+    font-size:9.5px;
+
+    letter-spacing:.14em;
+
+    text-transform:uppercase;
+
+}
+
+
+.vc-aviso span{
+
+    display:block;
+
+    color:#cfe0f2;
+
+    font-size:12.5px;
+
+    line-height:1.45;
 
 }
 
@@ -1360,6 +1933,14 @@ tbody tr:last-child td{
 
     }
 
+    .menu-button svg{
+
+        width:16px;
+
+        height:16px;
+
+    }
+
     .topbar{
 
         align-items:flex-start;
@@ -1426,6 +2007,26 @@ tbody tr:last-child td{
 
     }
 
+    .modal-valores{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .vc-avisos{
+
+        top:auto;
+
+        bottom:14px;
+
+        left:14px;
+
+        right:14px;
+
+        width:auto;
+
+    }
+
 }
 
 
@@ -1451,8 +2052,8 @@ tbody tr:last-child td{
 
     .panel,
     .cards,
+    .modal,
     .status,
-    .pedido,
     .row-actions button,
     .search-box,
     .toolbar select{
@@ -1461,50 +2062,361 @@ tbody tr:last-child td{
 
     }
 
-}   
+}
+
 
 /* =====================================================
-   ÍCONES SVG (gerados pelo bloco de ícones)
+   COLUNAS PRÓPRIAS DESTA TELA
 ===================================================== */
 
-.sidebar nav a svg{
-    width:15px;
-    height:15px;
-    flex:none;
-    stroke-width:1.9;
+.vaga{
+
+    font-family:var(--mono);
+
+    font-size:14px;
+
+    font-weight:600;
+
+    font-variant-numeric:tabular-nums;
+
 }
 
-.logo svg{
-    width:18px;
-    height:18px;
-    flex:none;
+
+.permanencia{
+
+    font-family:var(--mono);
+
+    font-variant-numeric:tabular-nums;
+
+    white-space:nowrap;
+
+}
+
+
+/* tempo que ainda está correndo */
+.permanencia.correndo{
+
     color:var(--azul-claro);
-    stroke-width:1.9;
+
 }
 
-.profile > svg{
-    width:14px;
-    height:14px;
-    flex:none;
-    margin-left:auto;
+
+.permanencia.correndo::before{
+
+    content:"";
+
+    display:inline-block;
+
+    width:6px;
+
+    height:6px;
+
+    margin-right:7px;
+
+    border-radius:50%;
+
+    background:var(--azul-claro);
+
+    animation:pulsar 2s ease-in-out infinite;
+
+}
+
+
+@keyframes pulsar{
+
+    0%, 100%{ opacity:1; }
+
+    50%     { opacity:.3; }
+
+}
+
+
+.tarifa{
+
+    color:var(--apagado);
+
+    font-family:var(--mono);
+
+    font-size:11.5px;
+
+    white-space:nowrap;
+
+}
+
+
+.pago{
+
+    color:var(--apagado);
+
+    font-family:var(--mono);
+
+    font-variant-numeric:tabular-nums;
+
+    white-space:nowrap;
+
+}
+
+
+.apagar{
+
+    font-family:var(--mono);
+
+    font-size:13px;
+
+    font-weight:600;
+
+    font-variant-numeric:tabular-nums;
+
+    white-space:nowrap;
+
+}
+
+
+.apagar.deve{ color:var(--ambar); }
+
+.apagar.quitado{ color:var(--verde); }
+
+
+.nota{
+
+    display:block;
+
+    margin-top:5px;
+
+    max-width:200px;
+
     color:var(--fraco);
+
+    font-size:10px;
+
+    line-height:1.4;
+
 }
 
-.menu-button svg,
-.primary-button svg,
-.search-box svg{
-    width:16px;
-    height:16px;
-    flex:none;
-    stroke-width:1.9;
+
+
+/* =====================================================
+   SITUAÇÕES
+===================================================== */
+
+.emuso{
+
+    border-color:rgba(47, 125, 255, .5);
+
+    background:rgba(47, 125, 255, .12);
+
+    color:var(--azul-claro);
+
 }
 
-.search-box svg{
-    width:15px;
-    height:15px;
+
+.apagarstatus{
+
+    border-color:rgba(245, 183, 49, .45);
+
+    background:rgba(245, 183, 49, .1);
+
+    color:var(--ambar);
+
 }
 
-/* o ícone do botão Atualizar gira enquanto carrega */
-.primary-button.girando svg{
-    animation:girar .8s linear infinite;
+
+.pagostatus{
+
+    border-color:rgba(61, 220, 151, .45);
+
+    background:rgba(61, 220, 151, .1);
+
+    color:var(--verde);
+
+}
+
+
+.pendentestatus{
+
+    border-color:rgba(255, 122, 122, .45);
+
+    background:rgba(255, 122, 122, .1);
+
+    color:var(--vermelho);
+
+}
+
+
+
+/* =====================================================
+   BOTÕES DA LINHA
+===================================================== */
+
+.row-actions .cobrar{
+
+    border-color:rgba(61, 220, 151, .45);
+
+    color:var(--verde);
+
+}
+
+
+.row-actions .cobrar:hover{
+
+    border-color:var(--verde);
+
+    background:rgba(61, 220, 151, .16);
+
+    color:#ffffff;
+
+}
+
+
+.row-actions .pendencia{
+
+    border-color:rgba(245, 183, 49, .4);
+
+    color:var(--ambar);
+
+}
+
+
+.row-actions .pendencia:hover{
+
+    border-color:var(--ambar);
+
+    background:rgba(245, 183, 49, .16);
+
+    color:#ffffff;
+
+}
+
+
+
+/* =====================================================
+   FORMA DE PAGAMENTO
+===================================================== */
+
+.metodos{
+
+    display:grid;
+
+    grid-template-columns:repeat(3, 1fr);
+
+    gap:7px;
+
+}
+
+
+.metodo{
+
+    height:40px;
+
+    border:1px solid var(--risco);
+
+    border-radius:4px;
+
+    background:rgba(10, 29, 51, .55);
+
+    color:var(--apagado);
+
+    font-family:var(--mono);
+
+    font-size:10.5px;
+
+    font-weight:600;
+
+    letter-spacing:.1em;
+
+    text-transform:uppercase;
+
+    cursor:pointer;
+
+    transition:border-color .18s, background .18s, color .18s;
+
+}
+
+
+.metodo:hover{
+
+    border-color:var(--risco-forte);
+
+    color:#ffffff;
+
+}
+
+
+.metodo.escolhido{
+
+    border-color:var(--azul);
+
+    background:rgba(47, 125, 255, .18);
+
+    color:#ffffff;
+
+}
+
+
+.modal-campo input{
+
+    width:100%;
+
+    height:44px;
+
+    padding:0 13px;
+
+    border:1px solid var(--risco);
+
+    border-radius:4px;
+
+    background:rgba(10, 29, 51, .55);
+
+    color:var(--texto);
+
+    font-family:var(--mono);
+
+    font-size:15px;
+
+    font-variant-numeric:tabular-nums;
+
+    outline:none;
+
+    transition:border-color .18s, background .18s, box-shadow .18s;
+
+}
+
+
+.modal-campo input:focus{
+
+    border-color:var(--azul);
+
+    background:rgba(10, 29, 51, .9);
+
+    box-shadow:inset 2px 0 0 var(--azul);
+
+}
+
+
+/* aviso de troco / diferença */
+.troco{
+
+    margin:-8px 0 16px;
+
+    color:var(--verde);
+
+    font-family:var(--mono);
+
+    font-size:10.5px;
+
+    letter-spacing:.1em;
+
+    text-align:left;
+
+    text-transform:uppercase;
+
+    min-height:14px;
+
+}
+
+
+.troco.falta{
+
+    color:var(--ambar);
+
 }
