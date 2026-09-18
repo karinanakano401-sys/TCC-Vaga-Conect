@@ -1493,3 +1493,714 @@ body{
     }
 
 }
+
+/* =====================================================
+   MODO CLARO · Reembolso (usuário)
+   Cole no FIM do TelaReembolso.css.
+
+   O escuro continua padrão. Este bloco só age quando a
+   página está com data-tema="claro" no <html>, o que o
+   tema.js faz ao clicar no botão.
+===================================================== */
+
+
+html[data-tema="claro"]{
+
+    --fundo:       #eef3f9;
+    --painel:      #ffffff;
+    --cartao:      #f4f8fd;
+    --campo:       #ffffff;
+
+    --linha:       rgba(20, 60, 100, .14);
+    --linha-forte: rgba(20, 60, 100, .3);
+
+    --texto:       #0b2036;
+    --apagado:     #46627f;
+
+    --azul:        #1b5fd9;
+    --azul-claro:  #1257c7;
+
+    --ambar:       #a86a06;
+    --verde:       #0f9d63;
+    --vermelho:    #c62f2f;
+
+}
+
+
+
+/* =====================================================
+   FUNDO
+===================================================== */
+
+html[data-tema="claro"] body{
+
+    color:var(--texto);
+
+    background:
+        radial-gradient(760px 420px at 12% -12%, rgba(27, 95, 217, .10), transparent 62%),
+        radial-gradient(620px 360px at 100% 0%, rgba(27, 95, 217, .05), transparent 58%),
+        var(--fundo);
+
+}
+
+
+
+/* =====================================================
+   COLUNA DA ESQUERDA
+===================================================== */
+
+html[data-tema="claro"] .rail,
+html[data-tema="claro"] .painel{
+
+    background:var(--painel);
+
+    box-shadow:0 8px 26px rgba(20, 60, 100, .08);
+
+}
+
+
+html[data-tema="claro"] .logo{
+
+    color:var(--texto);
+
+}
+
+
+html[data-tema="claro"] .logo i,
+html[data-tema="claro"] .logo span{
+
+    color:var(--azul);
+
+}
+
+
+html[data-tema="claro"] #voltar{
+
+    background:#ffffff;
+
+    color:var(--azul);
+
+}
+
+
+html[data-tema="claro"] #voltar:hover{
+
+    background:rgba(27, 95, 217, .12);
+
+}
+
+
+html[data-tema="claro"] .rail-titulo p{
+
+    color:#8a5605;
+
+}
+
+
+html[data-tema="claro"] .rail-titulo span,
+html[data-tema="claro"] .rail-rotulo,
+html[data-tema="claro"] .painel-topo span,
+html[data-tema="claro"] .carregando,
+html[data-tema="claro"] .vazio{
+
+    color:var(--apagado);
+
+}
+
+
+html[data-tema="claro"] .regras,
+html[data-tema="claro"] .regra{
+
+    border-color:var(--linha);
+
+}
+
+
+html[data-tema="claro"] .regra i{
+
+    background:rgba(27, 95, 217, .1);
+
+    border-color:rgba(27, 95, 217, .28);
+
+    color:var(--azul);
+
+}
+
+
+html[data-tema="claro"] .regra small{
+
+    color:var(--apagado);
+
+}
+
+
+
+/* =====================================================
+   RESUMO DA RESERVA
+===================================================== */
+
+html[data-tema="claro"] .resumo{
+
+    background:var(--linha);
+
+    border-color:var(--linha);
+
+}
+
+
+html[data-tema="claro"] .resumo div{
+
+    background:var(--campo);
+
+}
+
+
+html[data-tema="claro"] .resumo .destaque{
+
+    background:var(--cartao);
+
+}
+
+
+
+/* =====================================================
+   CÁLCULO
+===================================================== */
+
+html[data-tema="claro"] .calculo{
+
+    background:
+        radial-gradient(420px 150px at 100% 0%, rgba(15, 157, 99, .08), transparent 65%),
+        var(--cartao);
+
+    border-color:rgba(15, 157, 99, .28);
+
+}
+
+
+html[data-tema="claro"] .calculo .linha{
+
+    border-bottom-color:var(--linha);
+
+}
+
+
+html[data-tema="claro"] .calculo .total{
+
+    border-top-color:rgba(15, 157, 99, .3) !important;
+
+}
+
+
+html[data-tema="claro"] .calculo strong{
+
+    color:var(--texto);
+
+}
+
+
+html[data-tema="claro"] .calculo .retido{
+
+    color:var(--apagado);
+
+}
+
+
+html[data-tema="claro"] .calculo .total strong{
+
+    color:var(--verde);
+
+}
+
+
+
+/* =====================================================
+   MOTIVO
+===================================================== */
+
+html[data-tema="claro"] .campo,
+html[data-tema="claro"] .campo-titulo,
+html[data-tema="claro"] .campo-outro label{
+
+    color:var(--apagado);
+
+}
+
+
+html[data-tema="claro"] .campo textarea{
+
+    background:#ffffff;
+
+    border-color:var(--linha-forte);
+
+    color:var(--texto);
+
+}
+
+
+html[data-tema="claro"] .campo textarea::placeholder,
+html[data-tema="claro"] .contador{
+
+    color:#8ba1b8;
+
+}
+
+
+html[data-tema="claro"] .campo textarea:focus{
+
+    background:#ffffff;
+
+    border-color:var(--azul);
+
+}
+
+
+/* opções de motivo, quando a tela usa a versão com botões */
+html[data-tema="claro"] .motivo-opcao{
+
+    background:var(--cartao);
+
+    border-color:var(--linha);
+
+    color:var(--apagado);
+
+}
+
+
+html[data-tema="claro"] .motivo-opcao i{
+
+    color:var(--azul);
+
+}
+
+
+html[data-tema="claro"] .motivo-opcao:hover{
+
+    background:#e9f1fb;
+
+    border-color:var(--linha-forte);
+
+    color:var(--texto);
+
+}
+
+
+html[data-tema="claro"] .motivo-opcao.escolhida{
+
+    background:rgba(27, 95, 217, .12);
+
+    border-color:var(--azul);
+
+    color:var(--azul);
+
+}
+
+
+html[data-tema="claro"] .motivo-opcao.escolhida i{
+
+    color:var(--azul);
+
+}
+
+
+html[data-tema="claro"] .campo-outro{
+
+    border-top-color:var(--linha);
+
+}
+
+
+
+/* =====================================================
+   ACEITE
+===================================================== */
+
+html[data-tema="claro"] .aceite{
+
+    background:rgba(168, 106, 6, .09);
+
+    border-color:rgba(168, 106, 6, .3);
+
+}
+
+
+html[data-tema="claro"] .aceite span{
+
+    color:#4a3a1c;
+
+}
+
+
+html[data-tema="claro"] .aceite b{
+
+    color:#0a6b44;
+
+}
+
+
+html[data-tema="claro"] .aceite input{
+
+    accent-color:var(--azul);
+
+}
+
+
+
+/* =====================================================
+   AÇÕES
+===================================================== */
+
+html[data-tema="claro"] .btn-voltar{
+
+    background:rgba(27, 95, 217, .1);
+
+    border-color:rgba(27, 95, 217, .3);
+
+    color:var(--azul);
+
+}
+
+
+html[data-tema="claro"] .btn-voltar:hover{
+
+    background:rgba(27, 95, 217, .2);
+
+    border-color:var(--azul);
+
+    color:#0b2036;
+
+}
+
+
+html[data-tema="claro"] .btn-perigo{
+
+    background:rgba(198, 47, 47, .08);
+
+    border-color:rgba(198, 47, 47, .32);
+
+    color:#a82222;
+
+}
+
+
+html[data-tema="claro"] .btn-perigo:hover:not(:disabled){
+
+    background:rgba(198, 47, 47, .18);
+
+    border-color:var(--vermelho);
+
+    color:#7d1414;
+
+}
+
+
+html[data-tema="claro"] .btn-perigo:disabled{
+
+    background:transparent;
+
+    border-color:var(--linha);
+
+    color:#8ba1b8;
+
+}
+
+
+
+/* =====================================================
+   BLOQUEIO
+===================================================== */
+
+html[data-tema="claro"] .bloqueio-icone{
+
+    background:rgba(198, 47, 47, .09);
+
+    border-color:rgba(198, 47, 47, .35);
+
+    color:#a82222;
+
+}
+
+
+html[data-tema="claro"] .bloqueio p{
+
+    color:var(--apagado);
+
+}
+
+
+
+/* =====================================================
+   PEDIDOS
+===================================================== */
+
+html[data-tema="claro"] .pedido{
+
+    background:var(--cartao);
+
+    border-color:var(--linha);
+
+}
+
+
+html[data-tema="claro"] .pedido::before{
+
+    background:var(--linha-forte);
+
+}
+
+
+html[data-tema="claro"] .pedido.pendente::before{ background:var(--ambar); }
+
+html[data-tema="claro"] .pedido.aprovado::before{ background:var(--verde); }
+
+html[data-tema="claro"] .pedido.recusado::before{ background:var(--vermelho); }
+
+
+html[data-tema="claro"] .selo.pendente{
+
+    background:rgba(168, 106, 6, .1);
+
+    border-color:rgba(168, 106, 6, .32);
+
+    color:#8a5605;
+
+}
+
+
+html[data-tema="claro"] .selo.aprovado{
+
+    background:rgba(15, 157, 99, .1);
+
+    border-color:rgba(15, 157, 99, .32);
+
+    color:#0a6b44;
+
+}
+
+
+html[data-tema="claro"] .selo.recusado{
+
+    background:rgba(198, 47, 47, .1);
+
+    border-color:rgba(198, 47, 47, .32);
+
+    color:#a82222;
+
+}
+
+
+html[data-tema="claro"] .protocolo,
+html[data-tema="claro"] .etapa span{
+
+    color:#7891aa;
+
+}
+
+
+html[data-tema="claro"] .pedido .sub,
+html[data-tema="claro"] .motivo-texto{
+
+    color:var(--apagado);
+
+}
+
+
+html[data-tema="claro"] .motivo-texto{
+
+    border-left-color:var(--linha-forte);
+
+}
+
+
+html[data-tema="claro"] .pedido-valores{
+
+    background:var(--linha);
+
+    border-color:var(--linha);
+
+}
+
+
+html[data-tema="claro"] .pedido-valores div{
+
+    background:var(--campo);
+
+}
+
+
+html[data-tema="claro"] .pedido-valores .verde{
+
+    color:var(--verde);
+
+}
+
+
+
+/* linha do tempo */
+html[data-tema="claro"] .trilha{
+
+    border-top-color:var(--linha);
+
+}
+
+
+html[data-tema="claro"] .etapa i{
+
+    background:var(--linha);
+
+}
+
+
+html[data-tema="claro"] .etapa.feita i{ background:var(--azul); }
+
+html[data-tema="claro"] .etapa.ok i{    background:var(--verde); }
+
+html[data-tema="claro"] .etapa.nao i{   background:var(--vermelho); }
+
+
+html[data-tema="claro"] .etapa.feita span,
+html[data-tema="claro"] .etapa.ok span,
+html[data-tema="claro"] .etapa.nao span{
+
+    color:var(--texto);
+
+}
+
+
+
+/* =====================================================
+   AVISOS
+===================================================== */
+
+html[data-tema="claro"] .vc-aviso{
+
+    background:#ffffff;
+
+    border-color:var(--linha);
+
+    box-shadow:0 18px 44px rgba(20, 60, 100, .18);
+
+}
+
+
+html[data-tema="claro"] .vc-aviso span{
+
+    color:var(--apagado);
+
+}
+
+
+
+/* =====================================================
+   BOTÃO DE TROCA DE TEMA
+===================================================== */
+
+.tema-botao{
+
+    position:fixed;
+
+    right:18px;
+
+    bottom:18px;
+
+    z-index:120;
+
+    width:44px;
+
+    height:44px;
+
+    display:grid;
+
+    place-items:center;
+
+    border:1px solid var(--linha-forte);
+
+    border-radius:11px;
+
+    background:var(--painel);
+
+    color:var(--azul-claro);
+
+    cursor:pointer;
+
+    box-shadow:0 10px 26px rgba(0, 0, 0, .3);
+
+    transition:border-color .18s, background .18s, color .18s, transform .18s;
+
+}
+
+
+.tema-botao:hover{
+
+    border-color:var(--azul);
+
+    background:var(--azul);
+
+    color:#ffffff;
+
+    transform:translateY(-2px);
+
+}
+
+
+.tema-botao:focus-visible{
+
+    outline:2px solid var(--azul-claro);
+
+    outline-offset:3px;
+
+}
+
+
+.tema-botao svg{
+
+    width:19px;
+
+    height:19px;
+
+    stroke-width:1.8;
+
+}
+
+
+html[data-tema="claro"] .tema-botao{
+
+    color:var(--azul);
+
+    box-shadow:0 10px 26px rgba(20, 60, 100, .16);
+
+}
+
+
+@media (max-width:560px){
+
+    .tema-botao{
+
+        right:14px;
+
+        bottom:14px;
+
+        width:40px;
+
+        height:40px;
+
+    }
+
+}
+
+
+@media (prefers-reduced-motion:reduce){
+
+    .tema-botao{
+
+        transition:none;
+
+    }
+
+    .tema-botao:hover{
+
+        transform:none;
+
+    }
+
+}

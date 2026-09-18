@@ -1322,3 +1322,508 @@ body{
 }
 
 .resumo-link i{ font-size:9px; }
+
+/* =====================================================
+   MODO CLARO · Minhas Reservas
+   Cole no FIM do TelaReserAndamento.css.
+
+   O escuro continua padrão. Este bloco só age quando a
+   página está marcada com data-tema="claro" no <html>,
+   o que o tema.js faz ao clicar no botão.
+===================================================== */
+
+
+html[data-tema="claro"]{
+
+    --fundo:       #eef3f9;
+    --painel:      #ffffff;
+    --cartao:      #f4f8fd;
+    --campo:       #ffffff;
+
+    --linha:       rgba(20, 60, 100, .14);
+    --linha-forte: rgba(20, 60, 100, .3);
+
+    --texto:       #0b2036;
+    --apagado:     #46627f;
+
+    --azul:        #1b5fd9;
+    --azul-claro:  #1257c7;
+
+    --ambar:       #a86a06;
+    --verde:       #0f9d63;
+    --vermelho:    #c62f2f;
+
+}
+
+
+
+/* =====================================================
+   FUNDO
+===================================================== */
+
+html[data-tema="claro"] body{
+
+    color:var(--texto);
+
+    background:
+        radial-gradient(760px 420px at 12% -12%, rgba(27, 95, 217, .10), transparent 62%),
+        radial-gradient(620px 360px at 100% 0%, rgba(27, 95, 217, .05), transparent 58%),
+        var(--fundo);
+
+}
+
+
+
+/* =====================================================
+   COLUNA DA ESQUERDA
+===================================================== */
+
+html[data-tema="claro"] .rail{
+
+    background:var(--painel);
+
+    box-shadow:0 8px 26px rgba(20, 60, 100, .09);
+
+}
+
+
+html[data-tema="claro"] #voltar{
+
+    background:#ffffff;
+
+    color:var(--azul);
+
+}
+
+
+html[data-tema="claro"] #voltar:hover{
+
+    background:rgba(27, 95, 217, .1);
+
+}
+
+
+html[data-tema="claro"] .rail-acoes .extend{
+
+    background:rgba(27, 95, 217, .08);
+
+    border-color:rgba(27, 95, 217, .28);
+
+    color:var(--azul);
+
+}
+
+
+html[data-tema="claro"] .rail-acoes .extend:hover{
+
+    background:rgba(27, 95, 217, .16);
+
+    color:#0b2036;
+
+}
+
+
+/* a ação principal segue cheia, mas em azul mais escuro */
+html[data-tema="claro"] .rail-acoes .destaque{
+
+    background:linear-gradient(180deg, #2a72ea, #1b5fd9);
+
+    border-color:transparent;
+
+    color:#ffffff;
+
+    box-shadow:0 8px 20px rgba(27, 95, 217, .28);
+
+}
+
+
+html[data-tema="claro"] .rail-acoes .destaque:hover{
+
+    background:linear-gradient(180deg, #3d82f5, #1958c9);
+
+    color:#ffffff;
+
+}
+
+
+html[data-tema="claro"] .rail-dica{
+
+    background:rgba(168, 106, 6, .08);
+
+    border-color:rgba(168, 106, 6, .28);
+
+    color:var(--apagado);
+
+}
+
+
+
+/* =====================================================
+   LISTA E CARDS
+===================================================== */
+
+html[data-tema="claro"] .lista-topo span,
+html[data-tema="claro"] .carregando{
+
+    color:var(--apagado);
+
+}
+
+
+html[data-tema="claro"] .reservation-card{
+
+    background:var(--painel);
+
+    box-shadow:0 8px 24px rgba(20, 60, 100, .08);
+
+}
+
+
+html[data-tema="claro"] .reservation-card.privilegiada{
+
+    background:
+        radial-gradient(460px 180px at 100% 0%, rgba(15, 157, 99, .08), transparent 62%),
+        var(--painel);
+
+    border-color:rgba(15, 157, 99, .3);
+
+}
+
+
+html[data-tema="claro"] .info{
+
+    background:var(--linha);
+
+}
+
+
+html[data-tema="claro"] .info div{
+
+    background:var(--campo);
+
+}
+
+
+
+/* =====================================================
+   RELÓGIO E VALOR
+===================================================== */
+
+html[data-tema="claro"] .timer-box{
+
+    background:
+        radial-gradient(240px 120px at 50% 0%, rgba(27, 95, 217, .10), transparent 70%),
+        #f2f7fd;
+
+    border-color:rgba(27, 95, 217, .18);
+
+}
+
+
+html[data-tema="claro"] .timer-box p{
+
+    color:var(--azul);
+
+}
+
+
+html[data-tema="claro"] .timer-box h1{
+
+    color:#0b2036;
+
+}
+
+
+html[data-tema="claro"] .labels span,
+html[data-tema="claro"] .valor-uso small{
+
+    color:#6d88a4;
+
+}
+
+
+html[data-tema="claro"] .valor-uso{
+
+    border-top-color:var(--linha);
+
+}
+
+
+html[data-tema="claro"] .valor-uso strong{
+
+    color:var(--verde);
+
+}
+
+
+
+/* =====================================================
+   BOTÕES DO CARD
+===================================================== */
+
+html[data-tema="claro"] .reservation-card button.extend{
+
+    background:linear-gradient(180deg, #2a72ea, #1b5fd9);
+
+    box-shadow:0 7px 18px rgba(27, 95, 217, .24);
+
+}
+
+
+html[data-tema="claro"] .reservation-card button.cancel{
+
+    background:rgba(198, 47, 47, .08);
+
+    border-color:rgba(198, 47, 47, .32);
+
+    color:#b02121;
+
+}
+
+
+html[data-tema="claro"] .reservation-card button.cancel:hover{
+
+    background:rgba(198, 47, 47, .18);
+
+    border-color:#c62f2f;
+
+    color:#7d1414;
+
+}
+
+
+html[data-tema="claro"] .reservation-card button.encerrar{
+
+    border-color:rgba(20, 60, 100, .3);
+
+    color:var(--apagado);
+
+}
+
+
+html[data-tema="claro"] .reservation-card button.encerrar:hover{
+
+    background:rgba(27, 95, 217, .08);
+
+    border-color:var(--azul);
+
+    color:var(--azul);
+
+}
+
+
+html[data-tema="claro"] .reservation-card button.encerrar i{
+
+    color:var(--azul);
+
+}
+
+
+
+/* =====================================================
+   ETIQUETAS
+===================================================== */
+
+html[data-tema="claro"] .status{
+
+    background:rgba(168, 106, 6, .1);
+
+    border-color:rgba(168, 106, 6, .3);
+
+    color:#8a5605;
+
+}
+
+
+html[data-tema="claro"] .status.cancelada{
+
+    background:rgba(198, 47, 47, .1);
+
+    border-color:rgba(198, 47, 47, .3);
+
+    color:#a82222;
+
+}
+
+
+html[data-tema="claro"] .status.concluida{
+
+    background:rgba(15, 157, 99, .1);
+
+    border-color:rgba(15, 157, 99, .3);
+
+    color:#0a7a4c;
+
+}
+
+
+html[data-tema="claro"] .selo-privilegio{
+
+    background:rgba(15, 157, 99, .12);
+
+    border-color:rgba(15, 157, 99, .32);
+
+    color:#0a7a4c;
+
+}
+
+
+html[data-tema="claro"] .warning{
+
+    color:#8a5605 !important;
+
+}
+
+
+
+/* =====================================================
+   REEMBOLSO · faixa no card e resumo na coluna
+===================================================== */
+
+html[data-tema="claro"] .faixa-reembolso{
+
+    background:var(--campo);
+
+    border-color:var(--linha);
+
+    color:var(--texto);
+
+}
+
+
+html[data-tema="claro"] .faixa-reembolso:hover{
+
+    background:#e9f1fb;
+
+}
+
+
+html[data-tema="claro"] .faixa-reembolso small{
+
+    color:var(--apagado);
+
+}
+
+
+html[data-tema="claro"] .faixa-reembolso .ver{
+
+    color:var(--azul);
+
+}
+
+
+html[data-tema="claro"] .faixa-reembolso.pendente{ border-left-color:var(--ambar); }
+
+html[data-tema="claro"] .faixa-reembolso.pendente > i{ color:var(--ambar); }
+
+html[data-tema="claro"] .faixa-reembolso.aprovada{ border-left-color:var(--verde); }
+
+html[data-tema="claro"] .faixa-reembolso.aprovada > i,
+html[data-tema="claro"] .faixa-reembolso.aprovada strong{ color:var(--verde); }
+
+html[data-tema="claro"] .faixa-reembolso.recusada{ border-left-color:var(--vermelho); }
+
+html[data-tema="claro"] .faixa-reembolso.recusada > i{ color:var(--vermelho); }
+
+
+html[data-tema="claro"] .resumo-reembolso{
+
+    background:var(--cartao);
+
+    border-color:var(--linha);
+
+    color:var(--texto);
+
+}
+
+
+html[data-tema="claro"] .resumo-reembolso:hover{
+
+    background:#e9f1fb;
+
+    border-color:var(--azul);
+
+}
+
+
+html[data-tema="claro"] .resumo-linha{
+
+    color:var(--apagado);
+
+}
+
+
+html[data-tema="claro"] .resumo-linha.total{
+
+    border-top-color:var(--linha);
+
+}
+
+
+html[data-tema="claro"] .resumo-linha.total span{
+
+    color:var(--texto);
+
+}
+
+
+html[data-tema="claro"] .resumo-link{
+
+    color:var(--azul);
+
+}
+
+
+
+/* =====================================================
+   JANELA E AVISOS
+===================================================== */
+
+html[data-tema="claro"] .vc-fundo{
+
+    background:rgba(20, 48, 80, .45);
+
+}
+
+
+html[data-tema="claro"] .vc-modal,
+html[data-tema="claro"] .vc-aviso{
+
+    background:#ffffff;
+
+    color:var(--texto);
+
+    box-shadow:0 18px 44px rgba(20, 60, 100, .18);
+
+}
+
+
+html[data-tema="claro"] .vc-modal p,
+html[data-tema="claro"] .vc-aviso span{
+
+    color:var(--apagado);
+
+}
+
+
+html[data-tema="claro"] .vc-nao{
+
+    border-color:var(--linha-forte);
+
+    color:var(--texto);
+
+}
+
+
+html[data-tema="claro"] .vc-nao:hover{
+
+    background:rgba(27, 95, 217, .08);
+
+}
+
+
+html[data-tema="claro"] .vc-sim{
+
+    color:#ffffff;
+
+}

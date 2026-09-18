@@ -527,6 +527,162 @@ botaoInicio.onclick = ()=>{
 
 
 };
+
+/* =====================================================
+   VagaConnect · tema.js
+
+   Liga o modo claro em qualquer tela do sistema.
+   O escuro continua sendo o padrão.
+
+   COMO USAR
+   Em cada tela, depois do CSS dela:
+
+
+   A escolha fica salva no navegador e vale para todas
+   as telas, sem precisar escolher de novo a cada página.
+===================================================== */
+
+(function(){
+
+    "use strict";
+
+
+    const CHAVE = "vagaconnect-tema";
+
+
+    // aplica antes de desenhar, para a tela não piscar
+    const salvo = localStorage.getItem(CHAVE);
+
+    if(salvo === "claro"){
+
+        document.documentElement.setAttribute("data-tema", "claro");
+
+    }
+
+
+
+    /* =================================================
+       DESENHOS DO BOTÃO
+    ================================================= */
+
+    const sol = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4.2"/>
+            <path d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6
+                     M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/>
+        </svg>`;
+
+
+    const lua = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+        </svg>`;
+
+
+
+    /* =================================================
+       BOTÃO
+    ================================================= */
+
+    function criarBotao(){
+
+        if(document.querySelector(".tema-botao")) return;
+
+
+        const botao = document.createElement("button");
+
+        botao.className = "tema-botao";
+
+        botao.type = "button";
+
+        document.body.appendChild(botao);
+
+
+        function pintar(){
+
+            const claro = document.documentElement.getAttribute("data-tema") === "claro";
+
+            botao.innerHTML = claro ? lua : sol;
+
+            botao.title = claro ? "Mudar para o modo escuro" : "Mudar para o modo claro";
+
+            botao.setAttribute("aria-label", botao.title);
+
+            botao.setAttribute("aria-pressed", claro ? "true" : "false");
+
+        }
+
+
+        botao.addEventListener("click", () => {
+
+            const claro = document.documentElement.getAttribute("data-tema") === "claro";
+
+
+            if(claro){
+
+                document.documentElement.removeAttribute("data-tema");
+
+                localStorage.setItem(CHAVE, "escuro");
+
+            } else {
+
+                document.documentElement.setAttribute("data-tema", "claro");
+
+                localStorage.setItem(CHAVE, "claro");
+
+            }
+
+
+            pintar();
+
+        });
+
+
+        pintar();
+
+    }
+
+
+    if(document.readyState === "loading"){
+
+        document.addEventListener("DOMContentLoaded", criarBotao);
+
+    } else {
+
+        criarBotao();
+
+    }
+
+
+
+    /* =================================================
+       ATALHO DE TECLADO: Shift + T
+    ================================================= */
+
+    document.addEventListener("keydown", (evento) => {
+
+        if(evento.shiftKey && (evento.key === "T" || evento.key === "t")){
+
+            const alvo = evento.target;
+
+            const digitando = alvo && ["INPUT", "TEXTAREA", "SELECT"].includes(alvo.tagName);
+
+            if(digitando) return;
+
+
+            const botao = document.querySelector(".tema-botao");
+
+            if(botao) botao.click();
+
+        }
+
+    });
+
+})();
+
+
 </script>
 
 </body>

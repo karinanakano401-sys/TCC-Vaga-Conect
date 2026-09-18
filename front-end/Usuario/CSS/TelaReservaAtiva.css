@@ -1021,3 +1021,303 @@ button:focus-visible{
     }
 
 }
+/* =====================================================
+   MODO CLARO · Tela de pagamento
+   Cole no FIM deste arquivo.
+
+   O escuro continua padrão. Este bloco só age quando a
+   página está com data-tema="claro" no <html>, o que o
+   tema.js faz ao clicar no botão.
+===================================================== */
+
+
+html[data-tema="claro"] {
+    --tinta: #eef3f9;
+    --superficie: #ffffff;
+    --elevado: #f4f8fd;
+
+    --risco: rgba(20, 60, 100, 0.14);
+    --risco-forte: rgba(20, 60, 100, 0.3);
+
+    --texto: #0b2036;
+    --apagado: #46627f;
+    --fraco: #64809c;
+
+    --azul: #1b5fd9;
+    --azul-claro: #1257c7;
+
+    --verde: #0f9d63;
+    --verde-forte: #0b8552;
+}
+
+
+/* =====================================================
+   FUNDO
+   A malha técnica fica mais discreta no claro.
+===================================================== */
+
+html[data-tema="claro"] body {
+    color: var(--texto);
+
+    background:
+        repeating-linear-gradient(
+            0deg,
+            rgba(20, 60, 100, 0.05) 0 1px,
+            transparent 1px 68px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            rgba(20, 60, 100, 0.05) 0 1px,
+            transparent 1px 68px
+        ),
+        linear-gradient(
+            180deg,
+            #f7fafd 0%,
+            var(--tinta) 55%
+        );
+}
+
+
+/* =====================================================
+   CARD
+===================================================== */
+
+html[data-tema="claro"] .payment-card {
+    background: var(--superficie);
+    border-color: var(--risco-forte);
+    box-shadow: 0 10px 30px rgba(20, 60, 100, 0.08);
+}
+
+
+html[data-tema="claro"] header {
+    border-bottom-color: var(--risco);
+}
+
+
+html[data-tema="claro"] header h2 {
+    color: var(--texto);
+}
+
+
+html[data-tema="claro"] header span {
+    color: var(--apagado);
+}
+
+
+html[data-tema="claro"] .payment-card h3 {
+    color: var(--azul);
+}
+
+
+/* =====================================================
+   BOTÃO VOLTAR
+===================================================== */
+
+html[data-tema="claro"] .voltar {
+    border-color: var(--risco-forte);
+    color: var(--azul);
+}
+
+
+html[data-tema="claro"] .voltar:hover {
+    background: rgba(27, 95, 217, 0.12);
+    border-color: var(--azul);
+    color: var(--azul);
+}
+
+
+/* =====================================================
+   OPÇÕES DE PAGAMENTO
+===================================================== */
+
+html[data-tema="claro"] .payment-option {
+    background: var(--elevado);
+    border-color: var(--risco);
+}
+
+
+html[data-tema="claro"] .payment-option:hover {
+    background: #e9f1fb;
+    border-color: var(--risco-forte);
+}
+
+
+html[data-tema="claro"] .payment-option.active {
+    background: rgba(27, 95, 217, 0.08);
+    border-color: var(--azul);
+}
+
+
+html[data-tema="claro"] .icon {
+    background: rgba(27, 95, 217, 0.1);
+    border-color: var(--risco);
+    color: var(--azul);
+}
+
+
+html[data-tema="claro"] .payment-left h4 {
+    color: var(--texto);
+}
+
+
+html[data-tema="claro"] .payment-left p {
+    color: var(--apagado);
+}
+
+
+html[data-tema="claro"] .payment-option input {
+    accent-color: var(--azul);
+}
+
+
+/* =====================================================
+   RESUMO
+===================================================== */
+
+html[data-tema="claro"] .resumo {
+    background: var(--elevado);
+    border-color: var(--risco);
+}
+
+
+html[data-tema="claro"] .linha {
+    color: var(--apagado);
+}
+
+
+html[data-tema="claro"] .desconto {
+    color: var(--azul);
+}
+
+
+html[data-tema="claro"] .total {
+    border-top-color: var(--risco);
+}
+
+
+html[data-tema="claro"] .total span {
+    color: var(--texto);
+}
+
+
+html[data-tema="claro"] .total strong {
+    color: var(--verde);
+}
+
+
+/* =====================================================
+   BOTÃO PAGAR
+===================================================== */
+
+html[data-tema="claro"] #btnPagar {
+    border-color: var(--verde);
+    color: var(--verde);
+}
+
+
+html[data-tema="claro"] #btnPagar::before {
+    background: var(--verde-forte);
+}
+
+
+html[data-tema="claro"] #btnPagar:hover {
+    border-color: var(--verde-forte);
+    color: #ffffff;
+}
+
+
+/* =====================================================
+   LINK DE DETALHES
+===================================================== */
+
+html[data-tema="claro"] #detalhes {
+    color: var(--azul);
+}
+
+
+html[data-tema="claro"] #detalhes:hover {
+    color: #0b2036;
+}
+
+
+/* =====================================================
+   BOTÃO DE TROCA DE TEMA
+===================================================== */
+
+.tema-botao {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 120;
+
+    width: 44px;
+    height: 44px;
+
+    display: grid;
+    place-items: center;
+
+    border: 1px solid var(--risco-forte);
+    border-radius: 0;
+
+    background: var(--superficie);
+    color: var(--azul-claro);
+
+    cursor: pointer;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3);
+
+    transition:
+        border-color 0.2s,
+        background 0.2s,
+        color 0.2s,
+        transform 0.2s;
+}
+
+
+.tema-botao:hover {
+    border-color: var(--azul);
+    background: var(--azul);
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+
+.tema-botao:focus-visible {
+    outline: 2px solid var(--azul-claro);
+    outline-offset: 3px;
+}
+
+
+.tema-botao svg {
+    width: 19px;
+    height: 19px;
+    stroke-width: 1.8;
+}
+
+
+html[data-tema="claro"] .tema-botao {
+    color: var(--azul);
+    box-shadow: 0 10px 26px rgba(20, 60, 100, 0.16);
+}
+
+
+@media (max-width: 560px) {
+
+    .tema-botao {
+        right: 14px;
+        bottom: 14px;
+        width: 40px;
+        height: 40px;
+    }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+
+    .tema-botao {
+        transition: none;
+    }
+
+    .tema-botao:hover {
+        transform: none;
+    }
+}
