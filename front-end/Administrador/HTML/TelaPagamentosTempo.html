@@ -6,12 +6,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>VagaConnect | Taxas de reserva</title>
+<title>VagaConnect | Uso das vagas</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
 rel="stylesheet">
 
-<link rel="stylesheet" href="../CSS/TelaPagamentos.css">
+<link rel="stylesheet" href="../CSS/TelaPagamentosTempo.css">
 
 </head>
 
@@ -50,13 +50,13 @@ rel="stylesheet">
 
     <a href="../HTML/TelaProrrongações.html"><i data-icon="clock"></i>Prorrogações</a>
 
-    <a href="../HTML/TelaAdmReembolsos.html"><i data-icon="refund"></i>Reembolsos</a>
+    <a href="../HTML/TelaReembolsos.html"><i data-icon="refund"></i>Reembolsos</a>
 
     <a href="../HTML/TelaFeedback.html"><i data-icon="message"></i>Feedbacks</a>
 
-    <a class="active" href="../HTML/TelaPagamentos.html"><i data-icon="credit-card"></i>Pagamento Taxa</a>
+    <a href="../HTML/TelaPagamentos.html"><i data-icon="cash"></i>Pagamento Taxa</a>
 
-    <a href="../HTML/TelaPagamentosTempo.html"><i data-icon="credit-card"></i>Pagamento Tempo</a>
+    <a class="active" href="#"><i data-icon="timer"></i>Pagamento Tempo</a>
 
     <a href="../HTML/TelaFaturamento.html"><i data-icon="chart"></i>Faturamento</a>
 
@@ -99,8 +99,8 @@ rel="stylesheet">
     </button>
 
     <div>
-        <h1>Taxas de reserva</h1>
-        <p>Pagamento da garantia cobrada ao reservar a vaga</p>
+        <h1>Uso das vagas</h1>
+        <p>Cobrança pelo tempo de permanência em todos os pátios</p>
     </div>
 
     <button class="primary-button" id="btnAtualizar">
@@ -118,27 +118,27 @@ rel="stylesheet">
 <div class="cards">
 
     <div class="card">
-        <span>Taxas em aberto</span>
-        <h2 id="totalAbertas">0</h2>
-        <p>Reservas sem o pagamento da garantia</p>
+        <span>Nos pátios agora</span>
+        <h2 id="totalAtivos">0</h2>
+        <p>Veículos acumulando tempo</p>
     </div>
 
     <div class="card">
         <span>A receber</span>
         <h2 id="totalReceber">R$ 0,00</h2>
-        <p>Somando as taxas em aberto</p>
+        <p>Somando o que ainda não foi pago</p>
     </div>
 
     <div class="card">
         <span>Recebido hoje</span>
-        <h2 id="totalHoje">R$ 0,00</h2>
-        <p>Taxas confirmadas no dia</p>
+        <h2 id="totalRecebido">R$ 0,00</h2>
+        <p>Pagamentos confirmados no dia</p>
     </div>
 
     <div class="card">
-        <span>Total arrecadado</span>
-        <h2 id="totalGeral">R$ 0,00</h2>
-        <p>Somando todas as taxas pagas</p>
+        <span>Pendências</span>
+        <h2 id="totalPendencias">0</h2>
+        <p>Saíram sem acertar o valor</p>
     </div>
 
 </div>
@@ -157,9 +157,10 @@ rel="stylesheet">
         Situação
         <select id="filtroStatus">
             <option value="">Todas</option>
-            <option value="Em aberto">Em aberto</option>
-            <option value="Pago">Pagas</option>
-            <option value="Cancelada">De reservas canceladas</option>
+            <option value="A pagar">A pagar</option>
+            <option value="Em uso">Em uso</option>
+            <option value="Pago">Pagos</option>
+            <option value="Pendente">Pendências</option>
         </select>
     </label>
 
@@ -184,13 +185,15 @@ rel="stylesheet">
 
     <thead>
         <tr>
-            <th>Reserva</th>
-            <th>Cliente</th>
             <th>Estacionamento</th>
             <th>Vaga</th>
-            <th>Taxa</th>
-            <th>Forma</th>
-            <th>Pago em</th>
+            <th>Cliente</th>
+            <th>Entrada</th>
+            <th>Permanência</th>
+            <th>Tarifa</th>
+            <th>Tempo</th>
+            <th>Já pago</th>
+            <th>A pagar</th>
             <th>Situação</th>
             <th class="actions-title">Ações</th>
         </tr>
@@ -225,7 +228,7 @@ rel="stylesheet">
 
         <div class="modal-icone" id="modalIcone"></div>
 
-        <h3 id="modalTitulo">Confirmar pagamento da taxa</h3>
+        <h3 id="modalTitulo">Confirmar pagamento</h3>
 
         <p id="modalTexto"></p>
 
@@ -236,9 +239,9 @@ rel="stylesheet">
             <span>Forma de pagamento</span>
 
             <div class="metodos" id="metodos">
-                <button type="button" class="metodo escolhido" data-valor="PIX">PIX</button>
+                <button type="button" class="metodo escolhido" data-valor="Dinheiro">Dinheiro</button>
+                <button type="button" class="metodo" data-valor="PIX">PIX</button>
                 <button type="button" class="metodo" data-valor="Cartão">Cartão</button>
-                <button type="button" class="metodo" data-valor="Dinheiro">Dinheiro</button>
             </div>
 
         </div>
@@ -249,9 +252,9 @@ rel="stylesheet">
         </label>
 
         <label class="modal-campo" id="campoNota" hidden>
-            <span>Motivo do estorno</span>
-            <textarea id="nota" rows="3" maxlength="200"
-                placeholder="Ex.: cobrança duplicada; taxa lançada por engano"></textarea>
+            <span>O que aconteceu</span>
+            <textarea id="notaPendencia" rows="3" maxlength="200"
+                placeholder="Ex.: saiu sem passar no caixa; cobrar na próxima visita"></textarea>
         </label>
 
         <div class="modal-botoes">
@@ -287,6 +290,8 @@ const icons = {
   briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5h8v2M3 12h18M10 12v2h4v-2"/>',
 
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3.5 2"/><path d="M3.5 9.5 6 7l2.5 2.5"/>',
+
+  timer: '<circle cx="12" cy="13" r="8"/><path d="M12 9.5V13l2.5 1.5"/><path d="M9.5 2.5h5"/><path d="M12 2.5v2.5"/>',
 
   refund: '<path d="M3 12a9 9 0 1 0 3.2-6.9"/><path d="M3 4.5V10h5.5"/>',
 
@@ -327,16 +332,17 @@ document.querySelectorAll("i[data-icon]").forEach(function(elemento){
 </script>
 
 <script>
-  /* =====================================================
-   VagaConnect · Taxas de reserva (administrador)
+    /* =====================================================
+   VagaConnect · Uso das vagas (administrador)
 
-   Mesma função da tela do funcionário, só que sem o
-   recorte de pátio: aqui aparecem as taxas de todos os
+   Mesma função da tela do funcionário, sem o recorte de
+   pátio: mostra o tempo e o valor de todos os
    estacionamentos, com filtro por pátio.
 
-   A taxa é a garantia cobrada no momento da reserva.
-   Quem ainda não pagou fica como "Em aberto" e pode ter
-   o pagamento confirmado aqui.
+   Regra do valor:
+   valor do tempo = horas iniciadas x preço da vaga
+   a pagar        = valor do tempo - o que já foi pago
+                    (a taxa da reserva entra como crédito)
 ===================================================== */
 
 
@@ -346,10 +352,6 @@ document.querySelectorAll("i[data-icon]").forEach(function(elemento){
 
 
 const api = (typeof API !== "undefined") ? API : "http://localhost:3333";
-
-
-// valor cobrado quando a reserva ainda não tem pagamento
-const TAXA_PADRAO = 25;
 
 
 const administrador = (typeof exigirLogin === "function")
@@ -366,18 +368,23 @@ if(!administrador){
 }
 
 
-let modoLocal = false;
-
-let reservas  = [];
-
-let estornos  = [];    // taxas estornadas pelo administrador
+// tolerância antes de começar a cobrar (em minutos)
+const CORTESIA = 15;
 
 
-let emJanela  = null;
+let modoLocal  = false;
 
-let acaoAtual = null;   // "cobrar" ou "estornar"
+let reservas   = [];
 
-let metodo    = "PIX";
+let pendencias = [];     // marcações de quem saiu sem pagar
+
+
+// linha que está sendo cobrada na janela
+let emCobranca = null;
+
+let acaoAtual  = null;   // "cobrar" ou "pendencia"
+
+let metodo     = "Dinheiro";
 
 
 
@@ -421,7 +428,7 @@ const campoNota     = document.getElementById("campoNota");
 
 const valorRecebido = document.getElementById("valorRecebido");
 
-const nota          = document.getElementById("nota");
+const notaPendencia = document.getElementById("notaPendencia");
 
 const modalCancelar = document.getElementById("modalCancelar");
 
@@ -436,13 +443,13 @@ const modalConfirmar= document.getElementById("modalConfirmar");
 
 (function mostrarPerfil(){
 
-    const nome = administrador.nome || "Administrador";
+    const nome = administrador.nome || "Funcionário";
 
-    document.getElementById("nomeAdm").textContent    = nome;
+    document.getElementById("nomeFuncionario").textContent    = nome;
 
-    document.getElementById("inicialAdm").textContent = nome.charAt(0).toUpperCase();
+    document.getElementById("inicialFuncionario").textContent = nome.charAt(0).toUpperCase();
 
-    document.getElementById("cargoAdm").textContent   = administrador.cargo || "admin";
+    document.getElementById("cargoFuncionario").textContent   = funcionario.cargo || "Recepcionista";
 
 })();
 
@@ -496,34 +503,94 @@ function ehHoje(texto){
 }
 
 
-// a taxa é o primeiro pagamento da reserva
-function taxaDa(item){
+// texto amigável do tempo: "2h 15min"
+function mostrarDuracao(minutos){
 
-    if(!item.pagamentos || item.pagamentos.length === 0) return null;
+    if(minutos < 60) return minutos + "min";
 
-    return [...item.pagamentos]
+    const h = Math.floor(minutos / 60);
 
-        .sort((a, b) => new Date(a.data) - new Date(b.data))[0];
+    const m = minutos % 60;
 
-}
-
-
-function estornoDe(id){
-
-    return estornos.find(e => e.fk_reservacli === id) || null;
+    return m === 0 ? h + "h" : `${h}h ${String(m).padStart(2, "0")}min`;
 
 }
 
 
-function situacao(item){
+function totalPago(item){
 
-    if(estornoDe(item.id))                     return "Estornada";
+    if(!item.pagamentos) return 0;
 
-    if(taxaDa(item))                           return "Pago";
+    return item.pagamentos.reduce((soma, p) => soma + Number(p.valor || 0), 0);
 
-    if(item.reserva.status === "Cancelada")    return "Cancelada";
+}
 
-    return "Em aberto";
+
+function pendenciaDe(id){
+
+    return pendencias.find(p => p.fk_reservacli === id) || null;
+
+}
+
+
+
+// =====================================================
+// O CÁLCULO
+// =====================================================
+
+
+function calcular(item){
+
+    const vaga = item.reserva.vaga;
+
+    const tarifa = Number(vaga.preco || 0);
+
+
+    const entrada = new Date(item.hora);
+
+    const ativa   = item.reserva.status === "Ativa";
+
+
+    // enquanto está no pátio conta até agora; depois, até a saída
+    const fim = ativa
+
+        ? new Date()
+
+        : new Date(item.horaSaida || item.hora);
+
+
+    let minutos = Math.max(0, Math.floor((fim - entrada) / 60000));
+
+
+    // cortesia inicial
+    const cobraveis = Math.max(0, minutos - CORTESIA);
+
+
+    // cobra por hora iniciada
+    const horas = cobraveis === 0 ? 0 : Math.ceil(cobraveis / 60);
+
+
+    const valorTempo = horas * tarifa;
+
+    const pago       = totalPago(item);
+
+    const aPagar     = Math.max(0, Math.round((valorTempo - pago) * 100) / 100);
+
+
+    return { tarifa, minutos, horas, valorTempo, pago, aPagar, ativa };
+
+}
+
+
+function situacao(item, conta){
+
+    if(pendenciaDe(item.id))            return "Pendente";
+
+    if(conta.ativa)                     return "Em uso";
+
+    if(conta.aPagar <= 0)               return "Pago";
+
+    return "A pagar";
 
 }
 
@@ -532,13 +599,13 @@ function classeSituacao(nome){
 
     return {
 
-        "Pago":      "pagostatus",
+        "Em uso":   "emuso",
 
-        "Em aberto": "abertastatus",
+        "A pagar":  "apagarstatus",
 
-        "Cancelada": "canceladastatus",
+        "Pago":     "pagostatus",
 
-        "Estornada": "estornadastatus"
+        "Pendente": "pendentestatus"
 
     }[nome] || "";
 
@@ -551,9 +618,9 @@ function classeSituacao(nome){
 // =====================================================
 
 
-function carregarEstornos(){
+function carregarPendencias(){
 
-    estornos = JSON.parse(localStorage.getItem("taxasEstornadas") || "[]");
+    pendencias = JSON.parse(localStorage.getItem("pendenciasCobranca") || "[]");
 
 }
 
@@ -572,10 +639,15 @@ async function carregar(){
         if(!resposta.ok) throw new Error(lista.erro || "Erro ao carregar as reservas");
 
 
-        carregarEstornos();
+        carregarPendencias();
 
 
-        reservas = lista.sort((a, b) => new Date(b.hora) - new Date(a.hora));
+        // todos os pátios, só quem já entrou na vaga
+        reservas = lista
+
+            .filter(item => ["Ativa", "Concluída"].includes(item.reserva.status))
+
+            .sort((a, b) => new Date(b.hora) - new Date(a.hora));
 
 
         montarFiltroPatios();
@@ -584,7 +656,7 @@ async function carregar(){
 
     } catch (error) {
 
-        linhas.innerHTML = `<tr><td colspan="9" class="vazio">
+        linhas.innerHTML = `<tr><td colspan="11" class="vazio">
             ${error.message || "Não foi possível carregar. Verifique se o servidor está ligado."}
         </td></tr>`;
 
@@ -597,6 +669,7 @@ async function carregar(){
     }
 
 }
+
 
 
 // a lista de pátios sai dos próprios dados
@@ -627,11 +700,11 @@ function montarFiltroPatios(){
 
 
 // =====================================================
-// GRAVAR
+// REGISTRAR O PAGAMENTO
 // =====================================================
 
 
-async function registrarTaxa(item, valor, forma){
+async function registrarPagamento(item, valor, forma){
 
     const corpo = {
 
@@ -641,7 +714,7 @@ async function registrarTaxa(item, valor, forma){
 
         data:          new Date().toISOString(),
 
-        tipo:          "Taxa de reserva",
+        tipo:          "Tempo de permanência",
 
         fk_reservacli: item.id
 
@@ -668,13 +741,14 @@ async function registrarTaxa(item, valor, forma){
 
     } catch (error) {
 
+        // sem a rota, guarda no navegador para não perder o registro
         modoLocal = true;
 
-        const todos = JSON.parse(localStorage.getItem("taxasRegistradas") || "[]");
+        const todos = JSON.parse(localStorage.getItem("pagamentosTempo") || "[]");
 
-        todos.push({ ...corpo, id: "tx" + Date.now() });
+        todos.push({ ...corpo, id: "pg" + Date.now() });
 
-        localStorage.setItem("taxasRegistradas", JSON.stringify(todos));
+        localStorage.setItem("pagamentosTempo", JSON.stringify(todos));
 
         return corpo;
 
@@ -683,15 +757,15 @@ async function registrarTaxa(item, valor, forma){
 }
 
 
-function salvarEstorno(item, motivo, valor){
+function salvarPendencia(item, nota){
 
-    const todos = JSON.parse(localStorage.getItem("taxasEstornadas") || "[]");
+    const todos = JSON.parse(localStorage.getItem("pendenciasCobranca") || "[]");
 
-    const existente = todos.find(e => e.fk_reservacli === item.id);
+    const existente = todos.find(p => p.fk_reservacli === item.id);
 
     if(existente){
 
-        existente.motivo = motivo;
+        existente.nota = nota;
 
     } else {
 
@@ -699,19 +773,28 @@ function salvarEstorno(item, motivo, valor){
 
             fk_reservacli: item.id,
 
-            motivo:        motivo,
-
-            valor:         valor,
+            nota:          nota,
 
             criadoEm:      new Date().toISOString(),
 
-            decididoPor:   administrador.nome || "Administrador"
+            registradoPor: administrador.nome || "Funcionário"
 
         });
 
     }
 
-    localStorage.setItem("taxasEstornadas", JSON.stringify(todos));
+    localStorage.setItem("pendenciasCobranca", JSON.stringify(todos));
+
+}
+
+
+function limparPendencia(id){
+
+    const todos = JSON.parse(localStorage.getItem("pendenciasCobranca") || "[]")
+
+        .filter(p => p.fk_reservacli !== id);
+
+    localStorage.setItem("pendenciasCobranca", JSON.stringify(todos));
 
 }
 
@@ -729,16 +812,14 @@ function abrirJanela(id, acao){
     if(!item) return;
 
 
-    emJanela  = item;
+    emCobranca = item;
 
-    acaoAtual = acao;
+    acaoAtual  = acao;
 
 
-    const taxa   = taxaDa(item);
+    const conta = calcular(item);
 
-    const valor  = taxa ? Number(taxa.valor) : TAXA_PADRAO;
-
-    const vaga   = item.reserva.vaga;
+    const cliente = item.usuario?.nome || "o cliente";
 
     const cobrar = acao === "cobrar";
 
@@ -755,41 +836,37 @@ function abrirJanela(id, acao){
 
             ? '<path d="M4 12.5 9 17.5 20 6.5"/>'
 
-            : '<path d="M3 12a9 9 0 1 0 3.2-6.9"/><path d="M3 4.5V10h5.5"/>') +
+            : '<path d="M12 3.5 21 19H3l9-15.5Z"/><path d="M12 10v4M12 16.5v.01"/>') +
         '</svg>';
 
 
-    modalTitulo.textContent = cobrar
-
-        ? "Confirmar pagamento da taxa"
-
-        : "Estornar esta taxa?";
+    modalTitulo.textContent = cobrar ? "Confirmar pagamento" : "Registrar pendência";
 
 
     modalTexto.textContent = cobrar
 
-        ? `Reserva de ${item.usuario?.nome || "cliente"} na vaga ${vaga.numero}, `
-          + `em ${vaga.estacionamento?.nome || "pátio"}.`
+        ? `Vaga ${item.reserva.vaga.numero} · ${cliente} ficou `
+          + `${mostrarDuracao(conta.minutos)} no pátio.`
 
-        : `A taxa de ${mostrarPreco(valor)} deixa de constar como recebida. `
-          + `Registre o motivo para o histórico.`;
+        : `${cliente} saiu sem acertar ${mostrarPreco(conta.aPagar)}. `
+          + `A pendência fica registrada para cobrança depois.`;
 
 
     modalValores.innerHTML = `
 
         <div>
-            <span>Reserva</span>
-            <strong>${mostrarDataHora(item.hora)}</strong>
+            <span>Tempo</span>
+            <strong>${conta.horas}h × ${mostrarPreco(conta.tarifa)}</strong>
         </div>
 
         <div>
-            <span>Vaga</span>
-            <strong>${vaga.numero} · ${vaga.tipo}</strong>
+            <span>Já pago</span>
+            <strong>${mostrarPreco(conta.pago)}</strong>
         </div>
 
         <div>
-            <span>Taxa</span>
-            <strong class="verde">${mostrarPreco(valor)}</strong>
+            <span>A pagar</span>
+            <strong class="verde">${mostrarPreco(conta.aPagar)}</strong>
         </div>
     `;
 
@@ -803,17 +880,19 @@ function abrirJanela(id, acao){
 
     if(cobrar){
 
-        valorRecebido.value = valor.toFixed(2).replace(".", ",");
+        valorRecebido.value = conta.aPagar.toFixed(2).replace(".", ",");
 
         modalConfirmar.textContent = "Confirmar recebimento";
 
         modalConfirmar.disabled = false;
 
+        conferirTroco();
+
     } else {
 
-        nota.value = "";
+        notaPendencia.value = "";
 
-        modalConfirmar.textContent = "Estornar taxa";
+        modalConfirmar.textContent = "Registrar pendência";
 
         modalConfirmar.disabled = true;
 
@@ -824,7 +903,7 @@ function abrirJanela(id, acao){
 
     requestAnimationFrame(() => modalFundo.classList.add("on"));
 
-    (cobrar ? valorRecebido : nota).focus();
+    (cobrar ? valorRecebido : notaPendencia).focus();
 
 }
 
@@ -835,9 +914,9 @@ function fecharJanela(){
 
     setTimeout(() => { modalFundo.hidden = true; }, 200);
 
-    emJanela  = null;
+    emCobranca = null;
 
-    acaoAtual = null;
+    acaoAtual  = null;
 
 }
 
@@ -845,6 +924,8 @@ function fecharJanela(){
 window.abrirJanela = abrirJanela;
 
 
+
+// escolha da forma de pagamento
 document.getElementById("metodos").addEventListener("click", (evento) => {
 
     const botao = evento.target.closest(".metodo");
@@ -860,9 +941,62 @@ document.getElementById("metodos").addEventListener("click", (evento) => {
 });
 
 
-nota.addEventListener("input", () => {
+// mostra troco ou quanto falta
+function conferirTroco(){
 
-    modalConfirmar.disabled = nota.value.trim().length < 5;
+    if(!emCobranca) return;
+
+    const conta = calcular(emCobranca);
+
+    const recebido = Number(String(valorRecebido.value).replace(",", ".")) || 0;
+
+    const diferenca = Math.round((recebido - conta.aPagar) * 100) / 100;
+
+
+    let aviso = document.getElementById("troco");
+
+    if(!aviso){
+
+        aviso = document.createElement("p");
+
+        aviso.id = "troco";
+
+        aviso.className = "troco";
+
+        campoValor.after(aviso);
+
+    }
+
+
+    if(diferenca > 0){
+
+        aviso.textContent = "Troco: " + mostrarPreco(diferenca);
+
+        aviso.className = "troco";
+
+    } else if(diferenca < 0){
+
+        aviso.textContent = "Faltam " + mostrarPreco(Math.abs(diferenca));
+
+        aviso.className = "troco falta";
+
+    } else {
+
+        aviso.textContent = "Valor exato";
+
+        aviso.className = "troco";
+
+    }
+
+}
+
+
+valorRecebido.addEventListener("input", conferirTroco);
+
+
+notaPendencia.addEventListener("input", () => {
+
+    modalConfirmar.disabled = notaPendencia.value.trim().length < 5;
 
 });
 
@@ -886,14 +1020,12 @@ document.addEventListener("keydown", (evento) => {
 
 modalConfirmar.addEventListener("click", async () => {
 
-    if(!emJanela) return;
+    if(!emCobranca) return;
 
 
-    const item  = emJanela;
+    const item  = emCobranca;
 
-    const taxa  = taxaDa(item);
-
-    const valor = taxa ? Number(taxa.valor) : TAXA_PADRAO;
+    const conta = calcular(item);
 
 
     modalConfirmar.disabled = true;
@@ -903,25 +1035,25 @@ modalConfirmar.addEventListener("click", async () => {
 
         if(acaoAtual === "cobrar"){
 
-            const recebido = Number(String(valorRecebido.value).replace(",", ".")) || valor;
+            await registrarPagamento(item, conta.aPagar, metodo);
 
-            await registrarTaxa(item, recebido, metodo);
+            limparPendencia(item.id);
 
             fecharJanela();
 
-            aviso("sucesso", "Taxa confirmada",
+            aviso("sucesso", "Pagamento confirmado",
 
-                `${mostrarPreco(recebido)} recebidos em ${metodo}.`);
+                `${mostrarPreco(conta.aPagar)} recebidos em ${metodo}.`);
 
         } else {
 
-            salvarEstorno(item, nota.value.trim(), valor);
+            salvarPendencia(item, notaPendencia.value.trim());
 
             fecharJanela();
 
-            aviso("aviso", "Taxa estornada",
+            aviso("aviso", "Pendência registrada",
 
-                `${mostrarPreco(valor)} deixaram de constar como recebidos.`);
+                `Vaga ${item.reserva.vaga.numero} ficou devendo ${mostrarPreco(conta.aPagar)}.`);
 
         }
 
@@ -956,18 +1088,19 @@ function render(){
 
     const filtrados = reservas.filter(item => {
 
-        const vaga = item.reserva?.vaga;
+        const conta = calcular(item);
+
+        const vaga = item.reserva.vaga;
 
         const procura = `
             ${item.usuario?.nome || ""}
-            ${vaga?.numero || ""}
+            ${vaga.numero}
             ${item.carro?.placacarro || ""}
         `.toLowerCase();
 
+        return (!status || situacao(item, conta) === status)
 
-        return (!status || situacao(item) === status)
-
-            && (!patio || vaga?.estacionamento?.nome === patio)
+            && (!patio || vaga.estacionamento?.nome === patio)
 
             && procura.includes(texto);
 
@@ -979,7 +1112,7 @@ function render(){
 
     if(filtrados.length === 0){
 
-        linhas.innerHTML = `<tr><td colspan="9" class="vazio">Nenhuma taxa por aqui</td></tr>`;
+        linhas.innerHTML = `<tr><td colspan="11" class="vazio">Nada para cobrar por aqui</td></tr>`;
 
         contagem.textContent = "0 registros";
 
@@ -990,54 +1123,54 @@ function render(){
 
     linhas.innerHTML = filtrados.map(item => {
 
-        const vaga  = item.reserva.vaga;
+        const conta = calcular(item);
 
-        const taxa  = taxaDa(item);
+        const nome  = situacao(item, conta);
 
-        const nome  = situacao(item);
+        const pend  = pendenciaDe(item.id);
 
-        const est   = estornoDe(item.id);
-
-        const valor = taxa ? Number(taxa.valor) : TAXA_PADRAO;
+        const deve  = conta.aPagar > 0;
 
 
         return `
         <tr>
 
-            <td class="quando">${mostrarDataHora(item.hora)}</td>
+            <td class="patio">${item.reserva.vaga.estacionamento?.nome || "--"}</td>
+
+            <td class="vaga">${item.reserva.vaga.numero}</td>
 
             <td class="cliente">
                 <strong>${item.usuario?.nome || "Cliente"}</strong>
                 <small>${item.carro?.placacarro || "sem veículo"}</small>
             </td>
 
-            <td class="patio">${vaga.estacionamento?.nome || "--"}</td>
+            <td class="permanencia">${mostrarDataHora(item.hora)}</td>
 
-            <td class="vaga">${vaga.numero}</td>
-
-            <td class="valor ${taxa && !est ? "recebido" : "aberto"}">
-                ${mostrarPreco(valor)}
+            <td class="permanencia ${conta.ativa ? "correndo" : ""}">
+                ${mostrarDuracao(conta.minutos)}
             </td>
 
-            <td class="forma">${taxa ? (taxa.metodo || "--") : "--"}</td>
+            <td class="tarifa">${mostrarPreco(conta.tarifa)}/h</td>
 
-            <td class="quando">${taxa ? mostrarDataHora(taxa.data) : "--"}</td>
+            <td class="permanencia">${conta.horas}h</td>
+
+            <td class="pago">${mostrarPreco(conta.pago)}</td>
+
+            <td class="apagar ${deve ? "deve" : "quitado"}">
+                ${mostrarPreco(conta.aPagar)}
+            </td>
 
             <td>
                 <span class="status ${classeSituacao(nome)}">${nome}</span>
-                ${est ? `<span class="nota">${est.motivo}</span>` : ""}
+                ${pend ? `<span class="nota">${pend.nota}</span>` : ""}
             </td>
 
             <td class="row-actions">
-                ${nome === "Em aberto" || nome === "Cancelada"
-
-                    ? `<button class="cobrar" onclick="abrirJanela('${item.id}', 'cobrar')">Confirmar</button>`
-
-                    : nome === "Pago"
-
-                        ? `<button class="estornar" onclick="abrirJanela('${item.id}', 'estornar')">Estornar</button>`
-
-                        : `<span class="sem-acao">estornada</span>`}
+                ${deve ? `
+                    <button class="cobrar" onclick="abrirJanela('${item.id}', 'cobrar')">Confirmar</button>
+                    ${conta.ativa || pend ? "" :
+                      `<button class="pendencia" onclick="abrirJanela('${item.id}', 'pendencia')">Pendência</button>`}
+                ` : `<span class="sem-acao">quitado</span>`}
             </td>
 
         </tr>`;
@@ -1054,61 +1187,48 @@ function render(){
 
 function atualizarResumo(){
 
-    let abertas = 0;
+    let ativos = 0;
 
     let receber = 0;
 
-    let hoje    = 0;
+    let recebido = 0;
 
-    let geral   = 0;
+    let pendentes = 0;
 
 
     reservas.forEach(item => {
 
-        const taxa = taxaDa(item);
+        const conta = calcular(item);
 
-        const nome = situacao(item);
+        if(conta.ativa) ativos++;
 
+        if(conta.aPagar > 0) receber += conta.aPagar;
 
-        if(nome === "Em aberto"){
-
-            abertas++;
-
-            receber += TAXA_PADRAO;
-
-        }
+        if(pendenciaDe(item.id)) pendentes++;
 
 
-        if(nome === "Pago" && taxa){
+        (item.pagamentos || []).forEach(p => {
 
-            geral += Number(taxa.valor || 0);
+            if(ehHoje(p.data)) recebido += Number(p.valor || 0);
 
-            if(ehHoje(taxa.data)) hoje += Number(taxa.valor || 0);
-
-        }
+        });
 
     });
 
 
-    // taxas registradas sem servidor também entram na conta
-    JSON.parse(localStorage.getItem("taxasRegistradas") || "[]")
+    // pagamentos guardados no navegador também entram na conta do dia
+    JSON.parse(localStorage.getItem("pagamentosTempo") || "[]")
 
-        .forEach(p => {
-
-            geral += Number(p.valor || 0);
-
-            if(ehHoje(p.data)) hoje += Number(p.valor || 0);
-
-        });
+        .forEach(p => { if(ehHoje(p.data)) recebido += Number(p.valor || 0); });
 
 
-    document.getElementById("totalAbertas").textContent = abertas;
+    document.getElementById("totalAtivos").textContent     = ativos;
 
-    document.getElementById("totalReceber").textContent = mostrarPreco(receber);
+    document.getElementById("totalReceber").textContent    = mostrarPreco(receber);
 
-    document.getElementById("totalHoje").textContent    = mostrarPreco(hoje);
+    document.getElementById("totalRecebido").textContent   = mostrarPreco(recebido);
 
-    document.getElementById("totalGeral").textContent   = mostrarPreco(geral);
+    document.getElementById("totalPendencias").textContent = pendentes;
 
 }
 
@@ -1160,7 +1280,10 @@ document.getElementById("btnSair").addEventListener("click", (evento) => {
 });
 
 
-setInterval(() => { if(modalFundo.hidden) carregar(); }, 60000);
+// o tempo corre: redesenha a cada minuto e busca no servidor a cada 2
+setInterval(() => { if(modalFundo.hidden) render(); }, 60000);
+
+setInterval(() => { if(modalFundo.hidden) carregar(); }, 120000);
 
 
 carregar();
