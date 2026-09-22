@@ -640,6 +640,30 @@ body{
 }
 
 
+.reservation-card > button.presenca{
+
+    grid-column:1 / -1;
+
+    border-color:transparent;
+
+    background:linear-gradient(180deg, #3a85ff, var(--azul));
+
+    color:#ffffff;
+
+    box-shadow:0 8px 20px rgba(36, 114, 245, .28);
+
+}
+
+
+.reservation-card > button.presenca:hover{
+
+    background:linear-gradient(180deg, #519aff, #2a7bff);
+
+    box-shadow:0 10px 24px rgba(36, 114, 245, .38);
+
+}
+
+
 .reservation-card > button.cancel{
 
     grid-column:2;
@@ -723,6 +747,105 @@ body{
 .status.concluida span{
 
     animation:none;
+
+}
+
+
+.status.tolerancia{
+
+    border-color:rgba(251, 191, 36, .35);
+
+    background:rgba(251, 191, 36, .14);
+
+    color:#fbbf24;
+
+}
+
+
+.status.atraso{
+
+    border-color:rgba(251, 146, 60, .4);
+
+    background:rgba(251, 146, 60, .16);
+
+    color:#fb923c;
+
+}
+
+
+.faixa-atraso{
+
+    grid-column:1 / -1;
+
+    display:flex;
+
+    align-items:flex-start;
+
+    gap:10px;
+
+    margin-top:4px;
+
+    padding:10px 12px;
+
+    border:1px solid rgba(251, 191, 36, .3);
+
+    border-radius:12px;
+
+    background:rgba(251, 191, 36, .1);
+
+    color:#fde68a;
+
+    font-size:12px;
+
+    line-height:1.45;
+
+}
+
+
+.faixa-atraso i{
+
+    margin-top:2px;
+
+    color:#fbbf24;
+
+}
+
+
+.faixa-atraso strong{
+
+    display:block;
+
+    font-size:12.5px;
+
+    font-weight:600;
+
+    color:#fff6d6;
+
+}
+
+
+.faixa-atraso span{
+
+    color:#e8d7a0;
+
+}
+
+
+.faixa-atraso.atraso{
+
+    border-color:rgba(251, 146, 60, .4);
+
+    background:rgba(251, 146, 60, .12);
+
+    color:#fed7aa;
+
+}
+
+
+.faixa-atraso.atraso i,
+.faixa-atraso.atraso strong{
+
+    color:#fb923c;
 
 }
 
@@ -1437,7 +1560,20 @@ html[data-tema="claro"] .rail-acoes .destaque{
 }
 
 
-html[data-tema="claro"] .rail-acoes .destaque:hover{
+html[data-tema="claro"] .reservation-card > button.presenca{
+
+    background:linear-gradient(180deg, #2a72ea, #1b5fd9);
+
+    border-color:transparent;
+
+    color:#ffffff;
+
+    box-shadow:0 8px 20px rgba(27, 95, 217, .28);
+
+}
+
+
+html[data-tema="claro"] .reservation-card > button.presenca:hover{
 
     background:linear-gradient(180deg, #3d82f5, #1958c9);
 
@@ -1653,6 +1789,63 @@ html[data-tema="claro"] .status.concluida{
     border-color:rgba(15, 157, 99, .3);
 
     color:#0a7a4c;
+
+}
+
+
+html[data-tema="claro"] .status.tolerancia{
+
+    background:rgba(168, 106, 6, .1);
+
+    border-color:rgba(168, 106, 6, .3);
+
+    color:#8a5605;
+
+}
+
+
+html[data-tema="claro"] .status.atraso{
+
+    background:rgba(194, 84, 12, .1);
+
+    border-color:rgba(194, 84, 12, .3);
+
+    color:#b45309;
+
+}
+
+
+html[data-tema="claro"] .faixa-atraso{
+
+    background:rgba(168, 106, 6, .08);
+
+    border-color:rgba(168, 106, 6, .28);
+
+    color:var(--apagado);
+
+}
+
+
+html[data-tema="claro"] .faixa-atraso strong{
+
+    color:#8a5605;
+
+}
+
+
+html[data-tema="claro"] .faixa-atraso.atraso{
+
+    background:rgba(194, 84, 12, .08);
+
+    border-color:rgba(194, 84, 12, .28);
+
+}
+
+
+html[data-tema="claro"] .faixa-atraso.atraso i,
+html[data-tema="claro"] .faixa-atraso.atraso strong{
+
+    color:#b45309;
 
 }
 

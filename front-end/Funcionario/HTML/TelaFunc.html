@@ -278,7 +278,10 @@
         const ocupadas = minhasVagas.filter(v => v.status === "Ocupada").length;
         const reservadas = minhasVagas.filter(v => v.status === "Reservada").length;
         const ativas = minhasReservas.filter(item =>
-          item.reserva.status === "Reservada" || item.reserva.status === "Ativa"
+          item.reserva.status === "Reservada" ||
+          item.reserva.status === "Tolerância" ||
+          item.reserva.status === "Atraso" ||
+          item.reserva.status === "Ativa"
         ).length;
         const totalPago = meusPagamentos.reduce((soma, item) => soma + Number(item.valor || 0), 0);
         const percentual = minhasVagas.length
@@ -325,7 +328,7 @@
             </td>
             <td><b>${item.reserva.vaga.numero}</b></td>
             <td>${horaCurta(item.hora)} - ${horaCurta(item.horaSaida)}</td>
-            <td><span class="status ${status.toLowerCase()}">${status}</span></td>
+            <td><span class="status ${status.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}">${status}</span></td>
           </tr>
         `;
         }).join("");

@@ -14,6 +14,7 @@ VagaConnect | Reserva Confirmada
 
 
 <link rel="stylesheet" href="../CSS/TelaReservaConfirmada.css">
+<link rel="stylesheet" href="../../Base/CSS/presenca.css">
 
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
@@ -75,7 +76,8 @@ Sua vaga foi reservada com sucesso.
             type="text"
             id="codigoPresenca"
             placeholder="Digite o código"
-            maxlength="10"
+            maxlength="6"
+            inputmode="numeric"
             autocomplete="off"
         >
 
@@ -237,6 +239,7 @@ Voltar ao início
 </div>
 
 
+<script src="../../Base/JS/presenca.js"></script>
 <script>
     // =====================================================
 // ELEMENTOS
@@ -259,19 +262,27 @@ const botaoInicio = document.getElementById("inicio");
 
 const qrCode = document.getElementById("qrcode");
 
+const campoCodigo = document.getElementById("codigoPresenca");
 
+const botaoConfirmar = document.getElementById("confirmarPresenca");
 
+const mensagemCodigo = document.getElementById("mensagemCodigo");
 
-// =====================================================
-// PEGAR PAGAMENTO
-// =====================================================
-
+const areaCodigo = document.querySelector(".codigo-input-area");
 
 const pagamento = JSON.parse(
 
     localStorage.getItem("pagamento")
 
 );
+
+
+const api = "http://localhost:3333";
+
+const idReservaCli =
+    new URLSearchParams(window.location.search).get("id") ||
+    (pagamento && pagamento.idReservaCli) ||
+    null;
 
 
 
@@ -365,16 +376,86 @@ function carregarDados(){
 
 
 
+function esconderConfirmacao(texto){
+
+    if(areaCodigo) areaCodigo.hidden = true;
+
+    if(botaoConfirmar) botaoConfirmar.hidden = true;
+
+    if(campoCodigo) campoCodigo.hidden = true;
+
+    const descricao = document.querySelector(".code-description");
+
+    if(descricao) descricao.hidden = true;
+
+    mensagemCodigo.textContent = texto;
+
+    mensagemCodigo.className = "mensagem-codigo";
+
+}
+
+
+async function carregarReservaDaUrl(){
+
+    if(!idReservaCli) return;
+
+    try {
+
+        const resposta = await fetch(api + "/reservacli/" + idReservaCli);
+
+        const item = await resposta.json();
+
+        if(!resposta.ok) throw new Error(item.erro || "Reserva não encontrada");
+
+        const status = item.reserva?.status;
+
+        const vagaItem = item.reserva?.vaga;
+
+        const est = vagaItem?.estacionamento;
+
+        estacionamento.textContent = est?.nome || estacionamento.textContent;
+
+        vaga.textContent = vagaItem ? "Vaga " + vagaItem.numero : vaga.textContent;
+
+        veiculo.textContent = item.carro
+            ? item.carro.modelo + " - " + item.carro.placacarro
+            : veiculo.textContent;
+
+        entrada.textContent = item.hora
+            ? new Date(item.hora).toLocaleString("pt-BR")
+            : entrada.textContent;
+
+        const aguardando = ["Reservada", "Tolerância", "Atraso"].includes(status);
+
+        if(status === "Cancelada"){
+
+            esconderConfirmacao("Esta reserva foi cancelada. Não é possível confirmar presença.");
+
+        } else if(status && !aguardando){
+
+            esconderConfirmacao("A presença desta vaga já foi registrada.");
+
+        }
+
+    } catch (error) {
+
+        esconderConfirmacao(error.message || "Não foi possível carregar esta reserva.");
+
+    }
+
+}
+
+
 carregarDados();
+
+carregarReservaDaUrl();
 // =====================================================
 // CONFIRMAÇÃO DE PRESENÇA
 // =====================================================
 
-const campoCodigo = document.getElementById("codigoPresenca");
-const botaoConfirmar = document.getElementById("confirmarPresenca");
-const mensagemCodigo = document.getElementById("mensagemCodigo");
+botaoConfirmar.addEventListener("click", async () => {
 
-botaoConfirmar.addEventListener("click", () => {
+    if(botaoConfirmar.hidden) return;
 
     const codigoDigitado = campoCodigo.value.trim();
 
@@ -390,10 +471,44 @@ botaoConfirmar.addEventListener("click", () => {
         return;
     }
 
-    mensagemCodigo.textContent =
-        "Código informado. Verificando presença...";
+    if(!idReservaCli){
 
-    mensagemCodigo.className = "mensagem-codigo sucesso";
+        mensagemCodigo.textContent =
+            "Não foi possível identificar esta reserva.";
+
+        mensagemCodigo.className = "mensagem-codigo erro";
+
+        return;
+
+    }
+
+    botaoConfirmar.disabled = true;
+
+    mensagemCodigo.textContent =
+        "Verificando o código...";
+
+    mensagemCodigo.className = "mensagem-codigo";
+
+    try {
+
+        await Presenca.confirmar(idReservaCli, codigoDigitado);
+
+        esconderConfirmacao("Presença confirmada. Sua vaga está ativa.");
+
+        mensagemCodigo.className = "mensagem-codigo sucesso";
+
+    } catch (error) {
+
+        mensagemCodigo.textContent =
+            error.message || "Não foi possível confirmar a presença.";
+
+        mensagemCodigo.className = "mensagem-codigo erro";
+
+        botaoConfirmar.disabled = false;
+
+        campoCodigo.focus();
+
+    }
 
 });
 

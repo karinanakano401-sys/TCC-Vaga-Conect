@@ -108,7 +108,7 @@
                 <th>Número</th>
                 <th>Tipo</th>
                 <th>Estacionamento</th>
-                <th>Preço</th>
+                <th>Preço/hora</th>
                 <th>Status</th>
                 <th class="actions-title">Ações</th>
               </tr>
@@ -230,7 +230,7 @@
           <td>${spot.numero}</td>
           <td>${spot.tipo}</td>
           <td>${spot.estacionamento.nome}</td>
-          <td>${formatarPreco(spot.preco)}</td>
+          <td>${formatarPreco(spot.preco)}/h</td>
           <td>
             <span class="status ${spot.status.toLowerCase()}">
               ${spot.status}

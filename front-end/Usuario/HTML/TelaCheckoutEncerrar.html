@@ -144,6 +144,7 @@ rel="stylesheet">
 </div>
 
 
+<script src="../../Base/JS/cobranca.js"></script>
 <script>
     /* =====================================================
    VagaConnect · Tempo de vaga em uso
@@ -155,9 +156,10 @@ rel="stylesheet">
    Quem encerra o tempo é o funcionário do pátio: o botão
    daqui apenas orienta a procurá-lo.
 
-   Regra do valor (a mesma da tela de cobrança do
-   funcionário, para os dois verem o mesmo número):
-   15 minutos de cortesia e cobrança por hora iniciada.
+   Regra do valor:
+   a tarifa da vaga é por hora, convertida em minuto
+   (R$ 15,00/hora = R$ 0,25/min). O cliente antecipa o
+   tempo reservado e, se sair antes, o restante volta.
 ===================================================== */
 
 
@@ -167,9 +169,6 @@ rel="stylesheet">
 
 
 const api = "http://localhost:3333";
-
-
-const CORTESIA = 15;   // minutos de tolerância
 
 
 const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
@@ -230,13 +229,7 @@ const btnFinalizar = document.getElementById("finalizar");
 
 function mostrarPreco(valor){
 
-    return Number(valor || 0).toLocaleString("pt-BR", {
-
-        style: "currency",
-
-        currency: "BRL"
-
-    });
+    return Cobranca.mostrarPreco(valor);
 
 }
 
@@ -389,7 +382,7 @@ function preencher(){
 
     linhaEntrada.textContent = mostrarDataHora(reserva.hora);
 
-    linhaTarifa.textContent  = `${mostrarPreco(vaga.preco)} / hora`;
+    linhaTarifa.textContent  = Cobranca.textoTarifa(vaga.preco);
 
     linhaPago.textContent    = mostrarPreco(totalPago(reserva));
 
@@ -404,19 +397,12 @@ function preencher(){
 
 function iniciarRelogio(){
 
-    const vaga    = reserva.reserva.vaga;
-
-    const tarifa  = Number(vaga.preco || 0);
-
     const entrada = new Date(reserva.hora);
-
-    const jaPago  = totalPago(reserva);
 
 
     function atualizar(){
 
         const agora = new Date();
-
 
 
         // ---------- ainda não chegou a hora da entrada ----------
@@ -440,7 +426,7 @@ function iniciarRelogio(){
 
             linhaTotal.textContent = mostrarPreco(0);
 
-            avisoSaida.textContent = "O valor final é fechado pelo funcionário na saída.";
+            avisoSaida.textContent = "Se cancelar agora, o valor da vaga volta. A garantia permanece.";
 
             return;
 
@@ -452,7 +438,7 @@ function iniciarRelogio(){
 
         rotuloTempo.textContent = "Tempo de vaga em uso";
 
-        pulso.textContent = "contando em tempo real";
+        pulso.textContent = "cobrança por minuto em tempo real";
 
 
         const segundos = Math.floor((agora - entrada) / 1000);
@@ -464,38 +450,34 @@ function iniciarRelogio(){
           + `${formatar(segundos % 60)}`;
 
 
-
-        // ---------- valor ----------
-
-        const minutos   = Math.floor(segundos / 60);
-
-        const cobraveis = Math.max(0, minutos - CORTESIA);
-
-        const horas     = cobraveis === 0 ? 0 : Math.ceil(cobraveis / 60);
-
-        const valor     = horas * tarifa;
-
-        const aPagar    = Math.max(0, Math.round((valor - jaPago) * 100) / 100);
+        const conta = Cobranca.calcularUso(reserva, agora);
 
 
-        linhaTempo.textContent = cobraveis === 0
-
-            ? `cortesia de ${CORTESIA} min`
-
-            : `${horas}h × ${mostrarPreco(tarifa)}`;
+        linhaTempo.textContent =
+            `${Cobranca.mostrarDuracao(conta.minutosUsados)} × ${mostrarPreco(conta.precoMinuto)}`;
 
 
-        linhaTotal.textContent = mostrarPreco(valor);
+        linhaTotal.textContent = mostrarPreco(conta.valorUsado);
 
 
-        avisoSaida.textContent = cobraveis === 0
+        if(conta.aPagar > 0){
 
-            ? `Você ainda está na cortesia de ${CORTESIA} minutos.`
+            avisoSaida.textContent =
+                `A pagar na saída: ${mostrarPreco(conta.aPagar)} · minutos extras além do tempo já pago.`;
 
-            : `A pagar na saída: ${mostrarPreco(aPagar)} · o valor final é fechado pelo funcionário.`;
+        } else if(conta.reembolso > 0){
+
+            avisoSaida.textContent =
+                `Se encerrar agora, ${mostrarPreco(conta.reembolso)} voltam pelos minutos não usados.`;
+
+        } else {
+
+            avisoSaida.textContent = "O tempo pago cobre exatamente o uso até agora.";
+
+        }
 
 
-        avisoSaida.classList.toggle("destaque", aPagar > 0);
+        avisoSaida.classList.toggle("destaque", conta.aPagar > 0);
 
     }
 

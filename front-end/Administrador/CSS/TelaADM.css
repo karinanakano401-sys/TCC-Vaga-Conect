@@ -982,6 +982,28 @@ tbody tr:last-child td{
 }
 
 
+.tolerancia{
+
+    border-color:rgba(245, 183, 49, .5);
+
+    background:rgba(245, 183, 49, .12);
+
+    color:var(--ambar);
+
+}
+
+
+.atraso{
+
+    border-color:rgba(251, 146, 60, .5);
+
+    background:rgba(251, 146, 60, .14);
+
+    color:#fb923c;
+
+}
+
+
 .cancelled,
 .cancelada{
 

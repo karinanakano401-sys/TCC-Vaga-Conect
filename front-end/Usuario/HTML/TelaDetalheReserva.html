@@ -12,6 +12,7 @@ VagaConnect | Detalhes da Reserva
 
 
 <link rel="stylesheet" href="../CSS/TelaDetalhesReserva.css">
+<script src="../../Base/JS/cobranca.js"></script>
 
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -464,10 +465,24 @@ Saída prevista
 
 
 
+<div class="linha">
+
+<span>
+Tempo reservado
+</span>
+
+<strong id="resumoTempo">
+--
+</strong>
+
+</div>
+
+
+
 <div class="linha" style="margin-bottom:0;">
 
 <span>
-Valor
+Valor da vaga
 </span>
 
 <strong id="resumoValor">
@@ -487,6 +502,34 @@ Valor
 
 
 <section class="values">
+
+
+<div>
+
+<span>
+Tarifa
+</span>
+
+<strong id="valorTarifa">
+--
+</strong>
+
+</div>
+
+
+
+<div>
+
+<span>
+Tempo reservado
+</span>
+
+<strong id="valorTempo">
+--
+</strong>
+
+</div>
+
 
 
 <div>
@@ -519,10 +562,9 @@ Total agora
 </section>
 
 
-
-
-
-<!-- ================= BOTÃO ================= -->
+<p class="aviso-minuto">
+A vaga é cobrada por minuto (preço da hora ÷ 60). Você antecipa o tempo marcado e, se cancelar, os minutos não usados voltam.
+</p>
 
 
 <button id="pagamento">
@@ -627,8 +669,14 @@ const resumoChegada = document.getElementById("resumoChegada");
 
 const resumoSaida = document.getElementById("resumoSaida");
 
+const resumoTempo = document.getElementById("resumoTempo");
+
 const resumoValor = document.getElementById("resumoValor");
 
+
+const valorTarifa = document.getElementById("valorTarifa");
+
+const valorTempo = document.getElementById("valorTempo");
 
 const valorVaga = document.getElementById("valorVaga");
 
@@ -766,10 +814,24 @@ function dataDaSaida(){
 
 function mostrarPreco(valor){
 
-    return Number(valor || 0).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-    });
+    return Cobranca.mostrarPreco(valor);
+
+}
+
+
+function minutosDaReserva(){
+
+    return Cobranca.minutosEntre(
+        `${dataChegada}T${horaChegada}:00`,
+        `${dataDaSaida()}T${horaSaida}:00`
+    );
+
+}
+
+
+function cobrancaDaReserva(){
+
+    return Cobranca.calcularReserva(vaga.preco, minutosDaReserva());
 
 }
 
@@ -881,7 +943,7 @@ function mostrarVaga(){
     numeroVaga.textContent = vaga.numero;
 
     tipoVaga.textContent =
-        `Vaga ${vaga.tipo.toLowerCase()} · ${mostrarPreco(vaga.preco)}`;
+        `Vaga ${vaga.tipo.toLowerCase()} · ${Cobranca.textoTarifa(vaga.preco)}`;
 
     tipoVagaDetalhe.textContent = vaga.tipo;
 
@@ -895,9 +957,15 @@ function mostrarVaga(){
 
 function mostrarValores(){
 
-    valorVaga.textContent = mostrarPreco(vaga.preco);
+    const conta = cobrancaDaReserva();
 
-    valorTotal.textContent = mostrarPreco(vaga.preco);
+    valorTarifa.textContent = Cobranca.textoTarifa(vaga.preco);
+
+    valorTempo.textContent = Cobranca.mostrarDuracao(conta.minutos);
+
+    valorVaga.textContent = mostrarPreco(conta.valorVaga);
+
+    valorTotal.textContent = mostrarPreco(conta.valorVaga);
 
 }
 
@@ -969,7 +1037,11 @@ function mostrarResumo(){
         `${mostrarData(dataDaSaida())} às ${horaSaida}`;
 
 
-    resumoValor.textContent = mostrarPreco(vaga.preco);
+    const conta = cobrancaDaReserva();
+
+    resumoTempo.textContent = Cobranca.mostrarDuracao(conta.minutos);
+
+    resumoValor.textContent = mostrarPreco(conta.valorVaga);
 
 }
 
@@ -984,6 +1056,8 @@ function mostrarResumo(){
 function salvarReservaAtual(){
 
     const endereco = estacionamento.endereco;
+
+    const conta = cobrancaDaReserva();
 
 
     const reserva = {
@@ -1020,9 +1094,15 @@ function salvarReservaAtual(){
 
         saida:            `${mostrarData(dataDaSaida())} às ${horaSaida}`,
 
-        valor:            vaga.preco,
+        precoHora:        vaga.preco,
 
-        valorTexto:       mostrarPreco(vaga.preco)
+        precoMinuto:      conta.precoMinuto,
+
+        minutos:          conta.minutos,
+
+        valor:            conta.valorVaga,
+
+        valorTexto:       mostrarPreco(conta.valorVaga)
 
     };
 
@@ -1214,11 +1294,33 @@ salvarHorario.onclick = ()=>{
     }
 
 
+    const dataAnterior = dataChegada;
+
+    const horaAnterior = horaChegada;
+
+    const saidaAnterior = horaSaida;
+
+
     dataChegada = novaData.value;
 
     horaChegada = novoHorario.value;
 
     horaSaida = novaSaida.value;
+
+
+    if(minutosDaReserva() < 1){
+
+        dataChegada = dataAnterior;
+
+        horaChegada = horaAnterior;
+
+        horaSaida = saidaAnterior;
+
+        alert("A reserva precisa durar pelo menos 1 minuto.");
+
+        return;
+
+    }
 
 
     novaData.style.display = "none";

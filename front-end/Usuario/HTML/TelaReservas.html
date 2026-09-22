@@ -572,7 +572,7 @@ Tipo
 
 <span>
 
-Valor
+Valor / hora
 
 </span>
 
@@ -687,6 +687,7 @@ Legenda
 
 
 <script src="../../Base/JS/sessao.js"></script>
+<script src="../../Base/JS/cobranca.js"></script>
 <script>
     
     
@@ -928,10 +929,7 @@ const spotPrice = document.getElementById("spotPrice");
 
 function mostrarPreco(valor){
 
-    return Number(valor || 0).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-    });
+    return Cobranca.mostrarPreco(valor);
 
 }
 
@@ -993,7 +991,7 @@ let estacionamentos = [];
 // usuário não pode reservar outra vaga.
 // Coloque "Ativa" na lista também se quiser barrar
 // quem já está estacionado.
-const STATUS_QUE_BLOQUEIA = ["Reservada"];
+const STATUS_QUE_BLOQUEIA = ["Reservada", "Tolerância", "Atraso"];
 
 let reservaEmAberto = null;
 
@@ -1128,7 +1126,7 @@ function precoMaisBarato(listaVagas){
     );
 
 
-    return `a partir de ${mostrarPreco(menor)}`;
+    return `a partir de ${mostrarPreco(menor)}/hora`;
 
 
 }
@@ -1767,7 +1765,7 @@ function selecionar(vaga,elemento){
 
     spotPrice.textContent =
 
-    mostrarPreco(vaga.preco);
+    `${mostrarPreco(vaga.preco)}/hora`;
 
 
 

@@ -103,7 +103,7 @@ rel="stylesheet">
 
     <div>
         <h1>Reembolsos</h1>
-        <p>Pedidos de devolução de taxa feitos pelos clientes</p>
+        <p>Pedidos de devolução dos minutos não usados</p>
     </div>
 
     <button class="primary-button" id="btnAtualizar">
@@ -133,9 +133,9 @@ rel="stylesheet">
     </div>
 
     <div class="card">
-        <span>Aprovados</span>
-        <h2 id="totalAprovados">0</h2>
-        <p>Já liberados para devolução</p>
+        <span>Já reembolsado</span>
+        <h2 id="totalAprovados">R$ 0,00</h2>
+        <p id="qtdAprovados">Nenhum pedido aprovado</p>
     </div>
 
     <div class="card">
@@ -192,6 +192,7 @@ rel="stylesheet">
             <th>Cliente</th>
             <th>Reserva</th>
             <th>Pago</th>
+            <th>Uso</th>
             <th>A devolver</th>
             <th>Motivo</th>
             <th>Status</th>
@@ -252,7 +253,7 @@ rel="stylesheet">
 
 
 <script src="../../Base/JS/sessao.js"></script>
-
+<script src="../../Base/JS/cobranca.js"></script>
 <script>
 
 /* ícones em SVG, iguais aos das outras telas do painel */
@@ -322,8 +323,8 @@ document.querySelectorAll("i[data-icon]").forEach(function(elemento){
    permite aprovar ou recusar, com uma observação que o
    cliente vê na tela dele.
 
-   Enquanto o back não tiver a rota /reembolso, os dados
-   vêm do localStorage — igual à tela do usuário.
+   Os pedidos vêm da rota /reembolso. Se a API falhar,
+   a tela cai no localStorage como reserva.
 ===================================================== */
 
 
@@ -483,7 +484,25 @@ function gerarProtocolo(id){
 
 function reservaDoPedido(pedido){
 
+    if(pedido.reservaCli){
+
+        return {
+            ...pedido.reservaCli,
+            usuario: pedido.reservaCli.usuario || pedido.usuario || null
+        };
+
+    }
+
     return reservas.find(item => item.id === pedido.fk_reservacli) || null;
+
+}
+
+
+function nomeDoCliente(pedido){
+
+    return pedido.usuario?.nome
+        || reservaDoPedido(pedido)?.usuario?.nome
+        || "Cliente";
 
 }
 
@@ -647,6 +666,12 @@ async function salvarStatus(pedido, status, texto){
 
             observacao:    texto || "",
 
+            decididoPor:   administrador.nome || "Administrador",
+
+            minutosUsados: pedido.minutosUsados,
+
+            valorUsado:    pedido.valorUsado,
+
             fk_reservacli: pedido.fk_reservacli,
 
             fk_idCliente:  pedido.fk_idCliente
@@ -742,11 +767,14 @@ function abrirDecisao(id, acao){
 
     modalTexto.textContent = acao === "Aprovada"
 
-        ? `${reserva?.usuario?.nome || "O cliente"} receberá `
-          + `${mostrarPreco(pedido.valorDevolver)} de volta. `
+        ? `${nomeDoCliente(pedido)} receberá `
+          + `${mostrarPreco(pedido.valorDevolver)} de volta`
+          + (Number(pedido.minutosUsados) > 0
+              ? ` (${Cobranca.mostrarDuracao(pedido.minutosUsados)} usados). `
+              : ". ")
           + `O protocolo ${gerarProtocolo(pedido.id)} passa a constar como aprovado.`
 
-        : `${reserva?.usuario?.nome || "O cliente"} não receberá o valor. `
+        : `${nomeDoCliente(pedido)} não receberá o valor. `
           + `Escreva o motivo: ele aparece na tela de acompanhamento dele.`;
 
 
@@ -758,8 +786,17 @@ function abrirDecisao(id, acao){
         </div>
 
         <div>
-            <span>Retido</span>
-            <strong>${mostrarPreco(pedido.valorPago - pedido.valorDevolver)}</strong>
+            <span>Tempo usado</span>
+            <strong>${
+                Number(pedido.minutosUsados) > 0
+                    ? Cobranca.mostrarDuracao(pedido.minutosUsados)
+                    : "não usou"
+            }</strong>
+        </div>
+
+        <div>
+            <span>Cobrado pelo uso</span>
+            <strong>${mostrarPreco(pedido.valorUsado || (pedido.valorPago - pedido.valorDevolver))}</strong>
         </div>
 
         <div>
@@ -903,7 +940,7 @@ function render(){
         const reserva = reservaDoPedido(pedido);
 
         const procura = `
-            ${reserva?.usuario?.nome || ""}
+            ${nomeDoCliente(pedido)}
             ${reserva?.reserva?.vaga?.numero || ""}
             ${reserva?.reserva?.vaga?.estacionamento?.nome || ""}
             ${gerarProtocolo(pedido.id)}
@@ -923,7 +960,7 @@ function render(){
 
     if(filtrados.length === 0){
 
-        linhas.innerHTML = `<tr><td colspan="9" class="vazio">Nenhum pedido por aqui</td></tr>`;
+        linhas.innerHTML = `<tr><td colspan="10" class="vazio">Nenhum pedido por aqui</td></tr>`;
 
         contagem.textContent = "0 pedidos";
 
@@ -953,7 +990,7 @@ function render(){
             <td class="quando">${mostrarDataHora(pedido.criadoEm)}</td>
 
             <td class="cliente">
-                <strong>${reserva?.usuario?.nome || "Cliente"}</strong>
+                <strong>${nomeDoCliente(pedido)}</strong>
                 <small>${reserva?.carro?.placacarro || "sem veículo"}</small>
             </td>
 
@@ -963,6 +1000,12 @@ function render(){
             </td>
 
             <td class="valor">${mostrarPreco(pedido.valorPago)}</td>
+
+            <td class="quando">${
+                Number(pedido.minutosUsados) > 0
+                    ? Cobranca.mostrarDuracao(pedido.minutosUsados)
+                    : "não usou"
+            }</td>
 
             <td class="devolver">${mostrarPreco(pedido.valorDevolver)}</td>
 
@@ -1001,14 +1044,19 @@ function atualizarResumo(){
     const recusados = pedidos.filter(p => p.status === "Recusada");
 
 
-    const soma = pendentes.reduce((total, p) => total + Number(p.valorDevolver || 0), 0);
+    const somaPendente = pendentes.reduce((total, p) => total + Number(p.valorDevolver || 0), 0);
+
+    const somaAprovado = aprovados.reduce((total, p) => total + Number(p.valorDevolver || 0), 0);
 
 
     document.getElementById("totalPendentes").textContent = pendentes.length;
 
-    document.getElementById("totalDevolver").textContent  = mostrarPreco(soma);
+    document.getElementById("totalDevolver").textContent  = mostrarPreco(somaPendente);
 
-    document.getElementById("totalAprovados").textContent = aprovados.length;
+    document.getElementById("totalAprovados").textContent = mostrarPreco(somaAprovado);
+
+    document.getElementById("qtdAprovados").textContent =
+        aprovados.length === 1 ? "1 pedido aprovado" : `${aprovados.length} pedidos aprovados`;
 
     document.getElementById("totalRecusados").textContent = recusados.length;
 

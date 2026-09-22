@@ -1,6 +1,5 @@
 import prismaClient from '../prisma/index.js'
-
-
+import { processarAtrasos } from './atrasoservice.js'
 
 
 export async function criarReserva(dados) {
@@ -15,6 +14,7 @@ export async function criarReserva(dados) {
 
 
 export async function listarReservas() {
+  await processarAtrasos()
   const reservas = await prismaClient.reserva.findMany({
     include: {
       vaga: { include: { estacionamento: true } },
@@ -26,6 +26,7 @@ export async function listarReservas() {
 
 
 export async function buscarReservaPorId(id) {
+  await processarAtrasos()
   const reserva = await prismaClient.reserva.findUnique({
     where: { id },
     include: {

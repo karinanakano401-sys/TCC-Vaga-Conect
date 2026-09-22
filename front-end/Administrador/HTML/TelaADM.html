@@ -83,8 +83,13 @@
         </article>
 
         <article class="stat-card income">
-          <div><b id="statFaturamento">R$ 0,00</b><small>Faturamento total</small></div>
+          <div><b id="statFaturamento">R$ 0,00</b><small>Faturamento líquido</small></div>
           <i data-icon="trending-up"></i>
+        </article>
+
+        <article class="stat-card">
+          <span class="stat-icon amber"><i data-icon="refund"></i></span>
+          <div><b id="statReembolsos">R$ 0,00</b><small>Já reembolsado</small></div>
         </article>
 
         <article class="stat-card">
@@ -240,7 +245,7 @@ function dataHora(texto) {
 }
 
 async function carregarPainel() {
-  const [vagas, reservasCli, pagamentos, estacionamentos, usuarios, funcionarios, feedbacks] =
+  const [vagas, reservasCli, pagamentos, estacionamentos, usuarios, funcionarios, feedbacks, reembolsos] =
     await Promise.all([
       fetch(API + "/vaga").then(r => r.json()),
       fetch(API + "/reservacli").then(r => r.json()),
@@ -248,20 +253,28 @@ async function carregarPainel() {
       fetch(API + "/estacionamento").then(r => r.json()),
       fetch(API + "/usuario").then(r => r.json()),
       fetch(API + "/funcionario").then(r => r.json()),
-      fetch(API + "/feedback").then(r => r.json())
+      fetch(API + "/feedback").then(r => r.json()),
+      fetch(API + "/reembolso").then(r => r.json()).catch(() => [])
     ]);
 
   const reservas = Array.isArray(reservasCli) ? reservasCli : [];
   const listaVagas = Array.isArray(vagas) ? vagas : [];
   const listaPagamentos = Array.isArray(pagamentos) ? pagamentos : [];
   const listaFeedbacks = Array.isArray(feedbacks) ? feedbacks : [];
+  const listaReembolsos = Array.isArray(reembolsos) ? reembolsos : [];
 
   const ativas = reservas.filter(item =>
-    item.reserva?.status === "Reservada" || item.reserva?.status === "Ativa"
+    item.reserva?.status === "Reservada" ||
+    item.reserva?.status === "Tolerância" ||
+    item.reserva?.status === "Atraso" ||
+    item.reserva?.status === "Ativa"
   ).length;
   const ocupadas = listaVagas.filter(vaga => vaga.status === "Ocupada").length;
   const livres = listaVagas.filter(vaga => vaga.status === "Livre").length;
   const totalPago = listaPagamentos.reduce((soma, item) => soma + Number(item.valor || 0), 0);
+  const totalReembolsado = listaReembolsos
+    .filter(item => item.status === "Aprovada")
+    .reduce((soma, item) => soma + Number(item.valorDevolver || 0), 0);
   const media = listaFeedbacks.length
     ? (listaFeedbacks.reduce((soma, item) => soma + Number(item.nota || 0), 0) / listaFeedbacks.length).toFixed(1)
     : "--";
@@ -269,7 +282,8 @@ async function carregarPainel() {
   document.getElementById("statReservas").textContent = ativas;
   document.getElementById("statOcupadas").textContent = ocupadas;
   document.getElementById("statLivres").textContent = livres;
-  document.getElementById("statFaturamento").textContent = mostrarPreco(totalPago);
+  document.getElementById("statFaturamento").textContent = mostrarPreco(Math.max(0, totalPago - totalReembolsado));
+  document.getElementById("statReembolsos").textContent = mostrarPreco(totalReembolsado);
   document.getElementById("statEstacionamentos").textContent = Array.isArray(estacionamentos) ? estacionamentos.length : 0;
   document.getElementById("statUsuarios").textContent = Array.isArray(usuarios) ? usuarios.length : 0;
   document.getElementById("statFuncionarios").textContent = Array.isArray(funcionarios) ? funcionarios.length : 0;

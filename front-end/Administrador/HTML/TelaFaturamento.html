@@ -163,42 +163,42 @@
 
                 <div class="card">
 
-                    <span>Faturamento do mês</span>
+                    <span>Receita do mês</span>
 
                     <h2 id="totalMes">
                         R$ 0,00
                     </h2>
 
                     <p>
-                        Receita total recebida
+                        Pagamentos recebidos
                     </p>
 
                 </div>
 
                 <div class="card">
 
-                    <span>Reservas realizadas</span>
+                    <span>Reembolsado</span>
 
-                    <h2 id="totalReservas">
-                        0
-                    </h2>
-
-                    <p>
-                        No período selecionado
-                    </p>
-
-                </div>
-
-                <div class="card">
-
-                    <span>Ticket médio</span>
-
-                    <h2 id="ticketMedio">
+                    <h2 id="totalReembolsado">
                         R$ 0,00
                     </h2>
 
                     <p>
-                        Valor médio por reserva
+                        Pedidos aprovados no período
+                    </p>
+
+                </div>
+
+                <div class="card">
+
+                    <span>Líquido</span>
+
+                    <h2 id="totalLiquido">
+                        R$ 0,00
+                    </h2>
+
+                    <p>
+                        Receita menos reembolsos
                     </p>
 
                 </div>
@@ -318,6 +318,7 @@
             const cardCrescimento = document.getElementById("crescimento");
 
             let pagamentos = [];
+            let reembolsos = [];
 
             meses.forEach((nome, indice) => {
                 const option = document.createElement("option");
@@ -363,8 +364,20 @@
                 return data.getMonth() + 1 === mes && data.getFullYear() === ano;
             }
 
-            function soma(lista) {
-                return lista.reduce((total, item) => total + Number(item.valor || 0), 0);
+            function dataDoReembolso(item) {
+                return item.respondido || item.criadoEm || null;
+            }
+
+            function noPeriodoReembolso(item, mes, ano) {
+                if (item.status !== "Aprovada") return false;
+                const texto = dataDoReembolso(item);
+                if (!texto) return false;
+                const data = new Date(texto);
+                return data.getMonth() + 1 === mes && data.getFullYear() === ano;
+            }
+
+            function somaReembolso(lista) {
+                return lista.reduce((total, item) => total + Number(item.valorDevolver || 0), 0);
             }
 
             function reservasUnicas(lista) {
@@ -421,14 +434,16 @@
                 const anoAnterior = mes === 1 ? ano - 1 : ano;
                 const doMesAnterior = pagamentos.filter((item) => noPeriodo(item, mesAnterior, anoAnterior));
 
-                const total = soma(doMes);
-                const qtdReservas = reservasUnicas(doMes);
-                const media = qtdReservas ? total / qtdReservas : 0;
+                const bruto = soma(doMes);
+                const devolvido = somaReembolso(reembolsos.filter((item) => noPeriodoReembolso(item, mes, ano)));
+                const devolvidoAnterior = somaReembolso(reembolsos.filter((item) => noPeriodoReembolso(item, mesAnterior, anoAnterior)));
+                const liquido = bruto - devolvido;
+                const liquidoAnterior = soma(doMesAnterior) - devolvidoAnterior;
 
-                document.getElementById("totalMes").textContent = mostrarPreco(total);
-                document.getElementById("totalReservas").textContent = qtdReservas;
-                document.getElementById("ticketMedio").textContent = mostrarPreco(media);
-                atualizarCrescimento(total, soma(doMesAnterior));
+                document.getElementById("totalMes").textContent = mostrarPreco(bruto);
+                document.getElementById("totalReembolsado").textContent = mostrarPreco(devolvido);
+                document.getElementById("totalLiquido").textContent = mostrarPreco(liquido);
+                atualizarCrescimento(liquido, liquidoAnterior);
 
                 if (lista.length === 0) {
                     tabela.innerHTML = `<tr><td colspan="6">Nenhum pagamento neste período.</td></tr>`;
@@ -477,7 +492,12 @@
                             `Data: ${dataCurta(dataDoPagamento(item))}\n\n`;
                     });
 
-                    relatorio += `Total: ${mostrarPreco(soma(lista))}\n`;
+                    relatorio += `Total recebido: ${mostrarPreco(soma(lista))}\n`;
+                    const devolvidoRelatorio = somaReembolso(
+                        reembolsos.filter((item) => noPeriodoReembolso(item, Number(selectMes.value), Number(selectAno.value)))
+                    );
+                    relatorio += `Reembolsado: ${mostrarPreco(devolvidoRelatorio)}\n`;
+                    relatorio += `Líquido: ${mostrarPreco(soma(lista) - devolvidoRelatorio)}\n`;
                 }
 
                 const arquivo = new Blob([relatorio], { type: "text/plain;charset=utf-8" });
@@ -497,6 +517,15 @@
                 const lista = await resposta.json();
                 if (!resposta.ok) throw new Error(lista.erro || "Erro ao carregar o faturamento");
                 pagamentos = lista;
+
+                try {
+                    const respostaReembolso = await fetch(API + "/reembolso");
+                    const listaReembolsos = await respostaReembolso.json();
+                    reembolsos = respostaReembolso.ok && Array.isArray(listaReembolsos) ? listaReembolsos : [];
+                } catch (error) {
+                    reembolsos = [];
+                }
+
                 render();
             }
 

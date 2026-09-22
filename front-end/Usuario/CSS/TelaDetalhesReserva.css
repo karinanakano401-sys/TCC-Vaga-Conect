@@ -878,6 +878,21 @@ a:focus-visible{
 }
 
 
+.aviso-minuto{
+
+    margin:0 0 14px;
+
+    padding:0 4px;
+
+    color:var(--apagado);
+
+    font-size:12px;
+
+    line-height:1.45;
+
+}
+
+
 
 /* =====================================================
    BOTÃO DE PAGAMENTO

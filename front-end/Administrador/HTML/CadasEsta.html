@@ -110,14 +110,23 @@
             <form id="parkingForm">
               <div class="form-grid">
                 <label class="field field-wide">Nome<input name="name" placeholder="Ex.: CenterPark" required></label>
-                <label class="field">Cidade<input name="city" placeholder="Ex.: São Paulo" required></label>
-                <label class="field">Estado<select name="state" required><option value="">Selecione</option><option>SP</option><option>RJ</option><option>MG</option><option>PR</option></select></label>
-                <label class="field field-wide">Rua<input name="street" placeholder="Ex.: Rua das Flores" required></label>
-                <label class="field">Número<input name="number" placeholder="Ex.: 123" required></label>
-                <label class="field field-wide">Bairro<input name="district" placeholder="Ex.: Jardim das Acácias" required></label>
                 <label class="field">CEP<input name="zip" placeholder="00000-000" maxlength="9" required></label>
+                <label class="field">Número<input name="number" placeholder="Ex.: 123" required></label>
+                <label class="field field-wide">Rua<input name="street" placeholder="Ex.: Rua das Flores" required></label>
+                <label class="field field-wide">Bairro<input name="district" placeholder="Ex.: Jardim das Acácias" required></label>
+                <label class="field">Cidade<input name="city" placeholder="Ex.: São Paulo" required></label>
+                <label class="field">Estado<select name="state" required>
+                  <option value="">Selecione</option>
+                  <option>AC</option><option>AL</option><option>AP</option><option>AM</option>
+                  <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+                  <option>GO</option><option>MA</option><option>MT</option><option>MS</option>
+                  <option>MG</option><option>PA</option><option>PB</option><option>PR</option>
+                  <option>PE</option><option>PI</option><option>RJ</option><option>RN</option>
+                  <option>RS</option><option>RO</option><option>RR</option><option>SC</option>
+                  <option>SP</option><option>SE</option><option>TO</option>
+                </select></label>
                 <label class="field">Quantidade de vagas<input name="spaces" type="number" min="1" placeholder="Ex.: 80" required></label>
-                <label class="field">Preço por vaga (R$)<input name="price" type="number" min="0" step="0.01" placeholder="Ex.: 25,00" required></label>
+                <label class="field">Preço por hora (R$)<input name="price" type="number" min="0" step="0.01" placeholder="Ex.: 15,00" required></label>
                 <label class="field">Status<select name="status"><option>Ativo</option><option>Inativo</option></select></label>
               </div>
               <div class="form-actions">
@@ -138,6 +147,7 @@
 
 
       <script src="../../Base/JS/sessao.js"></script>
+      <script src="../../Base/JS/cep.js"></script>
       <script>
 
 
@@ -277,6 +287,14 @@ save:
       const botaoCancelar = document.querySelector("#cancelButton");
       const botaoSalvar = formulario.querySelector("button[type='submit']");
 
+      Cep.ligar(formulario.zip, {
+        rua:    formulario.street,
+        bairro: formulario.district,
+        cidade: formulario.city,
+        estado: formulario.state,
+        numero: formulario.number
+      });
+
       const params = new URLSearchParams(window.location.search);
       const idEdicao = params.get("id");
 
@@ -306,7 +324,7 @@ save:
           formulario.street.value = estacionamento.endereco.rua;
           formulario.number.value = estacionamento.endereco.numero;
           formulario.district.value = estacionamento.endereco.bairro;
-          formulario.zip.value = estacionamento.endereco.cep;
+          formulario.zip.value = Cep.formatar(estacionamento.endereco.cep);
           formulario.status.value = estacionamento.status;
 
           // Na edição as vagas e os preços são gerenciados na tela de Vagas

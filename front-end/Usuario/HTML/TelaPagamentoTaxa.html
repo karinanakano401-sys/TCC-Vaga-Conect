@@ -14,6 +14,7 @@ VagaConnect | Pagamento Taxa
 
 
 <link rel="stylesheet" href="../CSS/TelaPagamentoTaxa.css">
+<script src="../../Base/JS/cobranca.js"></script>
 
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
@@ -229,6 +230,21 @@ R$ 0,00
 
 <div>
 
+<span id="descricaoTempo">
+Tempo reservado
+</span>
+
+
+<strong id="resumoTempo">
+--
+</strong>
+
+</div>
+
+
+
+<div>
+
 <span>
 Garantia de reserva
 </span>
@@ -285,6 +301,12 @@ Pagar R$ 25,00
 
 
 <p class="safe">
+A vaga é cobrada por minuto. Se cancelar, o tempo que você não usar volta como reembolso.
+</p>
+
+
+
+<p class="safe">
 
 Pagamento 100% seguro
 
@@ -321,6 +343,8 @@ const descricaoVaga = document.getElementById("descricaoVaga");
 
 const resumoValorVaga = document.getElementById("resumoValorVaga");
 
+const resumoTempo = document.getElementById("resumoTempo");
+
 const resumoGarantia = document.getElementById("resumoGarantia");
 
 const resumoTotal = document.getElementById("resumoTotal");
@@ -350,7 +374,7 @@ if(!usuarioLogado){
 
 
 // Garantia cobrada em toda reserva
-const GARANTIA = 25;
+const GARANTIA = Cobranca.GARANTIA;
 
 
 let formaPagamento = "cartao";
@@ -379,10 +403,7 @@ let total = 0;
 
 function mostrarPreco(valor){
 
-    return Number(valor || 0).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-    });
+    return Cobranca.mostrarPreco(valor);
 
 }
 
@@ -403,10 +424,27 @@ function carregarResumo(){
 
 
 
-    valorVaga = Number(reserva.valor || 0);
+    const minutosMarcados = reserva.dataChegada && reserva.horaChegada && reserva.dataSaida && reserva.horaSaida
+        ? Cobranca.minutosEntre(
+            `${reserva.dataChegada}T${reserva.horaChegada}:00`,
+            `${reserva.dataSaida}T${reserva.horaSaida}:00`
+        )
+        : Number(reserva.minutos || 0);
+
+    const precoHora = Number(reserva.precoHora != null ? reserva.precoHora : 0);
+
+    const conta = precoHora && minutosMarcados
+        ? Cobranca.calcularReserva(precoHora, minutosMarcados)
+        : null;
+
+    valorVaga = conta ? conta.valorVaga : Number(reserva.valor || 0);
 
     total = valorVaga + GARANTIA;
 
+
+    const minutos = conta ? conta.minutos : minutosMarcados;
+
+    const precoMinuto = conta ? conta.precoMinuto : Number(reserva.precoMinuto || Cobranca.precoPorMinuto(precoHora || valorVaga));
 
 
     descricaoVaga.textContent =
@@ -414,6 +452,10 @@ function carregarResumo(){
 
 
     resumoValorVaga.textContent = mostrarPreco(valorVaga);
+
+    resumoTempo.textContent = minutos
+        ? `${Cobranca.mostrarDuracao(minutos)} × ${mostrarPreco(precoMinuto)}/min`
+        : Cobranca.textoTarifa(reserva.precoHora || valorVaga);
 
     resumoGarantia.textContent = mostrarPreco(GARANTIA);
 
@@ -648,6 +690,19 @@ async function gravarReserva(){
 
 
 
+    let precoHoraVaga = Number(reserva.precoHora);
+
+    if(!precoHoraVaga){
+
+        const respostaVaga = await fetch(api + "/vaga/" + reserva.idVaga);
+
+        const vagaAtual = await respostaVaga.json();
+
+        precoHoraVaga = Number(vagaAtual.preco || 0);
+
+    }
+
+
     // A vaga sai da lista de livres
     await fetch(api + "/vaga/" + reserva.idVaga, {
 
@@ -661,7 +716,7 @@ async function gravarReserva(){
             numero: reserva.vaga,
             tipo:   reserva.tipo,
             status: "Reservada",
-            preco:  valorVaga,
+            preco:  precoHoraVaga,
             fk_est: reserva.idEstacionamento
         })
 
@@ -702,6 +757,15 @@ botaoPagar.onclick = async ()=>{
 
 
         garantia:GARANTIA,
+
+
+        precoHora: reserva.precoHora,
+
+
+        precoMinuto: reserva.precoMinuto,
+
+
+        minutos: reserva.minutos,
 
 
         valor:total,
@@ -756,7 +820,7 @@ botaoPagar.onclick = async ()=>{
 
     window.location.href =
 
-    "TelaReserConfirmada.html";
+    "TelaReserConfirmada.html?id=" + encodeURIComponent(reservaCliente.id);
 
 
 

@@ -9,6 +9,7 @@
 <title>Cadastro VagaConnect</title>
 
 <link rel="stylesheet" href="../CSS/OpçãoCadastro.css">
+<script src="../JS/cep.js"></script>
 
 </head>
 
@@ -758,6 +759,14 @@ function carregarUsuario(){
     aplicarMascaraCPF(cpfInput);
 
     aplicarMascaraCEP(cepInput);
+
+    Cep.ligar(cepInput, {
+        rua:    document.getElementById("rua"),
+        bairro: document.getElementById("bairro"),
+        cidade: document.getElementById("cidade"),
+        estado: document.getElementById("estado"),
+        numero: document.getElementById("numero")
+    });
 
 
     /* =================================================
@@ -1597,6 +1606,17 @@ function carregarAdmin(){
         "input",
         atualizarResumo
     );
+
+
+    Cep.ligar(cepInput, {
+        rua:    ruaEstacionamento,
+        bairro: document.getElementById("bairroEstacionamento"),
+        cidade: cidadeEstacionamento,
+        estado: document.getElementById("estadoEstacionamento"),
+        numero: numeroEstacionamento
+    }, {
+        onPreenchido: atualizarResumo
+    });
 
 
     /* =================================================

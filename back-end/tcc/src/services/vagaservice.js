@@ -1,6 +1,5 @@
 import prismaClient from '../prisma/index.js'
-
-
+import { processarAtrasos } from './atrasoservice.js'
 
 
 export async function criarVaga(dados) {
@@ -18,6 +17,7 @@ export async function criarVaga(dados) {
 
 
 export async function listarVagas() {
+  await processarAtrasos()
   const vagas = await prismaClient.vaga.findMany({
     include: { estacionamento: true }
   })

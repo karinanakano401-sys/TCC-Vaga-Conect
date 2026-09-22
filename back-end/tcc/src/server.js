@@ -1,4 +1,5 @@
 import express from 'express'
+import http from 'http'
 import usuarioRoutes from './controller/usuariocontroller.js'
 import funcionarioRoutes from './controller/funcionarioController.js'
 import carroRoutes from './controller/carroController.js'
@@ -10,11 +11,13 @@ import reservaRoutes from './controller/reservaController.js'
 import tipoFuncRoutes from './controller/tipoFuncController.js'
 import vagaRoutes from './controller/vagaController.js'
 import pagamentoRoutes from './controller/pagamentoController.js'
+import reembolsoRoutes from './controller/reembolsoController.js'
+import { anexarWebSocket } from './websocket.js'
 
-const server = express()
-server.use(express.json())
+const app = express()
+app.use(express.json())
 
-server.use((req, res, next) => {
+app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*')
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
   res.header('Access-Control-Allow-Headers', 'Content-Type')
@@ -22,16 +25,20 @@ server.use((req, res, next) => {
   next()
 })
 
-server.use('/usuario', usuarioRoutes)
-server.use('/funcionario', funcionarioRoutes)
-server.use('/carro', carroRoutes)
-server.use('/endereco', enderecoRoutes)
-server.use('/estacionamento', estacionamentoRoutes)
-server.use('/feedback', feedbackRoutes)
-server.use('/reservacli', reservaCliRoutes)
-server.use('/reserva', reservaRoutes)
-server.use('/tipofunc', tipoFuncRoutes)
-server.use('/vaga', vagaRoutes)
-server.use('/pagamento', pagamentoRoutes)
+app.use('/usuario', usuarioRoutes)
+app.use('/funcionario', funcionarioRoutes)
+app.use('/carro', carroRoutes)
+app.use('/endereco', enderecoRoutes)
+app.use('/estacionamento', estacionamentoRoutes)
+app.use('/feedback', feedbackRoutes)
+app.use('/reservacli', reservaCliRoutes)
+app.use('/reserva', reservaRoutes)
+app.use('/tipofunc', tipoFuncRoutes)
+app.use('/vaga', vagaRoutes)
+app.use('/pagamento', pagamentoRoutes)
+app.use('/reembolso', reembolsoRoutes)
 
-server.listen(3333, () => console.log('Servidor rodando na porta 3333'))
+const servidor = http.createServer(app)
+anexarWebSocket(servidor)
+
+servidor.listen(3333, () => console.log('Servidor rodando na porta 3333'))

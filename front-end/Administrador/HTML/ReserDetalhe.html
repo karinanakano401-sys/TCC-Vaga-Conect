@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="../CSS/ReserDetalhe.css">
+  <link rel="stylesheet" href="../../Base/CSS/presenca.css">
 </head>
 
 <body>
@@ -138,7 +139,7 @@
 
         <div class="actions">
           <button class="confirm" id="btnConfirmar">
-            Confirmar presença
+            Cliente chegou
           </button>
 
           <button class="finish" id="btnFinalizar">
@@ -146,7 +147,7 @@
           </button>
 
           <button class="cancel" id="btnCancelar">
-            Cancelar reserva
+            Código de saída
           </button>
         </div>
       </section>
@@ -154,6 +155,7 @@
   </div>
 
   <script src="../../Base/JS/sessao.js"></script>
+  <script src="../../Base/JS/presenca.js"></script>
   <script>
     const icons = {
       grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
@@ -233,8 +235,8 @@
       lateral.className = classe;
       lateral.textContent = status;
 
-      document.getElementById("btnConfirmar").style.display = status === "Reservada" ? "" : "none";
-      document.getElementById("btnCancelar").style.display = status === "Reservada" ? "" : "none";
+      document.getElementById("btnConfirmar").style.display = ["Reservada", "Tolerância", "Atraso"].includes(status) ? "" : "none";
+      document.getElementById("btnCancelar").style.display = ["Reservada", "Tolerância", "Atraso", "Ativa"].includes(status) ? "" : "none";
       document.getElementById("btnFinalizar").style.display = status === "Ativa" ? "" : "none";
     }
 
@@ -289,16 +291,15 @@
       if (!resposta.ok) throw new Error(retorno.erro || "Erro ao atualizar a reserva");
     }
 
-    document.getElementById("btnConfirmar").addEventListener("click", async () => {
-      if (!confirm("Confirmar a chegada deste cliente?")) return;
-      try {
-        await atualizarReserva("Ativa");
-        await atualizarVaga(reservaCli.reserva.vaga, "Ocupada");
-        alert("Presença confirmada.");
-        window.location.href = "../HTML/TelaReservas.html";
-      } catch (error) {
-        alert(error.message || "Não foi possível confirmar a presença.");
-      }
+    document.getElementById("btnConfirmar").addEventListener("click", () => {
+      if (!reservaCli) return;
+      Presenca.modalPatio({
+        item: reservaCli,
+        aoConfirmar: () => {
+          window.location.href = "../HTML/TelaReservas.html";
+        },
+        aoFechar: carregar
+      });
     });
 
     document.getElementById("btnFinalizar").addEventListener("click", async () => {
@@ -313,16 +314,15 @@
       }
     });
 
-    document.getElementById("btnCancelar").addEventListener("click", async () => {
-      if (!confirm("Cancelar esta reserva?")) return;
-      try {
-        await atualizarReserva("Cancelada");
-        await atualizarVaga(reservaCli.reserva.vaga, "Livre");
-        alert("Reserva cancelada.");
-        window.location.href = "../HTML/TelaReservas.html";
-      } catch (error) {
-        alert(error.message || "Não foi possível cancelar a reserva.");
-      }
+    document.getElementById("btnCancelar").addEventListener("click", () => {
+      if (!reservaCli) return;
+      Presenca.modalPatioSaida({
+        item: reservaCli,
+        aoConfirmar: () => {
+          window.location.href = "../HTML/TelaReservas.html";
+        },
+        aoFechar: carregar
+      });
     });
 
     async function carregar() {

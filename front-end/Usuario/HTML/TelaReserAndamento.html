@@ -9,6 +9,7 @@
 <title>VagaConnect | Minhas Reservas</title>
 
 <link rel="stylesheet" href="../CSS/TelaReserAndamento.css">
+<link rel="stylesheet" href="../../Base/CSS/presenca.css">
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
 rel="stylesheet">
@@ -60,13 +61,6 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
             Solicitar prorrogação
         </button>
 
-        <a href="../HTML/TelaReserConfirmada.html">
-            <button class="extend destaque">
-                <i class="fa-solid fa-circle-check"></i>
-                Desejo confirmar Presença
-            </button>
-        </a>
-
     </div>
 
 
@@ -106,6 +100,8 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 </div>
 
 
+<script src="../../Base/JS/cobranca.js"></script>
+<script src="../../Base/JS/presenca.js"></script>
 <script>
 
 /* =====================================================
@@ -651,7 +647,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
             re:/chegada já foi confirmada/i,
             t:"aviso",
             tit:"Chegada confirmada",
-            txt:"A vaga já foi usada, então não cabe mais reembolso."
+            txt:"Os minutos já usados são cobrados. O restante da vaga volta no reembolso."
         },
 
         {
@@ -833,6 +829,12 @@ let reservas = [];
 
 let contador = null;
 
+let relogioAtraso = null;
+
+let sincroniaAtraso = null;
+
+let recarregandoAtraso = false;
+
 let reembolsos = [];
 
 
@@ -844,13 +846,7 @@ let reembolsos = [];
 
 function mostrarPreco(valor){
 
-    return Number(valor || 0).toLocaleString(
-        "pt-BR",
-        {
-            style:"currency",
-            currency:"BRL"
-        }
-    );
+    return Cobranca.mostrarPreco(valor);
 
 }
 
@@ -941,7 +937,135 @@ function classeDoStatus(status){
         return "concluida";
 
 
+    if(status === "Tolerância")
+        return "tolerancia";
+
+
+    if(status === "Atraso")
+        return "atraso";
+
+
     return "";
+
+}
+
+
+
+function textoTempoRestante(ms){
+
+    if(ms <= 0) return "0 min";
+
+    const total = Math.ceil(ms / 60000);
+
+    if(total < 60) return total + " min";
+
+    const horas = Math.floor(total / 60);
+
+    const minutos = total % 60;
+
+    return minutos === 0
+        ? horas + "h"
+        : horas + "h " + String(minutos).padStart(2, "0") + "min";
+
+}
+
+
+
+function htmlFaixaChegada(item){
+
+    const fase = Cobranca.faseChegada(item);
+
+    if(!fase) return "";
+
+    if(fase.fase === "Reservada"){
+
+        return `
+
+            <div class="faixa-atraso tolerancia">
+
+                <i class="fa-solid fa-clock"></i>
+
+                <div>
+
+                    <strong>Aguardando horário de chegada</strong>
+
+                    <span class="atraso-restante" data-fase="Reservada" data-ate="${fase.ate.toISOString()}">
+                        Faltam ${textoTempoRestante(fase.ate - Date.now())} para o horário marcado.
+                    </span>
+
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+    if(fase.fase === "Tolerância"){
+
+        return `
+
+            <div class="faixa-atraso tolerancia">
+
+                <i class="fa-solid fa-hourglass-half"></i>
+
+                <div>
+
+                    <strong>Tolerância de 10 minutos</strong>
+
+                    <span class="atraso-restante" data-fase="Tolerância" data-ate="${fase.ate.toISOString()}">
+                        Confirme a presença em até ${textoTempoRestante(fase.ate - Date.now())}.
+                    </span>
+
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+    if(fase.fase === "Atraso"){
+
+        return `
+
+            <div class="faixa-atraso atraso">
+
+                <i class="fa-solid fa-triangle-exclamation"></i>
+
+                <div>
+
+                    <strong>Atraso</strong>
+
+                    <span class="atraso-restante" data-fase="Atraso" data-ate="${fase.ate.toISOString()}">
+                        A vaga será cancelada em ${textoTempoRestante(fase.ate - Date.now())}.
+                    </span>
+
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+    return `
+
+        <div class="faixa-atraso atraso">
+
+            <i class="fa-solid fa-ban"></i>
+
+            <div>
+
+                <strong>Não compareceu</strong>
+
+                <span>A reserva será cancelada automaticamente.</span>
+
+            </div>
+
+        </div>
+
+    `;
 
 }
 
@@ -1151,6 +1275,17 @@ async function carregarReservas(){
         atualizarBotaoProrrogar();
 
 
+        if(!sincroniaAtraso){
+
+            sincroniaAtraso =
+                setInterval(
+                    carregarReservas,
+                    20000
+                );
+
+        }
+
+
     } catch(error){
 
         listaReservas.innerHTML = `
@@ -1180,6 +1315,15 @@ function render(){
         clearInterval(contador);
 
         contador = null;
+
+    }
+
+
+    if(relogioAtraso){
+
+        clearInterval(relogioAtraso);
+
+        relogioAtraso = null;
 
     }
 
@@ -1352,6 +1496,28 @@ function render(){
             </div>
 
 
+            ${htmlFaixaChegada(item)}
+
+
+            ${
+                Cobranca.aguardandoChegada(reserva.status)
+                    ? `
+
+            <button
+                class="extend destaque presenca"
+                onclick="confirmarPresenca('${item.id}')">
+
+                <i class="fa-solid fa-circle-check"></i>
+
+                Confirmar presença
+
+            </button>
+
+            `
+                    : ""
+            }
+
+
             ${
                 emAndamento
                     ? `
@@ -1475,6 +1641,8 @@ function render(){
      */
 
     iniciarTimer();
+
+    iniciarRelogioAtraso();
 
 }
 
@@ -1870,6 +2038,123 @@ function iniciarTimer(){
 
 
 
+function mensagemRestante(fase, ms){
+
+    const tempo = textoTempoRestante(ms);
+
+    if(fase === "Atraso")
+        return "A vaga será cancelada em " + tempo + ".";
+
+    if(fase === "Tolerância")
+        return "Confirme a presença em até " + tempo + ".";
+
+    return "Faltam " + tempo + " para o horário marcado.";
+
+}
+
+
+
+function iniciarRelogioAtraso(){
+
+    const spans =
+        document.querySelectorAll(
+            ".atraso-restante"
+        );
+
+
+    if(!spans.length)
+        return;
+
+
+    function atualizarFaixas(){
+
+        let recarregar = false;
+
+        spans.forEach(span => {
+
+            if(!span.dataset.ate) return;
+
+            const ate = new Date(span.dataset.ate);
+
+            const ms = ate.getTime() - Date.now();
+
+            span.textContent =
+                mensagemRestante(
+                    span.dataset.fase,
+                    ms
+                );
+
+            if(ms <= 0) recarregar = true;
+
+        });
+
+
+        if(recarregar && !recarregandoAtraso){
+
+            recarregandoAtraso = true;
+
+            carregarReservas()
+                .finally(() => {
+                    recarregandoAtraso = false;
+                });
+
+        }
+
+    }
+
+
+    atualizarFaixas();
+
+
+    relogioAtraso =
+        setInterval(
+            atualizarFaixas,
+            1000
+        );
+
+}
+
+
+
+// =====================================================
+// CONFIRMAR PRESENÇA · só na vaga ainda reservada
+// =====================================================
+
+
+function confirmarPresenca(idReservaCli){
+
+    const reservaCli =
+        reservas.find(
+            item =>
+                item.id ===
+                idReservaCli
+        );
+
+
+    if(!reservaCli)
+        return;
+
+
+    if(!Cobranca.aguardandoChegada(reservaCli.reserva.status)){
+
+        alert(
+            "Só é possível confirmar presença em uma reserva que ainda está aguardando sua chegada."
+        );
+
+        return;
+
+    }
+
+
+    Presenca.modalCliente({
+        id: idReservaCli,
+        aoConfirmar: carregarReservas
+    });
+
+}
+
+
+
 // =====================================================
 // PRORROGAR
 // Soma exatamente 1 hora na saída prevista.
@@ -2232,18 +2517,19 @@ async function cancelar(idReservaCli){
 
 
 
-    /*
-     * Depois da chegada confirmada
-     * não cabe mais reembolso.
-     */
-
     if(
         reservaCli.reserva.status !==
-        "Reservada"
+        "Reservada" &&
+        reservaCli.reserva.status !==
+        "Tolerância" &&
+        reservaCli.reserva.status !==
+        "Atraso" &&
+        reservaCli.reserva.status !==
+        "Ativa"
     ){
 
         alert(
-            "Sua chegada já foi confirmada. Não é possível cancelar com reembolso."
+            "Esta reserva já foi encerrada. Não é possível cancelar com reembolso."
         );
 
 
@@ -2253,16 +2539,18 @@ async function cancelar(idReservaCli){
 
 
 
-    const pago =
-        totalPago(
+    const conta =
+        Cobranca.calcularUso(
             reservaCli
         );
 
 
+    const pago =
+        conta.pago;
+
+
     const volta =
-        Math.round(
-            pago * 0.5 * 100
-        ) / 100;
+        conta.reembolso;
 
 
 
@@ -2275,10 +2563,12 @@ async function cancelar(idReservaCli){
                 "Cancelar e pedir reembolso?",
 
             texto:
-                `Você pagou ${mostrarPreco(pago)} nessa reserva. ` +
-                `Cancelando agora, ${mostrarPreco(volta)} voltam para você ` +
-                `depois da análise do pátio. Vamos abrir a tela de reembolso ` +
-                `para você confirmar.`,
+                conta.minutosUsados === 0
+                    ? `Você pagou ${mostrarPreco(pago)} nessa reserva e ainda não usou a vaga. ` +
+                      `Na próxima tela, o funcionário passa um código de saída para confirmar o estorno de ${mostrarPreco(volta)}.`
+                    : `Você já usou ${Cobranca.mostrarDuracao(conta.minutosUsados)} ` +
+                      `(${mostrarPreco(conta.valorUsado)}). ` +
+                      `Na próxima tela, o funcionário passa um código de saída para confirmar o estorno de ${mostrarPreco(volta)}.`,
 
             nao:
                 "Manter reserva",

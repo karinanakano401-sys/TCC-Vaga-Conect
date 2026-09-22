@@ -52,8 +52,8 @@
         <label>Data de nascimento</label>
         <input type="date" id="dataNascimento" required>
 
-        <label>Rua</label>
-        <input type="text" id="rua" placeholder="Ex.: Rua das Flores" required>
+        <label>CEP</label>
+        <input type="text" id="cep" placeholder="00000-000" maxlength="9" required>
 
         <div class="row">
           <div>
@@ -62,25 +62,19 @@
           </div>
 
           <div>
-            <label>CEP</label>
-            <input type="text" id="cep" placeholder="00000-000" maxlength="9" required>
-          </div>
-        </div>
-
-        <label>Bairro</label>
-        <input type="text" id="bairro" placeholder="Ex.: Centro" required>
-
-        <div class="row">
-          <div>
-            <label>Cidade</label>
-            <input type="text" id="cidade" placeholder="Ex.: Santa Fé do Sul" required>
-          </div>
-
-          <div>
             <label>Estado</label>
             <input type="text" id="estado" placeholder="UF (ex.: SP)" maxlength="2" required>
           </div>
         </div>
+
+        <label>Rua</label>
+        <input type="text" id="rua" placeholder="Ex.: Rua das Flores" required>
+
+        <label>Bairro</label>
+        <input type="text" id="bairro" placeholder="Ex.: Centro" required>
+
+        <label>Cidade</label>
+        <input type="text" id="cidade" placeholder="Ex.: Santa Fé do Sul" required>
 
         <label>Nova senha</label>
         <div class="password-box">
@@ -103,6 +97,7 @@
   </div>
 
   <script src="../../Base/JS/sessao.js"></script>
+  <script src="../../Base/JS/cep.js"></script>
   <script>
     const api = "http://localhost:3333";
 
@@ -163,7 +158,7 @@
 
         document.getElementById("rua").value = endereco.rua || "";
         document.getElementById("numero").value = endereco.numero || "";
-        document.getElementById("cep").value = endereco.cep || "";
+        document.getElementById("cep").value = Cep.formatar(endereco.cep || "");
         document.getElementById("bairro").value = endereco.bairro || "";
         document.getElementById("cidade").value = endereco.cidade || "";
         document.getElementById("estado").value = endereco.estado || "";
@@ -291,6 +286,14 @@
 
 
     carregarConta();
+
+    Cep.ligar(document.getElementById("cep"), {
+      rua:    document.getElementById("rua"),
+      bairro: document.getElementById("bairro"),
+      cidade: document.getElementById("cidade"),
+      estado: document.getElementById("estado"),
+      numero: document.getElementById("numero")
+    });
     /* =====================================================
    VagaConnect · tema.js
 

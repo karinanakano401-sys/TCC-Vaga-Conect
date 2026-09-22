@@ -1548,6 +1548,28 @@ tbody tr:last-child td{
 }
 
 
+.status.tolerancia{
+
+    border-color:rgba(245, 183, 49, .5);
+
+    background:rgba(245, 183, 49, .14);
+
+    color:var(--ambar);
+
+}
+
+
+.status.atraso{
+
+    border-color:rgba(251, 146, 60, .5);
+
+    background:rgba(251, 146, 60, .14);
+
+    color:#fb923c;
+
+}
+
+
 .status.ativa,
 .status.ocupada{
 
@@ -2255,6 +2277,37 @@ tbody tr:last-child td{
     line-height:1.4;
 
     white-space:normal;
+
+}
+
+
+.codigo-presenca.aguardando{
+
+    border-color:rgba(245, 183, 49, .5);
+
+    background:rgba(245, 183, 49, .08);
+
+}
+
+
+.codigo-presenca.aguardando small{
+
+    color:var(--ambar);
+
+}
+
+
+.espera-chip{
+
+    display:block;
+
+    margin-top:4px;
+
+    color:var(--ambar);
+
+    font-size:10px;
+
+    font-weight:500;
 
 }
 

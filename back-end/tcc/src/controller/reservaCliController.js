@@ -24,6 +24,50 @@ router.get('/', async (req, res) => {
 })
 
 
+router.post('/:id/codigo-presenca', async (req, res) => {
+  try {
+    const reservaCli = await reservaCliService.gerarCodigoPresenca(req.params.id)
+    res.status(200).json(reservaCli)
+  } catch (error) {
+    res.status(error.status || 400).json({ erro: error.message })
+  }
+})
+
+
+router.post('/:id/confirmar-presenca', async (req, res) => {
+  try {
+    const reservaCli = await reservaCliService.confirmarPresenca(req.params.id, req.body?.codigo)
+    res.status(200).json(reservaCli)
+  } catch (error) {
+    res.status(error.status || 400).json({ erro: error.message })
+  }
+})
+
+
+router.post('/:id/codigo-saida', async (req, res) => {
+  try {
+    const reservaCli = await reservaCliService.gerarCodigoSaida(req.params.id)
+    res.status(200).json(reservaCli)
+  } catch (error) {
+    res.status(error.status || 400).json({ erro: error.message })
+  }
+})
+
+
+router.post('/:id/confirmar-saida', async (req, res) => {
+  try {
+    const reservaCli = await reservaCliService.confirmarSaida(
+      req.params.id,
+      req.body?.codigo,
+      req.body?.motivo
+    )
+    res.status(200).json(reservaCli)
+  } catch (error) {
+    res.status(error.status || 400).json({ erro: error.message })
+  }
+})
+
+
 router.get('/:id', async (req, res) => {
   try {
     const reservaCli = await reservaCliService.buscarReservaCliPorId(req.params.id)

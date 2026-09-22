@@ -22,6 +22,7 @@ model Usuario {
   carros         Carro[]
   reservas       ReservaCli[]
   feedbacks      Feedback[]
+  reembolsos     Reembolso[]
 }
 
 model Endereco {
@@ -53,8 +54,10 @@ model ReservaCli {
   id           String      @id @default(uuid())
   data         DateTime    @default(now())
   hora         DateTime    @default(now())
-  horaSaida    DateTime?
-  fk_idCliente String
+  horaSaida        DateTime?
+  codigoPresenca   String?
+  codigoSaida      String?
+  fk_idCliente     String
   fk_idReserva String
   fk_idCarro   String?
 
@@ -63,6 +66,7 @@ model ReservaCli {
   carro        Carro?      @relation(fields: [fk_idCarro], references: [id])
 
   pagamentos   Pagamento[]
+  reembolsos   Reembolso[]
 
   @@index([fk_idCliente])
   @@index([fk_idReserva])
@@ -88,6 +92,28 @@ model Pagamento {
   reservaCli ReservaCli @relation(fields: [fk_reserva], references: [id], onDelete: Cascade)
 
   @@index([fk_reserva])
+}
+
+model Reembolso {
+  id            String     @id @default(uuid())
+  valorPago     Float
+  valorDevolver Float
+  minutosUsados Int        @default(0)
+  valorUsado    Float      @default(0)
+  motivo        String     @default("")
+  status        String     @default("Pendente")
+  observacao    String     @default("")
+  decididoPor   String?
+  criadoEm      DateTime   @default(now())
+  respondido    DateTime?
+  fk_reservacli String
+  fk_idCliente  String
+
+  reservaCli    ReservaCli @relation(fields: [fk_reservacli], references: [id], onDelete: Cascade)
+  usuario       Usuario    @relation(fields: [fk_idCliente], references: [id], onDelete: Cascade)
+
+  @@index([fk_reservacli])
+  @@index([fk_idCliente])
 }
 
 model Feedback {

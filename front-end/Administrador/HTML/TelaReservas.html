@@ -13,6 +13,7 @@
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="../CSS/TelaReservas.css">
+  <link rel="stylesheet" href="../../Base/CSS/presenca.css">
 </head>
 
 <body>
@@ -85,6 +86,8 @@
             <select id="statusFilter">
               <option value="">Todos</option>
               <option>Reservada</option>
+              <option>Tolerância</option>
+              <option>Atraso</option>
               <option>Ativa</option>
               <option>Concluída</option>
               <option>Cancelada</option>
@@ -123,6 +126,7 @@
   </div>
 
   <script src="../../Base/JS/sessao.js"></script>
+  <script src="../../Base/JS/presenca.js"></script>
   <script>
     const icons = {
       grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
@@ -175,6 +179,8 @@
       });
 
       let reservas = [];
+      const esperas = new Map();
+      const esperasSaida = new Map();
 
       function cssStatus(status) {
         return String(status || "")
@@ -206,13 +212,25 @@
         const status = item.reserva.status;
         let acoes = "";
 
-        if (status === "Reservada") {
-          acoes += `<button class="texto verde" onclick="confirmarEntrada('${item.id}')">Confirmar</button>`;
-          acoes += `<button class="texto vermelho" onclick="cancelar('${item.id}')">Cancelar</button>`;
+        const aguardando = ["Reservada", "Tolerância", "Atraso"].includes(status);
+
+        if (aguardando) {
+          acoes += `<button class="texto verde" onclick="abrirChegada('${item.id}')">Cliente chegou</button>`;
+          acoes += `<button class="texto vermelho" onclick="abrirSaida('${item.id}')">Código de saída</button>`;
+          if (item.codigoPresenca) {
+            acoes += `<span class="espera-chip">Aguardando</span>`;
+          }
+          if (item.codigoSaida) {
+            acoes += `<span class="espera-chip">Saída</span>`;
+          }
         }
 
         if (status === "Ativa") {
           acoes += `<button class="texto" onclick="encerrar('${item.id}')">Encerrar</button>`;
+          acoes += `<button class="texto vermelho" onclick="abrirSaida('${item.id}')">Código de saída</button>`;
+          if (item.codigoSaida) {
+            acoes += `<span class="espera-chip">Saída</span>`;
+          }
         }
 
         acoes += `<button onclick="abrirReserva('${item.id}')" title="Detalhes">${svg("edit")}</button>`;
@@ -307,16 +325,72 @@
         if (!resposta.ok) throw new Error(retorno.erro || "Erro ao atualizar a reserva");
       }
 
-      async function confirmarEntrada(id) {
+      function abrirChegada(id) {
         const item = reservas.find((reserva) => reserva.id === id);
-        if (!confirm("Confirmar a chegada deste cliente?")) return;
-        try {
-          await atualizarReserva(item, "Ativa");
-          await atualizarVaga(item.reserva.vaga, "Ocupada");
-          await carregar();
-        } catch (error) {
-          alert(error.message || "Não foi possível confirmar a chegada.");
+        if (!item) return;
+        Presenca.modalPatio({
+          item: item,
+          aoConfirmar: carregar,
+          aoFechar: carregar
+        });
+      }
+
+      function abrirSaida(id) {
+        const item = reservas.find((reserva) => reserva.id === id);
+        if (!item) return;
+        Presenca.modalPatioSaida({
+          item: item,
+          aoConfirmar: carregar,
+          aoFechar: carregar
+        });
+      }
+
+      function sincronizarEsperas() {
+        const ids = new Set(
+          reservas
+            .filter((item) => Presenca.aguardandoChegada(item.reserva?.status) && item.codigoPresenca)
+            .map((item) => item.id)
+        );
+
+        for (const [id, conn] of [...esperas]) {
+          if (!ids.has(id)) {
+            conn.fechar();
+            esperas.delete(id);
+          }
         }
+
+        ids.forEach((id) => {
+          if (esperas.has(id)) return;
+          esperas.set(id, Presenca.esperar(id, () => {
+            const conn = esperas.get(id);
+            if (conn) conn.fechar();
+            esperas.delete(id);
+            carregar();
+          }));
+        });
+
+        const idsSaida = new Set(
+          reservas
+            .filter((item) => Presenca.podeEstornar(item.reserva?.status) && item.codigoSaida)
+            .map((item) => item.id)
+        );
+
+        for (const [id, conn] of [...esperasSaida]) {
+          if (!idsSaida.has(id)) {
+            conn.fechar();
+            esperasSaida.delete(id);
+          }
+        }
+
+        idsSaida.forEach((id) => {
+          if (esperasSaida.has(id)) return;
+          esperasSaida.set(id, Presenca.esperar(id, () => {
+            const conn = esperasSaida.get(id);
+            if (conn) conn.fechar();
+            esperasSaida.delete(id);
+            carregar();
+          }, { evento: "saida-confirmada", status: "Cancelada" }));
+        });
       }
 
       async function encerrar(id) {
@@ -343,9 +417,9 @@
         }
       }
 
-      window.confirmarEntrada = confirmarEntrada;
+      window.abrirChegada = abrirChegada;
+      window.abrirSaida = abrirSaida;
       window.encerrar = encerrar;
-      window.cancelar = cancelar;
       window.abrirReserva = abrirReserva;
 
       async function carregarEstacionamentos() {
@@ -368,6 +442,7 @@
         if (!resposta.ok) throw new Error(lista.erro || "Erro ao carregar as reservas");
         reservas = lista.sort((a, b) => new Date(b.hora) - new Date(a.hora));
         render();
+        sincronizarEsperas();
       }
 
       ["searchInput", "parkingFilter", "statusFilter", "dateFilter"].forEach((id) => {

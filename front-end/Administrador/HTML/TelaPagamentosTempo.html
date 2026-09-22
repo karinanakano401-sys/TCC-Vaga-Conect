@@ -269,7 +269,7 @@ rel="stylesheet">
 
 
 <script src="../../Base/JS/sessao.js"></script>
-
+<script src="../../Base/JS/cobranca.js"></script>
 <script>
 
 /* ícones em SVG, iguais aos das outras telas do painel */
@@ -340,9 +340,10 @@ document.querySelectorAll("i[data-icon]").forEach(function(elemento){
    estacionamentos, com filtro por pátio.
 
    Regra do valor:
-   valor do tempo = horas iniciadas x preço da vaga
+   valor do tempo = minutos usados x (preço da vaga / 60)
    a pagar        = valor do tempo - o que já foi pago
-                    (a taxa da reserva entra como crédito)
+                    pela vaga (a garantia não conta como
+                    crédito de tempo)
 ===================================================== */
 
 
@@ -366,10 +367,6 @@ if(!administrador){
     throw new Error("sem sessão");
 
 }
-
-
-// tolerância antes de começar a cobrar (em minutos)
-const CORTESIA = 15;
 
 
 let modoLocal  = false;
@@ -541,43 +538,18 @@ function pendenciaDe(id){
 
 function calcular(item){
 
-    const vaga = item.reserva.vaga;
+    const conta = Cobranca.calcularUso(item);
 
-    const tarifa = Number(vaga.preco || 0);
-
-
-    const entrada = new Date(item.hora);
-
-    const ativa   = item.reserva.status === "Ativa";
-
-
-    // enquanto está no pátio conta até agora; depois, até a saída
-    const fim = ativa
-
-        ? new Date()
-
-        : new Date(item.horaSaida || item.hora);
-
-
-    let minutos = Math.max(0, Math.floor((fim - entrada) / 60000));
-
-
-    // cortesia inicial
-    const cobraveis = Math.max(0, minutos - CORTESIA);
-
-
-    // cobra por hora iniciada
-    const horas = cobraveis === 0 ? 0 : Math.ceil(cobraveis / 60);
-
-
-    const valorTempo = horas * tarifa;
-
-    const pago       = totalPago(item);
-
-    const aPagar     = Math.max(0, Math.round((valorTempo - pago) * 100) / 100);
-
-
-    return { tarifa, minutos, horas, valorTempo, pago, aPagar, ativa };
+    return {
+        tarifa: conta.precoHora,
+        precoMinuto: conta.precoMinuto,
+        minutos: conta.minutosUsados,
+        valorTempo: conta.valorUsado,
+        pago: conta.pago,
+        aPagar: conta.aPagar,
+        reembolso: conta.reembolso,
+        ativa: conta.ativa
+    };
 
 }
 
@@ -856,7 +828,7 @@ function abrirJanela(id, acao){
 
         <div>
             <span>Tempo</span>
-            <strong>${conta.horas}h × ${mostrarPreco(conta.tarifa)}</strong>
+            <strong>${Cobranca.mostrarDuracao(conta.minutos)} × ${mostrarPreco(conta.precoMinuto)}</strong>
         </div>
 
         <div>
@@ -1150,9 +1122,9 @@ function render(){
                 ${mostrarDuracao(conta.minutos)}
             </td>
 
-            <td class="tarifa">${mostrarPreco(conta.tarifa)}/h</td>
+            <td class="tarifa">${mostrarPreco(conta.precoMinuto)}/min</td>
 
-            <td class="permanencia">${conta.horas}h</td>
+            <td class="permanencia">${Cobranca.mostrarDuracao(conta.minutos)}</td>
 
             <td class="pago">${mostrarPreco(conta.pago)}</td>
 

@@ -9,6 +9,7 @@
 <title>VagaConnect | Reembolso</title>
 
 <link rel="stylesheet" href="../CSS/TelaReembolso.css">
+<link rel="stylesheet" href="../../Base/CSS/presenca.css">
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
 rel="stylesheet">
@@ -46,8 +47,8 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 
     <div class="rail-titulo">
         <p>Cancelamento</p>
-        <h1>Reembolso da taxa</h1>
-        <span>Cancelou antes de chegar? Metade da taxa volta para você.</span>
+        <h1>Reembolso por minuto</h1>
+        <span>Você paga só o tempo usado. O restante da vaga volta no cancelamento.</span>
     </div>
 
 
@@ -56,26 +57,26 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
         <p class="rail-rotulo">Como funciona</p>
 
         <div class="regra">
-            <i class="fa-solid fa-percent"></i>
-            <div>
-                <strong>50% da taxa de volta</strong>
-                <small>A outra metade cobre a vaga que ficou bloqueada esperando você.</small>
-            </div>
-        </div>
-
-        <div class="regra">
             <i class="fa-solid fa-clock"></i>
             <div>
-                <strong>Só antes de confirmar a chegada</strong>
-                <small>Depois que o pátio registra sua entrada, a reserva já foi usada.</small>
+                <strong>Cobrança por minuto</strong>
+                <small>A tarifa da vaga é o preço por hora dividido por 60. Ex.: R$ 15,00/hora = R$ 0,25/min.</small>
             </div>
         </div>
 
         <div class="regra">
-            <i class="fa-solid fa-user-check"></i>
+            <i class="fa-solid fa-percent"></i>
             <div>
-                <strong>O pátio analisa o pedido</strong>
-                <small>Você acompanha o status por aqui até a resposta.</small>
+                <strong>Volta o que você não usou</strong>
+                <small>Os minutos não utilizados da vaga são devolvidos. A garantia de reserva permanece.</small>
+            </div>
+        </div>
+
+        <div class="regra">
+            <i class="fa-solid fa-key"></i>
+            <div>
+                <strong>Código de saída do pátio</strong>
+                <small>O funcionário gera um código de 6 dígitos. Sem ele, o estorno não é confirmado.</small>
             </div>
         </div>
 
@@ -116,8 +117,18 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
             </div>
 
             <div class="linha">
-                <span>Retido pelo pátio (50%)</span>
+                <span>Tempo usado</span>
+                <strong id="tempoUsado">--</strong>
+            </div>
+
+            <div class="linha">
+                <span>Cobrado pelo uso da vaga</span>
                 <strong class="retido" id="valorRetido">--</strong>
+            </div>
+
+            <div class="linha">
+                <span>Garantia de reserva (retida)</span>
+                <strong class="retido" id="valorGarantia">--</strong>
             </div>
 
             <div class="linha total">
@@ -140,7 +151,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
             <input type="checkbox" id="aceite">
             <span>
                 Entendi que a reserva será cancelada na hora e que o reembolso
-                de <b id="aceiteValor">--</b> depende da aprovação do pátio.
+                de <b id="aceiteValor">--</b> corresponde aos minutos que eu não utilizei.
             </span>
         </label>
 
@@ -203,6 +214,8 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 </div>
 
 
+<script src="../../Base/JS/cobranca.js"></script>
+<script src="../../Base/JS/presenca.js"></script>
 <script>
     /* =====================================================
    VagaConnect · Reembolso (usuário)
@@ -229,12 +242,8 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 const api = "http://localhost:3333";
 
 
-// quanto da taxa volta para o cliente
-const PERCENTUAL_REEMBOLSO = 0.5;
-
-
 // só dá para pedir reembolso com a reserva nestes status
-const STATUS_QUE_PERMITE = ["Reservada"];
+const STATUS_QUE_PERMITE = ["Reservada", "Tolerância", "Atraso", "Ativa"];
 
 
 const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
@@ -290,13 +299,7 @@ const btnDesistir   = document.getElementById("btnDesistir");
 
 function mostrarPreco(valor){
 
-    return Number(valor || 0).toLocaleString("pt-BR", {
-
-        style: "currency",
-
-        currency: "BRL"
-
-    });
+    return Cobranca.mostrarPreco(valor);
 
 }
 
@@ -324,16 +327,14 @@ function mostrarDataHora(texto){
 
 function totalPago(item){
 
-    if(!item.pagamentos) return 0;
-
-    return item.pagamentos.reduce((soma, p) => soma + Number(p.valor || 0), 0);
+    return Cobranca.totalPago(item);
 
 }
 
 
-function calcularReembolso(pago){
+function calcularReembolso(item){
 
-    return Math.round(pago * PERCENTUAL_REEMBOLSO * 100) / 100;
+    return Cobranca.calcularUso(item);
 
 }
 
@@ -434,6 +435,10 @@ async function salvarPedido(pedido){
 
                 valorDevolver: pedido.valorDevolver,
 
+                minutosUsados: pedido.minutosUsados,
+
+                valorUsado:    pedido.valorUsado,
+
                 motivo:        pedido.motivo,
 
                 status:        "Pendente",
@@ -516,24 +521,16 @@ async function carregar(){
         }
 
 
-        // já confirmou a chegada? não cabe mais reembolso
+        // já confirmou e saiu? não cabe mais reembolso
         if(!STATUS_QUE_PERMITE.includes(reserva.reserva.status)){
 
             const status = reserva.reserva.status;
 
             bloquear(
 
-                status === "Ativa"
+                `Esta reserva está ${String(status || "").toLowerCase()}`,
 
-                    ? "Sua chegada já foi confirmada"
-
-                    : `Esta reserva está ${status.toLowerCase()}`,
-
-                status === "Ativa"
-
-                    ? "O pátio já registrou sua entrada, então a vaga foi usada e a taxa não é devolvida."
-
-                    : "O reembolso só vale para reservas que ainda não foram usadas nem canceladas."
+                "O reembolso dos minutos não usados vale para reservas ainda em andamento."
 
             );
 
@@ -584,9 +581,7 @@ function preencherSolicitacao(){
 
     const vaga  = reserva.reserva.vaga;
 
-    const pago  = totalPago(reserva);
-
-    const volta = calcularReembolso(pago);
+    const conta = calcularReembolso(reserva);
 
 
     resumoReserva.innerHTML = `
@@ -599,6 +594,11 @@ function preencherSolicitacao(){
         <div>
             <span>Vaga</span>
             <strong>${vaga.numero} · ${vaga.tipo}</strong>
+        </div>
+
+        <div>
+            <span>Tarifa</span>
+            <strong>${Cobranca.textoTarifa(vaga.preco)}</strong>
         </div>
 
         <div>
@@ -618,13 +618,20 @@ function preencherSolicitacao(){
     `;
 
 
-    document.getElementById("valorPago").textContent      = mostrarPreco(pago);
+    document.getElementById("valorPago").textContent      = mostrarPreco(conta.pago);
 
-    document.getElementById("valorRetido").textContent    = mostrarPreco(pago - volta);
+    document.getElementById("tempoUsado").textContent     =
+        conta.minutosUsados === 0
+            ? "nenhum · você ainda não entrou"
+            : Cobranca.mostrarDuracao(conta.minutosUsados);
 
-    document.getElementById("valorReembolso").textContent = mostrarPreco(volta);
+    document.getElementById("valorRetido").textContent    = mostrarPreco(conta.valorUsado);
 
-    document.getElementById("aceiteValor").textContent    = mostrarPreco(volta);
+    document.getElementById("valorGarantia").textContent  = mostrarPreco(conta.garantia);
+
+    document.getElementById("valorReembolso").textContent = mostrarPreco(conta.reembolso);
+
+    document.getElementById("aceiteValor").textContent    = mostrarPreco(conta.reembolso);
 
 
     mostrarTela("solicitar");
@@ -664,108 +671,45 @@ btnDesistir.addEventListener("click", () => {
 
 btnConfirmar.addEventListener("click", async () => {
 
+    if(!aceite.checked) return;
+
     btnConfirmar.disabled = true;
 
-    btnConfirmar.textContent = "Enviando...";
+
+    const conta = calcularReembolso(reserva);
+
+    const volta = conta.reembolso;
 
 
-    const pago  = totalPago(reserva);
+    Presenca.modalClienteSaida({
 
-    const volta = calcularReembolso(pago);
+        id: reserva.id,
 
+        motivo: motivo.value.trim(),
 
-    try {
+        aoConfirmar: async (retorno) => {
 
-        // 1. cancela a reserva
-        const respostaReserva = await fetch(api + "/reserva/" + reserva.fk_idReserva, {
+            localStorage.removeItem("reservaParaCancelar");
 
-            method: "PUT",
+            const valor = retorno && retorno.estorno
+                ? retorno.estorno.reembolso
+                : volta;
 
-            headers: { "Content-Type": "application/json" },
+            aviso("sucesso", "Pedido enviado", valor > 0
+                ? `Você receberá ${mostrarPreco(valor)} pelos minutos que não utilizou, após a aprovação do pátio.`
+                : "A reserva foi cancelada. Todo o valor da vaga já foi usado, então não há reembolso.");
 
-            body: JSON.stringify({
+            await mostrarAcompanhamento();
 
-                status:  "Cancelada",
+        },
 
-                fk_vaga: reserva.reserva.fk_vaga
+        aoFechar: () => {
 
-            })
+            btnConfirmar.disabled = false;
 
-        });
+        }
 
-
-        const retorno = await respostaReserva.json();
-
-        if(!respostaReserva.ok) throw new Error(retorno.erro || "Erro ao cancelar a reserva");
-
-
-        // 2. libera a vaga
-        const vaga = reserva.reserva.vaga;
-
-        await fetch(api + "/vaga/" + vaga.id, {
-
-            method: "PUT",
-
-            headers: { "Content-Type": "application/json" },
-
-            body: JSON.stringify({
-
-                numero: vaga.numero,
-
-                tipo:   vaga.tipo,
-
-                status: "Livre",
-
-                preco:  vaga.preco,
-
-                fk_est: vaga.fk_est
-
-            })
-
-        });
-
-
-        // 3. registra o pedido de reembolso
-        await salvarPedido({
-
-            id:            "rb" + Date.now(),
-
-            fk_reservacli: reserva.id,
-
-            fk_idCliente:  usuarioLogado.id,
-
-            valorPago:     pago,
-
-            valorDevolver: volta,
-
-            motivo:        motivo.value.trim(),
-
-            status:        "Pendente",
-
-            criadoEm:      new Date().toISOString(),
-
-            respondido:    null
-
-        });
-
-
-        localStorage.removeItem("reservaParaCancelar");
-
-
-        aviso("sucesso", "Pedido enviado", `Você receberá ${mostrarPreco(volta)} após a aprovação do pátio.`);
-
-
-        await mostrarAcompanhamento();
-
-    } catch (error) {
-
-        aviso("erro", "Não deu para cancelar", error.message);
-
-        btnConfirmar.disabled = false;
-
-        btnConfirmar.innerHTML = '<i class="fa-solid fa-rotate-left"></i> Cancelar e pedir reembolso';
-
-    }
+    });
 
 });
 

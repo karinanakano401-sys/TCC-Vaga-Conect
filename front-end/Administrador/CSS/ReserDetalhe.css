@@ -171,6 +171,16 @@ body {
   background: #0b3157;
 }
 
+.tolerancia {
+  color: #f8bd22;
+  background: #443706;
+}
+
+.atraso {
+  color: #fb923c;
+  background: #4a2a12;
+}
+
 .confirmed,
 .concluida {
   color: #34d894;
@@ -254,6 +264,45 @@ dd {
   margin-top: 56px;
   padding-top: 25px;
   border-top: 1px solid #18324a;
+}
+
+.painel-codigo {
+  margin-top: 36px;
+  padding: 22px 20px;
+  border: 1px dashed #2f7dff;
+  border-radius: 10px;
+  background: #0b3157;
+  text-align: center;
+}
+
+.painel-codigo p {
+  margin: 0 0 8px;
+  color: #9eb6cc;
+  font-size: 12px;
+}
+
+.painel-codigo strong {
+  display: block;
+  color: #7eb6ff;
+  font: 700 32px "Outfit", sans-serif;
+  letter-spacing: .22em;
+}
+
+.painel-codigo span {
+  display: block;
+  margin: 10px 0 16px;
+  color: #f8bd22;
+  font-size: 13px;
+}
+
+.painel-codigo .confirm {
+  height: 40px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 6px;
+  color: #fff;
+  font: 600 12px Inter;
+  cursor: pointer;
 }
 
 .actions button {
