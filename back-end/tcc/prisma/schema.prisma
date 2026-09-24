@@ -62,7 +62,7 @@ model ReservaCli {
   fk_idCarro   String?
 
   usuario      Usuario     @relation(fields: [fk_idCliente], references: [id], onDelete: Cascade)
-  reserva      Reserva     @relation(fields: [fk_idReserva], references: [id])
+  reserva      Reserva     @relation(fields: [fk_idReserva], references: [id], onDelete: Cascade)
   carro        Carro?      @relation(fields: [fk_idCarro], references: [id])
 
   pagamentos   Pagamento[]
@@ -77,7 +77,7 @@ model Reserva {
   id          String       @id @default(uuid())
   status      String
   fk_vaga     String
-  vaga        Vaga         @relation(fields: [fk_vaga], references: [id])
+  vaga        Vaga         @relation(fields: [fk_vaga], references: [id], onDelete: Cascade)
   reservasCli ReservaCli[]
 
   @@index([fk_vaga])
