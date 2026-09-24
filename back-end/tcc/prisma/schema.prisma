@@ -137,7 +137,7 @@ model Vaga {
   preco          Float          @default(0)
   fk_est         String
   reservas       Reserva[]
-  estacionamento Estacionamento @relation(fields: [fk_est], references: [id])
+  estacionamento Estacionamento @relation(fields: [fk_est], references: [id], onDelete: Cascade)
 
   @@index([fk_est])
 }
