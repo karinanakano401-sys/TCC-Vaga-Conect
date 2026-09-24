@@ -162,7 +162,7 @@ model Funcionario {
   senha          String
   fk_tipofunc    String
   fk_est         String
-  estacionamento Estacionamento @relation(fields: [fk_est], references: [id])
+  estacionamento Estacionamento @relation(fields: [fk_est], references: [id], onDelete: Cascade)
   tipoFunc       TipoFunc       @relation(fields: [fk_tipofunc], references: [id])
 
   @@index([fk_est])
