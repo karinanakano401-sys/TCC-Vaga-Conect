@@ -16,8 +16,47 @@ router.post('/', async (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-    const feedbacks = await feedbackService.listarFeedbacks()
+    const feedbacks = await feedbackService.listarFeedbacks({
+      cliente:        req.query.cliente,
+      estacionamento: req.query.estacionamento
+    })
     res.status(200).json(feedbacks)
+  } catch (error) {
+    res.status(500).json({ erro: error.message })
+  }
+})
+
+
+// Categorias de avaliação (rótulo, pergunta e detalhe).
+router.get('/categorias', (req, res) => {
+  res.status(200).json(feedbackService.listarCategorias())
+})
+
+
+// Médias por estacionamento e por categoria.
+router.get('/resumo', async (req, res) => {
+  try {
+    res.status(200).json(await feedbackService.resumoPorEstacionamento())
+  } catch (error) {
+    res.status(500).json({ erro: error.message })
+  }
+})
+
+
+// Visitas do usuário que podem ser avaliadas.
+router.get('/visitas/:idCliente', async (req, res) => {
+  try {
+    res.status(200).json(await feedbackService.listarVisitasDoUsuario(req.params.idCliente))
+  } catch (error) {
+    res.status(500).json({ erro: error.message })
+  }
+})
+
+
+// Avaliações de um estacionamento (versão pública, sem dados sensíveis).
+router.get('/estacionamento/:id', async (req, res) => {
+  try {
+    res.status(200).json(await feedbackService.listarAvaliacoesPublicas(req.params.id))
   } catch (error) {
     res.status(500).json({ erro: error.message })
   }

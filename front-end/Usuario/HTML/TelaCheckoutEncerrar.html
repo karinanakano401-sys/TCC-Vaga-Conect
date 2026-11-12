@@ -8,35 +8,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 
-<title>
-VagaConnect | Check-out
-</title>
-
+<title>VagaConnect | Tempo de vaga</title>
 
 <link rel="stylesheet" href="../CSS/TelaCheckoutEncerrar.css">
 
-
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
 rel="stylesheet">
-
-
-</head>
-
-
-<!DOCTYPE html>
-<html lang="pt-BR">
-
-<head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>VagaConnect | Tempo de vaga</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-rel="stylesheet">
-
-<link rel="stylesheet" href="../CSS/TelaFinalizarReserva.css">
 
 </head>
 
@@ -78,6 +55,12 @@ rel="stylesheet">
 
         <p class="pulso" id="pulso">contando em tempo real</p>
 
+        <div class="excedente" id="excedente" hidden>
+            <span>Tempo excedente</span>
+            <strong id="excedenteRelogio">00 : 00 : 00</strong>
+            <p id="excedenteValor">R$ 0,00 por minuto</p>
+        </div>
+
     </div>
 
 
@@ -92,8 +75,18 @@ rel="stylesheet">
         </div>
 
         <div>
-            <span>Entrada registrada</span>
+            <span>Entrada reservada</span>
             <strong id="linhaEntrada">--</strong>
+        </div>
+
+        <div>
+            <span>Saída prevista</span>
+            <strong id="linhaSaida">--</strong>
+        </div>
+
+        <div>
+            <span>Veículo</span>
+            <strong id="linhaVeiculo">--</strong>
         </div>
 
         <div>
@@ -128,8 +121,9 @@ rel="stylesheet">
 
     <!-- ================= BOTÃO ================= -->
 
-    <button id="finalizar">
-        Encerrar tempo de vaga
+
+    <button id="cancelar" type="button" hidden>
+        Cancelar vaga
     </button>
 
 
@@ -170,6 +164,8 @@ rel="stylesheet">
 
 const api = "http://localhost:3333";
 
+const TOLERANCIA_SAIDA_MS = 10 * 60 * 1000;
+
 
 const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
 
@@ -202,10 +198,20 @@ const cronometro  = document.getElementById("cronometro");
 
 const pulso       = document.getElementById("pulso");
 
+const excedente        = document.getElementById("excedente");
+
+const excedenteRelogio = document.getElementById("excedenteRelogio");
+
+const excedenteValor   = document.getElementById("excedenteValor");
+
 
 const linhaVaga    = document.getElementById("linhaVaga");
 
 const linhaEntrada = document.getElementById("linhaEntrada");
+
+const linhaSaida   = document.getElementById("linhaSaida");
+
+const linhaVeiculo = document.getElementById("linhaVeiculo");
 
 const linhaTarifa  = document.getElementById("linhaTarifa");
 
@@ -218,7 +224,7 @@ const linhaTotal   = document.getElementById("linhaTotal");
 const avisoSaida   = document.getElementById("avisoSaida");
 
 
-const btnFinalizar = document.getElementById("finalizar");
+const btnCancelar = document.getElementById("cancelar");
 
 
 
@@ -284,38 +290,64 @@ function estaEmUso(item){
 // =====================================================
 
 
+async function buscarPorId(id){
+
+    const resposta = await fetch(api + "/reservacli/" + encodeURIComponent(id));
+
+    const dados = await resposta.json();
+
+    if(!resposta.ok) throw new Error(dados.erro || "Erro ao carregar sua reserva");
+
+    if(dados.fk_idCliente !== usuarioLogado.id){
+        throw new Error("Esta reserva não pertence à sua conta.");
+    }
+
+    return dados;
+
+}
+
+
+async function buscarAtiva(){
+
+    const resposta = await fetch(api + "/reservacli");
+
+    const lista = await resposta.json();
+
+    if(!resposta.ok) throw new Error(lista.erro || "Erro ao carregar sua reserva");
+
+    const minhas = lista
+
+        .filter(item => item.fk_idCliente === usuarioLogado.id)
+
+        .filter(estaEmUso)
+
+        .sort((a, b) => {
+
+            const ativaA = a.reserva?.status === "Ativa" ? 0 : 1;
+
+            const ativaB = b.reserva?.status === "Ativa" ? 0 : 1;
+
+            if(ativaA !== ativaB) return ativaA - ativaB;
+
+            return new Date(b.hora) - new Date(a.hora);
+
+        });
+
+    return minhas[0] || null;
+
+}
+
+
 async function carregar(){
 
     try {
 
-        const resposta = await fetch(api + "/reservacli");
-
-        const lista = await resposta.json();
-
-        if(!resposta.ok) throw new Error(lista.erro || "Erro ao carregar sua reserva");
-
-
-        // a reserva em uso mais recente deste cliente
-        const minhas = lista
-
-            .filter(item => item.fk_idCliente === usuarioLogado.id)
-
-            .filter(estaEmUso)
-
-            .sort((a, b) => new Date(b.hora) - new Date(a.hora));
-
-
-        // permite abrir uma reserva específica por ?id=
         const pedido = new URLSearchParams(window.location.search).get("id");
 
-        reserva = pedido
-
-            ? minhas.find(item => item.id === pedido) || minhas[0]
-
-            : minhas[0];
+        reserva = pedido ? await buscarPorId(pedido) : await buscarAtiva();
 
 
-        if(!reserva){
+        if(!reserva || !reserva.reserva){
 
             semReserva();
 
@@ -349,13 +381,7 @@ function semReserva(){
 
     pulso.hidden = true;
 
-    btnFinalizar.textContent = "Ver minhas reservas";
-
-    btnFinalizar.onclick = () => {
-
-        window.location.href = "TelaReserAndamento.html";
-
-    };
+    btnCancelar.hidden = true;
 
 }
 
@@ -368,23 +394,34 @@ function semReserva(){
 
 function preencher(){
 
-    const vaga = reserva.reserva.vaga;
+    const vaga = reserva.reserva.vaga || {};
+
+    const carro = reserva.carro;
 
 
     nomeEstacionamento.textContent = vaga.estacionamento?.nome || "Estacionamento";
 
     subtitulo.textContent =
-        "O tempo corre desde a sua entrada. O valor abaixo sobe junto, "
-      + "para você acompanhar quanto está acumulando.";
+        "Vaga " + (vaga.numero || "--")
+      + " · entrada " + mostrarDataHora(reserva.hora)
+      + " · saída " + mostrarDataHora(reserva.horaSaida);
 
 
-    linhaVaga.textContent    = `${vaga.numero} · ${vaga.tipo}`;
+    linhaVaga.textContent    = vaga.numero ? `${vaga.numero} · ${vaga.tipo}` : "--";
 
     linhaEntrada.textContent = mostrarDataHora(reserva.hora);
+
+    linhaSaida.textContent   = mostrarDataHora(reserva.horaSaida);
+
+    linhaVeiculo.textContent = carro
+        ? `${carro.modelo} · ${carro.placacarro}`
+        : "--";
 
     linhaTarifa.textContent  = Cobranca.textoTarifa(vaga.preco);
 
     linhaPago.textContent    = mostrarPreco(totalPago(reserva));
+
+    btnCancelar.hidden = !podeCancelar(reserva);
 
 }
 
@@ -395,32 +432,82 @@ function preencher(){
 // =====================================================
 
 
+function textoRelogio(segundos){
+
+    const total = Math.max(0, segundos);
+
+    return `${formatar(Math.floor(total / 3600))} : `
+      + `${formatar(Math.floor((total % 3600) / 60))} : `
+      + `${formatar(total % 60)}`;
+
+}
+
+
+function contaPrecoMinuto(){
+
+    const precoHora = Number(
+        reserva && reserva.reserva && reserva.reserva.vaga
+            ? reserva.reserva.vaga.preco
+            : 0
+    );
+
+    return Cobranca.precoPorMinuto(precoHora);
+
+}
+
+
+function pintarRelogio(segundos){
+
+    const total = Math.max(0, segundos);
+
+    cronometro.textContent = textoRelogio(total);
+
+}
+
+
+function mostrarExcedente(segundos, precoMinuto){
+
+    const passou = segundos > 0;
+
+    excedente.hidden = !passou;
+
+    if(!passou) return;
+
+    excedenteRelogio.textContent = textoRelogio(segundos);
+
+    excedenteValor.textContent = mostrarPreco(precoMinuto) + " por minuto";
+
+}
+
+
 function iniciarRelogio(){
 
     const entrada = new Date(reserva.hora);
+
+    const saida = reserva.horaSaida ? new Date(reserva.horaSaida) : null;
+
+    const ativa = reserva.reserva.status === "Ativa";
 
 
     function atualizar(){
 
         const agora = new Date();
 
+        const antesDaEntrada = !isNaN(entrada.getTime()) && agora < entrada;
 
-        // ---------- ainda não chegou a hora da entrada ----------
-
-        if(agora < entrada){
-
-            rotuloTempo.textContent = "Tempo até a sua entrada";
-
-            pulso.textContent = "a cobrança começa quando você entrar";
+        const saidaValida = saida && !isNaN(saida.getTime());
 
 
-            const faltam = Math.floor((entrada - agora) / 1000);
+        // Antes de confirmar, o relógio acompanha o horário marcado.
+        // Com a vaga ativa, ele conta o que falta até a saída reservada.
 
-            cronometro.textContent =
-                `${formatar(Math.floor(faltam / 3600))} : `
-              + `${formatar(Math.floor((faltam % 3600) / 60))} : `
-              + `${formatar(faltam % 60)}`;
+        if(!ativa && antesDaEntrada){
 
+            rotuloTempo.textContent = "Tempo até a entrada reservada";
+
+            pulso.textContent = "o uso começa no horário da reserva";
+
+            pintarRelogio(Math.floor((entrada - agora) / 1000));
 
             linhaTempo.textContent = "não iniciado";
 
@@ -428,39 +515,102 @@ function iniciarRelogio(){
 
             avisoSaida.textContent = "Se cancelar agora, o valor da vaga volta. A garantia permanece.";
 
+            avisoSaida.classList.remove("destaque");
+
+            mostrarExcedente(0, 0);
+
             return;
 
         }
 
 
+        const fimTolerancia = saidaValida
+            ? new Date(saida.getTime() + TOLERANCIA_SAIDA_MS)
+            : null;
 
-        // ---------- tempo correndo ----------
+        const emTolerancia = fimTolerancia && agora >= saida && agora < fimTolerancia;
 
-        rotuloTempo.textContent = "Tempo de vaga em uso";
-
-        pulso.textContent = "cobrança por minuto em tempo real";
-
-
-        const segundos = Math.floor((agora - entrada) / 1000);
+        const emExcedente = fimTolerancia && agora >= fimTolerancia;
 
 
-        cronometro.textContent =
-            `${formatar(Math.floor(segundos / 3600))} : `
-          + `${formatar(Math.floor((segundos % 3600) / 60))} : `
-          + `${formatar(segundos % 60)}`;
+        if(saidaValida && agora < saida){
+
+            const faltam = Math.floor((saida - agora) / 1000);
+
+            rotuloTempo.textContent = "Tempo restante da reserva";
+
+            pulso.textContent = "contando até a saída prevista";
+
+            pintarRelogio(faltam);
+
+        } else if(emTolerancia){
+
+            rotuloTempo.textContent = "Tolerância para sair";
+
+            pulso.textContent = "10 minutos para sair sem cobrança extra";
+
+            pintarRelogio(Math.floor((fimTolerancia - agora) / 1000));
+
+        } else if(emExcedente){
+
+            rotuloTempo.textContent = "Tempo da reserva esgotado";
+
+            pulso.textContent = "o tempo excedente está sendo cobrado";
+
+            pintarRelogio(0);
+
+        } else {
+
+            const inicio = isNaN(entrada.getTime()) || antesDaEntrada ? agora : entrada;
+
+            rotuloTempo.textContent = "Tempo de vaga em uso";
+
+            pulso.textContent = "contando desde a entrada reservada";
+
+            pintarRelogio(Math.floor((agora - inicio) / 1000));
+
+        }
+
+
+        const segundosExtras = emExcedente
+            ? Math.floor((agora - fimTolerancia) / 1000)
+            : 0;
+
+        mostrarExcedente(segundosExtras, contaPrecoMinuto());
+
+        btnCancelar.textContent = emExcedente ? "Sair" : "Cancelar vaga";
+
+        btnCancelar.classList.toggle("modo-sair", emExcedente);
 
 
         const conta = Cobranca.calcularUso(reserva, agora);
 
 
-        linhaTempo.textContent =
-            `${Cobranca.mostrarDuracao(conta.minutosUsados)} × ${mostrarPreco(conta.precoMinuto)}`;
+        linhaTempo.textContent = conta.minutosUsados > 0
+            ? `${Cobranca.mostrarDuracao(conta.minutosUsados)} × ${mostrarPreco(conta.precoMinuto)}`
+            : "não iniciado";
 
 
         linhaTotal.textContent = mostrarPreco(conta.valorUsado);
 
 
-        if(conta.aPagar > 0){
+        if(emTolerancia){
+
+            avisoSaida.textContent = "Tolerância de 10 minutos para sair. Ainda não há cobrança extra.";
+
+        } else if(emExcedente){
+
+            const minutos = Math.ceil(segundosExtras / 60);
+
+            const extra = Cobranca.valorDosMinutos(
+                Number(reserva.reserva?.vaga?.preco || 0),
+                minutos
+            );
+
+            avisoSaida.textContent =
+                `Tempo extra: ${Cobranca.mostrarDuracao(minutos)} · a pagar ${mostrarPreco(extra)}.`;
+
+        } else if(conta.aPagar > 0){
 
             avisoSaida.textContent =
                 `A pagar na saída: ${mostrarPreco(conta.aPagar)} · minutos extras além do tempo já pago.`;
@@ -470,14 +620,18 @@ function iniciarRelogio(){
             avisoSaida.textContent =
                 `Se encerrar agora, ${mostrarPreco(conta.reembolso)} voltam pelos minutos não usados.`;
 
-        } else {
+        } else if(conta.minutosUsados > 0){
 
             avisoSaida.textContent = "O tempo pago cobre exatamente o uso até agora.";
+
+        } else {
+
+            avisoSaida.textContent = "A cobrança por minuto começa no horário de entrada da reserva.";
 
         }
 
 
-        avisoSaida.classList.toggle("destaque", conta.aPagar > 0);
+        avisoSaida.classList.toggle("destaque", emExcedente || conta.aPagar > 0);
 
     }
 
@@ -495,22 +649,235 @@ function iniciarRelogio(){
 // =====================================================
 
 
-btnFinalizar.addEventListener("click", () => {
+function podeCancelar(item){
 
-    if(!reserva) return;
+    const status = item && item.reserva ? item.reserva.status : "";
+
+    return ["Reservada", "Tolerância", "Atraso", "Ativa"].includes(status);
+
+}
 
 
-    aviso(
+function pedirConfirmacao(titulo, texto){
 
-        "Encerramento no pátio",
+    return new Promise(function (resolver) {
 
-        "Para encerrar o tempo de vaga, procure o funcionário do estacionamento. "
-      + "Ele confere a saída do veículo e fecha o valor devido."
+        const fundo = document.createElement("div");
 
+        fundo.style.cssText =
+            "position:fixed;inset:0;z-index:40;display:grid;place-items:center;"
+          + "padding:24px;background:rgba(3,11,22,.72);";
+
+        fundo.innerHTML =
+            '<div role="dialog" aria-modal="true" style="width:min(420px,100%);'
+          + 'padding:22px;background:#0a1d33;color:#e9f2fc;border:1px solid rgba(120,170,220,.34);">'
+          + "<h3></h3><p style=\"margin:10px 0 18px;color:#93aec9;line-height:1.5;\"></p>"
+          + '<div style="display:flex;gap:10px;justify-content:flex-end;">'
+          + '<button type="button" data-nao>Manter reserva</button>'
+          + '<button type="button" data-sim>Ir para o reembolso</button>'
+          + "</div></div>";
+
+        fundo.querySelector("h3").textContent = titulo;
+
+        fundo.querySelector("p").textContent = texto;
+
+        function fechar(valor){
+            fundo.remove();
+            resolver(valor);
+        }
+
+        fundo.querySelector("[data-nao]").onclick = () => fechar(false);
+
+        fundo.querySelector("[data-sim]").onclick = () => fechar(true);
+
+        fundo.addEventListener("click", (evento) => {
+            if(evento.target === fundo) fechar(false);
+        });
+
+        document.body.appendChild(fundo);
+
+    });
+
+}
+
+
+function minutosExcedentes(agora){
+
+    if(!reserva?.horaSaida) return 0;
+
+    const inicio = new Date(reserva.horaSaida).getTime() + TOLERANCIA_SAIDA_MS;
+
+    if(agora.getTime() <= inicio) return 0;
+
+    return Math.ceil((agora.getTime() - inicio) / 60000);
+
+}
+
+
+function abrirSaida(){
+
+    const agora = new Date();
+
+    const minutos = minutosExcedentes(agora);
+
+    const valor = Cobranca.valorDosMinutos(
+        Number(reserva.reserva?.vaga?.preco || 0),
+        minutos
     );
 
-});
+    const fundo = document.createElement("div");
 
+    fundo.style.cssText =
+        "position:fixed;inset:0;z-index:40;display:grid;place-items:center;"
+      + "padding:24px;background:rgba(3,11,22,.72);";
+
+    fundo.innerHTML =
+        '<div role="dialog" aria-modal="true" style="width:min(420px,100%);'
+      + 'padding:22px;background:#0a1d33;color:#e9f2fc;border:1px solid rgba(120,170,220,.34);">'
+      + "<h3>Sair da vaga</h3>"
+      + '<p class="vc-saida-texto" style="margin:10px 0 14px;color:#93aec9;line-height:1.5;"></p>'
+      + '<div class="vc-saida-pagamento" style="display:flex;gap:8px;margin-bottom:14px;"></div>'
+      + '<input data-codigo type="text" inputmode="numeric" maxlength="6" placeholder="Código de saída" '
+      + 'style="width:100%;padding:12px;background:#071426;color:#e9f2fc;border:1px solid rgba(120,170,220,.34);">'
+      + '<p data-erro style="min-height:1.2em;margin:8px 0;color:#fca5a5;"></p>'
+      + '<div style="display:flex;gap:10px;justify-content:flex-end;">'
+      + '<button type="button" data-nao>Voltar</button>'
+      + '<button type="button" data-sim>Confirmar saída</button>'
+      + "</div></div>";
+
+    const texto = fundo.querySelector(".vc-saida-texto");
+
+    const caixaPagamento = fundo.querySelector(".vc-saida-pagamento");
+
+    texto.textContent = valor > 0
+        ? `Tempo extra: ${Cobranca.mostrarDuracao(minutos)}. A pagar ${mostrarPreco(valor)}. `
+          + "Escolha o pagamento e digite o código que o funcionário passar."
+        : "Digite o código de saída informado pelo funcionário do pátio.";
+
+    let tipo = "pix";
+
+    if(valor > 0){
+
+        ["pix", "cartao"].forEach((opcao) => {
+
+            const botao = document.createElement("button");
+
+            botao.type = "button";
+
+            botao.textContent = opcao === "pix" ? "PIX" : "Cartão";
+
+            botao.style.cssText = "padding:8px 14px;border:1px solid rgba(120,170,220,.34);background:transparent;color:#e9f2fc;cursor:pointer;";
+
+            botao.addEventListener("click", () => {
+
+                tipo = opcao;
+
+                caixaPagamento.querySelectorAll("button").forEach((item) => {
+                    item.style.borderColor = "rgba(120,170,220,.34)";
+                });
+
+                botao.style.borderColor = "#2f7dff";
+
+            });
+
+            caixaPagamento.appendChild(botao);
+
+        });
+
+        caixaPagamento.querySelector("button").style.borderColor = "#2f7dff";
+
+    }
+
+
+    const campo = fundo.querySelector("[data-codigo]");
+
+    const erro = fundo.querySelector("[data-erro]");
+
+    const confirmarSaida = fundo.querySelector("[data-sim]");
+
+    fundo.querySelector("[data-nao]").onclick = () => fundo.remove();
+
+    fundo.addEventListener("click", (evento) => {
+        if(evento.target === fundo) fundo.remove();
+    });
+
+    confirmarSaida.onclick = async () => {
+
+        const codigo = campo.value.replace(/\s/g, "");
+
+        if(!codigo){
+            erro.textContent = "Digite o código de saída informado no pátio.";
+            campo.focus();
+            return;
+        }
+
+        confirmarSaida.disabled = true;
+
+        erro.textContent = "";
+
+        try {
+
+            const resposta = await fetch(api + "/reservacli/" + encodeURIComponent(reserva.id) + "/sair", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    codigo,
+                    pagamento: valor > 0 ? { tipo } : undefined
+                })
+            });
+
+            const dados = await resposta.json();
+
+            if(!resposta.ok) throw new Error(dados.erro || "Não foi possível concluir a saída.");
+
+            window.location.href = "TelaReserAndamento.html";
+
+        } catch (error) {
+
+            erro.textContent = error.message || "Não foi possível concluir a saída.";
+
+            confirmarSaida.disabled = false;
+
+            campo.focus();
+
+        }
+
+    };
+
+    document.body.appendChild(fundo);
+
+    campo.focus();
+
+}
+
+
+btnCancelar.addEventListener("click", async () => {
+
+    if(!reserva || !podeCancelar(reserva)) return;
+
+    if(btnCancelar.classList.contains("modo-sair")){
+        abrirSaida();
+        return;
+    }
+
+    const conta = Cobranca.calcularUso(reserva);
+
+    const texto = conta.minutosUsados === 0
+        ? `Você pagou ${mostrarPreco(conta.pago)} nessa reserva e ainda não usou a vaga. `
+          + `Na próxima tela, o funcionário passa um código de saída para confirmar o estorno de ${mostrarPreco(conta.reembolso)}.`
+        : `Você já usou ${Cobranca.mostrarDuracao(conta.minutosUsados)} `
+          + `(${mostrarPreco(conta.valorUsado)}). `
+          + `Na próxima tela, o funcionário passa um código de saída para confirmar o estorno de ${mostrarPreco(conta.reembolso)}.`;
+
+    const ok = await pedirConfirmacao("Cancelar e pedir reembolso?", texto);
+
+    if(!ok) return;
+
+    localStorage.setItem("reservaParaCancelar", reserva.id);
+
+    window.location.href = "TelaReembolso.html?id=" + encodeURIComponent(reserva.id);
+
+});
 
 
 // =====================================================
@@ -520,7 +887,7 @@ btnFinalizar.addEventListener("click", () => {
 
 document.getElementById("voltar").addEventListener("click", () => {
 
-    window.location.href = "TelaReservaAtiva.html";
+    window.location.href = "TelaReserAndamento.html";
 
 });
 

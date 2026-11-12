@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VagaConnect - Feedback</title>
+<title>VagaConnect - Avaliações</title>
 
 <link rel="stylesheet" href="../CSS/TelaFeedbacks.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
@@ -42,17 +42,16 @@
 
     <div class="hero-left">
 
-        <h1>Feedbacks </h1>
+        <h1>Avaliações</h1>
 
         <p>
-            Sua experiência é importante para nós.
-            Avalie o sistema, envie sugestões, relate problemas
-            ou compartilhe sua opinião para que possamos melhorar
-            continuamente o VagaConnect.
+            Avalie o estacionamento que você realmente usou, uma categoria
+            por vez. Suas notas ajudam outros motoristas a escolher melhor
+            e mostram à administração o que precisa melhorar.
         </p>
 
         <div class="badge">
-            Canal Direto com a Administração
+            Avaliação por estacionamento
         </div>
 
     </div>
@@ -61,82 +60,65 @@
 
 <section class="feedback-box">
 
-    <h2>Enviar Feedback</h2>
+    <h2>Avaliar uma visita</h2>
 
-    <form id="formFeedback">
+    <p class="vazio" id="semVisita" hidden></p>
 
-        <div class="form-grid">
+    <form id="formFeedback" novalidate>
 
-            <div class="input-group">
-                <label>Assunto</label>
-                <input id="assunto" type="text" placeholder="Ex: Problema na Reserva" required>
-            </div>
-
-            <div class="input-group">
-                <label>Categoria</label>
-
-                <select id="categoria" required>
-                    <option value="">Selecione</option>
-                    <option>Sugestão</option>
-                    <option>Elogio</option>
-                    <option>Problema</option>
-                    <option>Dúvida</option>
-                </select>
-            </div>
-
-            <div class="input-group full">
-
-                <label>Sua Avaliação</label>
-
-                <div class="rating">
-
-                    <input type="radio" id="star5" name="rating" value="5">
-                    <label for="star5">★</label>
-
-                    <input type="radio" id="star4" name="rating" value="4">
-                    <label for="star4">★</label>
-
-                    <input type="radio" id="star3" name="rating" value="3">
-                    <label for="star3">★</label>
-
-                    <input type="radio" id="star2" name="rating" value="2">
-                    <label for="star2">★</label>
-
-                    <input type="radio" id="star1" name="rating" value="1">
-                    <label for="star1">★</label>
-
-                </div>
-
-                <span class="rating-text">
-                    Clique nas estrelas para avaliar sua experiência.
-                </span>
-
-            </div>
-
-            <div class="input-group full">
-                <label>Mensagem</label>
-
-                <textarea id="mensagem" placeholder="Conte-nos sua experiência ou sugestão..." required></textarea>
-            </div>
-
+        <div class="input-group full">
+            <label for="visita">Estacionamento utilizado</label>
+            <select id="visita"></select>
         </div>
 
+        <div class="contexto" id="contexto"></div>
+
+        <div class="progresso">
+            <span id="progressoTexto">0 de 8 categorias avaliadas</span>
+            <div class="trilho"><div class="preenche" id="progressoBarra"></div></div>
+        </div>
+
+        <div class="abas" id="abas" role="group" aria-label="Categorias de avaliação"></div>
+
+        <div class="painel-cat" id="painel"></div>
+
+        <p class="msg-form" id="msgForm" role="alert" hidden></p>
+
         <div class="status-card">
-            <span> Feedback enviado diretamente para o painel do administrador.</span>
+            <span>Sua avaliação fica ligada ao estacionamento escolhido.</span>
             <strong id="statusEnvio">Status: Aguardando envio</strong>
         </div>
 
         <button type="submit" class="send-btn" id="enviar">
-             Enviar Feedback
+            Enviar avaliação
         </button>
 
     </form>
 
-    <div class="lista-feedbacks">
-        <h2>Seus envios</h2>
-        <div id="meusFeedbacks"></div>
-    </div>
+</section>
 
+<section class="lista-feedbacks">
+    <h2>Suas avaliações</h2>
+    <div id="meusFeedbacks"></div>
+</section>
+
+<section class="lista-feedbacks">
+    <h2>O que dizem sobre os estacionamentos</h2>
+
+    <p class="vazio" id="semComunidade" hidden></p>
+
+    <div id="blocoComunidade" hidden>
+        <div class="input-group full">
+            <label for="estCom">Estacionamento</label>
+            <select id="estCom"></select>
+        </div>
+
+        <div id="resumoCom"></div>
+
+        <div class="abas" id="filtrosCom" role="group" aria-label="Filtrar por categoria"></div>
+
+        <div id="listaCom"></div>
+    </div>
 </section>
 
 </div>
@@ -153,11 +135,45 @@ if (!usuarioLogado) {
     window.location.replace("../../Base/HTML/OpçãoLogin.html");
 }
 
-const formulario = document.getElementById("formFeedback");
-const botaoEnviar = document.getElementById("enviar");
-const statusEnvio = document.getElementById("statusEnvio");
-const meusFeedbacks = document.getElementById("meusFeedbacks");
+const $ = (id) => document.getElementById(id);
 
+const formulario = $("formFeedback");
+const botaoEnviar = $("enviar");
+const statusEnvio = $("statusEnvio");
+const meusFeedbacks = $("meusFeedbacks");
+
+const NOMES_NOTA = ["", "Péssimo", "Ruim", "Regular", "Bom", "Excelente"];
+
+const ICONES = {
+    geral: "fa-star",
+    disponibilidade: "fa-square-parking",
+    precos: "fa-tag",
+    seguranca: "fa-shield-halved",
+    estrutura: "fa-broom",
+    acesso: "fa-route",
+    atendimento: "fa-headset",
+    informacoes: "fa-circle-info"
+};
+
+let categorias = [];       // vindas da API
+let visitas = [];          // visitas do usuário que podem ser avaliadas
+let visitaAtual = "";
+let respostas = {};        // chave da categoria -> { nota, comentario }
+let abaAtual = 0;
+
+let resumos = [];          // médias por estacionamento
+let publicas = [];         // avaliações do estacionamento escolhido
+let filtroCom = "";
+let limiteCom = 6;
+
+
+/* ---------- utilitários ---------- */
+
+function esc(valor) {
+    return String(valor ?? "").replace(/[&<>"']/g, (c) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[c]));
+}
 
 function mostrarData(texto) {
     const data = new Date(texto);
@@ -169,62 +185,311 @@ function mostrarData(texto) {
     return `${dia}/${mes}/${data.getFullYear()} ${hora}:${minuto}`;
 }
 
+function dataCurta(texto) {
+    return mostrarData(texto).split(" ")[0];
+}
 
-function notaEscolhida() {
-    const marcado = document.querySelector("input[name='rating']:checked");
-    return marcado ? Number(marcado.value) : 0;
+function estrelasTxt(nota) {
+    const n = Math.max(0, Math.min(5, Math.round(Number(nota) || 0)));
+    return "★".repeat(n) + "☆".repeat(5 - n);
+}
+
+function formatarMedia(valor) {
+    return valor === null || valor === undefined ? "--" : Number(valor).toFixed(1).replace(".", ",");
+}
+
+function rotulo(chave) {
+    return categorias.find((c) => c.chave === chave)?.rotulo || chave;
+}
+
+function posicao(chave) {
+    const i = categorias.findIndex((c) => c.chave === chave);
+    return i < 0 ? 99 : i;
+}
+
+function enderecoTexto(e) {
+    if (!e) return "";
+    return [
+        [e.rua, e.numero].filter(Boolean).join(", "),
+        e.bairro,
+        [e.cidade, e.estado].filter(Boolean).join(" - ")
+    ].filter(Boolean).join(" · ");
+}
+
+function zerarRespostas() {
+    respostas = {};
+    categorias.forEach((c) => { respostas[c.chave] = { nota: 0, comentario: "" }; });
+    abaAtual = 0;
+}
+
+function temRespostas() {
+    return Object.values(respostas).some((r) => r.nota || r.comentario.trim());
+}
+
+function mostrarMsg(texto) {
+    const msg = $("msgForm");
+    msg.textContent = texto;
+    msg.hidden = !texto;
 }
 
 
-async function carregarMeusFeedbacks() {
+/* ---------- 1. avaliar uma visita ---------- */
+
+async function carregarVisitas() {
+    const aviso = $("semVisita");
+
     try {
-        const resposta = await fetch(api + "/feedback");
+        const resposta = await fetch(`${api}/feedback/visitas/${encodeURIComponent(usuarioLogado.id)}`);
         const lista = await resposta.json();
 
-        if (!resposta.ok) {
-            throw new Error(lista.erro || "Erro ao carregar os feedbacks");
-        }
+        if (!resposta.ok) throw new Error(lista.erro || "Erro ao carregar suas visitas");
 
-        const meus = lista.filter(item =>
-            item.fk_idCliente === usuarioLogado.id
-        );
-
-        if (meus.length === 0) {
-            meusFeedbacks.innerHTML = `<p class="vazio">Você ainda não enviou nenhum feedback.</p>`;
-            return;
-        }
-
-        meusFeedbacks.innerHTML = meus.map(item => `
-            <article class="card-feedback">
-                <header>
-                    <span>${item.categoria} · ${mostrarData(item.createdAt)}</span>
-                    <span class="estrelas">${"★".repeat(item.nota)}${"☆".repeat(5 - item.nota)}</span>
-                </header>
-                <h3>${item.assunto}</h3>
-                <p>${item.mensagem}</p>
-            </article>
-        `).join("");
+        visitas = lista;
     } catch (error) {
-        meusFeedbacks.innerHTML = `<p class="vazio">${error.message || "Não foi possível carregar seus envios."}</p>`;
-    }
-}
-
-
-formulario.addEventListener("submit", async (event) => {
-    event.preventDefault();
-
-    const assunto = document.getElementById("assunto").value.trim();
-    const categoria = document.getElementById("categoria").value;
-    const mensagem = document.getElementById("mensagem").value.trim();
-    const nota = notaEscolhida();
-
-    if (!assunto || !categoria || !mensagem) {
-        alert("Preencha assunto, categoria e mensagem.");
+        formulario.hidden = true;
+        aviso.hidden = false;
+        aviso.textContent = error.message || "Não foi possível carregar suas visitas.";
         return;
     }
 
-    if (!nota) {
-        alert("Escolha uma nota de 1 a 5 estrelas.");
+    const pendentes = visitas.filter((v) => !v.avaliada);
+
+    if (visitas.length === 0 || pendentes.length === 0) {
+        formulario.hidden = true;
+        aviso.hidden = false;
+        aviso.textContent = visitas.length === 0
+            ? "Você ainda não usou nenhum estacionamento. Depois de entrar em uma vaga reservada, você poderá avaliá-lo aqui."
+            : "Você já avaliou todos os estacionamentos que utilizou. Obrigado!";
+        return;
+    }
+
+    formulario.hidden = false;
+    aviso.hidden = true;
+
+    $("visita").innerHTML = visitas.map((v) => `
+        <option value="${esc(v.id)}" ${v.avaliada ? "disabled" : ""}>
+            ${esc(v.estacionamento.nome)} · Vaga ${esc(v.vaga.numero)} · ${dataCurta(v.hora)}${v.avaliada ? " (já avaliada)" : ""}
+        </option>
+    `).join("");
+
+    // identifica a visita automaticamente: a do link, a que já estava escolhida ou a mais recente sem avaliação
+    const doLink = new URLSearchParams(window.location.search).get("visita");
+    const escolhida =
+        pendentes.find((v) => v.id === doLink) ||
+        pendentes.find((v) => v.id === visitaAtual) ||
+        pendentes[0];
+
+    visitaAtual = escolhida.id;
+    $("visita").value = visitaAtual;
+    renderContexto();
+}
+
+function renderContexto() {
+    const v = visitas.find((item) => item.id === visitaAtual);
+
+    if (!v) {
+        $("contexto").innerHTML = "";
+        return;
+    }
+
+    const endereco = enderecoTexto(v.estacionamento.endereco);
+
+    $("contexto").innerHTML = `
+        <strong>${esc(v.estacionamento.nome)}</strong>
+        ${endereco ? `<span>${esc(endereco)}</span>` : ""}
+        <small>Vaga ${esc(v.vaga.numero)} · ${esc(v.vaga.tipo)} · ${mostrarData(v.hora)} · ${esc(v.status)}</small>
+    `;
+}
+
+$("visita").addEventListener("change", () => {
+    const nova = $("visita").value;
+
+    if (temRespostas() && !confirm("Trocar de visita descarta as notas já marcadas. Continuar?")) {
+        $("visita").value = visitaAtual;
+        return;
+    }
+
+    visitaAtual = nova;
+    zerarRespostas();
+    mostrarMsg("");
+    renderContexto();
+    renderTudo();
+});
+
+
+/* ---------- abas por categoria ---------- */
+
+function renderTudo() {
+    renderAbas();
+    renderPainel();
+    atualizarProgresso();
+}
+
+function renderAbas() {
+    $("abas").innerHTML = categorias.map((c, i) => {
+        const r = respostas[c.chave];
+
+        return `
+            <button type="button" class="aba ${i === abaAtual ? "ativa" : ""} ${r.nota ? "feita" : ""}"
+                    data-i="${i}" aria-pressed="${i === abaAtual}">
+                <i class="fa-solid ${ICONES[c.chave] || "fa-star"}"></i>
+                ${esc(c.rotulo)}
+                <span class="marca">${r.nota ? r.nota + "★" : "·"}</span>
+            </button>
+        `;
+    }).join("");
+}
+
+function atualizarProgresso() {
+    const feitas = categorias.filter((c) => respostas[c.chave].nota).length;
+
+    $("progressoTexto").textContent =
+        `${feitas} de ${categorias.length} ${categorias.length === 1 ? "categoria avaliada" : "categorias avaliadas"} · as demais podem ser puladas`;
+    $("progressoBarra").style.width = categorias.length ? `${(feitas / categorias.length) * 100}%` : "0";
+}
+
+function pintarEstrelas(previa = 0) {
+    const c = categorias[abaAtual];
+    if (!c) return;
+
+    const r = respostas[c.chave];
+    const alvo = previa || r.nota;
+
+    document.querySelectorAll("#estrelasInput .estrela").forEach((botao) => {
+        const valor = Number(botao.dataset.valor);
+        botao.classList.toggle("on", valor <= alvo);
+        botao.setAttribute("aria-pressed", String(valor === r.nota));
+    });
+
+    $("notaTexto").textContent = alvo
+        ? `${alvo} de 5 · ${NOMES_NOTA[alvo]}`
+        : "Sem nota · você pode pular esta categoria";
+}
+
+function renderPainel() {
+    const c = categorias[abaAtual];
+    if (!c) return;
+
+    const r = respostas[c.chave];
+    const ultima = abaAtual === categorias.length - 1;
+
+    $("painel").innerHTML = `
+        <span class="passo">Categoria ${String(abaAtual + 1).padStart(2, "0")} / ${String(categorias.length).padStart(2, "0")}</span>
+        <h3>${esc(c.rotulo)}</h3>
+        <p class="pergunta">${esc(c.pergunta)}</p>
+        <p class="detalhe">${esc(c.detalhe)}</p>
+
+        <div class="estrelas-input" id="estrelasInput">
+            ${[1, 2, 3, 4, 5].map((n) => `
+                <button type="button" class="estrela" data-valor="${n}" aria-label="${n} ${n === 1 ? "estrela" : "estrelas"}">★</button>
+            `).join("")}
+        </div>
+        <span class="nota-texto" id="notaTexto"></span>
+
+        <div class="input-group">
+            <label for="comentario">Comentário (opcional)</label>
+            <textarea id="comentario" maxlength="500" placeholder="Conte o que aconteceu, se quiser...">${esc(r.comentario)}</textarea>
+            <span class="contador" id="contador">${r.comentario.length}/500</span>
+        </div>
+
+        <div class="acoes-cat">
+            <button type="button" class="btn-mini" id="btnPular">Pular categoria</button>
+            <div class="navegacao">
+                <button type="button" class="btn-mini" id="btnAnterior" ${abaAtual === 0 ? "disabled" : ""}>← Anterior</button>
+                <button type="button" class="btn-mini destaque" id="btnProxima">${ultima ? "Concluir" : "Próxima →"}</button>
+            </div>
+        </div>
+    `;
+
+    pintarEstrelas();
+
+    const estrelas = $("estrelasInput");
+
+    estrelas.addEventListener("mouseover", (event) => {
+        const botao = event.target.closest(".estrela");
+        if (botao) pintarEstrelas(Number(botao.dataset.valor));
+    });
+
+    estrelas.addEventListener("mouseleave", () => pintarEstrelas());
+
+    estrelas.addEventListener("click", (event) => {
+        const botao = event.target.closest(".estrela");
+        if (!botao) return;
+
+        respostas[c.chave].nota = Number(botao.dataset.valor);
+        pintarEstrelas();
+        renderAbas();
+        atualizarProgresso();
+        mostrarMsg("");
+    });
+
+    $("comentario").addEventListener("input", (event) => {
+        respostas[c.chave].comentario = event.target.value;
+        $("contador").textContent = `${event.target.value.length}/500`;
+    });
+
+    $("btnPular").addEventListener("click", () => {
+        respostas[c.chave] = { nota: 0, comentario: "" };
+        irParaAba(ultima ? abaAtual : abaAtual + 1);
+    });
+
+    $("btnAnterior").addEventListener("click", () => irParaAba(abaAtual - 1));
+
+    $("btnProxima").addEventListener("click", () => {
+        if (ultima) {
+            botaoEnviar.scrollIntoView({ behavior: "smooth", block: "center" });
+            botaoEnviar.focus();
+            return;
+        }
+        irParaAba(abaAtual + 1);
+    });
+}
+
+function irParaAba(indice) {
+    abaAtual = Math.max(0, Math.min(categorias.length - 1, indice));
+    renderTudo();
+}
+
+$("abas").addEventListener("click", (event) => {
+    const botao = event.target.closest(".aba");
+    if (!botao) return;
+
+    irParaAba(Number(botao.dataset.i));
+    $("abas").querySelector(".aba.ativa")?.focus();
+});
+
+
+/* ---------- envio ---------- */
+
+formulario.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    mostrarMsg("");
+
+    if (!visitaAtual) {
+        mostrarMsg("Escolha a visita que você quer avaliar.");
+        return;
+    }
+
+    const semNota = categorias.findIndex((c) =>
+        !respostas[c.chave].nota && respostas[c.chave].comentario.trim()
+    );
+
+    if (semNota >= 0) {
+        irParaAba(semNota);
+        mostrarMsg(`Você escreveu um comentário em "${categorias[semNota].rotulo}", mas não deu nota. Marque as estrelas ou apague o comentário.`);
+        return;
+    }
+
+    const notas = categorias
+        .filter((c) => respostas[c.chave].nota)
+        .map((c) => ({
+            categoria: c.chave,
+            nota: respostas[c.chave].nota,
+            comentario: respostas[c.chave].comentario.trim()
+        }));
+
+    if (notas.length === 0) {
+        mostrarMsg("Avalie pelo menos uma categoria. As outras você pode pular.");
         return;
     }
 
@@ -238,30 +503,249 @@ formulario.addEventListener("submit", async (event) => {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                nota,
-                assunto,
-                categoria,
-                mensagem,
-                fk_idCliente: usuarioLogado.id
+                fk_idCliente: usuarioLogado.id,
+                fk_reservacli: visitaAtual,
+                notas
             })
         });
 
         const retorno = await resposta.json();
 
         if (!resposta.ok) {
-            throw new Error(retorno.erro || "Erro ao enviar o feedback");
+            throw new Error(retorno.erro || "Erro ao enviar a avaliação");
         }
 
-        formulario.reset();
+        zerarRespostas();
         statusEnvio.textContent = "Status: Enviado";
-        alert("Feedback enviado com sucesso!");
-        await carregarMeusFeedbacks();
+        alert("Avaliação enviada com sucesso! Obrigado.");
+
+        await carregarVisitas();
+        renderTudo();
+        await Promise.all([carregarMinhas(), carregarComunidade()]);
     } catch (error) {
         statusEnvio.textContent = "Status: Falhou o envio";
-        alert(error.message || "Não foi possível enviar. Verifique se o servidor está ligado.");
+        mostrarMsg(error.message || "Não foi possível enviar. Verifique se o servidor está ligado.");
     } finally {
         botaoEnviar.disabled = false;
     }
+});
+
+
+/* ---------- 2. suas avaliações ---------- */
+
+function notaItem(n) {
+    return `
+        <div class="nota-item">
+            <span class="cat">${esc(rotulo(n.categoria))}</span>
+            <span class="estrelas-txt" title="${n.nota} de 5">${estrelasTxt(n.nota)}</span>
+            ${n.comentario ? `<p>${esc(n.comentario)}</p>` : ""}
+        </div>
+    `;
+}
+
+function ordenarNotas(notas) {
+    return [...notas].sort((a, b) => posicao(a.categoria) - posicao(b.categoria));
+}
+
+function cartaoMinha(item) {
+    // feedbacks antigos, de antes da avaliação por estacionamento
+    if (!item.notas || item.notas.length === 0) {
+        return `
+            <article class="card-feedback">
+                <header>
+                    <span>${esc(item.categoria)} · ${mostrarData(item.createdAt)}</span>
+                    <span class="estrelas">${estrelasTxt(item.nota)}</span>
+                </header>
+                <h3>${esc(item.assunto)}</h3>
+                <p>${esc(item.mensagem)}</p>
+            </article>
+        `;
+    }
+
+    const vaga = item.reservaCli?.reserva?.vaga?.numero;
+
+    return `
+        <article class="avaliacao">
+            <div class="avaliacao-topo">
+                <div>
+                    <strong>${esc(item.estacionamento?.nome || "Estacionamento removido")}</strong>
+                    <small>${vaga ? `Vaga ${esc(vaga)} · ` : ""}${mostrarData(item.createdAt)}</small>
+                </div>
+                <span class="estrelas-txt" title="Nota geral">${estrelasTxt(item.nota)}</span>
+            </div>
+            <div class="notas-lista">${ordenarNotas(item.notas).map(notaItem).join("")}</div>
+        </article>
+    `;
+}
+
+async function carregarMinhas() {
+    try {
+        const resposta = await fetch(`${api}/feedback?cliente=${encodeURIComponent(usuarioLogado.id)}`);
+        const lista = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(lista.erro || "Erro ao carregar as avaliações");
+        }
+
+        if (lista.length === 0) {
+            meusFeedbacks.innerHTML = `<p class="vazio">Você ainda não enviou nenhuma avaliação.</p>`;
+            return;
+        }
+
+        meusFeedbacks.innerHTML = lista.map(cartaoMinha).join("");
+    } catch (error) {
+        meusFeedbacks.innerHTML = `<p class="vazio">${esc(error.message || "Não foi possível carregar suas avaliações.")}</p>`;
+    }
+}
+
+
+/* ---------- 3. avaliações dos estacionamentos ---------- */
+
+async function carregarComunidade() {
+    const aviso = $("semComunidade");
+    const bloco = $("blocoComunidade");
+
+    try {
+        const resposta = await fetch(api + "/feedback/resumo");
+        const lista = await resposta.json();
+
+        if (!resposta.ok) throw new Error(lista.erro || "Erro ao carregar as avaliações");
+
+        resumos = lista;
+    } catch (error) {
+        bloco.hidden = true;
+        aviso.hidden = false;
+        aviso.textContent = error.message || "Não foi possível carregar as avaliações.";
+        return;
+    }
+
+    if (resumos.length === 0) {
+        bloco.hidden = true;
+        aviso.hidden = false;
+        aviso.textContent = "Ainda não há avaliações de estacionamentos. Seja o primeiro a avaliar!";
+        return;
+    }
+
+    aviso.hidden = true;
+    bloco.hidden = false;
+
+    const seletor = $("estCom");
+    const anterior = seletor.value;
+
+    seletor.innerHTML = resumos.map((r) => `
+        <option value="${esc(r.id)}">${esc(r.nome)} · ${r.avaliacoes} ${r.avaliacoes === 1 ? "avaliação" : "avaliações"}</option>
+    `).join("");
+
+    seletor.value = resumos.some((r) => r.id === anterior) ? anterior : resumos[0].id;
+
+    await trocarEstacionamentoCom();
+}
+
+async function trocarEstacionamentoCom() {
+    filtroCom = "";
+    limiteCom = 6;
+
+    try {
+        const resposta = await fetch(`${api}/feedback/estacionamento/${encodeURIComponent($("estCom").value)}`);
+        const lista = await resposta.json();
+
+        if (!resposta.ok) throw new Error(lista.erro || "Erro ao carregar as avaliações");
+
+        publicas = lista;
+    } catch (error) {
+        publicas = [];
+        $("listaCom").innerHTML = `<p class="vazio">${esc(error.message)}</p>`;
+    }
+
+    renderComunidade();
+}
+
+function renderComunidade() {
+    const resumo = resumos.find((r) => r.id === $("estCom").value);
+    if (!resumo) return;
+
+    // média geral e barras por categoria
+    $("resumoCom").innerHTML = `
+        <div class="resumo-est">
+            <div class="media-grande">
+                <b>${formatarMedia(resumo.media)}</b>
+                <span class="estrelas-txt">${estrelasTxt(resumo.media)}</span>
+                <small>${resumo.avaliacoes} ${resumo.avaliacoes === 1 ? "avaliação" : "avaliações"}</small>
+            </div>
+            <div class="barras">
+                ${categorias.map((c) => {
+                    const dado = resumo.categorias[c.chave];
+                    const largura = dado ? (dado.media / 5) * 100 : 0;
+
+                    return `
+                        <div class="barra ${dado ? "" : "vazia"}">
+                            <span>${esc(c.rotulo)}</span>
+                            <div class="trilho"><div class="preenche" style="width:${largura}%"></div></div>
+                            <b>${dado ? formatarMedia(dado.media) : "--"}</b>
+                        </div>
+                    `;
+                }).join("")}
+            </div>
+        </div>
+    `;
+
+    // filtros por categoria (só as que têm nota)
+    const contagem = {};
+    publicas.forEach((p) => p.notas.forEach((n) => { contagem[n.categoria] = (contagem[n.categoria] || 0) + 1; }));
+
+    $("filtrosCom").innerHTML =
+        `<button type="button" class="aba ${filtroCom === "" ? "ativa" : ""}" data-chave="">Todas</button>` +
+        categorias
+            .filter((c) => contagem[c.chave])
+            .map((c) => `
+                <button type="button" class="aba ${filtroCom === c.chave ? "ativa" : ""}" data-chave="${esc(c.chave)}">
+                    ${esc(c.rotulo)}
+                    <span class="marca">${contagem[c.chave]}</span>
+                </button>
+            `).join("");
+
+    // lista de avaliações
+    const itens = publicas
+        .map((p) => ({ ...p, visiveis: filtroCom ? p.notas.filter((n) => n.categoria === filtroCom) : p.notas }))
+        .filter((p) => p.visiveis.length > 0);
+
+    if (itens.length === 0) {
+        $("listaCom").innerHTML = `<p class="vazio">Nenhuma avaliação nesta categoria ainda.</p>`;
+        return;
+    }
+
+    $("listaCom").innerHTML = itens.slice(0, limiteCom).map((p) => `
+        <article class="avaliacao">
+            <div class="avaliacao-topo">
+                <div>
+                    <strong>${esc(p.nome)}</strong>
+                    <small>${dataCurta(p.createdAt)}</small>
+                </div>
+                <span class="estrelas-txt" title="Nota geral">${estrelasTxt(p.nota)}</span>
+            </div>
+            <div class="notas-lista">${ordenarNotas(p.visiveis).map(notaItem).join("")}</div>
+        </article>
+    `).join("") + (itens.length > limiteCom
+        ? `<button type="button" class="btn-mini mais" id="btnMais">Mostrar mais (${itens.length - limiteCom})</button>`
+        : "");
+}
+
+$("estCom").addEventListener("change", trocarEstacionamentoCom);
+
+$("filtrosCom").addEventListener("click", (event) => {
+    const botao = event.target.closest(".aba");
+    if (!botao) return;
+
+    filtroCom = botao.dataset.chave;
+    limiteCom = 6;
+    renderComunidade();
+});
+
+$("listaCom").addEventListener("click", (event) => {
+    if (!event.target.closest("#btnMais")) return;
+
+    limiteCom += 6;
+    renderComunidade();
 });
 
 
@@ -276,7 +760,34 @@ document.getElementById("btnSair").addEventListener("click", (event) => {
 });
 
 
-carregarMeusFeedbacks();
+async function iniciar() {
+    if (!usuarioLogado) return;
+
+    try {
+        const resposta = await fetch(api + "/feedback/categorias");
+        categorias = await resposta.json();
+
+        if (!resposta.ok) throw new Error();
+    } catch (error) {
+        const msg = "Não foi possível carregar as avaliações. Verifique se o servidor está ligado.";
+
+        formulario.hidden = true;
+        $("semVisita").hidden = false;
+        $("semVisita").textContent = msg;
+        meusFeedbacks.innerHTML = `<p class="vazio">${msg}</p>`;
+        $("semComunidade").hidden = false;
+        $("semComunidade").textContent = msg;
+        return;
+    }
+
+    zerarRespostas();
+    await carregarVisitas();
+    renderTudo();
+    await Promise.all([carregarMinhas(), carregarComunidade()]);
+}
+
+iniciar();
+
 /* =====================================================
    VagaConnect · tema.js
 

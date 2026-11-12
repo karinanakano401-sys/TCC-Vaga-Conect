@@ -466,6 +466,62 @@ a:focus-visible{
 }
 
 
+.excedente{
+
+    margin-top:18px;
+
+    padding-top:16px;
+
+    border-top:1px solid rgba(245, 183, 49, .35);
+
+    color:#f5b731;
+
+}
+
+
+.excedente span,
+.excedente strong,
+.excedente p{
+
+    color:#f5b731;
+
+}
+
+
+.excedente strong{
+
+    display:block;
+
+    margin-top:8px;
+
+    font-family:var(--mono);
+
+    font-size:28px;
+
+    font-weight:500;
+
+    letter-spacing:3px;
+
+    font-variant-numeric:tabular-nums;
+
+}
+
+
+.excedente p{
+
+    margin-top:6px;
+
+    font-family:var(--mono);
+
+    font-size:12px;
+
+    letter-spacing:.08em;
+
+    text-transform:uppercase;
+
+}
+
+
 @keyframes bater{
 
     0%, 100%{ opacity:1;  box-shadow:0 0 0 0 rgba(61, 220, 151, .5); }
@@ -656,6 +712,64 @@ a:focus-visible{
     transition:
         color .25s,
         border-color .25s;
+
+}
+
+
+#cancelar{
+
+    width:100%;
+
+    height:48px;
+
+    margin-top:12px;
+
+    border:1px solid rgba(248, 113, 113, .45);
+
+    border-radius:0;
+
+    background:transparent;
+
+    color:#fca5a5;
+
+    font-family:var(--mono);
+
+    font-size:11px;
+
+    font-weight:600;
+
+    letter-spacing:.14em;
+
+    text-transform:uppercase;
+
+    cursor:pointer;
+
+}
+
+
+#cancelar:hover{
+
+    background:rgba(248, 113, 113, .12);
+
+    color:#fecaca;
+
+}
+
+
+#cancelar.modo-sair{
+
+    border-color:rgba(47, 125, 255, .7);
+
+    color:#8cc2ff;
+
+}
+
+
+#cancelar.modo-sair:hover{
+
+    background:rgba(47, 125, 255, .16);
+
+    color:#d6e8ff;
 
 }
 
@@ -1149,6 +1263,18 @@ html[data-tema="claro"] .time-card h1{
 
 
 /* selo de "ao vivo" */
+html[data-tema="claro"] .excedente,
+html[data-tema="claro"] .excedente span,
+html[data-tema="claro"] .excedente strong,
+html[data-tema="claro"] .excedente p{
+
+    color:#c2410c;
+
+    border-top-color:rgba(194, 65, 12, .35);
+
+}
+
+
 html[data-tema="claro"] .pulso{
 
     background:rgba(15, 157, 99, .1);
@@ -1270,6 +1396,24 @@ html[data-tema="claro"] #finalizar{
     border-color:var(--risco-forte);
 
     color:var(--apagado);
+
+}
+
+
+html[data-tema="claro"] #cancelar{
+
+    border-color:rgba(185, 28, 28, .4);
+
+    color:#b91c1c;
+
+}
+
+
+html[data-tema="claro"] #cancelar:hover{
+
+    background:rgba(185, 28, 28, .08);
+
+    color:#991b1b;
 
 }
 

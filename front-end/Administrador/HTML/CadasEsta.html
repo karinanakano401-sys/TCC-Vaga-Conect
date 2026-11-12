@@ -332,7 +332,6 @@ save:
           formulario.zip.value = Cep.formatar(estacionamento.endereco.cep);
           formulario.status.value = estacionamento.status;
 
-          // Na edição as vagas e os preços são gerenciados na tela de Vagas
           formulario.spaces.value = estacionamento.vagas.length;
           
 
@@ -346,35 +345,6 @@ save:
         } catch (error) {
           alert(error.message || "Não foi possível carregar. Verifique se o servidor está ligado.");
         }
-      }
-
-
-      // ==============================
-      // CRIAR AS VAGAS DO ESTACIONAMENTO
-      // ==============================
-
-      async function criarVagas(quantidade, preco, idEstacionamento) {
-        const criacoes = [];
-
-        for (let i = 1; i <= quantidade; i++) {
-          criacoes.push(
-            fetch(api + "/vaga", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify({
-                numero: String(i),
-                tipo: "Comum",
-                status: "Livre",
-                preco: preco,
-                fk_est: idEstacionamento
-              })
-            })
-          );
-        }
-
-        await Promise.all(criacoes);
       }
 
 
@@ -421,7 +391,9 @@ save:
               },
               body: JSON.stringify({
                 nome: formulario.name.value.trim(),
-                status: formulario.status.value
+                status: formulario.status.value,
+                quantidade: Number(formulario.spaces.value),
+                preco: Number(formulario.price.value)
               })
             });
 
@@ -457,7 +429,9 @@ save:
               body: JSON.stringify({
                 nome: formulario.name.value.trim(),
                 status: formulario.status.value,
-                fk_idEndereco: endereco.id
+                fk_idEndereco: endereco.id,
+                quantidade: Number(formulario.spaces.value),
+                preco: Number(formulario.price.value)
               })
             });
 
@@ -466,12 +440,6 @@ save:
             if (!respostaEstacionamento.ok) {
               throw new Error(estacionamento.erro || "Erro ao criar o estacionamento");
             }
-
-            await criarVagas(
-              Number(formulario.spaces.value),
-              Number(formulario.price.value),
-              estacionamento.id
-            );
 
             alert("Estacionamento cadastrado com sucesso!");
           }

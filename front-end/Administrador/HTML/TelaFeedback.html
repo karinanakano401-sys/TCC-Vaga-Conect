@@ -118,11 +118,27 @@
     <main class="content">
       <header>
         <h1>Feedbacks</h1>
-        <p>Acompanhe as avaliações enviadas pelos usuários.</p>
+        <p>Avaliações por estacionamento e por categoria.</p>
       </header>
+
+      <section class="fb-resumo" id="resumo"></section>
 
       <section class="panel">
         <div class="toolbar">
+          <label>
+            Estacionamento
+            <select id="estacionamento">
+              <option value="">Todos</option>
+            </select>
+          </label>
+
+          <label>
+            Categoria
+            <select id="categoria">
+              <option value="">Todas</option>
+            </select>
+          </label>
+
           <label>
             Avaliação
             <select id="rating">
@@ -137,10 +153,16 @@
 
           <label class="search">
             <span>⌕</span>
-            <input id="search" placeholder="Buscar feedback...">
+            <input id="search" placeholder="Buscar usuário ou comentário...">
           </label>
         </div>
 
+        <div class="fb-bloco">
+          <h2 class="fb-titulo">Desempenho por categoria</h2>
+          <div id="barras" class="fb-barras"></div>
+        </div>
+
+        <h2 class="fb-titulo">Avaliações <span id="contagem"></span></h2>
         <div id="feedbackList" class="feedback-list"></div>
       </section>
     </main>
@@ -222,8 +244,21 @@
     };
 
     let feedbacks = [];
+    let categorias = [];
 
     const list = document.querySelector("#feedbackList");
+    const selEstacionamento = document.querySelector("#estacionamento");
+    const selCategoria = document.querySelector("#categoria");
+    const selNota = document.querySelector("#rating");
+    const busca = document.querySelector("#search");
+
+    const SEM_ESTACIONAMENTO = "__sem__";
+
+    function esc(valor) {
+      return String(valor ?? "").replace(/[&<>"']/g, (c) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      }[c]));
+    }
 
     function mostrarData(texto) {
       const data = new Date(texto);
@@ -233,66 +268,242 @@
       return `${dia}/${mes}/${data.getFullYear()}`;
     }
 
-    function render(data) {
-      if (data.length === 0) {
-        list.innerHTML = `<article class="feedback"><p>Nenhum feedback encontrado.</p></article>`;
+    function estrelas(nota) {
+      const n = Math.max(0, Math.min(5, Math.round(Number(nota) || 0)));
+      return "★".repeat(n) + "☆".repeat(5 - n);
+    }
+
+    function media(valores) {
+      return valores.length ? valores.reduce((soma, v) => soma + v, 0) / valores.length : null;
+    }
+
+    function formatar(valor) {
+      return valor === null ? "--" : valor.toFixed(1).replace(".", ",");
+    }
+
+    function rotulo(chave) {
+      return categorias.find((c) => c.chave === chave)?.rotulo || chave;
+    }
+
+    function posicao(chave) {
+      const i = categorias.findIndex((c) => c.chave === chave);
+      return i < 0 ? 99 : i;
+    }
+
+    // feedbacks de antes da avaliação por estacionamento não têm categorias nem local
+    function nomeEstacionamento(item) {
+      if (item.estacionamento) return item.estacionamento.nome;
+      return item.notas?.length ? "Estacionamento removido" : "Geral (anterior)";
+    }
+
+    function preencherFiltros() {
+      const anteriorEst = selEstacionamento.value;
+      const anteriorCat = selCategoria.value;
+
+      const locais = new Map();
+      let temAntigos = false;
+
+      feedbacks.forEach((item) => {
+        if (item.fk_est && item.estacionamento) locais.set(item.fk_est, item.estacionamento.nome);
+        else temAntigos = true;
+      });
+
+      selEstacionamento.innerHTML =
+        `<option value="">Todos</option>` +
+        [...locais.entries()]
+          .sort((a, b) => a[1].localeCompare(b[1]))
+          .map(([id, nome]) => `<option value="${esc(id)}">${esc(nome)}</option>`)
+          .join("") +
+        (temAntigos ? `<option value="${SEM_ESTACIONAMENTO}">Sem estacionamento (anteriores)</option>` : "");
+
+      selCategoria.innerHTML =
+        `<option value="">Todas</option>` +
+        categorias.map((c) => `<option value="${esc(c.chave)}">${esc(c.rotulo)}</option>`).join("");
+
+      selEstacionamento.value = [...selEstacionamento.options].some((o) => o.value === anteriorEst) ? anteriorEst : "";
+      selCategoria.value = [...selCategoria.options].some((o) => o.value === anteriorCat) ? anteriorCat : "";
+    }
+
+    // estacionamento e busca valem para tudo; categoria e nota só filtram a lista
+    function filtrarBase() {
+      const local = selEstacionamento.value;
+      const query = busca.value.toLowerCase();
+
+      return feedbacks.filter((item) => {
+        if (local === SEM_ESTACIONAMENTO) {
+          if (item.fk_est) return false;
+        } else if (local && item.fk_est !== local) {
+          return false;
+        }
+
+        const texto = [
+          item.usuario?.nome,
+          nomeEstacionamento(item),
+          item.assunto,
+          item.mensagem,
+          ...(item.notas || []).map((n) => n.comentario)
+        ].join(" ").toLowerCase();
+
+        return texto.includes(query);
+      });
+    }
+
+    function renderResumo(base) {
+      const estruturadas = base.filter((item) => item.notas?.length);
+      const antigos = base.length - estruturadas.length;
+
+      const porCategoria = categorias
+        .map((c) => {
+          const valores = estruturadas.flatMap((item) =>
+            item.notas.filter((n) => n.categoria === c.chave).map((n) => n.nota)
+          );
+          return { chave: c.chave, rotulo: c.rotulo, media: media(valores), total: valores.length };
+        })
+        .filter((c) => c.total > 0);
+
+      const ordenadas = [...porCategoria].sort((a, b) => b.media - a.media);
+      const melhor = ordenadas[0];
+      const pior = ordenadas.length > 1 ? ordenadas[ordenadas.length - 1] : null;
+
+      const cartao = (titulo, valor, detalhe) => `
+        <div class="fb-stat">
+          <span>${titulo}</span>
+          <strong>${valor}</strong>
+          <small>${detalhe}</small>
+        </div>
+      `;
+
+      document.querySelector("#resumo").innerHTML =
+        cartao("Avaliações", estruturadas.length, antigos ? `+ ${antigos} feedback${antigos > 1 ? "s" : ""} antigo${antigos > 1 ? "s" : ""}` : "por estacionamento") +
+        cartao("Média geral", formatar(media(estruturadas.map((item) => item.nota))), estrelas(media(estruturadas.map((item) => item.nota)))) +
+        cartao("Melhor categoria", melhor ? formatar(melhor.media) : "--", melhor ? esc(melhor.rotulo) : "sem dados") +
+        cartao("Ponto de atenção", pior ? formatar(pior.media) : "--", pior ? esc(pior.rotulo) : "sem dados");
+
+      document.querySelector("#barras").innerHTML = porCategoria.length === 0
+        ? `<p class="fb-vazio">Nenhuma avaliação por categoria nesta seleção.</p>`
+        : categorias.map((c) => {
+            const dado = porCategoria.find((p) => p.chave === c.chave);
+            const largura = dado ? (dado.media / 5) * 100 : 0;
+            const nivel = !dado ? "" : dado.media >= 4 ? "alta" : dado.media >= 3 ? "media" : "baixa";
+
+            return `
+              <button type="button" class="fb-barra ${dado ? "" : "sem-dado"} ${selCategoria.value === c.chave ? "ativa" : ""}" data-chave="${esc(c.chave)}">
+                <span>${esc(c.rotulo)}</span>
+                <div class="trilho"><div class="preenche ${nivel}" style="width:${largura}%"></div></div>
+                <b>${dado ? formatar(dado.media) : "--"}</b>
+                <em>${dado ? dado.total : 0}</em>
+              </button>
+            `;
+          }).join("");
+    }
+
+    function renderLista(lista, categoria) {
+      document.querySelector("#contagem").textContent = `· ${lista.length}`;
+
+      if (lista.length === 0) {
+        list.innerHTML = `<article class="feedback"><div class="fb-com">Nenhuma avaliação encontrada.</div></article>`;
         return;
       }
 
-      list.innerHTML = data.map((item) => `
-        <article class="feedback">
+      list.innerHTML = lista.map((item) => {
+        const topo = `
           <div class="feedback-top">
-            <span class="stars">
-              ${"★".repeat(item.nota)}${"☆".repeat(5 - item.nota)}
-            </span>
-
-            <strong>${item.usuario.nome}</strong>
-
-            <span class="place">${item.categoria}</span>
+            <span class="stars" title="Nota geral">${estrelas(item.nota)}</span>
+            <strong>${esc(item.usuario?.nome || "Usuário removido")}</strong>
+            <span class="place">${esc(nomeEstacionamento(item))}</span>
           </div>
+        `;
 
-          <p><strong>${item.assunto}</strong></p>
-          <p>${item.mensagem}</p>
+        if (!item.notas?.length) {
+          return `
+            <article class="feedback">
+              ${topo}
+              <p><strong>${esc(item.assunto)}</strong> · ${esc(item.categoria)}</p>
+              <p>${esc(item.mensagem)}</p>
+              <time>${mostrarData(item.createdAt)}</time>
+            </article>
+          `;
+        }
 
-          <time>${mostrarData(item.createdAt)}</time>
-        </article>
-      `).join("");
+        const notas = item.notas
+          .filter((n) => !categoria || n.categoria === categoria)
+          .sort((a, b) => posicao(a.categoria) - posicao(b.categoria));
+
+        const vaga = item.reservaCli?.reserva?.vaga?.numero;
+
+        return `
+          <article class="feedback">
+            ${topo}
+            <div class="fb-notas">
+              ${notas.map((n) => `
+                <div class="fb-nota">
+                  <span class="fb-cat">${esc(rotulo(n.categoria))}</span>
+                  <span class="stars" title="${n.nota} de 5">${estrelas(n.nota)}</span>
+                  ${n.comentario ? `<div class="fb-com">${esc(n.comentario)}</div>` : ""}
+                </div>
+              `).join("")}
+            </div>
+            <time>${mostrarData(item.createdAt)}${vaga ? ` · Vaga ${esc(vaga)}` : ""}</time>
+          </article>
+        `;
+      }).join("");
     }
 
     function filter() {
-      const query = document.querySelector("#search").value.toLowerCase();
-      const rating = document.querySelector("#rating").value;
+      const categoria = selCategoria.value;
+      const nota = selNota.value;
+      const base = filtrarBase();
 
-      const filtered = feedbacks.filter((item) => {
-        const texto = `${item.usuario.nome} ${item.assunto} ${item.categoria} ${item.mensagem}`.toLowerCase();
+      const lista = base.filter((item) => {
+        if (categoria) {
+          const n = item.notas?.find((x) => x.categoria === categoria);
+          if (!n) return false;
+          return !nota || String(n.nota) === nota;
+        }
 
-        return (
-          texto.includes(query) &&
-          (!rating || String(item.nota) === rating)
-        );
+        return !nota || String(item.nota) === nota;
       });
 
-      render(filtered);
+      renderResumo(base);
+      renderLista(lista, categoria);
     }
 
     async function carregarFeedbacks() {
       try {
-        const resposta = await fetch(api + "/feedback");
-        const lista = await resposta.json();
+        const [respCategorias, respFeedbacks] = await Promise.all([
+          fetch(api + "/feedback/categorias"),
+          fetch(api + "/feedback")
+        ]);
 
-        if (!resposta.ok) {
-          throw new Error(lista.erro || "Erro ao carregar os feedbacks");
+        const cats = await respCategorias.json();
+        const lista = await respFeedbacks.json();
+
+        if (!respCategorias.ok || !respFeedbacks.ok) {
+          throw new Error(lista.erro || cats.erro || "Erro ao carregar os feedbacks");
         }
 
+        categorias = cats;
         feedbacks = lista;
+        preencherFiltros();
         filter();
       } catch (error) {
-        list.innerHTML = `<article class="feedback"><p>${error.message || "Não foi possível carregar. Verifique se o servidor está ligado."}</p></article>`;
+        list.innerHTML = `<article class="feedback"><div class="fb-com">${esc(error.message || "Não foi possível carregar. Verifique se o servidor está ligado.")}</div></article>`;
       }
     }
 
-    document.querySelector("#search").addEventListener("input", filter);
-    document.querySelector("#rating").addEventListener("change", filter);
+    busca.addEventListener("input", filter);
+    selNota.addEventListener("change", filter);
+    selCategoria.addEventListener("change", filter);
+    selEstacionamento.addEventListener("change", filter);
+
+    // clicar numa categoria do desempenho filtra a lista por ela
+    document.querySelector("#barras").addEventListener("click", (event) => {
+      const botao = event.target.closest(".fb-barra");
+      if (!botao || botao.classList.contains("sem-dado")) return;
+
+      selCategoria.value = selCategoria.value === botao.dataset.chave ? "" : botao.dataset.chave;
+      filter();
+    });
 
 
     const svg = (name) => `

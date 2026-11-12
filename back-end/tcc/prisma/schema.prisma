@@ -8,65 +8,66 @@ datasource db {
 }
 
 model Usuario {
-  id             String       @id @default(uuid())
+  id             String   @id @default(uuid())
   nome           String
   dataNascimento DateTime
-  cpf            String       @unique
-  email          String       @unique
+  cpf            String   @unique
+  email          String   @unique
   senha          String
-  createdAt      DateTime     @default(now())
+  createdAt      DateTime @default(now())
 
-  fk_idEndereco  String       @unique
-  endereco       Endereco     @relation(fields: [fk_idEndereco], references: [id])
+  fk_idEndereco String   @unique
+  endereco      Endereco @relation(fields: [fk_idEndereco], references: [id])
 
-  carros         Carro[]
-  reservas       ReservaCli[]
-  feedbacks      Feedback[]
-  reembolsos     Reembolso[]
+  carros     Carro[]
+  reservas   ReservaCli[]
+  feedbacks  Feedback[]
+  reembolsos Reembolso[]
 }
 
 model Endereco {
-  id             String          @id @default(uuid())
-  rua            String
-  numero         String
-  bairro         String
-  cidade         String
-  estado         String
-  cep            String
+  id     String @id @default(uuid())
+  rua    String
+  numero String
+  bairro String
+  cidade String
+  estado String
+  cep    String
 
   usuario        Usuario?
   estacionamento Estacionamento?
 }
 
 model Carro {
-  id           String       @id @default(uuid())
-  placacarro   String       @unique
+  id           String  @id @default(uuid())
+  placacarro   String  @unique
   modelo       String
   fk_idCliente String
-  usuario      Usuario      @relation(fields: [fk_idCliente], references: [id], onDelete: Cascade)
+  usuario      Usuario @relation(fields: [fk_idCliente], references: [id], onDelete: Cascade)
 
-  reservas     ReservaCli[]
+  reservas ReservaCli[]
 
   @@index([fk_idCliente])
 }
 
 model ReservaCli {
-  id           String      @id @default(uuid())
-  data         DateTime    @default(now())
-  hora         DateTime    @default(now())
-  horaSaida        DateTime?
-  codigoPresenca   String?
-  codigoSaida      String?
-  fk_idCliente     String
-  fk_idReserva String
-  fk_idCarro   String?
+  id             String    @id @default(uuid())
+  data           DateTime  @default(now())
+  hora           DateTime  @default(now())
+  horaSaida      DateTime?
+  codigoPresenca String?
+  codigoSaida    String?
+  fk_idCliente   String
+  fk_idReserva   String
+  fk_idCarro     String?
 
-  usuario      Usuario     @relation(fields: [fk_idCliente], references: [id], onDelete: Cascade)
-  reserva      Reserva     @relation(fields: [fk_idReserva], references: [id])
-  carro        Carro?      @relation(fields: [fk_idCarro], references: [id])
+  usuario Usuario @relation(fields: [fk_idCliente], references: [id], onDelete: Cascade)
+  reserva Reserva @relation(fields: [fk_idReserva], references: [id])
+  carro   Carro?  @relation(fields: [fk_idCarro], references: [id])
 
-  pagamentos   Pagamento[]
-  reembolsos   Reembolso[]
+  pagamentos Pagamento[]
+  reembolsos Reembolso[]
+  feedback   Feedback?
 
   @@index([fk_idCliente])
   @@index([fk_idReserva])
@@ -95,38 +96,56 @@ model Pagamento {
 }
 
 model Reembolso {
-  id            String     @id @default(uuid())
+  id            String    @id @default(uuid())
   valorPago     Float
   valorDevolver Float
-  minutosUsados Int        @default(0)
-  valorUsado    Float      @default(0)
-  motivo        String     @default("")
-  status        String     @default("Pendente")
-  observacao    String     @default("")
+  minutosUsados Int       @default(0)
+  valorUsado    Float     @default(0)
+  motivo        String    @default("")
+  status        String    @default("Pendente")
+  observacao    String    @default("")
   decididoPor   String?
-  criadoEm      DateTime   @default(now())
+  criadoEm      DateTime  @default(now())
   respondido    DateTime?
   fk_reservacli String
   fk_idCliente  String
 
-  reservaCli    ReservaCli @relation(fields: [fk_reservacli], references: [id], onDelete: Cascade)
-  usuario       Usuario    @relation(fields: [fk_idCliente], references: [id], onDelete: Cascade)
+  reservaCli ReservaCli @relation(fields: [fk_reservacli], references: [id], onDelete: Cascade)
+  usuario    Usuario    @relation(fields: [fk_idCliente], references: [id], onDelete: Cascade)
 
   @@index([fk_reservacli])
   @@index([fk_idCliente])
 }
 
 model Feedback {
-  id           String   @id @default(uuid())
-  nota         Int
-  assunto      String
-  categoria    String
-  mensagem     String
-  createdAt    DateTime @default(now())
-  fk_idCliente String
-  usuario      Usuario  @relation(fields: [fk_idCliente], references: [id], onDelete: Cascade)
+  id             String          @id @default(uuid())
+  nota           Int
+  assunto        String
+  categoria      String
+  mensagem       String
+  createdAt      DateTime        @default(now())
+  fk_idCliente   String
+  fk_est         String?
+  fk_reservacli  String?         @unique
+  usuario        Usuario         @relation(fields: [fk_idCliente], references: [id], onDelete: Cascade)
+  estacionamento Estacionamento? @relation(fields: [fk_est], references: [id], onDelete: SetNull)
+  reservaCli     ReservaCli?     @relation(fields: [fk_reservacli], references: [id], onDelete: SetNull)
+  notas          NotaFeedback[]
 
   @@index([fk_idCliente])
+  @@index([fk_est])
+}
+
+model NotaFeedback {
+  id          String   @id @default(uuid())
+  categoria   String
+  nota        Int
+  comentario  String   @default("")
+  fk_feedback String
+  feedback    Feedback @relation(fields: [fk_feedback], references: [id], onDelete: Cascade)
+
+  @@unique([fk_feedback, categoria])
+  @@index([fk_feedback])
 }
 
 model Vaga {
@@ -150,6 +169,7 @@ model Estacionamento {
   endereco      Endereco      @relation(fields: [fk_idEndereco], references: [id])
   funcionarios  Funcionario[]
   vagas         Vaga[]
+  feedbacks     Feedback[]
 }
 
 model Funcionario {

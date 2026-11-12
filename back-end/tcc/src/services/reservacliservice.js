@@ -331,3 +331,105 @@ export async function confirmarSaida(id, codigoDigitado, motivo) {
     estorno: conta
   }
 }
+
+
+const TOLERANCIA_SAIDA_MS = 10 * 60 * 1000
+
+
+export function valorTempoExtra(item, agora = new Date()) {
+  const saida = new Date(item?.horaSaida)
+  const precoHora = Number(item?.reserva?.vaga?.preco || 0)
+  if (isNaN(saida.getTime())) return { minutos: 0, valor: 0 }
+
+  const inicioCobranca = saida.getTime() + TOLERANCIA_SAIDA_MS
+  if (agora.getTime() <= inicioCobranca) return { minutos: 0, valor: 0 }
+
+  const minutos = Math.ceil((agora.getTime() - inicioCobranca) / 60000)
+  return {
+    minutos,
+    valor: arredondar(minutos * precoHora / 60)
+  }
+}
+
+
+export async function sairDaVaga(id, codigoDigitado, pagamento) {
+  await processarAtrasos()
+
+  const item = await prismaClient.reservaCli.findUnique({
+    where: { id },
+    include: relacoes
+  })
+
+  if (!item) {
+    const erro = new Error('Reserva de cliente não encontrada')
+    erro.status = 404
+    throw erro
+  }
+
+  if (item.reserva?.status !== 'Ativa') {
+    throw new Error('Só é possível sair de uma vaga que está ativa.')
+  }
+
+  if (!item.codigoSaida) {
+    throw new Error('O pátio ainda não gerou o código de saída.')
+  }
+
+  const codigo = String(codigoDigitado || '').replace(/\s/g, '')
+
+  if (codigo !== item.codigoSaida) {
+    throw new Error('Código de saída inválido.')
+  }
+
+  const extra = valorTempoExtra(item)
+  const tipo = pagamento?.tipo
+  const tipos = ['pix', 'cartao', 'dinheiro']
+
+  if (extra.valor > 0 && !tipos.includes(tipo)) {
+    const erro = new Error('Informe como vai pagar o tempo extra.')
+    erro.status = 400
+    throw erro
+  }
+
+  await prismaClient.$transaction(async (tx) => {
+    await tx.reserva.update({
+      where: { id: item.fk_idReserva },
+      data: { status: 'Concluída' }
+    })
+
+    if (item.reserva?.vaga?.id) {
+      await tx.vaga.update({
+        where: { id: item.reserva.vaga.id },
+        data: { status: 'Livre' }
+      })
+    }
+
+    await tx.reservaCli.update({
+      where: { id },
+      data: {
+        codigoSaida: null,
+        codigoPresenca: null,
+        horaSaida: new Date()
+      }
+    })
+
+    if (extra.valor > 0) {
+      await tx.pagamento.create({
+        data: {
+          nome: tipo === 'pix' ? 'PIX' : tipo === 'dinheiro' ? 'Dinheiro' : 'Cartão de Crédito',
+          tipo,
+          valor: extra.valor,
+          fk_reserva: id
+        }
+      })
+    }
+  })
+
+  avisarPresenca(id, { tipo: 'saida-confirmada' })
+
+  const atualizado = await prismaClient.reservaCli.findUnique({
+    where: { id },
+    include: relacoes
+  })
+
+  return { ...atualizado, extra }
+}

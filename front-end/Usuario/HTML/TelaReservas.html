@@ -972,9 +972,7 @@ let estacionamentos = [];
 
 // Enquanto a reserva estiver com um destes status, o
 // usuário não pode reservar outra vaga.
-// Coloque "Ativa" na lista também se quiser barrar
-// quem já está estacionado.
-const STATUS_QUE_BLOQUEIA = ["Reservada", "Tolerância", "Atraso"];
+const STATUS_QUE_BLOQUEIA = ["Reservada", "Tolerância", "Atraso", "Ativa"];
 
 let reservaEmAberto = null;
 
@@ -998,11 +996,57 @@ async function carregarReservaEmAberto(){
 }
 
 
+function textoBloqueio(){
+
+    const numero = reservaEmAberto.reserva.vaga.numero;
+
+    const ativa = reservaEmAberto.reserva.status === "Ativa";
+
+    if(ativa){
+
+        return {
+
+            titulo: "Você já tem uma vaga ativa",
+
+            detalhe: `Vaga ${numero} — encerre o uso atual para reservar outra.`,
+
+            href: "TelaCheckoutEncerrar.html?id=" + encodeURIComponent(reservaEmAberto.id),
+
+            link: "Ver tempo da vaga",
+
+            alerta: "Você já tem uma vaga ativa. Encerre o uso atual para reservar outra.",
+
+            botao: "Vaga ativa"
+
+        };
+
+    }
+
+    return {
+
+        titulo: "Você já tem uma reserva em andamento",
+
+        detalhe: `Vaga ${numero} — confirme sua chegada no pátio para reservar outra.`,
+
+        href: "TelaReserAndamento.html",
+
+        link: "Ver minha reserva",
+
+        alerta: "Você já tem uma reserva aguardando sua chegada. Confirme a presença no pátio para reservar outra vaga.",
+
+        botao: "Reserva em andamento"
+
+    };
+
+}
+
+
+
 function mostrarBloqueio(){
 
     if(!reservaEmAberto) return;
 
-    const numero = reservaEmAberto.reserva.vaga.numero;
+    const texto = textoBloqueio();
 
     const aviso = document.createElement("div");
 
@@ -1011,17 +1055,17 @@ function mostrarBloqueio(){
     aviso.innerHTML = `
         <i class="fa-solid fa-circle-exclamation"></i>
         <div>
-            <strong>Você já tem uma reserva em andamento</strong>
-            <span>Vaga ${numero} — confirme sua chegada no pátio para reservar outra.</span>
+            <strong>${texto.titulo}</strong>
+            <span>${texto.detalhe}</span>
         </div>
-        <a href="TelaReserAndamento.html">Ver minha reserva</a>
+        <a href="${texto.href}">${texto.link}</a>
     `;
 
     document.querySelector(".legend").after(aviso);
 
     btnSelecionar.disabled = true;
 
-    btnSelecionar.textContent = "Reserva em andamento";
+    btnSelecionar.textContent = texto.botao;
 
 }
 
@@ -1681,7 +1725,7 @@ function selecionar(vaga,elemento){
 
     if(reservaEmAberto){
 
-        alert("Você já tem uma reserva aguardando sua chegada. Confirme a presença no pátio para reservar outra vaga.");
+        alert(textoBloqueio().alerta);
 
         return;
 
@@ -1766,6 +1810,15 @@ function selecionar(vaga,elemento){
 
 
 btnSelecionar.onclick = ()=>{
+
+
+    if(reservaEmAberto){
+
+        alert(textoBloqueio().alerta);
+
+        return;
+
+    }
 
 
 

@@ -54,6 +54,20 @@ router.post('/:id/codigo-saida', async (req, res) => {
 })
 
 
+router.post('/:id/sair', async (req, res) => {
+  try {
+    const reservaCli = await reservaCliService.sairDaVaga(
+      req.params.id,
+      req.body?.codigo,
+      req.body?.pagamento
+    )
+    res.status(200).json(reservaCli)
+  } catch (error) {
+    res.status(error.status || 400).json({ erro: error.message })
+  }
+})
+
+
 router.post('/:id/confirmar-saida', async (req, res) => {
   try {
     const reservaCli = await reservaCliService.confirmarSaida(

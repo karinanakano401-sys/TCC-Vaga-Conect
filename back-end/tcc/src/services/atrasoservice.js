@@ -48,10 +48,20 @@ async function cancelarNoShow(item) {
 
   await prismaClient.$transaction(async (tx) => {
     const atual = await tx.reserva.findUnique({
-      where: { id: item.reserva.id }
+      where: { id: item.reserva.id },
+      include: { vaga: true }
     })
 
     if (!atual || !STATUS_AGUARDANDO.includes(atual.status)) return
+
+    // Presença já confirmada: o atraso não cancela quem já entrou.
+    if (atual.vaga?.status === 'Ocupada') {
+      await tx.reserva.update({
+        where: { id: atual.id },
+        data: { status: 'Ativa' }
+      })
+      return
+    }
 
     await tx.reserva.update({
       where: { id: item.reserva.id },
@@ -105,14 +115,29 @@ async function executar() {
 
   for (const item of pendentes) {
     try {
+      const atual = await prismaClient.reserva.findUnique({
+        where: { id: item.reserva.id },
+        include: { vaga: true }
+      })
+
+      if (!atual || !STATUS_AGUARDANDO.includes(atual.status)) continue
+
+      if (atual.vaga?.status === 'Ocupada') {
+        await prismaClient.reserva.updateMany({
+          where: { id: atual.id, status: { in: STATUS_AGUARDANDO } },
+          data: { status: 'Ativa' }
+        })
+        continue
+      }
+
       const destino = proximoStatus(item.hora, agora)
-      if (!destino || destino === item.reserva.status) continue
+      if (!destino || destino === atual.status) continue
 
       if (destino === 'Cancelada') {
         await cancelarNoShow(item)
       } else {
-        await prismaClient.reserva.update({
-          where: { id: item.reserva.id },
+        await prismaClient.reserva.updateMany({
+          where: { id: atual.id, status: { in: STATUS_AGUARDANDO } },
           data: { status: destino }
         })
       }

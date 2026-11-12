@@ -1554,12 +1554,52 @@ function render(){
 
 
             ${
+                reserva.status === "Ativa"
+                    ? `
+
+            ${
                 usou
                     ? `
 
-                <!-- =====================================
-                     PRORROGAÇÃO REALIZADA
-                ====================================== -->
+                <div class="prorrogacao-info">
+
+                    <i class="fa-solid fa-clock"></i>
+
+                    <div>
+
+                        <strong>
+                            Prorrogação realizada
+                        </strong>
+
+                        <span>
+                            Seu tempo foi estendido
+                            em mais 1 hora.
+                        </span>
+
+                    </div>
+
+                </div>
+
+                `
+                    : ""
+            }
+
+            <button
+                class="extend"
+                onclick="window.location.href='TelaCheckoutEncerrar.html?id=${encodeURIComponent(item.id)}'">
+
+                <i class="fa-solid fa-clock"></i>
+
+                Ver tempo da vaga
+
+            </button>
+
+                    `
+                    : `
+
+            ${
+                usou
+                    ? `
 
                 <div class="prorrogacao-info">
 
@@ -1618,6 +1658,9 @@ function render(){
                 Cancelar reserva
 
             </button>
+
+                    `
+            }
 
             `
                     : ""
@@ -2148,7 +2191,11 @@ function confirmarPresenca(idReservaCli){
 
     Presenca.modalCliente({
         id: idReservaCli,
-        aoConfirmar: carregarReservas
+        aoConfirmar: function () {
+            window.location.href =
+                "TelaCheckoutEncerrar.html?id=" +
+                encodeURIComponent(idReservaCli);
+        }
     });
 
 }
@@ -2449,6 +2496,29 @@ function atualizarBotaoProrrogar(){
             item =>
                 estaAtiva(item)
         );
+
+
+    const vagaOcupada =
+        Boolean(ativa) &&
+        ativa.reserva.status === "Ativa";
+
+
+    const blocoAcoes =
+        document.querySelector(".rail-acoes");
+
+
+    if(blocoAcoes){
+
+        blocoAcoes.hidden = vagaOcupada;
+
+    }
+
+
+    if(vagaOcupada){
+
+        return;
+
+    }
 
 
     const pode =

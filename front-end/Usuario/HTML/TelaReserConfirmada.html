@@ -493,9 +493,9 @@ botaoConfirmar.addEventListener("click", async () => {
 
         await Presenca.confirmar(idReservaCli, codigoDigitado);
 
-        esconderConfirmacao("Presença confirmada. Sua vaga está ativa.");
-
-        mensagemCodigo.className = "mensagem-codigo sucesso";
+        window.location.href =
+            "TelaCheckoutEncerrar.html?id=" +
+            encodeURIComponent(idReservaCli);
 
     } catch (error) {
 
