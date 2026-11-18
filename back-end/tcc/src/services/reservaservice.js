@@ -18,7 +18,7 @@ export async function listarReservas() {
   const reservas = await prismaClient.reserva.findMany({
     include: {
       vaga: { include: { estacionamento: true } },
-      reservasCli: { include: { usuario: true } }
+      reservasCli: { include: { usuario: { omit: { senha: true } } } }
     }
   })
   return reservas
@@ -31,7 +31,7 @@ export async function buscarReservaPorId(id) {
     where: { id },
     include: {
       vaga: { include: { estacionamento: true } },
-      reservasCli: { include: { usuario: true } }
+      reservasCli: { include: { usuario: { omit: { senha: true } } } }
     }
   })
   return reserva

@@ -1,28 +1,12 @@
 import prismaClient from '../prisma/index.js'
+import { GARANTIA, arredondar, totalPago } from './cobrancaservice.js'
 
 
 export const TOLERANCIA_MS = 10 * 60 * 1000
 export const ATRASO_MS = 20 * 60 * 1000
 export const STATUS_AGUARDANDO = ['Reservada', 'Tolerância', 'Atraso']
 
-const GARANTIA = 25
-
 let emAndamento = null
-
-
-function arredondar(valor) {
-  return Math.round(Number(valor || 0) * 100) / 100
-}
-
-
-function totalPago(item) {
-  return arredondar(
-    (item.pagamentos || []).reduce(
-      (soma, pagamento) => soma + Number(pagamento.valor || 0),
-      0
-    )
-  )
-}
 
 
 export function proximoStatus(hora, agora = new Date()) {

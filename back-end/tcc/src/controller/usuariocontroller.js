@@ -1,5 +1,6 @@
 import express from 'express'
 import * as usuarioService from '../services/usuarioservice.js'
+import { emitirToken } from '../auth.js'
 
 const router = express.Router()
 
@@ -17,7 +18,8 @@ router.post('/', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const usuario = await usuarioService.loginUsuario(req.body)
-    res.status(200).json(usuario)
+    const token = emitirToken({ id: usuario.id, tipo: 'usuario', perfil: 'cliente', nome: usuario.nome })
+    res.status(200).json({ ...usuario, token })
   } catch (error) {
     res.status(401).json({ erro: error.message })
   }
@@ -50,6 +52,18 @@ router.put('/:id', async (req, res) => {
     const usuario = await usuarioService.atualizarUsuario(req.params.id, req.body)
     res.status(200).json(usuario)
   } catch (error) {
+    res.status(400).json({ erro: error.message })
+  }
+})
+
+
+router.put('/:id/avatar', async (req, res) => {
+  try {
+    const avatar = req.body?.avatar ?? null
+    const usuario = await usuarioService.atualizarAvatar(req.params.id, avatar)
+    res.status(200).json(usuario)
+  } catch (error) {
+    if (error.code === 'P2025') return res.status(404).json({ erro: 'Usuário não encontrado' })
     res.status(400).json({ erro: error.message })
   }
 })

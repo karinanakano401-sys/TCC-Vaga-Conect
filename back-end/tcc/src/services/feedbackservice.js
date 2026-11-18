@@ -66,9 +66,10 @@ const incluirEndereco = {
 const relacoes = {
   usuario: {
     select: {
-      id:    true,
-      nome:  true,
-      email: true
+      id:     true,
+      nome:   true,
+      email:  true,
+      avatar: true
     }
   },
   estacionamento: {
@@ -284,7 +285,7 @@ export async function listarAvaliacoesPublicas(idEstacionamento) {
     where: { fk_est: idEstacionamento },
     include: {
       notas:   true,
-      usuario: { select: { nome: true } }
+      usuario: { select: { nome: true, avatar: true } }
     },
     orderBy: { createdAt: 'desc' }
   })
@@ -294,6 +295,7 @@ export async function listarAvaliacoesPublicas(idEstacionamento) {
     createdAt: f.createdAt,
     nota:      f.nota,
     nome:      (f.usuario?.nome ?? 'Usuário').trim().split(/\s+/)[0],
+    avatar:    f.usuario?.avatar ?? null,
     notas:     f.notas.map(n => ({ categoria: n.categoria, nota: n.nota, comentario: n.comentario }))
   }))
 }

@@ -14,8 +14,9 @@ model Usuario {
   cpf            String   @unique
   email          String   @unique
   senha          String
+  avatar         String?
   createdAt      DateTime @default(now())
-
+  
   fk_idEndereco String   @unique
   endereco      Endereco @relation(fields: [fk_idEndereco], references: [id])
 
@@ -55,6 +56,8 @@ model ReservaCli {
   data           DateTime  @default(now())
   hora           DateTime  @default(now())
   horaSaida      DateTime?
+  entradaEm      DateTime?
+  saidaEm        DateTime?
   codigoPresenca String?
   codigoSaida    String?
   fk_idCliente   String
@@ -89,10 +92,13 @@ model Pagamento {
   nome       String
   tipo       String
   valor      Float
+  categoria  String     @default("taxa")
+  criadoEm   DateTime   @default(now())
   fk_reserva String
   reservaCli ReservaCli @relation(fields: [fk_reserva], references: [id], onDelete: Cascade)
 
   @@index([fk_reserva])
+  @@index([criadoEm])
 }
 
 model Reembolso {

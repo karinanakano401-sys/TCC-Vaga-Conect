@@ -1,12 +1,21 @@
 import prismaClient from '../prisma/index.js'
+import { ehEquipe, erroHttp } from '../auth.js'
+import {
+  STATUS_EM_ANDAMENTO,
+  calcularEstorno,
+  totalPago
+} from './cobrancaservice.js'
+import { situacaoDaOcupacao } from './ocupacaoservice.js'
+import { cancelarComReembolso } from './reservacliservice.js'
 
 
 const relacoes = {
   usuario: {
     select: {
-      id:    true,
-      nome:  true,
-      email: true
+      id:     true,
+      nome:   true,
+      email:  true,
+      avatar: true
     }
   },
   reservaCli: {
@@ -18,91 +27,208 @@ const relacoes = {
 }
 
 
-function numero(valor, padrao = 0) {
-  const n = Number(valor)
-  return Number.isFinite(n) ? n : padrao
+const STATUS_ATIVOS = ['Pendente', 'Aprovada']
+
+
+function texto(valor, limite) {
+  return String(valor || '').trim().slice(0, limite)
 }
 
 
-function dadosDoPedido(dados) {
-  return {
-    valorPago:     numero(dados.valorPago),
-    valorDevolver: numero(dados.valorDevolver),
-    minutosUsados: Math.max(0, Math.round(numero(dados.minutosUsados))),
-    valorUsado:    numero(dados.valorUsado),
-    motivo:        dados.motivo || '',
-    status:        dados.status || 'Pendente',
-    observacao:    dados.observacao || '',
-    decididoPor:   dados.decididoPor || null,
-    fk_reservacli: dados.fk_reservacli,
-    fk_idCliente:  dados.fk_idCliente,
+// ---------------------------------------------------------------------------
+// Pedir reembolso
+//
+// Todos os valores são calculados aqui, a partir do que foi pago e do tempo
+// realmente usado. O que o front enviar nesses campos é ignorado.
+//
+//  - cliente (ou equipe, sem estornoTotal): devolve os minutos não usados,
+//    exige reserva em andamento; fica Pendente até a equipe decidir.
+//    Quem está OCUPANDO a vaga não pede reembolso por aqui: precisa sair com o
+//    código de saída (POST /reservacli/:id/confirmar-saida). Quem ainda não
+//    entrou cancela e pede o reembolso sem código, na mesma transação.
+//  - admin com estornoTotal: estorna a taxa inteira de qualquer reserva,
+//    com motivo obrigatório; já nasce Aprovado.
+// ---------------------------------------------------------------------------
+
+export async function criarReembolso(dados, auth) {
+  if (!dados.fk_reservacli) throw erroHttp(400, 'Informe a reserva.')
+
+  const item = await prismaClient.reservaCli.findUnique({
+    where: { id: dados.fk_reservacli },
+    include: {
+      pagamentos: true,
+      reserva: { include: { vaga: true } }
+    }
+  })
+
+  if (!item) throw erroHttp(404, 'Reserva não encontrada.')
+
+  const equipe = ehEquipe(auth)
+
+  if (!equipe && item.fk_idCliente !== auth.sub) {
+    throw erroHttp(403, 'Você só pode pedir reembolso das suas próprias reservas.')
   }
-}
 
+  const estornoTotal = dados.estornoTotal === true
 
-function dadosDaAtualizacao(dados) {
-  const data = {}
-
-  if (dados.valorPago !== undefined)     data.valorPago = numero(dados.valorPago)
-  if (dados.valorDevolver !== undefined) data.valorDevolver = numero(dados.valorDevolver)
-  if (dados.minutosUsados !== undefined) data.minutosUsados = Math.max(0, Math.round(numero(dados.minutosUsados)))
-  if (dados.valorUsado !== undefined)    data.valorUsado = numero(dados.valorUsado)
-  if (dados.motivo !== undefined)        data.motivo = dados.motivo || ''
-  if (dados.status !== undefined)        data.status = dados.status
-  if (dados.observacao !== undefined)    data.observacao = dados.observacao || ''
-  if (dados.decididoPor !== undefined)   data.decididoPor = dados.decididoPor || null
-  if (dados.fk_reservacli !== undefined) data.fk_reservacli = dados.fk_reservacli
-  if (dados.fk_idCliente !== undefined)  data.fk_idCliente = dados.fk_idCliente
-
-  if (dados.respondido) {
-    data.respondido = new Date(dados.respondido)
-  } else if (dados.status && dados.status !== 'Pendente') {
-    data.respondido = new Date()
+  if (estornoTotal && auth.perfil !== 'admin') {
+    throw erroHttp(403, 'Só o administrador pode estornar a taxa inteira.')
   }
 
-  return data
-}
+  const motivo = texto(dados.motivo, 500)
 
+  let dadosDoPedido
 
-export async function criarReembolso(dados) {
-  const reembolso = await prismaClient.reembolso.create({
-    data: dadosDoPedido(dados),
+  if (estornoTotal) {
+    if (motivo.length < 5) {
+      throw erroHttp(400, 'Informe o motivo do estorno (mínimo de 5 caracteres).')
+    }
+
+    const taxa = totalPago(item, 'taxa')
+
+    if (taxa <= 0) throw erroHttp(400, 'Esta reserva não tem taxa paga para estornar.')
+
+    dadosDoPedido = {
+      valorPago:     totalPago(item),
+      valorDevolver: taxa,
+      minutosUsados: 0,
+      valorUsado:    0,
+      motivo,
+      status:        'Aprovada',
+      observacao:    'Estorno total da taxa pela administração.',
+      decididoPor:   auth.nome || 'Administrador',
+      respondido:    new Date()
+    }
+  } else {
+    // cliente (ou equipe sem estornoTotal): reembolso dos minutos não usados
+    if (!STATUS_EM_ANDAMENTO.includes(item.reserva?.status)) {
+      throw erroHttp(409, 'O reembolso dos minutos não usados vale só para reservas em andamento.')
+    }
+
+    const conta = calcularEstorno(item)
+
+    if (conta.reembolso <= 0) {
+      throw erroHttp(400, 'Não há valor a reembolsar nesta reserva.')
+    }
+
+    const ocupacao = situacaoDaOcupacao(item)
+
+    if (ocupacao.exigeCodigoSaida) {
+      const erro = erroHttp(409, 'Você está ocupando uma vaga. Para pedir o reembolso é preciso sair do estacionamento com o código de saída informado pelo pátio.')
+      erro.exigeCodigoSaida = true
+      throw erro
+    }
+
+    const jaPediu = await prismaClient.reembolso.findFirst({
+      where: { fk_reservacli: item.id, status: { in: STATUS_ATIVOS } }
+    })
+
+    if (jaPediu) {
+      throw erroHttp(409, 'Esta reserva já tem um reembolso pendente ou aprovado.')
+    }
+
+    // sem entrada: não há ocupação nem código de saída. Cancela a reserva,
+    // libera a vaga e abre o pedido de uma vez, para não sobrar reserva viva.
+    const cancelada = await cancelarComReembolso(item.id, { motivo, auth })
+
+    if (!cancelada.reembolso) {
+      throw erroHttp(409, 'Esta reserva já tem um reembolso pendente ou aprovado.')
+    }
+
+    return prismaClient.reembolso.findUnique({
+      where: { id: cancelada.reembolso.id },
+      include: relacoes
+    })
+  }
+
+  const jaTem = await prismaClient.reembolso.findFirst({
+    where: { fk_reservacli: item.id, status: { in: STATUS_ATIVOS } }
+  })
+
+  if (jaTem) {
+    throw erroHttp(409, 'Esta reserva já tem um reembolso pendente ou aprovado.')
+  }
+
+  // o índice único do banco barra a corrida entre dois pedidos simultâneos
+  return prismaClient.reembolso.create({
+    data: {
+      ...dadosDoPedido,
+      fk_reservacli: item.id,
+      fk_idCliente:  item.fk_idCliente
+    },
     include: relacoes
   })
-  return reembolso
 }
 
 
-export async function listarReembolsos() {
-  const reembolsos = await prismaClient.reembolso.findMany({
+// ---------------------------------------------------------------------------
+// Consultas
+// ---------------------------------------------------------------------------
+
+export async function listarReembolsos(auth, filtros = {}) {
+  const where = {}
+
+  if (!ehEquipe(auth)) where.fk_idCliente = auth.sub
+
+  if (['Pendente', 'Aprovada', 'Recusada'].includes(filtros.status)) {
+    where.status = filtros.status
+  }
+
+  return prismaClient.reembolso.findMany({
+    where,
     include: relacoes,
     orderBy: { criadoEm: 'desc' }
   })
-  return reembolsos
 }
 
 
-export async function buscarReembolsoPorId(id) {
+export async function buscarReembolsoPorId(id, auth) {
   const reembolso = await prismaClient.reembolso.findUnique({
     where: { id },
     include: relacoes
   })
+
+  if (!reembolso) return null
+
+  if (!ehEquipe(auth) && reembolso.fk_idCliente !== auth.sub) {
+    throw erroHttp(403, 'Este reembolso pertence a outra pessoa.')
+  }
+
   return reembolso
 }
 
 
-export async function atualizarReembolso(id, dados) {
-  const reembolso = await prismaClient.reembolso.update({
-    where: { id },
-    data: dadosDaAtualizacao(dados),
-    include: relacoes
-  })
-  return reembolso
-}
+// ---------------------------------------------------------------------------
+// Decisão da equipe. Só decide pedido Pendente, uma única vez.
+// Valores, reserva e cliente nunca mudam. Quem decidiu vem do login.
+// ---------------------------------------------------------------------------
 
+export async function atualizarReembolso(id, dados, auth) {
+  const atual = await prismaClient.reembolso.findUnique({ where: { id } })
 
-export async function deletarReembolso(id) {
-  await prismaClient.reembolso.delete({
-    where: { id }
+  if (!atual) throw erroHttp(404, 'Reembolso não encontrado.')
+
+  if (atual.status !== 'Pendente') {
+    throw erroHttp(409, 'Este pedido já foi decidido e não pode ser alterado.')
+  }
+
+  if (!['Aprovada', 'Recusada'].includes(dados.status)) {
+    throw erroHttp(400, 'Decisão inválida. Use Aprovada ou Recusada.')
+  }
+
+  const decidiu = await prismaClient.reembolso.updateMany({
+    where: { id, status: 'Pendente' },
+    data: {
+      status:      dados.status,
+      observacao:  texto(dados.observacao, 500),
+      decididoPor: auth.nome || (auth.perfil === 'admin' ? 'Administrador' : 'Funcionário'),
+      respondido:  new Date()
+    }
   })
+
+  if (decidiu.count === 0) {
+    throw erroHttp(409, 'Este pedido já foi decidido por outra pessoa.')
+  }
+
+  return prismaClient.reembolso.findUnique({ where: { id }, include: relacoes })
 }

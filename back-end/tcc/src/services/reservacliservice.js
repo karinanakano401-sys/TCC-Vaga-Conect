@@ -1,10 +1,21 @@
 import prismaClient from '../prisma/index.js'
 import { processarAtrasos, STATUS_AGUARDANDO } from './atrasoservice.js'
+import { situacaoDaOcupacao, STATUS_AGUARDANDO_CHEGADA } from './ocupacaoservice.js'
 import { avisarPresenca } from '../websocket.js'
+import { ehEquipe, erroHttp } from '../auth.js'
+import {
+  STATUS_EM_ANDAMENTO,
+  FORMAS_DE_PAGAMENTO,
+  calcularReserva,
+  calcularEstorno,
+  resumoDeCobranca,
+  minutosEntre,
+  arredondar
+} from './cobrancaservice.js'
 
 
 const relacoes = {
-  usuario:    true,
+  usuario:    { omit: { senha: true } },
   carro:      true,
   pagamentos: true,
   reserva:    { include: { vaga: { include: { estacionamento: true } } } }
@@ -27,12 +38,23 @@ export async function criarReservaCli(dados) {
 }
 
 
+// Acrescenta a situação de cobrança calculada no servidor (campo novo, aditivo)
+function comCobranca(item) {
+  if (!item) return item
+  return {
+    ...item,
+    cobranca: resumoDeCobranca(item),
+    ocupacao: situacaoDaOcupacao(item)
+  }
+}
+
+
 export async function listarReservaClis() {
   await processarAtrasos()
   const reservaClis = await prismaClient.reservaCli.findMany({
     include: relacoes
   })
-  return reservaClis
+  return reservaClis.map(comCobranca)
 }
 
 
@@ -42,7 +64,7 @@ export async function buscarReservaCliPorId(id) {
     where: { id },
     include: relacoes
   })
-  return reservaCli
+  return comCobranca(reservaCli)
 }
 
 
@@ -163,7 +185,7 @@ export async function confirmarPresenca(id, codigoDigitado) {
 
     await tx.reservaCli.update({
       where: { id },
-      data: { codigoPresenca: null }
+      data: { codigoPresenca: null, entradaEm: new Date() }
     })
   })
 
@@ -176,39 +198,15 @@ export async function confirmarPresenca(id, codigoDigitado) {
 }
 
 
-const STATUS_SAIDA = ['Reservada', 'Tolerância', 'Atraso', 'Ativa']
-const GARANTIA = 25
+const STATUS_SAIDA = STATUS_EM_ANDAMENTO
 
 
-function arredondar(valor) {
-  return Math.round(Number(valor || 0) * 100) / 100
-}
+// Só o dono da reserva ou a equipe do pátio mexem no dinheiro dela
+function conferirAcesso(item, auth) {
+  if (!auth) throw erroHttp(401, 'Faça login para continuar.')
 
-
-function calcularEstorno(item) {
-  const status = item.reserva?.status
-  const precoHora = Number(item.reserva?.vaga?.preco || 0)
-  const pago = arredondar(
-    (item.pagamentos || []).reduce((soma, pagamento) => soma + Number(pagamento.valor || 0), 0)
-  )
-  const credito = Math.max(0, arredondar(pago - GARANTIA))
-
-  let minutosUsados = 0
-  if (status === 'Ativa') {
-    const entrada = new Date(item.hora)
-    const agora = new Date()
-    if (!isNaN(entrada.getTime()) && agora > entrada) {
-      minutosUsados = Math.ceil((agora.getTime() - entrada.getTime()) / 60000)
-    }
-  }
-
-  const valorUsado = arredondar(minutosUsados * precoHora / 60)
-
-  return {
-    minutosUsados,
-    valorUsado,
-    pago,
-    reembolso: Math.max(0, arredondar(credito - valorUsado))
+  if (!ehEquipe(auth) && item.fk_idCliente !== auth.sub) {
+    throw erroHttp(403, 'Esta reserva pertence a outra pessoa.')
   }
 }
 
@@ -227,8 +225,8 @@ export async function gerarCodigoSaida(id) {
     throw erro
   }
 
-  if (!STATUS_SAIDA.includes(item.reserva?.status)) {
-    throw new Error('Só é possível gerar código de saída para reserva em andamento.')
+  if (!situacaoDaOcupacao(item).exigeCodigoSaida) {
+    throw erroHttp(409, 'Só existe código de saída para quem está ocupando a vaga. Esta reserva não tem entrada registrada ativa.')
   }
 
   const atualizado = await prismaClient.reservaCli.update({
@@ -246,7 +244,21 @@ export async function gerarCodigoSaida(id) {
 }
 
 
-export async function confirmarSaida(id, codigoDigitado, motivo) {
+// Erro que avisa o front que, para este caso, o código de saída é obrigatório
+function erroCodigoSaida(mensagem) {
+  const erro = erroHttp(400, mensagem)
+  erro.exigeCodigoSaida = true
+  return erro
+}
+
+
+// Cancela a reserva em andamento e abre o pedido de reembolso, tudo numa transação.
+//
+// O código de saída depende da ocupação REAL (ocupacaoservice.js):
+//   - ocupando    -> exige o código gerado pelo pátio, grava saidaEm e libera a vaga
+//   - sem entrada -> não exige código: nunca houve ocupação para encerrar
+// Quem entrar com status que já mudou (corrida) leva 409 e nada é gravado.
+export async function cancelarComReembolso(id, { codigo, motivo, auth } = {}) {
   await processarAtrasos()
 
   const item = await prismaClient.reservaCli.findUnique({
@@ -260,27 +272,47 @@ export async function confirmarSaida(id, codigoDigitado, motivo) {
     throw erro
   }
 
+  conferirAcesso(item, auth)
+
   if (!STATUS_SAIDA.includes(item.reserva?.status)) {
-    throw new Error('Esta reserva não pode mais ser cancelada com reembolso.')
+    throw erroHttp(409, 'Esta reserva não pode mais ser cancelada com reembolso.')
   }
 
-  if (!item.codigoSaida) {
-    throw new Error('O pátio ainda não gerou o código de saída.')
-  }
+  const ocupacao = situacaoDaOcupacao(item)
 
-  const codigo = String(codigoDigitado || '').replace(/\s/g, '')
+  if (ocupacao.exigeCodigoSaida) {
+    const digitado = String(codigo || '').replace(/\s/g, '')
 
-  if (codigo !== item.codigoSaida) {
-    throw new Error('Código de saída inválido.')
+    if (!digitado) {
+      throw erroCodigoSaida('Você está ocupando uma vaga. Para pedir o reembolso é preciso sair do estacionamento: informe o código de saída passado pelo pátio.')
+    }
+
+    if (!item.codigoSaida) {
+      throw erroCodigoSaida('O pátio ainda não gerou o código de saída. Procure um funcionário para sair da vaga.')
+    }
+
+    if (digitado !== item.codigoSaida) {
+      throw erroCodigoSaida('Código de saída inválido.')
+    }
   }
 
   const conta = calcularEstorno(item)
+  const agora = new Date()
 
-  await prismaClient.$transaction(async (tx) => {
-    await tx.reserva.update({
-      where: { id: item.fk_idReserva },
+  const reembolso = await prismaClient.$transaction(async (tx) => {
+    // só uma chamada vence: evita cancelar e estornar duas vezes.
+    // Sem entrada só cancela enquanto ninguém entrou; ocupando, só quem ainda está dentro.
+    const virou = await tx.reserva.updateMany({
+      where: {
+        id: item.fk_idReserva,
+        status: ocupacao.ocupacaoAtiva ? { in: STATUS_SAIDA } : { in: STATUS_AGUARDANDO_CHEGADA }
+      },
       data: { status: 'Cancelada' }
     })
+
+    if (virou.count === 0) {
+      throw erroHttp(409, 'A situação desta reserva mudou. Atualize a página e tente de novo.')
+    }
 
     if (item.reserva?.vaga?.id) {
       await tx.vaga.update({
@@ -294,29 +326,41 @@ export async function confirmarSaida(id, codigoDigitado, motivo) {
       data: {
         codigoSaida: null,
         codigoPresenca: null,
-        horaSaida: new Date()
+        // só quem estava dentro tem saída; quem nunca entrou mantém o horário planejado
+        ...(ocupacao.ocupacaoAtiva ? { horaSaida: agora, saidaEm: agora } : {})
       }
     })
 
     const jaTem = await tx.reembolso.findFirst({
-      where: { fk_reservacli: id }
+      where: { fk_reservacli: id, status: { in: ['Pendente', 'Aprovada'] } }
     })
 
-    if (!jaTem && item.fk_idCliente) {
-      await tx.reembolso.create({
-        data: {
-          valorPago:     conta.pago,
-          valorDevolver: conta.reembolso,
-          minutosUsados: conta.minutosUsados,
-          valorUsado:    conta.valorUsado,
-          motivo:        motivo || 'Cancelamento antecipado com código de saída',
-          status:        'Pendente',
-          observacao:    'Confirmado com o código de saída do pátio.',
-          fk_reservacli: id,
-          fk_idCliente:  item.fk_idCliente
-        }
-      })
+    if (jaTem || !item.fk_idCliente) return jaTem
+
+    return tx.reembolso.create({
+      data: {
+        valorPago:     conta.pago,
+        valorDevolver: conta.reembolso,
+        minutosUsados: conta.minutosUsados,
+        valorUsado:    conta.valorUsado,
+        motivo:        motivo || (ocupacao.ocupacaoAtiva
+          ? 'Cancelamento antecipado com código de saída'
+          : 'Cancelamento antes da entrada'),
+        status:        'Pendente',
+        observacao:    ocupacao.ocupacaoAtiva
+          ? 'Confirmado com o código de saída do pátio.'
+          : 'Cancelado antes da entrada: não houve ocupação, por isso não foi pedido código de saída.',
+        fk_reservacli: id,
+        fk_idCliente:  item.fk_idCliente
+      }
+    })
+  }, { maxWait: 10000, timeout: 15000 }).catch((erro) => {
+    // pedidos simultâneos: quem perde a disputa recebe um aviso claro, não um erro do banco
+    if (['P2028', 'P2034', 'P2002'].includes(erro?.code)) {
+      throw erroHttp(409, 'Esta reserva já está sendo encerrada. Atualize a página para ver o resultado.')
     }
+
+    throw erro
   })
 
   avisarPresenca(id, { tipo: 'saida-confirmada' })
@@ -327,32 +371,26 @@ export async function confirmarSaida(id, codigoDigitado, motivo) {
   })
 
   return {
-    ...atualizado,
-    estorno: conta
+    ...comCobranca(atualizado),
+    estorno: conta,
+    exigiuCodigoSaida: ocupacao.exigeCodigoSaida,
+    reembolso
   }
 }
 
 
-const TOLERANCIA_SAIDA_MS = 10 * 60 * 1000
+export async function confirmarSaida(id, codigoDigitado, motivo, auth) {
+  const { reembolso, ...resposta } = await cancelarComReembolso(id, {
+    codigo: codigoDigitado,
+    motivo,
+    auth
+  })
 
-
-export function valorTempoExtra(item, agora = new Date()) {
-  const saida = new Date(item?.horaSaida)
-  const precoHora = Number(item?.reserva?.vaga?.preco || 0)
-  if (isNaN(saida.getTime())) return { minutos: 0, valor: 0 }
-
-  const inicioCobranca = saida.getTime() + TOLERANCIA_SAIDA_MS
-  if (agora.getTime() <= inicioCobranca) return { minutos: 0, valor: 0 }
-
-  const minutos = Math.ceil((agora.getTime() - inicioCobranca) / 60000)
-  return {
-    minutos,
-    valor: arredondar(minutos * precoHora / 60)
-  }
+  return resposta
 }
 
 
-export async function sairDaVaga(id, codigoDigitado, pagamento) {
+export async function sairDaVaga(id, codigoDigitado, pagamento, auth) {
   await processarAtrasos()
 
   const item = await prismaClient.reservaCli.findUnique({
@@ -365,6 +403,8 @@ export async function sairDaVaga(id, codigoDigitado, pagamento) {
     erro.status = 404
     throw erro
   }
+
+  conferirAcesso(item, auth)
 
   if (item.reserva?.status !== 'Ativa') {
     throw new Error('Só é possível sair de uma vaga que está ativa.')
@@ -380,21 +420,30 @@ export async function sairDaVaga(id, codigoDigitado, pagamento) {
     throw new Error('Código de saída inválido.')
   }
 
-  const extra = valorTempoExtra(item)
+  // valor em aberto = tempo extra devido − o que a equipe já recebeu antes da saída
+  const cobranca = resumoDeCobranca(item)
+  const extra = {
+    minutos: cobranca.extraMinutos,
+    valor:   cobranca.emAberto
+  }
   const tipo = pagamento?.tipo
-  const tipos = ['pix', 'cartao', 'dinheiro']
 
-  if (extra.valor > 0 && !tipos.includes(tipo)) {
+  if (extra.valor > 0 && !Object.keys(FORMAS_DE_PAGAMENTO).includes(tipo)) {
     const erro = new Error('Informe como vai pagar o tempo extra.')
     erro.status = 400
     throw erro
   }
 
   await prismaClient.$transaction(async (tx) => {
-    await tx.reserva.update({
-      where: { id: item.fk_idReserva },
+    // só uma chamada vence: evita sair e cobrar duas vezes
+    const virou = await tx.reserva.updateMany({
+      where: { id: item.fk_idReserva, status: 'Ativa' },
       data: { status: 'Concluída' }
     })
+
+    if (virou.count === 0) {
+      throw erroHttp(409, 'Esta reserva já foi encerrada.')
+    }
 
     if (item.reserva?.vaga?.id) {
       await tx.vaga.update({
@@ -408,16 +457,18 @@ export async function sairDaVaga(id, codigoDigitado, pagamento) {
       data: {
         codigoSaida: null,
         codigoPresenca: null,
-        horaSaida: new Date()
+        horaSaida: new Date(),
+        saidaEm: new Date()
       }
     })
 
     if (extra.valor > 0) {
       await tx.pagamento.create({
         data: {
-          nome: tipo === 'pix' ? 'PIX' : tipo === 'dinheiro' ? 'Dinheiro' : 'Cartão de Crédito',
+          nome:       FORMAS_DE_PAGAMENTO[tipo],
           tipo,
-          valor: extra.valor,
+          valor:      extra.valor,
+          categoria:  'tempo_extra',
           fk_reserva: id
         }
       })
@@ -432,4 +483,124 @@ export async function sairDaVaga(id, codigoDigitado, pagamento) {
   })
 
   return { ...atualizado, extra }
+}
+
+// Reserva + vínculo com o cliente + pagamento da taxa + vaga ocupada,
+// tudo numa única transação. O valor é calculado aqui, nunca pelo front.
+export async function reservar(dados, auth) {
+  if (!auth || auth.perfil !== 'cliente') {
+    throw erroHttp(403, 'Só o cliente logado pode reservar uma vaga.')
+  }
+
+  const forma = dados.formaPagamento
+
+  if (!['pix', 'cartao'].includes(forma)) {
+    throw erroHttp(400, 'Escolha PIX ou cartão para pagar a reserva.')
+  }
+
+  if (!dados.fk_vaga) throw erroHttp(400, 'Informe a vaga.')
+
+  const hora = new Date(dados.hora)
+  const horaSaida = new Date(dados.horaSaida)
+
+  if (isNaN(hora.getTime()) || isNaN(horaSaida.getTime())) {
+    throw erroHttp(400, 'Informe o horário de chegada e de saída.')
+  }
+
+  const minutos = minutosEntre(hora, horaSaida)
+
+  if (minutos <= 0) {
+    throw erroHttp(400, 'A saída precisa ser depois da chegada.')
+  }
+
+  if (hora.getTime() < Date.now() - 10 * 60 * 1000) {
+    throw erroHttp(400, 'O horário de chegada já passou.')
+  }
+
+  const aberta = await prismaClient.reservaCli.findFirst({
+    where: {
+      fk_idCliente: auth.sub,
+      reserva: { status: { in: STATUS_EM_ANDAMENTO } }
+    },
+    include: { reserva: true }
+  })
+
+  if (aberta) {
+    throw erroHttp(
+      409,
+      aberta.reserva.status === 'Ativa'
+        ? 'Você já tem uma vaga ativa. Encerre o uso atual para reservar outra.'
+        : 'Você já tem uma reserva aguardando sua chegada. Confirme a presença no pátio para reservar outra vaga.'
+    )
+  }
+
+  if (dados.fk_idCarro) {
+    const carro = await prismaClient.carro.findUnique({ where: { id: dados.fk_idCarro } })
+
+    if (!carro || carro.fk_idCliente !== auth.sub) {
+      throw erroHttp(400, 'Veículo inválido para este cliente.')
+    }
+  }
+
+  const criada = await prismaClient.$transaction(async (tx) => {
+    const vaga = await tx.vaga.findUnique({ where: { id: dados.fk_vaga } })
+
+    if (!vaga) throw erroHttp(404, 'Vaga não encontrada.')
+
+    const conta = calcularReserva(vaga.preco, minutos)
+
+    if (dados.valorEsperado !== undefined && dados.valorEsperado !== null) {
+      const esperado = arredondar(dados.valorEsperado)
+
+      if (Math.abs(esperado - conta.total) > 0.009) {
+        const erro = erroHttp(409, 'O valor da reserva mudou. Confira o total e tente de novo.')
+        erro.valorCorreto = conta.total
+        throw erro
+      }
+    }
+
+    // trava a vaga: só uma pessoa leva uma vaga livre
+    const pegou = await tx.vaga.updateMany({
+      where: { id: vaga.id, status: 'Livre' },
+      data: { status: 'Reservada' }
+    })
+
+    if (pegou.count === 0) {
+      throw erroHttp(409, 'Esta vaga não está mais disponível.')
+    }
+
+    const reserva = await tx.reserva.create({
+      data: { status: 'Reservada', fk_vaga: vaga.id }
+    })
+
+    const reservaCli = await tx.reservaCli.create({
+      data: {
+        data:         dados.data ? new Date(dados.data) : hora,
+        hora,
+        horaSaida,
+        fk_idCliente: auth.sub,
+        fk_idReserva: reserva.id,
+        fk_idCarro:   dados.fk_idCarro || null
+      }
+    })
+
+    await tx.pagamento.create({
+      data: {
+        nome:       FORMAS_DE_PAGAMENTO[forma],
+        tipo:       forma,
+        valor:      conta.total,
+        categoria:  'taxa',
+        fk_reserva: reservaCli.id
+      }
+    })
+
+    return { id: reservaCli.id, conta }
+  })
+
+  const completa = await prismaClient.reservaCli.findUnique({
+    where: { id: criada.id },
+    include: relacoes
+  })
+
+  return { ...comCobranca(completa), conta: criada.conta }
 }

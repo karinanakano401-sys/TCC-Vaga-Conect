@@ -1,5 +1,6 @@
 import express from 'express'
 import * as funcionarioService from '../services/funcionarioservice.js'
+import { emitirToken } from '../auth.js'
 
 const router = express.Router()
 
@@ -17,7 +18,13 @@ router.post('/', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const funcionario = await funcionarioService.loginFuncionario(req.body)
-    res.status(200).json(funcionario)
+    const token = emitirToken({
+      id:     funcionario.id,
+      tipo:   'funcionario',
+      perfil: funcionario.tipoFunc?.tipo === 'admin' ? 'admin' : 'funcionario',
+      nome:   funcionario.nome
+    })
+    res.status(200).json({ ...funcionario, token })
   } catch (error) {
     res.status(401).json({ erro: error.message })
   }

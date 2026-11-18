@@ -73,6 +73,24 @@ export async function atualizarUsuario(id, dados) {
 }
 
 
+// Avatar é opcional: guarda só o código do personagem ("f1" a "f10", "m1" a "m10").
+// null remove o avatar. O desenho do personagem fica no front (Base/JS/avatar.js).
+const AVATAR_VALIDO = /^[fm](10|[1-9])$/
+
+export async function atualizarAvatar(id, avatar) {
+  if (avatar !== null && !(typeof avatar === 'string' && AVATAR_VALIDO.test(avatar))) {
+    throw new Error('Avatar inválido')
+  }
+
+  const usuario = await prismaClient.usuario.update({
+    where: { id },
+    data: { avatar },
+    include: { endereco: true }
+  })
+  return semSenha(usuario)
+}
+
+
 export async function deletarUsuario(id) {
   await prismaClient.usuario.delete({
     where: { id }

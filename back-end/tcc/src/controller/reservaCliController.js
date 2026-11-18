@@ -1,7 +1,22 @@
 import express from 'express'
 import * as reservaCliService from '../services/reservacliservice.js'
+import { autenticar, responderErro } from '../auth.js'
 
 const router = express.Router()
+
+
+// Reserva + pagamento da taxa numa única operação (valor calculado no servidor)
+router.post('/reservar', autenticar, async (req, res) => {
+  try {
+    const reservaCli = await reservaCliService.reservar(req.body, req.auth)
+    res.status(201).json(reservaCli)
+  } catch (error) {
+    res.status(error.status || 400).json({
+      erro: error.message,
+      ...(error.valorCorreto !== undefined ? { valorCorreto: error.valorCorreto } : {})
+    })
+  }
+})
 
 
 router.post('/', async (req, res) => {
@@ -54,12 +69,13 @@ router.post('/:id/codigo-saida', async (req, res) => {
 })
 
 
-router.post('/:id/sair', async (req, res) => {
+router.post('/:id/sair', autenticar, async (req, res) => {
   try {
     const reservaCli = await reservaCliService.sairDaVaga(
       req.params.id,
       req.body?.codigo,
-      req.body?.pagamento
+      req.body?.pagamento,
+      req.auth
     )
     res.status(200).json(reservaCli)
   } catch (error) {
@@ -68,16 +84,17 @@ router.post('/:id/sair', async (req, res) => {
 })
 
 
-router.post('/:id/confirmar-saida', async (req, res) => {
+router.post('/:id/confirmar-saida', autenticar, async (req, res) => {
   try {
     const reservaCli = await reservaCliService.confirmarSaida(
       req.params.id,
       req.body?.codigo,
-      req.body?.motivo
+      req.body?.motivo,
+      req.auth
     )
     res.status(200).json(reservaCli)
   } catch (error) {
-    res.status(error.status || 400).json({ erro: error.message })
+    responderErro(res, error, 400)
   }
 })
 
