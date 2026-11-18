@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="../CSS/TelaFunc.css">
+<link rel="stylesheet" href="../../Base/CSS/avatar.css">
 </head>
 
 <body>
@@ -192,6 +193,8 @@
   </div>
 
   <script src="../../Base/JS/sessao.js"></script>
+  <script src="../../Base/JS/auth.js"></script>
+  <script src="../../Base/JS/avatar.js"></script>
   <script>
 
     const icons = {
@@ -319,7 +322,7 @@
           <tr>
             <td>
               <div class="person">
-                <span class="person-icon blue-person">${iniciaisPessoa(nome)}</span>
+                ${item.usuario?.avatar ? Avatar.tag(item.usuario) : `<span class="person-icon blue-person">${iniciaisPessoa(nome)}</span>`}
                 <span>
                   <strong>${nome}</strong>
                   <small>Placa: ${placa}</small>

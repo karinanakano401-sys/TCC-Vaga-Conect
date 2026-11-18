@@ -261,6 +261,7 @@
     </div>
 
     <script src="../../Base/JS/sessao.js"></script>
+    <script src="../../Base/JS/auth.js"></script>
     <script>
         const icons = {
             grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
@@ -343,80 +344,67 @@
                 const texto = String(tipo || "").toLowerCase();
                 if (texto.includes("pix")) return "Pix";
                 if (texto.includes("cart")) return "Cartão";
+                if (texto.includes("dinheiro")) return "Dinheiro";
                 return tipo || "--";
             }
 
+            let resumo = null;
+            let pedidoAtual = 0;
+
+            const nomesCategoria = { taxa: "Taxa de reserva", tempo_extra: "Tempo extra", ajuste: "Ajuste" };
+
+            function nomeCategoria(categoria) {
+                return nomesCategoria[categoria] || categoria || "--";
+            }
+
+            function esc(texto) {
+                return String(texto == null ? "" : texto)
+                    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+            }
+
+            // data real do pagamento (gravada no banco)
             function dataDoPagamento(item) {
-                return item.reservaCli?.hora || item.reservaCli?.data || null;
+                return item.criadoEm || null;
             }
 
             function dataCurta(texto) {
                 if (!texto) return "--";
                 const data = new Date(texto);
+                if (isNaN(data.getTime())) return "--";
                 return `${String(data.getDate()).padStart(2, "0")}/${String(data.getMonth() + 1).padStart(2, "0")}/${data.getFullYear()}`;
             }
 
-            function noPeriodo(item, mes, ano) {
-                const texto = dataDoPagamento(item);
-                if (!texto) return false;
-                const data = new Date(texto);
-                return data.getMonth() + 1 === mes && data.getFullYear() === ano;
-            }
-
-            function dataDoReembolso(item) {
-                return item.respondido || item.criadoEm || null;
-            }
-
-            function noPeriodoReembolso(item, mes, ano) {
-                if (item.status !== "Aprovada") return false;
-                const texto = dataDoReembolso(item);
-                if (!texto) return false;
-                const data = new Date(texto);
-                return data.getMonth() + 1 === mes && data.getFullYear() === ano;
-            }
-
-            function somaReembolso(lista) {
-                return lista.reduce((total, item) => total + Number(item.valorDevolver || 0), 0);
-            }
-
-            function reservasUnicas(lista) {
-                return new Set(lista.map((item) => item.fk_reserva || item.reservaCli?.id).filter(Boolean)).size;
+            // soma em centavos, sem erro de ponto flutuante
+            function soma(lista) {
+                return lista.reduce((total, item) => total + Math.round(Number(item.valor || 0) * 100), 0) / 100;
             }
 
             function linhasVisiveis() {
-                const mes = Number(selectMes.value);
-                const ano = Number(selectAno.value);
-                const busca = campoBusca.value.toLowerCase();
+                const busca = campoBusca.value.trim().toLowerCase();
 
                 return pagamentos.filter((item) => {
-                    if (!noPeriodo(item, mes, ano)) return false;
-
                     const cliente = item.reservaCli?.usuario?.nome || "";
                     const patio = item.reservaCli?.reserva?.vaga?.estacionamento?.nome || "";
-                    const reserva = (item.fk_reserva || item.reservaCli?.id || "").slice(0, 8);
+                    const reserva = (item.fk_reserva || "").slice(0, 8);
 
-                    return `${cliente} ${patio} ${reserva} ${item.nome}`.toLowerCase().includes(busca);
+                    return `${cliente} ${patio} ${reserva} ${item.nome} ${nomeCategoria(item.categoria)}`
+                        .toLowerCase()
+                        .includes(busca);
                 });
             }
 
-            function atualizarCrescimento(atual, anterior) {
+            // o servidor devolve null quando o mês anterior não tem base de comparação
+            function atualizarCrescimento(percentual) {
                 cardCrescimento.classList.remove("green", "yellow", "red");
 
-                if (anterior === 0 && atual === 0) {
+                if (percentual === null || percentual === undefined) {
                     cardCrescimento.textContent = "--";
                     cardCrescimento.classList.add("yellow");
                     return;
                 }
 
-                if (anterior === 0) {
-                    cardCrescimento.textContent = "+100%";
-                    cardCrescimento.classList.add("green");
-                    return;
-                }
-
-                const percentual = ((atual - anterior) / anterior) * 100;
                 const sinal = percentual > 0 ? "+" : "";
-                cardCrescimento.textContent = `${sinal}${percentual.toFixed(0)}%`;
+                cardCrescimento.textContent = `${sinal}${percentual}%`;
 
                 if (percentual > 0) cardCrescimento.classList.add("green");
                 else if (percentual < 0) cardCrescimento.classList.add("red");
@@ -424,40 +412,35 @@
             }
 
             function render() {
-                const mes = Number(selectMes.value);
-                const ano = Number(selectAno.value);
+                if (!resumo) return;
+
                 const lista = linhasVisiveis();
-                const doMes = pagamentos.filter((item) => noPeriodo(item, mes, ano));
 
-                const mesAnterior = mes === 1 ? 12 : mes - 1;
-                const anoAnterior = mes === 1 ? ano - 1 : ano;
-                const doMesAnterior = pagamentos.filter((item) => noPeriodo(item, mesAnterior, anoAnterior));
+                document.getElementById("totalMes").textContent = mostrarPreco(resumo.periodo.bruto);
+                document.getElementById("totalReembolsado").textContent = mostrarPreco(resumo.periodo.devolvido);
+                document.getElementById("totalLiquido").textContent = mostrarPreco(resumo.periodo.liquido);
+                atualizarCrescimento(resumo.crescimento);
 
-                const bruto = soma(doMes);
-                const devolvido = somaReembolso(reembolsos.filter((item) => noPeriodoReembolso(item, mes, ano)));
-                const devolvidoAnterior = somaReembolso(reembolsos.filter((item) => noPeriodoReembolso(item, mesAnterior, anoAnterior)));
-                const liquido = bruto - devolvido;
-                const liquidoAnterior = soma(doMesAnterior) - devolvidoAnterior;
-
-                document.getElementById("totalMes").textContent = mostrarPreco(bruto);
-                document.getElementById("totalReembolsado").textContent = mostrarPreco(devolvido);
-                document.getElementById("totalLiquido").textContent = mostrarPreco(liquido);
-                atualizarCrescimento(liquido, liquidoAnterior);
+                if (pagamentos.length === 0) {
+                    tabela.innerHTML = `<tr><td colspan="6">Nenhum pagamento neste período.</td></tr>`;
+                    document.getElementById("tableCount").textContent = "Mostrando 0 de 0 pagamentos";
+                    return;
+                }
 
                 if (lista.length === 0) {
-                    tabela.innerHTML = `<tr><td colspan="6">Nenhum pagamento neste período.</td></tr>`;
-                    document.getElementById("tableCount").textContent = `Mostrando 0 de ${doMes.length} pagamentos`;
+                    tabela.innerHTML = `<tr><td colspan="6">Nenhum pagamento encontrado para a busca.</td></tr>`;
+                    document.getElementById("tableCount").textContent = `Mostrando 0 de ${pagamentos.length} pagamentos`;
                     return;
                 }
 
                 tabela.innerHTML = lista.map((item) => {
-                    const idCurto = (item.fk_reserva || item.reservaCli?.id || "").slice(0, 8);
+                    const idCurto = (item.fk_reserva || "").slice(0, 8);
                     return `
                     <tr>
-                        <td>${item.reservaCli?.usuario?.nome || "--"}</td>
-                        <td>#${idCurto || "--"}</td>
-                        <td>${item.reservaCli?.reserva?.vaga?.estacionamento?.nome || "--"}</td>
-                        <td>${nomeTipo(item.tipo)}</td>
+                        <td>${esc(item.reservaCli?.usuario?.nome || "--")}</td>
+                        <td>#${esc(idCurto || "--")}</td>
+                        <td>${esc(item.reservaCli?.reserva?.vaga?.estacionamento?.nome || "--")}</td>
+                        <td>${esc(nomeTipo(item.tipo))} · ${esc(nomeCategoria(item.categoria))}</td>
                         <td><b>${mostrarPreco(item.valor)}</b></td>
                         <td>${dataCurta(dataDoPagamento(item))}</td>
                     </tr>
@@ -465,10 +448,15 @@
                 }).join("");
 
                 document.getElementById("tableCount").textContent =
-                    `Mostrando ${lista.length} de ${doMes.length} pagamentos`;
+                    `Mostrando ${lista.length} de ${pagamentos.length} pagamentos`;
             }
 
             document.getElementById("exportar").addEventListener("click", () => {
+                if (!resumo) {
+                    alert("Os dados ainda não foram carregados.");
+                    return;
+                }
+
                 const lista = linhasVisiveis();
                 const mesNome = meses[Number(selectMes.value) - 1];
                 const ano = selectAno.value;
@@ -478,25 +466,27 @@
                 relatorio += `=============================\n\n`;
 
                 if (lista.length === 0) {
-                    relatorio += "Nenhum pagamento neste período.\n";
+                    relatorio += "Nenhum pagamento neste período.\n\n";
                 } else {
                     lista.forEach((item) => {
-                        const idCurto = (item.fk_reserva || item.reservaCli?.id || "").slice(0, 8);
+                        const idCurto = (item.fk_reserva || "").slice(0, 8);
                         relatorio +=
                             `Cliente: ${item.reservaCli?.usuario?.nome || "--"}\n` +
                             `Reserva: #${idCurto || "--"}\n` +
                             `Estacionamento: ${item.reservaCli?.reserva?.vaga?.estacionamento?.nome || "--"}\n` +
-                            `Pagamento: ${nomeTipo(item.tipo)}\n` +
+                            `Pagamento: ${nomeTipo(item.tipo)} · ${nomeCategoria(item.categoria)}\n` +
                             `Valor: ${mostrarPreco(item.valor)}\n` +
                             `Data: ${dataCurta(dataDoPagamento(item))}\n\n`;
                     });
+                }
 
-                    relatorio += `Total recebido: ${mostrarPreco(soma(lista))}\n`;
-                    const devolvidoRelatorio = somaReembolso(
-                        reembolsos.filter((item) => noPeriodoReembolso(item, Number(selectMes.value), Number(selectAno.value)))
-                    );
-                    relatorio += `Reembolsado: ${mostrarPreco(devolvidoRelatorio)}\n`;
-                    relatorio += `Líquido: ${mostrarPreco(soma(lista) - devolvidoRelatorio)}\n`;
+                // totais do período vêm do servidor, não do que está filtrado na tela
+                relatorio += `Total recebido no período: ${mostrarPreco(resumo.periodo.bruto)}\n`;
+                relatorio += `Reembolsado no período: ${mostrarPreco(resumo.periodo.devolvido)}\n`;
+                relatorio += `Líquido do período: ${mostrarPreco(resumo.periodo.liquido)}\n`;
+
+                if (campoBusca.value.trim()) {
+                    relatorio += `\nLista filtrada por "${campoBusca.value.trim()}": ${lista.length} pagamento(s), ${mostrarPreco(soma(lista))}\n`;
                 }
 
                 const arquivo = new Blob([relatorio], { type: "text/plain;charset=utf-8" });
@@ -507,30 +497,43 @@
                 URL.revokeObjectURL(link.href);
             });
 
-            selectMes.addEventListener("change", render);
-            selectAno.addEventListener("change", render);
-            campoBusca.addEventListener("input", render);
-
             async function carregar() {
-                const resposta = await fetch(API + "/pagamento");
-                const lista = await resposta.json();
-                if (!resposta.ok) throw new Error(lista.erro || "Erro ao carregar o faturamento");
+                const meu = ++pedidoAtual;
+                const mes = Number(selectMes.value);
+                const ano = Number(selectAno.value);
+                const consulta = `?mes=${mes}&ano=${ano}`;
+
+                tabela.innerHTML = `<tr><td colspan="6">Carregando...</td></tr>`;
+
+                const [respostaLista, respostaResumo] = await Promise.all([
+                    fetch(API + "/pagamento" + consulta),
+                    fetch(API + "/pagamento/resumo" + consulta)
+                ]);
+
+                const lista = await respostaLista.json();
+                const dadosResumo = await respostaResumo.json();
+
+                // o usuário trocou de mês no meio da consulta: ignora a resposta velha
+                if (meu !== pedidoAtual) return;
+
+                if (!respostaLista.ok) throw new Error(lista.erro || "Erro ao carregar o faturamento");
+                if (!respostaResumo.ok) throw new Error(dadosResumo.erro || "Erro ao carregar o resumo");
+
                 pagamentos = lista;
-
-                try {
-                    const respostaReembolso = await fetch(API + "/reembolso");
-                    const listaReembolsos = await respostaReembolso.json();
-                    reembolsos = respostaReembolso.ok && Array.isArray(listaReembolsos) ? listaReembolsos : [];
-                } catch (error) {
-                    reembolsos = [];
-                }
-
+                resumo = dadosResumo;
                 render();
             }
 
-            carregar().catch((error) => {
-                alert(error.message || "Não foi possível carregar. Verifique se o servidor está ligado.");
-            });
+            function falhaAoCarregar(error) {
+                tabela.innerHTML = `<tr><td colspan="6">${esc(error.message || "Não foi possível carregar. Verifique se o servidor está ligado.")}</td></tr>`;
+                document.getElementById("tableCount").textContent = "Erro ao carregar";
+            }
+
+            selectMes.addEventListener("change", () => carregar().catch(falhaAoCarregar));
+            selectAno.addEventListener("change", () => carregar().catch(falhaAoCarregar));
+            campoBusca.addEventListener("input", render);
+
+            carregar().catch(falhaAoCarregar);
 
         }
 

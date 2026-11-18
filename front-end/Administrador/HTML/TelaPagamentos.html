@@ -16,6 +16,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 
 <link rel="stylesheet" href="../CSS/TelaPagamentos.css">
 
+<link rel="stylesheet" href="../../Base/CSS/avatar.css">
 </head>
 
 
@@ -269,6 +270,9 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 
 
 <script src="../../Base/JS/sessao.js"></script>
+<script src="../../Base/JS/auth.js"></script>
+<script src="../../Base/JS/cobranca.js"></script>
+<script src="../../Base/JS/avatar.js"></script>
 
 <script>
 
@@ -351,8 +355,6 @@ document.querySelectorAll("i[data-icon]").forEach(function(elemento){
 const api = (typeof API !== "undefined") ? API : "http://localhost:3333";
 
 
-// valor cobrado quando a reserva ainda não tem pagamento
-const TAXA_PADRAO = 25;
 
 
 const administrador = (typeof exigirLogin === "function")
@@ -369,7 +371,6 @@ if(!administrador){
 }
 
 
-let modoLocal = false;
 
 let reservas  = [];
 
@@ -500,20 +501,47 @@ function ehHoje(texto){
 
 
 // a taxa é o primeiro pagamento da reserva
+// a taxa é o pagamento de categoria "taxa" da reserva
 function taxaDa(item){
 
-    if(!item.pagamentos || item.pagamentos.length === 0) return null;
-
-    return [...item.pagamentos]
-
-        .sort((a, b) => new Date(a.data) - new Date(b.data))[0];
+    return (item.pagamentos || []).find(p => p.categoria === "taxa") || null;
 
 }
 
 
+// só para mostrar antes de confirmar: quem grava o valor é o servidor
+function previewTaxa(item){
+
+    const minutos = Cobranca.minutosEntre(item.hora, item.horaSaida);
+
+    const preco = Number(item.reserva?.vaga?.preco || 0);
+
+    return minutos > 0 ? Cobranca.calcularReserva(preco, minutos).total : 0;
+
+}
+
+
+function valorDaTaxa(item, taxa){
+
+    return taxa ? Number(taxa.valor) : previewTaxa(item);
+
+}
+
+
+// estornada = existe reembolso aprovado que devolve a taxa inteira
 function estornoDe(id){
 
-    return estornos.find(e => e.fk_reservacli === id) || null;
+    const item = reservas.find(r => r.id === id);
+
+    const taxa = item ? taxaDa(item) : null;
+
+    if(!taxa) return null;
+
+    return estornos.find(e =>
+        e.fk_reservacli === id
+        && e.status === "Aprovada"
+        && Number(e.valorDevolver) >= Number(taxa.valor) - 0.009
+    ) || null;
 
 }
 
@@ -554,9 +582,22 @@ function classeSituacao(nome){
 // =====================================================
 
 
-function carregarEstornos(){
+// os estornos são reembolsos aprovados, guardados no banco
+async function carregarEstornos(){
 
-    estornos = JSON.parse(localStorage.getItem("taxasEstornadas") || "[]");
+    try {
+
+        const resposta = await fetch(api + "/reembolso");
+
+        const lista = await resposta.json();
+
+        estornos = resposta.ok && Array.isArray(lista) ? lista : [];
+
+    } catch (error) {
+
+        estornos = [];
+
+    }
 
 }
 
@@ -575,7 +616,7 @@ async function carregar(){
         if(!resposta.ok) throw new Error(lista.erro || "Erro ao carregar as reservas");
 
 
-        carregarEstornos();
+        await carregarEstornos();
 
 
         reservas = lista.sort((a, b) => new Date(b.hora) - new Date(a.hora));
@@ -634,87 +675,65 @@ function montarFiltroPatios(){
 // =====================================================
 
 
+const FORMAS_API = { "PIX": "pix", "Cartão": "cartao", "Dinheiro": "dinheiro" };
+
+
+// grava no banco; o valor é calculado pelo servidor (o campo da tela é só conferência)
 async function registrarTaxa(item, valor, forma){
 
-    const corpo = {
+    const resposta = await fetch(api + "/pagamento", {
 
-        valor:         Number(valor),
+        method: "POST",
 
-        metodo:        forma,
+        headers: { "Content-Type": "application/json" },
 
-        data:          new Date().toISOString(),
+        body: JSON.stringify({
 
-        tipo:          "Taxa de reserva",
+            fk_reserva: item.id,
 
-        fk_reservacli: item.id
+            tipo:       FORMAS_API[forma] || "pix",
 
-    };
+            categoria:  "taxa"
 
+        })
 
-    try {
+    });
 
-        const resposta = await fetch(api + "/pagamento", {
+    const corpo = await resposta.json();
 
-            method: "POST",
+    if(!resposta.ok) throw new Error(corpo.erro || "Não foi possível registrar o pagamento.");
 
-            headers: { "Content-Type": "application/json" },
-
-            body: JSON.stringify(corpo)
-
-        });
-
-        if(!resposta.ok) throw new Error("sem endpoint");
-
-        modoLocal = false;
-
-        return await resposta.json();
-
-    } catch (error) {
-
-        modoLocal = true;
-
-        const todos = JSON.parse(localStorage.getItem("taxasRegistradas") || "[]");
-
-        todos.push({ ...corpo, id: "tx" + Date.now() });
-
-        localStorage.setItem("taxasRegistradas", JSON.stringify(todos));
-
-        return corpo;
-
-    }
+    return corpo;
 
 }
 
 
-function salvarEstorno(item, motivo, valor){
+// estorno da taxa inteira = reembolso aprovado (fica no histórico financeiro)
+async function salvarEstorno(item, motivo){
 
-    const todos = JSON.parse(localStorage.getItem("taxasEstornadas") || "[]");
+    const resposta = await fetch(api + "/reembolso", {
 
-    const existente = todos.find(e => e.fk_reservacli === item.id);
+        method: "POST",
 
-    if(existente){
+        headers: { "Content-Type": "application/json" },
 
-        existente.motivo = motivo;
-
-    } else {
-
-        todos.push({
+        body: JSON.stringify({
 
             fk_reservacli: item.id,
 
-            motivo:        motivo,
+            estornoTotal:  true,
 
-            valor:         valor,
+            motivo:        motivo
 
-            criadoEm:      new Date().toISOString(),
+        })
 
-            decididoPor:   administrador.nome || "Administrador"
+    });
 
-        });
+    const corpo = await resposta.json();
 
-    }
+    if(!resposta.ok) throw new Error(corpo.erro || "Não foi possível estornar a taxa.");
 
-    localStorage.setItem("taxasEstornadas", JSON.stringify(todos));
+    return corpo;
 
 }
 
@@ -739,7 +758,7 @@ function abrirJanela(id, acao){
 
     const taxa   = taxaDa(item);
 
-    const valor  = taxa ? Number(taxa.valor) : TAXA_PADRAO;
+    const valor  = valorDaTaxa(item, taxa);
 
     const vaga   = item.reserva.vaga;
 
@@ -807,6 +826,8 @@ function abrirJanela(id, acao){
     if(cobrar){
 
         valorRecebido.value = valor.toFixed(2).replace(".", ",");
+
+        valorRecebido.readOnly = true;   // o servidor calcula o valor
 
         modalConfirmar.textContent = "Confirmar recebimento";
 
@@ -896,7 +917,7 @@ modalConfirmar.addEventListener("click", async () => {
 
     const taxa  = taxaDa(item);
 
-    const valor = taxa ? Number(taxa.valor) : TAXA_PADRAO;
+    const valor = valorDaTaxa(item, taxa);
 
 
     modalConfirmar.disabled = true;
@@ -908,17 +929,17 @@ modalConfirmar.addEventListener("click", async () => {
 
             const recebido = Number(String(valorRecebido.value).replace(",", ".")) || valor;
 
-            await registrarTaxa(item, recebido, metodo);
+            const gravado = await registrarTaxa(item, recebido, metodo);
 
             fecharJanela();
 
             aviso("sucesso", "Taxa confirmada",
 
-                `${mostrarPreco(recebido)} recebidos em ${metodo}.`);
+                `${mostrarPreco(gravado.valor)} recebidos em ${metodo}.`);
 
         } else {
 
-            salvarEstorno(item, nota.value.trim(), valor);
+            await salvarEstorno(item, nota.value.trim());
 
             fecharJanela();
 
@@ -1001,7 +1022,7 @@ function render(){
 
         const est   = estornoDe(item.id);
 
-        const valor = taxa ? Number(taxa.valor) : TAXA_PADRAO;
+        const valor = valorDaTaxa(item, taxa);
 
 
         return `
@@ -1010,8 +1031,8 @@ function render(){
             <td class="quando">${mostrarDataHora(item.hora)}</td>
 
             <td class="cliente">
-                <strong>${item.usuario?.nome || "Cliente"}</strong>
-                <small>${item.carro?.placacarro || "sem veículo"}</small>
+                <div class="av-linha">${Avatar.tag(item.usuario)}<div><strong>${item.usuario?.nome || "Cliente"}</strong>
+                <small>${item.carro?.placacarro || "sem veículo"}</small></div></div>
             </td>
 
             <td class="patio">${vaga.estacionamento?.nome || "--"}</td>
@@ -1022,9 +1043,9 @@ function render(){
                 ${mostrarPreco(valor)}
             </td>
 
-            <td class="forma">${taxa ? (taxa.metodo || "--") : "--"}</td>
+            <td class="forma">${taxa ? (taxa.nome || "--") : "--"}</td>
 
-            <td class="quando">${taxa ? mostrarDataHora(taxa.data) : "--"}</td>
+            <td class="quando">${taxa ? mostrarDataHora(taxa.criadoEm) : "--"}</td>
 
             <td>
                 <span class="status ${classeSituacao(nome)}">${nome}</span>
@@ -1050,7 +1071,7 @@ function render(){
 
     contagem.textContent = `${filtrados.length} de ${reservas.length} registros`
 
-        + (modoLocal ? " · modo local" : "");
+        ;
 
 }
 
@@ -1077,7 +1098,7 @@ function atualizarResumo(){
 
             abertas++;
 
-            receber += TAXA_PADRAO;
+            receber += previewTaxa(item);
 
         }
 
@@ -1086,32 +1107,20 @@ function atualizarResumo(){
 
             geral += Number(taxa.valor || 0);
 
-            if(ehHoje(taxa.data)) hoje += Number(taxa.valor || 0);
+            if(ehHoje(taxa.criadoEm)) hoje += Number(taxa.valor || 0);
 
         }
 
     });
 
 
-    // taxas registradas sem servidor também entram na conta
-    JSON.parse(localStorage.getItem("taxasRegistradas") || "[]")
-
-        .forEach(p => {
-
-            geral += Number(p.valor || 0);
-
-            if(ehHoje(p.data)) hoje += Number(p.valor || 0);
-
-        });
-
-
     document.getElementById("totalAbertas").textContent = abertas;
 
-    document.getElementById("totalReceber").textContent = mostrarPreco(receber);
+    document.getElementById("totalReceber").textContent = mostrarPreco(Cobranca.arredondar(receber));
 
-    document.getElementById("totalHoje").textContent    = mostrarPreco(hoje);
+    document.getElementById("totalHoje").textContent    = mostrarPreco(Cobranca.arredondar(hoje));
 
-    document.getElementById("totalGeral").textContent   = mostrarPreco(geral);
+    document.getElementById("totalGeral").textContent   = mostrarPreco(Cobranca.arredondar(geral));
 
 }
 

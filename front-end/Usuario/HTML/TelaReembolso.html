@@ -75,8 +75,8 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
         <div class="regra">
             <i class="fa-solid fa-key"></i>
             <div>
-                <strong>Código de saída do pátio</strong>
-                <small>O funcionário gera um código de 6 dígitos. Sem ele, o estorno não é confirmado.</small>
+                <strong>Código de saída: só se você já entrou</strong>
+                <small>Se você já está na vaga, o funcionário gera um código de 6 dígitos para você sair, e o estorno só é confirmado com ele. Se ainda não entrou, não precisa de código.</small>
             </div>
         </div>
 
@@ -137,6 +137,10 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
             </div>
 
         </div>
+
+
+        <!-- preenchido conforme a ocupação real da vaga (vem do servidor) -->
+        <div class="situacao-saida" id="situacaoSaida"></div>
 
 
         <label class="campo">
@@ -215,6 +219,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 
 
 <script src="../../Base/JS/cobranca.js"></script>
+<script src="../../Base/JS/auth.js"></script>
 <script src="../../Base/JS/presenca.js"></script>
 <script>
     /* =====================================================
@@ -256,7 +261,6 @@ if(!usuarioLogado){
 }
 
 
-let modoLocal = false;
 
 let reserva   = null;
 
@@ -398,76 +402,18 @@ function bloquear(titulo, texto){
 
 async function listarPedidos(){
 
-    try {
+    const resposta = await fetch(api + "/reembolso");
 
-        const resposta = await fetch(api + "/reembolso");
+    const lista = await resposta.json();
 
-        if(!resposta.ok) throw new Error("sem endpoint");
+    if(!resposta.ok) throw new Error(lista.erro || "Não foi possível carregar os seus pedidos.");
 
-        modoLocal = false;
-
-        return await resposta.json();
-
-    } catch (error) {
-
-        modoLocal = true;
-
-        return JSON.parse(localStorage.getItem("reembolsos") || "[]");
-
-    }
+    return lista;
 
 }
 
 
-async function salvarPedido(pedido){
-
-    try {
-
-        const resposta = await fetch(api + "/reembolso", {
-
-            method: "POST",
-
-            headers: { "Content-Type": "application/json" },
-
-            body: JSON.stringify({
-
-                valorPago:     pedido.valorPago,
-
-                valorDevolver: pedido.valorDevolver,
-
-                minutosUsados: pedido.minutosUsados,
-
-                valorUsado:    pedido.valorUsado,
-
-                motivo:        pedido.motivo,
-
-                status:        "Pendente",
-
-                fk_reservacli: pedido.fk_reservacli,
-
-                fk_idCliente:  pedido.fk_idCliente
-
-            })
-
-        });
-
-        if(!resposta.ok) throw new Error("sem endpoint");
-
-        return await resposta.json();
-
-    } catch (error) {
-
-        const todos = JSON.parse(localStorage.getItem("reembolsos") || "[]");
-
-        todos.push(pedido);
-
-        localStorage.setItem("reembolsos", JSON.stringify(todos));
-
-        return pedido;
-
-    }
-
-}
+// (o pedido nasce no servidor, no cancelamento com código de saída)
 
 
 
@@ -526,11 +472,19 @@ async function carregar(){
 
             const status = reserva.reserva.status;
 
+            const situacao = reserva.ocupacao ? reserva.ocupacao.situacao : "";
+
+            const complemento = situacao === "saiu"
+                ? "Você já saiu do estacionamento, por isso não é preciso informar código de saída. "
+                : situacao === "cancelada"
+                    ? "A reserva foi cancelada antes da entrada: não há saída a registrar. "
+                    : "";
+
             bloquear(
 
                 `Esta reserva está ${String(status || "").toLowerCase()}`,
 
-                "O reembolso dos minutos não usados vale para reservas ainda em andamento."
+                complemento + "O reembolso dos minutos não usados vale para reservas ainda em andamento."
 
             );
 
@@ -620,10 +574,14 @@ function preencherSolicitacao(){
 
     document.getElementById("valorPago").textContent      = mostrarPreco(conta.pago);
 
+    const dentro = Cobranca.ocupando(reserva);
+
     document.getElementById("tempoUsado").textContent     =
-        conta.minutosUsados === 0
+        !dentro
             ? "nenhum · você ainda não entrou"
-            : Cobranca.mostrarDuracao(conta.minutosUsados);
+            : conta.minutosUsados === 0
+                ? "nenhum até agora"
+                : Cobranca.mostrarDuracao(conta.minutosUsados);
 
     document.getElementById("valorRetido").textContent    = mostrarPreco(conta.valorUsado);
 
@@ -632,6 +590,40 @@ function preencherSolicitacao(){
     document.getElementById("valorReembolso").textContent = mostrarPreco(conta.reembolso);
 
     document.getElementById("aceiteValor").textContent    = mostrarPreco(conta.reembolso);
+
+
+    // o código de saída só é pedido a quem já está ocupando a vaga
+    const situacaoSaida = document.getElementById("situacaoSaida");
+
+    if(dentro){
+
+        situacaoSaida.className = "situacao-saida codigo";
+
+        situacaoSaida.innerHTML = `
+            <i class="fa-solid fa-key"></i>
+            <div>
+                <strong>Você está ocupando uma vaga</strong>
+                <span>Para pedir o reembolso é preciso sair do estacionamento. Na próxima etapa, digite o código de saída que o funcionário do pátio vai passar.</span>
+            </div>
+        `;
+
+        btnConfirmar.innerHTML = '<i class="fa-solid fa-arrow-right-from-bracket"></i> Sair da vaga e pedir reembolso';
+
+    } else {
+
+        situacaoSaida.className = "situacao-saida livre";
+
+        situacaoSaida.innerHTML = `
+            <i class="fa-solid fa-circle-check"></i>
+            <div>
+                <strong>Você ainda não entrou no estacionamento</strong>
+                <span>Não é preciso ir até o pátio nem informar código de saída. O pedido segue direto.</span>
+            </div>
+        `;
+
+        btnConfirmar.innerHTML = '<i class="fa-solid fa-rotate-left"></i> Cancelar e pedir reembolso';
+
+    }
 
 
     mostrarTela("solicitar");
@@ -681,35 +673,83 @@ btnConfirmar.addEventListener("click", async () => {
     const volta = conta.reembolso;
 
 
-    Presenca.modalClienteSaida({
+    async function concluir(retorno){
 
-        id: reserva.id,
+        localStorage.removeItem("reservaParaCancelar");
 
-        motivo: motivo.value.trim(),
+        const valor = retorno && retorno.estorno
+            ? retorno.estorno.reembolso
+            : volta;
 
-        aoConfirmar: async (retorno) => {
+        aviso("sucesso", "Pedido enviado", valor > 0
+            ? `Você receberá ${mostrarPreco(valor)} pelos minutos que não utilizou, após a aprovação do pátio.`
+            : "A reserva foi cancelada. Todo o valor da vaga já foi usado, então não há reembolso.");
 
-            localStorage.removeItem("reservaParaCancelar");
+        await mostrarAcompanhamento();
 
-            const valor = retorno && retorno.estorno
-                ? retorno.estorno.reembolso
-                : volta;
+    }
 
-            aviso("sucesso", "Pedido enviado", valor > 0
-                ? `Você receberá ${mostrarPreco(valor)} pelos minutos que não utilizou, após a aprovação do pátio.`
-                : "A reserva foi cancelada. Todo o valor da vaga já foi usado, então não há reembolso.");
 
-            await mostrarAcompanhamento();
+    function pedirCodigo(){
 
-        },
+        Presenca.modalClienteSaida({
 
-        aoFechar: () => {
+            id: reserva.id,
 
-            btnConfirmar.disabled = false;
+            motivo: motivo.value.trim(),
+
+            aoConfirmar: concluir,
+
+            aoFechar: () => {
+
+                btnConfirmar.disabled = false;
+
+            }
+
+        });
+
+    }
+
+
+    // ocupando a vaga: a saída é obrigatória, o código vem antes de qualquer envio
+    if(Cobranca.ocupando(reserva)){
+
+        pedirCodigo();
+
+        return;
+
+    }
+
+
+    // sem entrada não há ocupação para encerrar: o pedido segue sem código
+    try {
+
+        const retorno = await Presenca.confirmarSaida(reserva.id, "", motivo.value.trim());
+
+        await concluir(retorno);
+
+    } catch (error) {
+
+        if(error.exigeCodigoSaida){
+
+            // a situação mudou com a tela aberta (a pessoa entrou): passa a exigir o código
+            reserva.ocupacao = { situacao: "ocupando", ocupacaoAtiva: true, exigeCodigoSaida: true };
+
+            preencherSolicitacao();
+
+            aviso("aviso", "Saída necessária", error.message);
+
+            pedirCodigo();
+
+            return;
 
         }
 
-    });
+        aviso("erro", "Não foi possível cancelar", error.message || "Tente novamente em instantes.");
+
+        btnConfirmar.disabled = false;
+
+    }
 
 });
 

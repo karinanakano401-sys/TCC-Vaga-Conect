@@ -101,6 +101,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 
 
 <script src="../../Base/JS/cobranca.js"></script>
+<script src="../../Base/JS/auth.js"></script>
 <script src="../../Base/JS/presenca.js"></script>
 <script>
 
@@ -1144,38 +1145,20 @@ async function carregarReembolsos(){
 
     try {
 
-        const resposta =
-            await fetch(
-                api + "/reembolso"
-            );
+        const resposta = await fetch(api + "/reembolso");
 
+        if(!resposta.ok) throw new Error("falha ao carregar");
 
-        if(!resposta.ok)
-            throw new Error("sem endpoint");
-
-
-        reembolsos =
-            await resposta.json();
-
+        reembolsos = await resposta.json();
 
     } catch(error){
 
-        reembolsos =
-            JSON.parse(
-                localStorage.getItem(
-                    "reembolsos"
-                ) || "[]"
-            );
+        reembolsos = [];
 
     }
 
 
-    reembolsos =
-        reembolsos.filter(
-            p =>
-                p.fk_idCliente ===
-                usuarioLogado.id
-        );
+    reembolsos = reembolsos.filter(p => p.fk_idCliente === usuarioLogado.id);
 
 }
 
@@ -2633,12 +2616,11 @@ async function cancelar(idReservaCli){
                 "Cancelar e pedir reembolso?",
 
             texto:
-                conta.minutosUsados === 0
-                    ? `Você pagou ${mostrarPreco(pago)} nessa reserva e ainda não usou a vaga. ` +
-                      `Na próxima tela, o funcionário passa um código de saída para confirmar o estorno de ${mostrarPreco(volta)}.`
-                    : `Você já usou ${Cobranca.mostrarDuracao(conta.minutosUsados)} ` +
-                      `(${mostrarPreco(conta.valorUsado)}). ` +
-                      `Na próxima tela, o funcionário passa um código de saída para confirmar o estorno de ${mostrarPreco(volta)}.`,
+                Cobranca.textoCancelamento(
+                    reservaCli,
+                    conta
+                ),
+
 
             nao:
                 "Manter reserva",

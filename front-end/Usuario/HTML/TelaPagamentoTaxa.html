@@ -15,6 +15,7 @@ VagaConnect | Pagamento Taxa
 
 <link rel="stylesheet" href="../CSS/TelaPagamentoTaxa.css">
 <script src="../../Base/JS/cobranca.js"></script>
+<script src="../../Base/JS/auth.js"></script>
 
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
@@ -703,39 +704,12 @@ function atualizarBotao(){
 // =====================================================
 
 
-// Grava a reserva, o vínculo com o cliente e o pagamento
+// Reserva + vínculo com o cliente + pagamento + vaga ocupada, numa única
+// operação no servidor. Ou tudo é gravado, ou nada é: não sobra reserva solta.
+// O valor é calculado pelo servidor; o que a tela mostra serve só de conferência.
 async function gravarReserva(){
 
-
-    const respostaReserva = await fetch(api + "/reserva", {
-
-        method: "POST",
-
-        headers: {
-            "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify({
-            status: "Reservada",
-            fk_vaga: reserva.idVaga
-        })
-
-    });
-
-
-    const reservaCriada = await respostaReserva.json();
-
-
-    if(!respostaReserva.ok){
-
-        throw new Error(reservaCriada.erro || "Erro ao criar a reserva");
-
-    }
-
-
-
-
-    const respostaCliente = await fetch(api + "/reservacli", {
+    const resposta = await fetch(api + "/reservacli/reservar", {
 
         method: "POST",
 
@@ -744,98 +718,38 @@ async function gravarReserva(){
         },
 
         body: JSON.stringify({
-            data:         reserva.dataChegada,
-            hora:         `${reserva.dataChegada}T${reserva.horaChegada}:00`,
-            horaSaida:    `${reserva.dataSaida}T${reserva.horaSaida}:00`,
-            fk_idCliente: usuarioLogado.id,
-            fk_idReserva: reservaCriada.id,
-            fk_idCarro:   reserva.idCarro
+            fk_vaga:        reserva.idVaga,
+            fk_idCarro:     reserva.idCarro,
+            data:           reserva.dataChegada,
+            hora:           `${reserva.dataChegada}T${reserva.horaChegada}:00`,
+            horaSaida:      `${reserva.dataSaida}T${reserva.horaSaida}:00`,
+            formaPagamento: formaPagamento,
+            valorEsperado:  total
         })
 
     });
 
 
-    const reservaCliente = await respostaCliente.json();
+    const reservaCriada = await resposta.json();
 
 
-    if(!respostaCliente.ok){
+    if(!resposta.ok){
 
-        // Não deixa uma reserva solta no banco
-        await fetch(api + "/reserva/" + reservaCriada.id, { method: "DELETE" });
+        if(resposta.status === 409 && reservaCriada.valorCorreto !== undefined){
 
-        throw new Error(reservaCliente.erro || "Erro ao ligar a reserva ao cliente");
+            throw new Error(
+                "O valor da reserva mudou para " + mostrarPreco(reservaCriada.valorCorreto) +
+                ". Volte, confira o resumo e tente de novo."
+            );
 
-    }
+        }
 
-
-
-
-    const respostaPagamento = await fetch(api + "/pagamento", {
-
-        method: "POST",
-
-        headers: {
-            "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify({
-            nome:       formaPagamento === "pix" ? "PIX" : "Cartão de Crédito",
-            tipo:       formaPagamento,
-            valor:      total,
-            fk_reserva: reservaCliente.id
-        })
-
-    });
-
-
-    const pagamentoCriado = await respostaPagamento.json();
-
-
-    if(!respostaPagamento.ok){
-
-        throw new Error(pagamentoCriado.erro || "Erro ao registrar o pagamento");
+        throw new Error(reservaCriada.erro || "Não foi possível concluir a reserva.");
 
     }
 
 
-
-
-    let precoHoraVaga = Number(reserva.precoHora);
-
-    if(!precoHoraVaga){
-
-        const respostaVaga = await fetch(api + "/vaga/" + reserva.idVaga);
-
-        const vagaAtual = await respostaVaga.json();
-
-        precoHoraVaga = Number(vagaAtual.preco || 0);
-
-    }
-
-
-    // A vaga sai da lista de livres
-    await fetch(api + "/vaga/" + reserva.idVaga, {
-
-        method: "PUT",
-
-        headers: {
-            "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify({
-            numero: reserva.vaga,
-            tipo:   reserva.tipo,
-            status: "Reservada",
-            preco:  precoHoraVaga,
-            fk_est: reserva.idEstacionamento
-        })
-
-    });
-
-
-
-    return reservaCliente;
-
+    return reservaCriada;
 
 }
 

@@ -19,6 +19,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 
 <link rel="stylesheet" href="../CSS/TelaReembolsos.css">
 
+<link rel="stylesheet" href="../../Base/CSS/avatar.css">
 </head>
 
 
@@ -278,6 +279,8 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 
 
 <script src="../../Base/JS/sessao.js"></script>
+<script src="../../Base/JS/auth.js"></script>
+<script src="../../Base/JS/avatar.js"></script>
 <script src="../../Base/JS/cobranca.js"></script>
 <script>
 
@@ -375,7 +378,6 @@ if(!administrador){
 }
 
 
-let modoLocal = false;
 
 let pedidos   = [];    // pedidos de reembolso
 
@@ -571,23 +573,13 @@ async function carregarReservas(){
 
 async function carregarPedidos(){
 
-    try {
+    const resposta = await fetch(api + "/reembolso");
 
-        const resposta = await fetch(api + "/reembolso");
+    const lista = await resposta.json();
 
-        if(!resposta.ok) throw new Error("sem endpoint");
+    if(!resposta.ok) throw new Error(lista.erro || "Não foi possível carregar os pedidos.");
 
-        pedidos = await resposta.json();
-
-        modoLocal = false;
-
-    } catch (error) {
-
-        modoLocal = true;
-
-        pedidos = JSON.parse(localStorage.getItem("reembolsos") || "[]");
-
-    }
+    pedidos = lista;
 
     pedidos.sort((a, b) => new Date(b.criadoEm) - new Date(a.criadoEm));
 
@@ -646,32 +638,8 @@ function montarFiltroMotivos(){
 // =====================================================
 
 
+// a decisão vai ao servidor; valores e "quem decidiu" não saem da tela
 async function salvarStatus(pedido, status, texto){
-
-    if(modoLocal){
-
-        const todos = JSON.parse(localStorage.getItem("reembolsos") || "[]");
-
-        const alvo = todos.find(item => item.id === pedido.id);
-
-        if(alvo){
-
-            alvo.status     = status;
-
-            alvo.respondido = new Date().toISOString();
-
-            alvo.observacao = texto || "";
-
-            alvo.decididoPor = administrador.nome || "Administrador";
-
-        }
-
-        localStorage.setItem("reembolsos", JSON.stringify(todos));
-
-        return;
-
-    }
-
 
     const resposta = await fetch(api + "/reembolso/" + pedido.id, {
 
@@ -681,30 +649,13 @@ async function salvarStatus(pedido, status, texto){
 
         body: JSON.stringify({
 
-            valorPago:     pedido.valorPago,
+            status:     status,
 
-            valorDevolver: pedido.valorDevolver,
-
-            motivo:        pedido.motivo || "",
-
-            status:        status,
-
-            observacao:    texto || "",
-
-            decididoPor:   administrador.nome || "Administrador",
-
-            minutosUsados: pedido.minutosUsados,
-
-            valorUsado:    pedido.valorUsado,
-
-            fk_reservacli: pedido.fk_reservacli,
-
-            fk_idCliente:  pedido.fk_idCliente
+            observacao: texto || ""
 
         })
 
     });
-
 
     const retorno = await resposta.json();
 
@@ -1015,8 +966,8 @@ function render(){
             <td class="quando">${mostrarDataHora(pedido.criadoEm)}</td>
 
             <td class="cliente">
-                <strong>${nomeDoCliente(pedido)}</strong>
-                <small>${reserva?.carro?.placacarro || "sem veículo"}</small>
+                <div class="av-linha">${Avatar.tag(pedido.usuario || reserva?.usuario)}<div><strong>${nomeDoCliente(pedido)}</strong>
+                <small>${reserva?.carro?.placacarro || "sem veículo"}</small></div></div>
             </td>
 
             <td class="reserva">
@@ -1055,7 +1006,7 @@ function render(){
 
     contagem.textContent = `${filtrados.length} de ${pedidos.length} pedidos`
 
-        + (modoLocal ? " · modo local" : "");
+        ;
 
 }
 

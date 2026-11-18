@@ -14,6 +14,7 @@ rel="stylesheet">
 
 <link rel="stylesheet" href="../CSS/TelaFuncProrrogacoes.css">
 
+<link rel="stylesheet" href="../../Base/CSS/avatar.css">
 </head>
 
 
@@ -250,6 +251,8 @@ rel="stylesheet">
 
 
 <script src="../../Base/JS/sessao.js"></script>
+<script src="../../Base/JS/auth.js"></script>
+<script src="../../Base/JS/avatar.js"></script>
 <script src="../../Base/JS/cobranca.js"></script>
 <script>
 
@@ -340,7 +343,6 @@ if(!funcionario){
 }
 
 
-let modoLocal  = false;
 
 let reservas   = [];
 
@@ -505,9 +507,14 @@ function pendenciaDe(id){
 // =====================================================
 
 
+// Tempo e valor usado vêm da regra compartilhada (só exibição).
+// O que ainda está EM ABERTO para cobrar vem do servidor (item.cobranca):
+// tempo extra depois do horário de saída + tolerância, menos o que já foi recebido.
 function calcular(item){
 
     const conta = Cobranca.calcularUso(item);
+
+    const servidor = item.cobranca || {};
 
     return {
         tarifa: conta.precoHora,
@@ -515,7 +522,7 @@ function calcular(item){
         minutos: conta.minutosUsados,
         valorTempo: conta.valorUsado,
         pago: conta.pago,
-        aPagar: conta.aPagar,
+        aPagar: Number(servidor.emAberto || 0),
         reembolso: conta.reembolso,
         ativa: conta.ativa
     };
@@ -618,55 +625,35 @@ async function carregar(){
 // =====================================================
 
 
+const FORMAS_API = { "PIX": "pix", "Cartão": "cartao", "Dinheiro": "dinheiro" };
+
+
+// grava no banco; o valor é calculado pelo servidor (o campo da tela é só conferência)
 async function registrarPagamento(item, valor, forma){
 
-    const corpo = {
+    const resposta = await fetch(api + "/pagamento", {
 
-        valor:         Number(valor),
+        method: "POST",
 
-        metodo:        forma,
+        headers: { "Content-Type": "application/json" },
 
-        data:          new Date().toISOString(),
+        body: JSON.stringify({
 
-        tipo:          "Tempo de permanência",
+            fk_reserva: item.id,
 
-        fk_reservacli: item.id
+            tipo:       FORMAS_API[forma] || "dinheiro",
 
-    };
+            categoria:  "tempo_extra"
 
+        })
 
-    try {
+    });
 
-        const resposta = await fetch(api + "/pagamento", {
+    const corpo = await resposta.json();
 
-            method: "POST",
+    if(!resposta.ok) throw new Error(corpo.erro || "Não foi possível registrar o pagamento.");
 
-            headers: { "Content-Type": "application/json" },
-
-            body: JSON.stringify(corpo)
-
-        });
-
-        if(!resposta.ok) throw new Error("sem endpoint");
-
-        modoLocal = false;
-
-        return await resposta.json();
-
-    } catch (error) {
-
-        // sem a rota, guarda no navegador para não perder o registro
-        modoLocal = true;
-
-        const todos = JSON.parse(localStorage.getItem("pagamentosTempo") || "[]");
-
-        todos.push({ ...corpo, id: "pg" + Date.now() });
-
-        localStorage.setItem("pagamentosTempo", JSON.stringify(todos));
-
-        return corpo;
-
-    }
+    return corpo;
 
 }
 
@@ -763,7 +750,7 @@ function abrirJanela(id, acao){
           + `${mostrarDuracao(conta.minutos)} no pátio.`
 
         : `${cliente} saiu sem acertar ${mostrarPreco(conta.aPagar)}. `
-          + `A pendência fica registrada para cobrança depois.`;
+          + `A pendência fica guardada só neste navegador.`;
 
 
     modalValores.innerHTML = `
@@ -1044,8 +1031,8 @@ function render(){
             <td class="vaga">${item.reserva.vaga.numero}</td>
 
             <td class="cliente">
-                <strong>${item.usuario?.nome || "Cliente"}</strong>
-                <small>${item.carro?.placacarro || "sem veículo"}</small>
+                <div class="av-linha">${Avatar.tag(item.usuario)}<div><strong>${item.usuario?.nome || "Cliente"}</strong>
+                <small>${item.carro?.placacarro || "sem veículo"}</small></div></div>
             </td>
 
             <td class="permanencia">${mostrarDataHora(item.hora)}</td>
@@ -1084,7 +1071,7 @@ function render(){
 
     contagem.textContent = `${filtrados.length} de ${reservas.length} registros`
 
-        + (modoLocal ? " · modo local" : "");
+        ;
 
 }
 
@@ -1111,26 +1098,21 @@ function atualizarResumo(){
         if(pendenciaDe(item.id)) pendentes++;
 
 
+        // recebido hoje = tempo extra lançado hoje (data real do pagamento)
         (item.pagamentos || []).forEach(p => {
 
-            if(ehHoje(p.data)) recebido += Number(p.valor || 0);
+            if(p.categoria === "tempo_extra" && ehHoje(p.criadoEm)) recebido += Number(p.valor || 0);
 
         });
 
     });
 
 
-    // pagamentos guardados no navegador também entram na conta do dia
-    JSON.parse(localStorage.getItem("pagamentosTempo") || "[]")
-
-        .forEach(p => { if(ehHoje(p.data)) recebido += Number(p.valor || 0); });
-
-
     document.getElementById("totalAtivos").textContent     = ativos;
 
-    document.getElementById("totalReceber").textContent    = mostrarPreco(receber);
+    document.getElementById("totalReceber").textContent    = mostrarPreco(Cobranca.arredondar(receber));
 
-    document.getElementById("totalRecebido").textContent   = mostrarPreco(recebido);
+    document.getElementById("totalRecebido").textContent   = mostrarPreco(Cobranca.arredondar(recebido));
 
     document.getElementById("totalPendencias").textContent = pendentes;
 

@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="../CSS/TelaReservas.css">
   <link rel="stylesheet" href="../../Base/CSS/presenca.css">
+<link rel="stylesheet" href="../../Base/CSS/avatar.css">
 </head>
 
 <body>
@@ -131,6 +132,8 @@
   </div>
 
   <script src="../../Base/JS/sessao.js"></script>
+  <script src="../../Base/JS/auth.js"></script>
+  <script src="../../Base/JS/avatar.js"></script>
   <script src="../../Base/JS/presenca.js"></script>
   <script>
     const icons = {
@@ -221,12 +224,9 @@
 
         if (aguardando) {
           acoes += `<button class="texto verde" onclick="abrirChegada('${item.id}')">Cliente chegou</button>`;
-          acoes += `<button class="texto vermelho" onclick="abrirSaida('${item.id}')">Código de saída</button>`;
+          // ainda não entrou: não há ocupação, então não existe código de saída
           if (item.codigoPresenca) {
             acoes += `<span class="espera-chip">Aguardando</span>`;
-          }
-          if (item.codigoSaida) {
-            acoes += `<span class="espera-chip">Saída</span>`;
           }
         }
 
@@ -283,7 +283,7 @@
 
           return `
           <tr>
-            <td>${item.usuario?.nome || "Cliente"}</td>
+            <td>${Avatar.tag(item.usuario)}${item.usuario?.nome || "Cliente"}</td>
             <td>${carro}</td>
             <td>${item.reserva?.vaga?.numero || "--"}</td>
             <td>${item.reserva?.vaga?.estacionamento?.nome || "--"}</td>
@@ -376,7 +376,7 @@
 
         const idsSaida = new Set(
           reservas
-            .filter((item) => Presenca.podeEstornar(item.reserva?.status) && item.codigoSaida)
+            .filter((item) => Presenca.ocupando(item) && item.codigoSaida)
             .map((item) => item.id)
         );
 

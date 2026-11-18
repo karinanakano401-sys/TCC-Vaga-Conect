@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="../CSS/TelaFeedback.css">
 
+<link rel="stylesheet" href="../../Base/CSS/avatar.css">
 </head>
 
 <body>
@@ -171,6 +172,7 @@
 
 
   <script src="../../Base/JS/sessao.js"></script>
+  <script src="../../Base/JS/avatar.js"></script>
   <script>
 
     const api = "http://localhost:3333";
@@ -409,7 +411,7 @@
         const topo = `
           <div class="feedback-top">
             <span class="stars" title="Nota geral">${estrelas(item.nota)}</span>
-            <strong>${esc(item.usuario?.nome || "Usuário removido")}</strong>
+            <span class="av-linha">${Avatar.tag(item.usuario)}<strong>${esc(item.usuario?.nome || "Usuário removido")}</strong></span>
             <span class="place">${esc(nomeEstacionamento(item))}</span>
           </div>
         `;

@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="../CSS/ReserDetalhe.css">
   <link rel="stylesheet" href="../../Base/CSS/presenca.css">
+<link rel="stylesheet" href="../../Base/CSS/avatar.css">
 </head>
 
 <body>
@@ -155,6 +156,8 @@
   </div>
 
   <script src="../../Base/JS/sessao.js"></script>
+  <script src="../../Base/JS/auth.js"></script>
+  <script src="../../Base/JS/avatar.js"></script>
   <script src="../../Base/JS/presenca.js"></script>
   <script>
     const icons = {
@@ -247,7 +250,9 @@
 
       document.getElementById("tituloReserva").textContent =
         "Detalhes da Reserva #" + item.id.slice(0, 8);
-      document.getElementById("clienteNome").textContent = item.usuario?.nome || "--";
+      const clienteNome = document.getElementById("clienteNome");
+      clienteNome.innerHTML = item.usuario ? Avatar.tag(item.usuario) : "";
+      clienteNome.append(item.usuario?.nome || "--");
       document.getElementById("clienteCpf").textContent = item.usuario?.cpf || "--";
       document.getElementById("clienteEmail").textContent = item.usuario?.email || "--";
       document.getElementById("estacionamento").textContent = item.reserva?.vaga?.estacionamento?.nome || "--";
@@ -263,6 +268,9 @@
         : "--";
 
       aplicarStatusNaTela(status);
+
+      // "Código de saída" só para quem está ocupando a vaga; sem entrada o cliente cancela sozinho
+      document.getElementById("btnCancelar").style.display = Presenca.ocupando(item) ? "" : "none";
     }
 
     async function atualizarVaga(vaga, status) {

@@ -301,13 +301,21 @@
         });
         var dados = await resposta.json();
         if (!resposta.ok) {
-            throw new Error(dados.erro || "Não foi possível confirmar a saída.");
+            var erro = new Error(dados.erro || "Não foi possível confirmar a saída.");
+            erro.exigeCodigoSaida = !!dados.exigeCodigoSaida;
+            throw erro;
         }
         return dados;
     }
 
     function podeEstornar(status) {
         return ["Reservada", "Tolerância", "Atraso", "Ativa"].indexOf(status) !== -1;
+    }
+
+    // O código de saída só existe para quem está ocupando a vaga (decisão do servidor)
+    function ocupando(item) {
+        if (item && item.ocupacao) return !!item.ocupacao.exigeCodigoSaida;
+        return !!(item && item.reserva && item.reserva.status === "Ativa");
     }
 
     function modalPatioSaida(opcoes) {
@@ -401,11 +409,11 @@
                 '<button type="button" class="vc-presenca-fechar" aria-label="Fechar">×</button>' +
                 '<div class="vc-presenca-icone"><i class="fa-solid fa-arrow-right-from-bracket"></i></div>' +
                 "<h3>Código de saída</h3>" +
-                '<p class="vc-presenca-sub">Digite o código de 6 dígitos informado pelo funcionário para confirmar o estorno.</p>' +
+                '<p class="vc-presenca-sub">Você está ocupando uma vaga. Para pedir o reembolso é preciso sair do estacionamento: digite o código de 6 dígitos informado pelo funcionário do pátio.</p>' +
                 '<input class="vc-presenca-campo" type="text" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="off">' +
                 '<p class="vc-presenca-erro"></p>' +
                 '<div class="vc-presenca-acoes">' +
-                    '<button type="button" class="vc-presenca-principal">Confirmar estorno</button>' +
+                    '<button type="button" class="vc-presenca-principal">Confirmar saída</button>' +
                 "</div>" +
             "</div>"
         );
@@ -435,8 +443,8 @@
                 var retorno = await confirmarSaida(id, codigo, opcoes.motivo);
                 icone.classList.add("ok");
                 icone.innerHTML = '<i class="fa-solid fa-check"></i>';
-                fundo.querySelector("h3").textContent = "Estorno confirmado";
-                fundo.querySelector(".vc-presenca-sub").textContent = "A reserva foi cancelada. O pedido de reembolso foi enviado ao pátio.";
+                fundo.querySelector("h3").textContent = "Saída confirmada";
+                fundo.querySelector(".vc-presenca-sub").textContent = "Saída registrada e vaga liberada. O pedido de reembolso foi enviado ao pátio.";
                 campo.style.display = "none";
                 botao.style.display = "none";
                 setTimeout(function () {
@@ -444,7 +452,7 @@
                     if (typeof opcoes.aoConfirmar === "function") opcoes.aoConfirmar(retorno);
                 }, 1200);
             } catch (error) {
-                erroEl.textContent = error.message || "Não foi possível confirmar o estorno.";
+                erroEl.textContent = error.message || "Não foi possível confirmar a saída.";
                 botao.disabled = false;
                 campo.focus();
             }
@@ -460,6 +468,7 @@
         API: API,
         aguardandoChegada: aguardandoChegada,
         podeEstornar: podeEstornar,
+        ocupando: ocupando,
         gerarCodigo: gerarCodigo,
         confirmar: confirmar,
         gerarCodigoSaida: gerarCodigoSaida,

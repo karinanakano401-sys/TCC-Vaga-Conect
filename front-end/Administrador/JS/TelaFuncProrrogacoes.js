@@ -489,8 +489,8 @@ function render(){
             <td class="quando">${mostrarDataHora(pedido.criadoEm)}</td>
 
             <td class="cliente">
-                <strong>${reserva.usuario?.nome || "Cliente"}</strong>
-                <small>${reserva.carro ? reserva.carro.placacarro : "sem veículo"}</small>
+                <div class="av-linha">${Avatar.tag(reserva.usuario)}<div><strong>${reserva.usuario?.nome || "Cliente"}</strong>
+                <small>${reserva.carro ? reserva.carro.placacarro : "sem veículo"}</small></div></div>
             </td>
 
             <td class="vaga"><b>${vaga.numero}</b></td>

@@ -152,6 +152,28 @@
         return { fase: "Cancelada", ate: null };
     }
 
+    // Quem decide é o servidor (campo "ocupacao"). Sem o campo, só a reserva
+    // Ativa conta como "dentro da vaga".
+    function ocupando(item) {
+        if (item && item.ocupacao) return !!item.ocupacao.exigeCodigoSaida;
+        return !!(item && item.reserva && item.reserva.status === "Ativa");
+    }
+
+    // Aviso de cancelamento: o código de saída só vale para quem já está na vaga
+    function textoCancelamento(item, conta) {
+        var volta = mostrarPreco(conta.reembolso);
+
+        if (ocupando(item)) {
+            var uso = conta.minutosUsados > 0
+                ? "Você já usou " + mostrarDuracao(conta.minutosUsados) + " (" + mostrarPreco(conta.valorUsado) + "). "
+                : "";
+
+            return uso + "Você está ocupando uma vaga: na próxima tela, o funcionário passa um código de saída para você sair do estacionamento e confirmar o estorno de " + volta + ".";
+        }
+
+        return "Você pagou " + mostrarPreco(conta.pago) + " nessa reserva e ainda não entrou no estacionamento. Não é preciso código de saída: o estorno de " + volta + " é pedido direto.";
+    }
+
     root.Cobranca = {
         GARANTIA: GARANTIA,
         STATUS_AGUARDANDO: STATUS_AGUARDANDO,
@@ -170,6 +192,8 @@
         creditoVaga: creditoVaga,
         minutosUsados: minutosUsados,
         calcularReserva: calcularReserva,
-        calcularUso: calcularUso
+        calcularUso: calcularUso,
+        ocupando: ocupando,
+        textoCancelamento: textoCancelamento
     };
 })(typeof window !== "undefined" ? window : globalThis);

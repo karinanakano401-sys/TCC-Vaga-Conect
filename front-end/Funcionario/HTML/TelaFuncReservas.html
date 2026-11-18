@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="../CSS/TelaFunc.css">
   <link rel="stylesheet" href="../../Base/CSS/presenca.css">
+<link rel="stylesheet" href="../../Base/CSS/avatar.css">
 </head>
 
 <body>
@@ -88,6 +89,8 @@
   </div>
 
   <script src="../../Base/JS/sessao.js"></script>
+  <script src="../../Base/JS/auth.js"></script>
+  <script src="../../Base/JS/avatar.js"></script>
   <script src="../../Base/JS/presenca.js"></script>
   <script>
     const icons = {
@@ -137,21 +140,14 @@
           const espera = item.codigoPresenca
             ? `<small class="espera-chip">Aguardando cliente</small>`
             : "";
-          const esperaSaida = item.codigoSaida
-            ? `<small class="espera-chip">Aguardando saída</small>`
-            : "";
-
+          // ainda não entrou: não há ocupação, então não existe código de saída
           return `
       <div class="acoes">
         <button class="btn btn-verde"
           onclick="abrirChegada('${item.id}')">
           Cliente chegou
         </button>
-        <button class="btn btn-vermelho"
-          onclick="abrirSaida('${item.id}')">
-          Código de saída
-        </button>
-        ${espera}${esperaSaida}
+        ${espera}
       </div>
     `;
         }
@@ -195,8 +191,8 @@
         corpo.innerHTML = filtradas.map((item) => `
         <tr>
           <td>
-            <strong>${item.usuario?.nome || "Cliente"}</strong><br>
-            <small>${item.carro ? item.carro.modelo + " · " + item.carro.placacarro : "Sem veículo"}</small>
+            <div class="av-linha">${Avatar.tag(item.usuario)}<div><strong>${item.usuario?.nome || "Cliente"}</strong><br>
+            <small>${item.carro ? item.carro.modelo + " · " + item.carro.placacarro : "Sem veículo"}</small></div></div>
           </td>
           <td><b>${item.reserva.vaga.numero}</b></td>
           <td>${mostrarDataHora(item.hora)}</td>
@@ -291,7 +287,7 @@
 
         const idsSaida = new Set(
           reservas
-            .filter((item) => Presenca.podeEstornar(item.reserva?.status) && item.codigoSaida)
+            .filter((item) => Presenca.ocupando(item) && item.codigoSaida)
             .map((item) => item.id)
         );
 

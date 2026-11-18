@@ -139,6 +139,7 @@ rel="stylesheet">
 
 
 <script src="../../Base/JS/cobranca.js"></script>
+<script src="../../Base/JS/auth.js"></script>
 <script>
     /* =====================================================
    VagaConnect · Tempo de vaga em uso
@@ -862,12 +863,7 @@ btnCancelar.addEventListener("click", async () => {
 
     const conta = Cobranca.calcularUso(reserva);
 
-    const texto = conta.minutosUsados === 0
-        ? `Você pagou ${mostrarPreco(conta.pago)} nessa reserva e ainda não usou a vaga. `
-          + `Na próxima tela, o funcionário passa um código de saída para confirmar o estorno de ${mostrarPreco(conta.reembolso)}.`
-        : `Você já usou ${Cobranca.mostrarDuracao(conta.minutosUsados)} `
-          + `(${mostrarPreco(conta.valorUsado)}). `
-          + `Na próxima tela, o funcionário passa um código de saída para confirmar o estorno de ${mostrarPreco(conta.reembolso)}.`;
+    const texto = Cobranca.textoCancelamento(reserva, conta);
 
     const ok = await pedirConfirmacao("Cancelar e pedir reembolso?", texto);
 

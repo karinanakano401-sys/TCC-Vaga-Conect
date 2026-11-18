@@ -7,6 +7,7 @@
 
 <link rel="stylesheet" href="../CSS/TelaFeedbacks.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link rel="stylesheet" href="../../Base/CSS/avatar.css">
 </head>
 <body>
 
@@ -124,6 +125,7 @@
 </div>
 
 <script src="../../Base/JS/sessao.js"></script>
+<script src="../../Base/JS/avatar.js"></script>
 <script>
 const api = "http://localhost:3333";
 
@@ -718,7 +720,7 @@ function renderComunidade() {
         <article class="avaliacao">
             <div class="avaliacao-topo">
                 <div>
-                    <strong>${esc(p.nome)}</strong>
+                    <strong>${Avatar.tag(p)}${esc(p.nome)}</strong>
                     <small>${dataCurta(p.createdAt)}</small>
                 </div>
                 <span class="estrelas-txt" title="Nota geral">${estrelasTxt(p.nota)}</span>

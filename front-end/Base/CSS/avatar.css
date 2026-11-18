@@ -1,0 +1,112 @@
+/* =====================================================
+   VagaConnect · avatar.css
+
+   Tamanhos do avatar do usuário (Base/JS/avatar.js).
+   .av        padrão (28px), para listas e tabelas
+   .av-p      pequeno (22px)
+   .av-g      grande (40px)
+   .av-vazio  usuário sem avatar: círculo com as iniciais
+===================================================== */
+
+.av{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    flex:0 0 auto;
+
+    width:28px;
+
+    height:28px;
+
+    margin-right:8px;
+
+    overflow:hidden;
+
+    border-radius:50%;
+
+    vertical-align:middle;
+
+    background:#0a1d33;
+
+    line-height:1;
+
+}
+
+.av svg{
+
+    display:block;
+
+    width:100%;
+
+    height:100%;
+
+}
+
+.av-vazio{
+
+    background:linear-gradient(135deg, #2f7dff, #1257c7);
+
+    color:#ffffff;
+
+    font-family:'Poppins', 'Segoe UI', system-ui, sans-serif;
+
+    font-size:11px;
+
+    font-weight:600;
+
+    letter-spacing:.02em;
+
+    text-transform:uppercase;
+
+}
+
+.av-p{
+
+    width:22px;
+
+    height:22px;
+
+    margin-right:6px;
+
+    font-size:9px;
+
+}
+
+.av-g{
+
+    width:40px;
+
+    height:40px;
+
+    font-size:14px;
+
+}
+
+
+/* avatar + bloco de texto lado a lado (células de cliente, nomes em cabeçalho) */
+.av-linha{
+
+    display:flex;
+
+    align-items:center;
+
+    min-width:0;
+
+}
+
+.av-linha > div{
+
+    min-width:0;
+
+}
+
+/* onde o pai já tem espaçamento entre os filhos */
+.person > .av{
+
+    margin-right:0;
+
+}
