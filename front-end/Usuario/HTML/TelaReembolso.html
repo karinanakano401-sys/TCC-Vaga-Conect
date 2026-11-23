@@ -394,6 +394,27 @@ function bloquear(titulo, texto){
 }
 
 
+// Tempo contratado terminou: leva a pessoa direto para a finalização
+function bloquearPorVencimento(){
+
+    bloquear(
+        "O tempo contratado terminou",
+        "Não é mais possível pedir reembolso desta reserva. Finalize a utilização para encerrar e liberar a vaga: dentro da tolerância de 10 minutos não há nenhuma cobrança extra."
+    );
+
+    const voltar = document.querySelector("#telaBloqueio .btn-voltar");
+
+    if(voltar && reserva){
+
+        voltar.href = "TelaCheckoutEncerrar.html?id=" + encodeURIComponent(reserva.id);
+
+        voltar.textContent = "Finalizar utilização";
+
+    }
+
+}
+
+
 
 // =====================================================
 // PEDIDOS · API ou navegador
@@ -446,6 +467,9 @@ async function carregar(){
         if(!resposta.ok) throw new Error(lista.erro || "Erro ao carregar a reserva");
 
 
+        // a hora do servidor decide quando o tempo contratado acaba
+        if(lista.length > 0 && lista[0].servidorAgora) Cobranca.sincronizar(lista[0].servidorAgora);
+
         reserva = lista.find(item => item.id === id);
 
 
@@ -487,6 +511,16 @@ async function carregar(){
                 complemento + "O reembolso dos minutos não usados vale para reservas ainda em andamento."
 
             );
+
+            return;
+
+        }
+
+
+        // acabou o tempo contratado: não existe mais reembolso, só finalizar
+        if(Cobranca.fasePrazo(reserva).finalizar){
+
+            bloquearPorVencimento();
 
             return;
 
@@ -740,6 +774,15 @@ btnConfirmar.addEventListener("click", async () => {
             aviso("aviso", "Saída necessária", error.message);
 
             pedirCodigo();
+
+            return;
+
+        }
+
+        // o servidor encerrou o direito ao reembolso com a tela aberta
+        if(error.exigeFinalizar){
+
+            bloquearPorVencimento();
 
             return;
 

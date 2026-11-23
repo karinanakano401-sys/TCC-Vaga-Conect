@@ -1,5 +1,6 @@
 import prismaClient from '../prisma/index.js'
 import { processarAtrasos } from './atrasoservice.js'
+import { anexarAgendamentos } from './agendamentoservice.js'
 
 
 function quantidadeInformada(valor) {
@@ -65,7 +66,15 @@ export async function listarEstacionamentos() {
   const estacionamentos = await prismaClient.estacionamento.findMany({
     include: { endereco: true, vagas: true }
   })
-  return estacionamentos
+
+  // cada vaga traz seus horários já comprometidos (agendamentos)
+  const todas = await anexarAgendamentos(estacionamentos.flatMap((est) => est.vagas))
+  const porId = new Map(todas.map((vaga) => [vaga.id, vaga]))
+
+  return estacionamentos.map((est) => ({
+    ...est,
+    vagas: est.vagas.map((vaga) => porId.get(vaga.id) || vaga)
+  }))
 }
 
 
@@ -74,7 +83,13 @@ export async function buscarEstacionamentoPorId(id) {
     where: { id },
     include: { endereco: true, vagas: true }
   })
-  return estacionamento
+
+  if (!estacionamento) return estacionamento
+
+  return {
+    ...estacionamento,
+    vagas: await anexarAgendamentos(estacionamento.vagas)
+  }
 }
 
 

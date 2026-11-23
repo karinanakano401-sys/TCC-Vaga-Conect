@@ -1468,6 +1468,8 @@ body:has(.spot.selected) .details{
 
     transition:transform .15s, box-shadow .18s, background .18s;
 
+    position:relative;
+
 }
 
 
@@ -2841,4 +2843,20 @@ html[data-tema="claro"] .tema-botao{
 
     }
 
+}
+
+/* vaga livre agora, mas já reservada em algum horário futuro */
+.spot.free.com-agendamento{
+    border-style:dashed;
+}
+
+.spot.free.com-agendamento::after{
+    content:"";
+    position:absolute;
+    top:3px;
+    right:3px;
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:#fbbf24;
 }

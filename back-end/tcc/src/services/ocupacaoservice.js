@@ -21,6 +21,15 @@ export function situacaoDaOcupacao(item) {
   const entrou = Boolean(item?.entradaEm)
   const saiu = Boolean(item?.saidaEm)
 
+  // Vaga 'Ocupada' só indica a presença DESTA reserva quando a hora dela já chegou
+  // e não há outra reserva dentro da vaga (agendamento futuro ou reserva que espera
+  // a saída de outro cliente nunca está "ocupando").
+  const horaMs = new Date(item?.hora).getTime()
+  const jaChegou = isNaN(horaMs) || horaMs <= Date.now()
+  const outraDentro = (item?.reserva?.vaga?.reservas || []).some(
+    (r) => r.status === 'Ativa' && r.id !== item?.reserva?.id
+  )
+
   let situacao
 
   if (saiu || status === 'Concluída') {
@@ -33,7 +42,7 @@ export function situacaoDaOcupacao(item) {
     situacao = 'ocupando'
   } else if (STATUS_AGUARDANDO_CHEGADA.includes(status)) {
     // presença confirmada mas o status ainda não acompanhou: a vaga marca a ocupação
-    situacao = vagaOcupada ? 'ocupando' : 'sem_entrada'
+    situacao = vagaOcupada && jaChegou && !outraDentro ? 'ocupando' : 'sem_entrada'
   } else {
     situacao = 'cancelada'
   }

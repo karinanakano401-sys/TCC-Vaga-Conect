@@ -303,6 +303,7 @@
         if (!resposta.ok) {
             var erro = new Error(dados.erro || "Não foi possível confirmar a saída.");
             erro.exigeCodigoSaida = !!dados.exigeCodigoSaida;
+            erro.exigeFinalizar = !!dados.exigeFinalizar;
             throw erro;
         }
         return dados;
@@ -328,12 +329,19 @@
         var vaga = item.reserva && item.reserva.vaga ? "Vaga " + item.reserva.vaga.numero : "Vaga";
         var espera = null;
 
+        // tempo contratado já acabou: o cliente finaliza (sem estorno) em vez de cancelar
+        var vencido = !!(item.prazo && item.prazo.vencido);
+
         var fundo = abrirFundo(
             '<div class="vc-presenca-modal" role="dialog" aria-modal="true">' +
                 '<button type="button" class="vc-presenca-fechar" aria-label="Fechar">×</button>' +
                 '<div class="vc-presenca-icone"><i class="fa-solid fa-arrow-right-from-bracket"></i></div>' +
                 "<h3>Código de saída</h3>" +
-                '<p class="vc-presenca-sub">Passe o código abaixo para o cliente confirmar o estorno no app.</p>' +
+                '<p class="vc-presenca-sub">' +
+                    (vencido
+                        ? "O tempo contratado terminou. Passe o código abaixo para o cliente finalizar a saída no app (sem estorno)."
+                        : "Passe o código abaixo para o cliente confirmar o estorno no app.") +
+                "</p>" +
                 '<p class="vc-presenca-meta"></p>' +
                 '<div class="vc-presenca-digitos">' + digitos("------") + "</div>" +
                 '<div class="vc-presenca-espera"><i class="fa-solid fa-circle"></i><span>Gerando código…</span></div>' +
@@ -353,7 +361,9 @@
 
         function mostrarCodigo(codigo) {
             caixaDigitos.innerHTML = digitos(codigo);
-            esperaEl.textContent = "Aguardando o cliente confirmar o estorno…";
+            esperaEl.textContent = vencido
+                ? "Aguardando o cliente finalizar a saída…"
+                : "Aguardando o cliente confirmar o estorno…";
         }
 
         function ligarEspera() {
@@ -361,15 +371,17 @@
             espera = esperar(id, function () {
                 icone.classList.add("ok");
                 icone.innerHTML = '<i class="fa-solid fa-check"></i>';
-                fundo.querySelector("h3").textContent = "Estorno confirmado";
-                fundo.querySelector(".vc-presenca-sub").textContent = "O cliente confirmou a saída. A reserva foi cancelada e o reembolso foi registrado.";
+                fundo.querySelector("h3").textContent = vencido ? "Saída finalizada" : "Estorno confirmado";
+                fundo.querySelector(".vc-presenca-sub").textContent = vencido
+                    ? "O cliente finalizou a utilização. A saída foi registrada e a vaga foi liberada."
+                    : "O cliente confirmou a saída. A reserva foi cancelada e o reembolso foi registrado.";
                 fundo.querySelector(".vc-presenca-espera").style.display = "none";
                 fundo.querySelector(".vc-presenca-acoes").style.display = "none";
                 setTimeout(function () {
                     fecharFundo(fundo, espera);
                     if (typeof opcoes.aoConfirmar === "function") opcoes.aoConfirmar();
                 }, 1400);
-            }, { evento: "saida-confirmada", status: "Cancelada" });
+            }, { evento: "saida-confirmada", status: vencido ? "Concluída" : "Cancelada" });
         }
 
         async function emitir(forcarNovo) {

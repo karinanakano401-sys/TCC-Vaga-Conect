@@ -311,7 +311,7 @@ async function carregarPainel() {
         <td>${item.reserva?.vaga?.numero || "--"}</td>
         <td>${item.reserva?.vaga?.estacionamento?.nome || "--"}</td>
         <td>${dataHora(item.hora)}</td>
-        <td><span class="status ${cssStatus(status)}">${status}</span></td>
+        <td><span class="status ${cssStatus(status)}">${item.agendamento && item.agendamento.agendada ? "Agendada" : status}</span></td>
       </tr>
     `;
   }).join("");

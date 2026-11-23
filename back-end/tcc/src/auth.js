@@ -112,7 +112,8 @@ export function responderErro(res, error, statusPadrao = 400) {
     return res.status(error.status).json({
       erro: error.message,
       ...(error.valorCorreto !== undefined ? { valorCorreto: error.valorCorreto } : {}),
-      ...(error.exigeCodigoSaida ? { exigeCodigoSaida: true } : {})
+      ...(error.exigeCodigoSaida ? { exigeCodigoSaida: true } : {}),
+      ...(error.exigeFinalizar ? { exigeFinalizar: true } : {})
     })
   }
 

@@ -978,6 +978,32 @@ function htmlFaixaChegada(item){
 
     if(!fase) return "";
 
+    // a hora chegou, mas o cliente anterior ainda está na vaga: o servidor não
+    // conta tolerância nem atraso até a vaga ser liberada
+    if(item.agendamento && item.agendamento.aguardandoVaga){
+
+        return `
+
+            <div class="faixa-atraso tolerancia">
+
+                <i class="fa-solid fa-hourglass-half"></i>
+
+                <div>
+
+                    <strong>Aguardando a vaga ser liberada</strong>
+
+                    <span>
+                        Outro cliente ainda está na vaga. Seu prazo de chegada só começa quando ela for liberada.
+                    </span>
+
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
     if(fase.fase === "Reservada"){
 
         return `
@@ -988,11 +1014,21 @@ function htmlFaixaChegada(item){
 
                 <div>
 
-                    <strong>Aguardando horário de chegada</strong>
+                    <strong>${
+                        item.agendamento && item.agendamento.agendada
+                            ? "Reserva agendada"
+                            : "Aguardando horário de chegada"
+                    }</strong>
 
                     <span class="atraso-restante" data-fase="Reservada" data-ate="${fase.ate.toISOString()}">
                         Faltam ${textoTempoRestante(fase.ate - Date.now())} para o horário marcado.
                     </span>
+
+                    ${
+                        item.agendamento && item.agendamento.agendada
+                            ? `<span>Agendada para ${mostrarDataHora(item.hora)}. A vaga só fica reservada para você a partir desse horário.</span>`
+                            : ""
+                    }
 
                 </div>
 
@@ -1206,6 +1242,14 @@ async function carregarReservas(){
 
 
 
+        // a hora do servidor decide quando o tempo contratado acaba
+        if(lista.length > 0 && lista[0].servidorAgora){
+
+            Cobranca.sincronizar(lista[0].servidorAgora);
+
+        }
+
+
         // Ativas primeiro; entre elas,
         // a mais perto do horário de entrada
 
@@ -1362,6 +1406,15 @@ function render(){
             jaProrrogou(item.id);
 
 
+        /*
+         * Acabou o tempo contratado: o botão
+         * "Cancelar" some e entra "Finalizar".
+         * (O servidor também recusa o reembolso.)
+         */
+        const finalizar =
+            Cobranca.fasePrazo(item).finalizar;
+
+
 
         return `
 
@@ -1384,7 +1437,11 @@ function render(){
 
                     <span>◉</span>
 
-                    ${reserva.status}
+                    ${
+                        item.agendamento && item.agendamento.agendada
+                            ? "Agendada"
+                            : reserva.status
+                    }
 
                 </div>
 
@@ -1483,7 +1540,8 @@ function render(){
 
 
             ${
-                Cobranca.aguardandoChegada(reserva.status)
+                Cobranca.aguardandoChegada(reserva.status) &&
+                !(item.agendamento && (item.agendamento.agendada || item.agendamento.aguardandoVaga))
                     ? `
 
             <button
@@ -1567,6 +1625,43 @@ function render(){
                     : ""
             }
 
+            ${
+                finalizar
+                    ? `
+
+            <div class="prorrogacao-info">
+
+                <i class="fa-solid fa-flag-checkered"></i>
+
+                <div>
+
+                    <strong>
+                        Tempo contratado encerrado
+                    </strong>
+
+                    <span>
+                        Você tem 10 minutos de tolerância
+                        para sair, sem cobrança extra.
+                        O reembolso não está mais disponível.
+                    </span>
+
+                </div>
+
+            </div>
+
+            <button
+                class="extend destaque"
+                onclick="window.location.href='TelaCheckoutEncerrar.html?id=${encodeURIComponent(item.id)}'">
+
+                <i class="fa-solid fa-flag-checkered"></i>
+
+                Finalizar
+
+            </button>
+
+                    `
+                    : `
+
             <button
                 class="extend"
                 onclick="window.location.href='TelaCheckoutEncerrar.html?id=${encodeURIComponent(item.id)}'">
@@ -1574,6 +1669,45 @@ function render(){
                 <i class="fa-solid fa-clock"></i>
 
                 Ver tempo da vaga
+
+            </button>
+
+                    `
+            }
+
+                    `
+                    : `
+
+            ${
+                finalizar
+                    ? `
+
+            <div class="prorrogacao-info">
+
+                <i class="fa-solid fa-flag-checkered"></i>
+
+                <div>
+
+                    <strong>
+                        Tempo contratado encerrado
+                    </strong>
+
+                    <span>
+                        Finalize para encerrar a reserva.
+                        Não há cobrança nem reembolso.
+                    </span>
+
+                </div>
+
+            </div>
+
+            <button
+                class="extend destaque"
+                onclick="window.location.href='TelaCheckoutEncerrar.html?id=${encodeURIComponent(item.id)}'">
+
+                <i class="fa-solid fa-flag-checkered"></i>
+
+                Finalizar
 
             </button>
 
@@ -1645,6 +1779,9 @@ function render(){
                     `
             }
 
+                    `
+            }
+
             `
                     : ""
             }
@@ -1669,6 +1806,63 @@ function render(){
     iniciarTimer();
 
     iniciarRelogioAtraso();
+
+    agendarVencimento();
+
+}
+
+
+/*
+ * Quando o tempo contratado de alguma reserva
+ * acabar, busca os dados de novo no servidor:
+ * o botão "Cancelar" vira "Finalizar" sozinho,
+ * sem a pessoa precisar atualizar a página.
+ */
+
+let agendaVencimento = null;
+
+
+function agendarVencimento(){
+
+    if(agendaVencimento){
+
+        clearTimeout(agendaVencimento);
+
+        agendaVencimento = null;
+
+    }
+
+
+    const agora =
+        Cobranca.agora().getTime();
+
+    let menor = Infinity;
+
+
+    reservas.forEach(item => {
+
+        if(!estaAtiva(item) || !item.horaSaida)
+            return;
+
+        const fim =
+            new Date(item.horaSaida).getTime();
+
+        if(!isNaN(fim) && fim > agora)
+            menor = Math.min(menor, fim - agora);
+
+    });
+
+
+    // o limite do setTimeout é ~24 dias
+    if(menor === Infinity || menor > 2000000000)
+        return;
+
+
+    agendaVencimento =
+        setTimeout(
+            carregarReservas,
+            menor + 500
+        );
 
 }
 
@@ -1963,10 +2157,19 @@ function iniciarTimer(){
 
 
 
+    // fim da tolerância gratuita de saída (10 min depois do tempo contratado)
+    const fimTolerancia =
+        new Date(
+            saida.getTime() +
+            Cobranca.TOLERANCIA_SAIDA_MS
+        );
+
+
     function atualizar(){
 
+        // hora do servidor, não a do computador
         const agora =
-            new Date();
+            Cobranca.agora();
 
 
 
@@ -1977,23 +2180,35 @@ function iniciarTimer(){
          * Depois da chegada:
          * conta até a hora de saída.
          *
+         * Acabou o tempo contratado: conta a
+         * tolerância gratuita para sair.
+         *
          * Como a hora de saída foi aumentada
          * em 1 hora na prorrogação, este mesmo
          * cronômetro automaticamente passa a
          * contar até o novo horário.
          */
 
+        const emTolerancia =
+            agora >= chegada &&
+            agora >= saida &&
+            agora < fimTolerancia;
+
         const alvo =
             agora < chegada
                 ? chegada
-                : saida;
+                : emTolerancia
+                    ? fimTolerancia
+                    : saida;
 
 
 
         tituloTimer.textContent =
             agora < chegada
                 ? "Tempo até a chegada"
-                : "Tempo restante";
+                : emTolerancia
+                    ? "Tolerância gratuita para sair"
+                    : "Tempo restante";
 
 
 
@@ -2211,6 +2426,19 @@ async function prorrogar(idReservaCli){
 
         alert(
             "Você já usou a prorrogação dessa reserva."
+        );
+
+
+        return;
+
+    }
+
+
+    // depois do fim do tempo contratado só resta finalizar
+    if(Cobranca.fasePrazo(reservaCli).vencido){
+
+        alert(
+            "O tempo contratado já terminou. Finalize a utilização."
         );
 
 
@@ -2584,6 +2812,28 @@ async function cancelar(idReservaCli){
         alert(
             "Esta reserva já foi encerrada. Não é possível cancelar com reembolso."
         );
+
+
+        return;
+
+    }
+
+
+    /*
+     * Tempo contratado acabou: não existe mais
+     * reembolso, só a finalização (o servidor
+     * também recusa o pedido).
+     */
+    if(Cobranca.fasePrazo(reservaCli).vencido){
+
+        alert(
+            "O tempo contratado terminou. Não há mais reembolso: finalize a utilização."
+        );
+
+
+        window.location.href =
+            "TelaCheckoutEncerrar.html?id=" +
+            encodeURIComponent(idReservaCli);
 
 
         return;

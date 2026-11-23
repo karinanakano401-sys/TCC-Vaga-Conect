@@ -1196,7 +1196,11 @@ function montarVagas(listaVagas){
 
         preco: vaga.preco,
 
-        status: statusDaVaga(vaga.status)
+        status: statusDaVaga(vaga.status),
+
+        // horários já comprometidos (agendamentos futuros): a vaga está livre AGORA,
+        // mas já tem dono em alguns horários
+        agendamentos: vaga.agendamentos || []
 
     }));
 
@@ -1599,6 +1603,13 @@ function render(){
 
         div.textContent = vaga.numero;
 
+        const agendada = avisoAgendamento(vaga);
+
+        if(agendada){
+            div.classList.add("com-agendamento");
+            div.title = agendada;
+        }
+
 
 
         div.onclick = ()=>{
@@ -1721,6 +1732,31 @@ buscarEstacionamento.addEventListener("keyup",()=>{
 // SELECIONAR VAGA
 // ============================================
 
+// "Livre agora · reservada a partir de 30/11 às 14:00" (só para vaga livre com agendamento futuro)
+function avisoAgendamento(vaga){
+
+    if(vaga.status !== "free") return "";
+
+    const proximo = (vaga.agendamentos || []).find(a => a.futuro);
+
+    if(!proximo) return "";
+
+    const quando = new Date(proximo.inicio).toLocaleString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+    }).replace(",", " às");
+
+    // cada reserva protege a vaga desde 24 h antes: novas reservas precisam ficar 24 h longe
+    const protegida = proximo.bloqueioInicio && new Date(proximo.bloqueioInicio) <= new Date();
+
+    return protegida
+        ? `Livre agora · reservada a partir de ${quando} · protegida contra novas reservas próximas (24 h)`
+        : `Livre agora · reservada a partir de ${quando}`;
+}
+
+
 function selecionar(vaga,elemento){
 
     if(reservaEmAberto){
@@ -1780,7 +1816,7 @@ function selecionar(vaga,elemento){
 
     spotStatus.textContent =
 
-    nomeStatus(vaga.status);
+    avisoAgendamento(vaga) || nomeStatus(vaga.status);
 
 
 

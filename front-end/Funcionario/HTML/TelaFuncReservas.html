@@ -137,6 +137,16 @@
         const status = item.reserva.status;
 
         if (Presenca.aguardandoChegada(status)) {
+          // reserva futura: a vaga ainda não é dela, então ninguém "chega" antes da hora
+          if (item.agendamento && item.agendamento.agendada) {
+            return `<small class="espera-chip">Agendada · ${mostrarDataHora(item.hora)}</small>`;
+          }
+
+          // a hora chegou, mas o cliente anterior ainda está na vaga
+          if (item.agendamento && item.agendamento.aguardandoVaga) {
+            return `<small class="espera-chip">Aguardando a vaga ser liberada</small>`;
+          }
+
           const espera = item.codigoPresenca
             ? `<small class="espera-chip">Aguardando cliente</small>`
             : "";
@@ -197,7 +207,7 @@
           <td><b>${item.reserva.vaga.numero}</b></td>
           <td>${mostrarDataHora(item.hora)}</td>
           <td>${mostrarDataHora(item.horaSaida)}</td>
-          <td><span class="status ${String(item.reserva.status || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}">${item.reserva.status}</span></td>
+          <td><span class="status ${String(item.reserva.status || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}">${item.agendamento && item.agendamento.agendada ? "Agendada" : item.reserva.status}</span></td>
           <td>${botoes(item)}</td>
         </tr>
       `).join("");

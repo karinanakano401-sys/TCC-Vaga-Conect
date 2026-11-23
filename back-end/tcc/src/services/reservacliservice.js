@@ -4,11 +4,19 @@ import { situacaoDaOcupacao, STATUS_AGUARDANDO_CHEGADA } from './ocupacaoservice
 import { avisarPresenca } from '../websocket.js'
 import { ehEquipe, erroHttp } from '../auth.js'
 import {
+  ativarAgendamentos,
+  buscarConflito,
+  erroConflito,
+  liberarVaga,
+  vagaEhDestaReserva
+} from './agendamentoservice.js'
+import {
   STATUS_EM_ANDAMENTO,
   FORMAS_DE_PAGAMENTO,
   calcularReserva,
   calcularEstorno,
   resumoDeCobranca,
+  faseDoPrazo,
   minutosEntre,
   arredondar
 } from './cobrancaservice.js'
@@ -18,7 +26,11 @@ const relacoes = {
   usuario:    { omit: { senha: true } },
   carro:      true,
   pagamentos: true,
-  reserva:    { include: { vaga: { include: { estacionamento: true } } } }
+  reserva:    { include: { vaga: { include: {
+    estacionamento: true,
+    // quem está dentro da vaga agora (para não confundir agendamento com ocupação)
+    reservas: { where: { status: 'Ativa' }, select: { id: true, status: true } }
+  } } } }
 }
 
 
@@ -38,14 +50,46 @@ export async function criarReservaCli(dados) {
 }
 
 
-// Acrescenta a situação de cobrança calculada no servidor (campo novo, aditivo)
+// Acrescenta a situação de cobrança calculada no servidor (campos novos, aditivos).
+// prazo + servidorAgora dizem ao front em que fase do tempo contratado a reserva
+// está, pelo relógio do servidor (o front só acompanha, quem decide é o backend).
 function comCobranca(item) {
   if (!item) return item
+  const agora = new Date()
+  const ocupacao = situacaoDaOcupacao(item)
+
+  // agendada = reserva futura (a vaga ainda não é dela);
+  // aguardandoVaga = a hora chegou, mas outro cliente ainda está na vaga
+  const aguardando = STATUS_AGUARDANDO.includes(item.reserva?.status)
+  const chegou = new Date(item.hora).getTime() <= agora.getTime()
+  const outraDentro = (item.reserva?.vaga?.reservas || []).some(
+    (r) => r.status === 'Ativa' && r.id !== item.reserva?.id
+  )
+
+  const { reservas: _dentro, ...vagaLimpa } = item.reserva?.vaga || {}
+
   return {
     ...item,
-    cobranca: resumoDeCobranca(item),
-    ocupacao: situacaoDaOcupacao(item)
+    reserva: item.reserva ? { ...item.reserva, vaga: item.reserva.vaga ? vagaLimpa : item.reserva.vaga } : item.reserva,
+    cobranca: resumoDeCobranca(item, agora),
+    ocupacao,
+    prazo: faseDoPrazo(item, agora),
+    agendamento: {
+      agendada: aguardando && !chegou,
+      aguardandoVaga: aguardando && chegou && outraDentro,
+      iniciaEm: new Date(item.hora).toISOString()
+    },
+    servidorAgora: agora.toISOString()
   }
+}
+
+
+// Tempo contratado terminou: não há mais cancelamento com reembolso,
+// só a finalização da utilização.
+export function erroPrazoVencido() {
+  const erro = erroHttp(409, 'O tempo contratado desta reserva terminou. Não é mais possível pedir reembolso: finalize a utilização.')
+  erro.exigeFinalizar = true
+  return erro
 }
 
 
@@ -69,19 +113,64 @@ export async function buscarReservaCliPorId(id) {
 
 
 export async function atualizarReservaCli(id, dados) {
-  const reservaCli = await prismaClient.reservaCli.update({
-    where: { id },
-    data: {
-      data:         dados.data ? new Date(dados.data) : undefined,
-      hora:         dados.hora ? new Date(dados.hora) : undefined,
-      horaSaida:    dados.horaSaida ? new Date(dados.horaSaida) : undefined,
-      fk_idCliente: dados.fk_idCliente,
-      fk_idReserva: dados.fk_idReserva,
-      fk_idCarro:   dados.fk_idCarro,
-    },
-    include: relacoes
+  const dadosDaAtualizacao = {
+    data:         dados.data ? new Date(dados.data) : undefined,
+    hora:         dados.hora ? new Date(dados.hora) : undefined,
+    horaSaida:    dados.horaSaida ? new Date(dados.horaSaida) : undefined,
+    fk_idCliente: dados.fk_idCliente,
+    fk_idReserva: dados.fk_idReserva,
+    fk_idCarro:   dados.fk_idCarro,
+  }
+
+  // sem mudança de período não há o que conferir na agenda da vaga
+  if (!dados.hora && !dados.horaSaida) {
+    return prismaClient.reservaCli.update({
+      where: { id },
+      data: dadosDaAtualizacao,
+      include: relacoes
+    })
+  }
+
+  // mudar o período (ex.: prorrogação) não pode invadir a janela de outra reserva da
+  // mesma vaga; confere e grava na mesma transação, com a vaga travada
+  await prismaClient.$transaction(async (tx) => {
+    const atual = await tx.reservaCli.findUnique({
+      where: { id },
+      include: { reserva: true }
+    })
+
+    if (!atual) throw erroHttp(404, 'Reserva de cliente não encontrada')
+
+    const vagaId = atual.reserva.fk_vaga
+
+    await tx.$queryRaw`SELECT id FROM "Vaga" WHERE id = ${vagaId} FOR UPDATE`
+
+    const inicio = new Date(dados.hora || atual.hora)
+    const fim = new Date(dados.horaSaida || atual.horaSaida)
+
+    if (!isNaN(inicio.getTime()) && !isNaN(fim.getTime())) {
+      const base = { vagaId, ignorarReservaCliId: id }
+
+      let conflito = await buscarConflito(tx, { ...base, inicio, fim })
+
+      if (conflito) {
+        // Reservas criadas antes da margem de 24 h podem já estar "coladas" em outra.
+        // Isso não impede a prorrogação, mas ela nunca pode invadir o horário real
+        // (nem a tolerância) da outra reserva.
+        const antes = await buscarConflito(tx, { ...base, inicio: atual.hora, fim: atual.horaSaida })
+
+        if (antes && antes.reservaCliId === conflito.reservaCliId) {
+          conflito = await buscarConflito(tx, { ...base, inicio, fim, margemMs: 0 })
+        }
+      }
+
+      if (conflito) throw erroConflito(conflito)
+    }
+
+    await tx.reservaCli.update({ where: { id }, data: dadosDaAtualizacao })
   })
-  return reservaCli
+
+  return prismaClient.reservaCli.findUnique({ where: { id }, include: relacoes })
 }
 
 
@@ -109,6 +198,33 @@ async function codigoLivre() {
 }
 
 
+// A entrada só existe a partir da hora marcada (agendamento futuro não ocupa
+// a vaga) e com a vaga livre para esta reserva (sem outro cliente dentro).
+function conferirChegada(item) {
+  const hora = new Date(item.hora)
+
+  if (!isNaN(hora.getTime()) && hora.getTime() > Date.now()) {
+    const quando = hora.toLocaleString('pt-BR', {
+      timeZone: 'America/Sao_Paulo',
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+
+    throw erroHttp(409, `Esta reserva está agendada para ${quando}. A entrada só pode ser confirmada a partir do horário contratado.`)
+  }
+
+  const outraDentro = (item.reserva?.vaga?.reservas || []).some(
+    (r) => r.status === 'Ativa' && r.id !== item.reserva?.id
+  )
+
+  if (outraDentro) {
+    throw erroHttp(409, 'A vaga ainda está com outro cliente. Aguarde o pátio liberá-la para confirmar a entrada.')
+  }
+}
+
+
 export async function gerarCodigoPresenca(id) {
   await processarAtrasos()
 
@@ -126,6 +242,8 @@ export async function gerarCodigoPresenca(id) {
   if (!STATUS_AGUARDANDO.includes(item.reserva?.status)) {
     throw new Error('Só é possível gerar código para reserva aguardando chegada.')
   }
+
+  conferirChegada(item)
 
   const atualizado = await prismaClient.reservaCli.update({
     where: { id },
@@ -159,6 +277,8 @@ export async function confirmarPresenca(id, codigoDigitado) {
   if (!STATUS_AGUARDANDO.includes(item.reserva?.status)) {
     throw new Error('Esta reserva não está aguardando confirmação de presença.')
   }
+
+  conferirChegada(item)
 
   if (!item.codigoPresenca) {
     throw new Error('O pátio ainda não gerou o código de entrada.')
@@ -278,6 +398,11 @@ export async function cancelarComReembolso(id, { codigo, motivo, auth } = {}) {
     throw erroHttp(409, 'Esta reserva não pode mais ser cancelada com reembolso.')
   }
 
+  // o servidor é quem decide: depois do fim do tempo contratado só existe finalizar
+  if (faseDoPrazo(item).vencido) {
+    throw erroPrazoVencido()
+  }
+
   const ocupacao = situacaoDaOcupacao(item)
 
   if (ocupacao.exigeCodigoSaida) {
@@ -300,6 +425,9 @@ export async function cancelarComReembolso(id, { codigo, motivo, auth } = {}) {
   const agora = new Date()
 
   const reembolso = await prismaClient.$transaction(async (tx) => {
+    // agendamento futuro não segura a vaga: só libera se ela era mesmo desta reserva
+    const eraDona = await vagaEhDestaReserva(tx, item.reserva?.vaga?.id, id)
+
     // só uma chamada vence: evita cancelar e estornar duas vezes.
     // Sem entrada só cancela enquanto ninguém entrou; ocupando, só quem ainda está dentro.
     const virou = await tx.reserva.updateMany({
@@ -314,11 +442,8 @@ export async function cancelarComReembolso(id, { codigo, motivo, auth } = {}) {
       throw erroHttp(409, 'A situação desta reserva mudou. Atualize a página e tente de novo.')
     }
 
-    if (item.reserva?.vaga?.id) {
-      await tx.vaga.update({
-        where: { id: item.reserva.vaga.id },
-        data: { status: 'Livre' }
-      })
+    if (eraDona) {
+      await liberarVaga(tx, item.reserva.vaga.id)
     }
 
     await tx.reservaCli.update({
@@ -362,6 +487,9 @@ export async function cancelarComReembolso(id, { codigo, motivo, auth } = {}) {
 
     throw erro
   })
+
+  // a vaga ficou livre: se há alguém esperando a hora, ela já passa a Reservada
+  await ativarAgendamentos()
 
   avisarPresenca(id, { tipo: 'saida-confirmada' })
 
@@ -475,6 +603,9 @@ export async function sairDaVaga(id, codigoDigitado, pagamento, auth) {
     }
   })
 
+  // a vaga ficou livre: se há alguém esperando a hora, ela já passa a Reservada
+  await ativarAgendamentos()
+
   avisarPresenca(id, { tipo: 'saida-confirmada' })
 
   const atualizado = await prismaClient.reservaCli.findUnique({
@@ -483,6 +614,120 @@ export async function sairDaVaga(id, codigoDigitado, pagamento, auth) {
   })
 
   return { ...atualizado, extra }
+}
+
+
+// Finalização da utilização, depois do fim do tempo contratado.
+//
+//  - dentro do prazo      -> 409: para sair antes existe o cancelamento
+//  - ocupando a vaga      -> exige o código de saída (sairDaVaga valida o código,
+//                            grava saidaEm, libera a vaga e só cobra tempo extra
+//                            DEPOIS da tolerância de 10 min; dentro dela é R$ 0)
+//  - nunca entrou         -> sem código: encerra a reserva e libera a vaga, sem
+//                            cobrança e sem reembolso
+//  - já saiu / já finalizada -> sem código e sem repetir nada (idempotente)
+//
+// Quem encerra primeiro vence (updateMany condicional): nunca finaliza duas vezes.
+export async function finalizarUtilizacao(id, { codigo, pagamento } = {}, auth) {
+  await processarAtrasos()
+
+  const buscar = () => prismaClient.reservaCli.findUnique({
+    where: { id },
+    include: relacoes
+  })
+
+  const item = await buscar()
+
+  if (!item) throw erroHttp(404, 'Reserva de cliente não encontrada')
+
+  conferirAcesso(item, auth)
+
+  const status = item.reserva?.status
+
+  const jaFinalizada = (atual) => ({
+    ...comCobranca(atual),
+    finalizada: true,
+    jaFinalizada: true,
+    exigiuCodigoSaida: false
+  })
+
+  if (status === 'Concluída') return jaFinalizada(item)
+
+  if (status === 'Cancelada') {
+    throw erroHttp(409, 'Esta reserva foi cancelada e não pode ser finalizada.')
+  }
+
+  if (!STATUS_EM_ANDAMENTO.includes(status)) {
+    throw erroHttp(409, 'Esta reserva não está em andamento.')
+  }
+
+  if (!faseDoPrazo(item).vencido) {
+    throw erroHttp(409, 'O tempo contratado ainda não terminou. Para sair antes, use o cancelamento.')
+  }
+
+  const ocupacao = situacaoDaOcupacao(item)
+
+  // dentro da vaga: o código de saída é obrigatório
+  if (ocupacao.exigeCodigoSaida) {
+    if (status !== 'Ativa') {
+      throw erroHttp(409, 'A situação desta reserva mudou. Atualize a página e tente de novo.')
+    }
+
+    if (!String(codigo || '').replace(/\s/g, '')) {
+      throw erroCodigoSaida('Você está ocupando uma vaga. Informe o código de saída passado pelo pátio para finalizar.')
+    }
+
+    const saida = await sairDaVaga(id, codigo, pagamento, auth)
+
+    return { ...saida, finalizada: true, jaFinalizada: false, exigiuCodigoSaida: true }
+  }
+
+  // sem ocupação ativa (nunca entrou, ou a saída já foi registrada): sem código
+  const vagaId = item.reserva?.vaga?.id
+
+  const encerrou = await prismaClient.$transaction(async (tx) => {
+    // libera conforme o estado real: só mexe na vaga se ela estava com esta reserva
+    const eraDona = await vagaEhDestaReserva(tx, vagaId, id)
+
+    const virou = await tx.reserva.updateMany({
+      where: { id: item.fk_idReserva, status: { in: STATUS_EM_ANDAMENTO } },
+      data: { status: 'Concluída' }
+    })
+
+    if (virou.count === 0) return false
+
+    if (eraDona) {
+      await liberarVaga(tx, vagaId)
+    }
+
+    // nenhum pagamento nem reembolso é criado aqui; entradaEm/saidaEm/horaSaida ficam como estão
+    await tx.reservaCli.update({
+      where: { id },
+      data: { codigoSaida: null, codigoPresenca: null }
+    })
+
+    return true
+  }, { maxWait: 10000, timeout: 15000 })
+
+  const atual = await buscar()
+
+  // perdeu a corrida: se a outra chamada concluiu, responde como já finalizada
+  if (!encerrou) {
+    if (atual?.reserva?.status === 'Concluída') return jaFinalizada(atual)
+
+    throw erroHttp(409, 'A situação desta reserva mudou. Atualize a página e tente de novo.')
+  }
+
+  await ativarAgendamentos()
+
+  avisarPresenca(id, { tipo: 'saida-confirmada' })
+
+  return {
+    ...comCobranca(atual),
+    finalizada: true,
+    jaFinalizada: false,
+    exigiuCodigoSaida: false
+  }
 }
 
 // Reserva + vínculo com o cliente + pagamento da taxa + vaga ocupada,
@@ -543,6 +788,10 @@ export async function reservar(dados, auth) {
   }
 
   const criada = await prismaClient.$transaction(async (tx) => {
+    // trava a linha da vaga: pedidos simultâneos para a mesma vaga entram um de cada vez,
+    // então a checagem de conflito abaixo vale para todos
+    await tx.$queryRaw`SELECT id FROM "Vaga" WHERE id = ${dados.fk_vaga} FOR UPDATE`
+
     const vaga = await tx.vaga.findUnique({ where: { id: dados.fk_vaga } })
 
     if (!vaga) throw erroHttp(404, 'Vaga não encontrada.')
@@ -559,14 +808,29 @@ export async function reservar(dados, auth) {
       }
     }
 
-    // trava a vaga: só uma pessoa leva uma vaga livre
-    const pegou = await tx.vaga.updateMany({
-      where: { id: vaga.id, status: 'Livre' },
-      data: { status: 'Reservada' }
+    // duas reservas nunca ocupam a mesma vaga ao mesmo tempo
+    const agoraReserva = new Date()
+
+    const conflito = await buscarConflito(tx, {
+      vagaId: vaga.id,
+      inicio: hora,
+      fim: horaSaida,
+      agora: agoraReserva
     })
 
-    if (pegou.count === 0) {
-      throw erroHttp(409, 'Esta vaga não está mais disponível.')
+    if (conflito) throw erroConflito(conflito)
+
+    // Agendamento futuro NÃO bloqueia a vaga: ela só passa a 'Reservada' quando a
+    // hora marcada chega (ativarAgendamentos). Reserva para agora trava a vaga já.
+    if (hora.getTime() <= agoraReserva.getTime()) {
+      const pegou = await tx.vaga.updateMany({
+        where: { id: vaga.id, status: 'Livre' },
+        data: { status: 'Reservada' }
+      })
+
+      if (pegou.count === 0) {
+        throw erroHttp(409, 'Esta vaga não está mais disponível.')
+      }
     }
 
     const reserva = await tx.reserva.create({

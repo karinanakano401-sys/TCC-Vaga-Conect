@@ -222,7 +222,12 @@
 
         const aguardando = ["Reservada", "Tolerância", "Atraso"].includes(status);
 
-        if (aguardando) {
+        if (aguardando && item.agendamento && item.agendamento.agendada) {
+          // reserva futura: a vaga ainda não é dela, ninguém "chega" antes da hora
+          acoes += `<span class="espera-chip">Agendada</span>`;
+        } else if (aguardando && item.agendamento && item.agendamento.aguardandoVaga) {
+          acoes += `<span class="espera-chip">Aguardando vaga</span>`;
+        } else if (aguardando) {
           acoes += `<button class="texto verde" onclick="abrirChegada('${item.id}')">Cliente chegou</button>`;
           // ainda não entrou: não há ocupação, então não existe código de saída
           if (item.codigoPresenca) {
@@ -276,6 +281,7 @@
 
         rows.innerHTML = filtradas.map((item) => {
           const statusReserva = item.reserva?.status || "--";
+          const rotuloStatus = item.agendamento && item.agendamento.agendada ? "Agendada" : statusReserva;
           const carro = item.carro
             ? `${item.carro.modelo} · ${item.carro.placacarro}`
             : "Sem veículo";
@@ -289,7 +295,7 @@
             <td>${item.reserva?.vaga?.estacionamento?.nome || "--"}</td>
             <td>${dataCurta(item.hora)}</td>
             <td>${horaCurta(item.hora)} - ${horaCurta(item.horaSaida)}</td>
-            <td><span class="status ${cssStatus(statusReserva)}">${statusReserva}</span></td>
+            <td><span class="status ${cssStatus(statusReserva)}">${rotuloStatus}</span></td>
             <td>${pagamento}</td>
             <td class="row-actions">${botoes(item)}</td>
           </tr>

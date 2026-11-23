@@ -129,6 +129,55 @@ export function valorTempoExtra(item, agora = new Date()) {
 }
 
 
+// Em que ponto do prazo contratado a reserva está, pelo relógio do SERVIDOR.
+// O fim do prazo é o horaSaida gravado (instante absoluto, sem depender de
+// fuso: Date compara em milissegundos UTC).
+//
+//   dentro_do_prazo  ainda há tempo contratado        -> Cancelar (com reembolso)
+//   tolerancia       acabou o tempo, 10 min grátis    -> Finalizar, sem cobrança
+//   excedida         passou da tolerância             -> Finalizar (tempo extra, regra já existente)
+//   sem_prazo        reserva sem horaSaida válido     -> nada muda
+//
+// vencido  = o tempo contratado terminou (reembolso bloqueado)
+// finalizar = vencido e a reserva ainda está em andamento
+export function faseDoPrazo(item, agora = new Date()) {
+  const fim = new Date(item?.horaSaida)
+  const toleranciaMin = TOLERANCIA_SAIDA_MS / 60000
+
+  if (!item?.horaSaida || isNaN(fim.getTime())) {
+    return {
+      fase: 'sem_prazo',
+      vencido: false,
+      finalizar: false,
+      terminaEm: null,
+      toleranciaAte: null,
+      toleranciaMin
+    }
+  }
+
+  const agoraMs = new Date(agora).getTime()
+  const fimMs = fim.getTime()
+  const toleranciaAteMs = fimMs + TOLERANCIA_SAIDA_MS
+
+  let fase = 'dentro_do_prazo'
+
+  if (agoraMs >= toleranciaAteMs) fase = 'excedida'
+  else if (agoraMs >= fimMs) fase = 'tolerancia'
+
+  const vencido = agoraMs >= fimMs
+  const emAndamento = STATUS_EM_ANDAMENTO.includes(item?.reserva?.status)
+
+  return {
+    fase,
+    vencido,
+    finalizar: vencido && emAndamento,
+    terminaEm: fim.toISOString(),
+    toleranciaAte: new Date(toleranciaAteMs).toISOString(),
+    toleranciaMin
+  }
+}
+
+
 // Situação de cobrança de uma reserva, calculada no servidor.
 // O tempo extra só existe enquanto o carro está no pátio (status Ativa):
 // na saída o horaSaida é regravado e o extra já foi cobrado.

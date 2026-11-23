@@ -856,6 +856,71 @@ function minutosDaReserva(){
 }
 
 
+// A vaga está livre neste período? O servidor decide (e confere de novo ao pagar).
+// Se a consulta falhar, não trava a tela: a reserva ainda é validada no servidor.
+async function horarioDisponivel(){
+
+    try {
+
+        const inicio = new Date(`${dataChegada}T${horaChegada}:00`).toISOString();
+
+        const fim = new Date(`${dataDaSaida()}T${horaSaida}:00`).toISOString();
+
+        const resposta = await fetch(
+            `${api}/vaga/${escolha.idVaga}/disponibilidade?inicio=${encodeURIComponent(inicio)}&fim=${encodeURIComponent(fim)}`
+        );
+
+        const retorno = await resposta.json();
+
+        if(!resposta.ok || retorno.disponivel){
+            return { disponivel: true, mensagem: "" };
+        }
+
+        if(retorno.motivo === "ocupada_agora"){
+            return {
+                disponivel: false,
+                mensagem: "Esta vaga está ocupada agora. Escolha um horário mais à frente ou outra vaga."
+            };
+        }
+
+        const formatar = (iso) => new Date(iso).toLocaleString("pt-BR", {
+            day: "2-digit",
+            month: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit"
+        }).replace(",", " às");
+
+        // a vaga fica protegida por 24 h antes de cada reserva (margem operacional, sem custo)
+        if(retorno.conflito && retorno.conflito.tipo === "margem_24h"){
+
+            return {
+                disponivel: false,
+                mensagem:
+                    `Esta vaga tem outra reserva próxima desse horário (${formatar(retorno.conflito.inicio)} até ${formatar(retorno.conflito.fim)}). ` +
+                    "Cada reserva protege a vaga por 24 horas antes do início, então a nova reserva precisa ficar " +
+                    "a pelo menos 24 horas de distância. Escolha outro horário ou outra vaga."
+            };
+
+        }
+
+        const trecho = retorno.conflito
+            ? ` (ocupada de ${formatar(retorno.conflito.inicio)} até ${formatar(retorno.conflito.fim)})`
+            : "";
+
+        return {
+            disponivel: false,
+            mensagem: `Esta vaga já tem outra reserva nesse horário${trecho}. Escolha outro horário ou outra vaga.`
+        };
+
+    } catch (error) {
+
+        return { disponivel: true, mensagem: "" };
+
+    }
+
+}
+
+
 function cobrancaDaReserva(){
 
     return Cobranca.calcularReserva(vaga.preco, minutosDaReserva());
@@ -1301,7 +1366,7 @@ alterarHorario.onclick = ()=>{
 
 
 
-salvarHorario.onclick = ()=>{
+salvarHorario.onclick = async ()=>{
 
     if(novaData.value === "" || novoHorario.value === "" || novaSaida.value === ""){
 
@@ -1353,6 +1418,24 @@ salvarHorario.onclick = ()=>{
         horaSaida = saidaAnterior;
 
         alert("A reserva precisa durar pelo menos 1 minuto.");
+
+        return;
+
+    }
+
+
+    // conflito com outra reserva da mesma vaga: volta ao horário anterior
+    const livre = await horarioDisponivel();
+
+    if(!livre.disponivel){
+
+        dataChegada = dataAnterior;
+
+        horaChegada = horaAnterior;
+
+        horaSaida = saidaAnterior;
+
+        alert(livre.mensagem);
 
         return;
 
@@ -1426,6 +1509,17 @@ botaoPagamento.onclick = async ()=>{
     if(impedimento){
 
         alert(impedimento);
+
+        return;
+
+    }
+
+
+    const livre = await horarioDisponivel();
+
+    if(!livre.disponivel){
+
+        alert(livre.mensagem);
 
         return;
 

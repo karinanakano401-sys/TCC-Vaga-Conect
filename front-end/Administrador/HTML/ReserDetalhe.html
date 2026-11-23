@@ -269,6 +269,16 @@
 
       aplicarStatusNaTela(status);
 
+      // reserva futura: a vaga ainda não é dela, então não há "cliente chegou" antes da hora
+      if (item.agendamento && (item.agendamento.agendada || item.agendamento.aguardandoVaga)) {
+        document.getElementById("btnConfirmar").style.display = "none";
+      }
+
+      if (item.agendamento && item.agendamento.agendada) {
+        document.getElementById("statusTopo").textContent = "Agendada";
+        document.getElementById("statusReserva").textContent = "Agendada";
+      }
+
       // "Código de saída" só para quem está ocupando a vaga; sem entrada o cliente cancela sozinho
       document.getElementById("btnCancelar").style.display = Presenca.ocupando(item) ? "" : "none";
     }

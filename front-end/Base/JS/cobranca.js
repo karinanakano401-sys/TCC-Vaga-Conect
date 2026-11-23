@@ -159,6 +159,54 @@
         return !!(item && item.reserva && item.reserva.status === "Ativa");
     }
 
+    /* -----------------------------------------------------
+       Relógio do servidor e fase do tempo contratado
+
+       O servidor é quem decide (campo "prazo" e "servidorAgora"
+       em /reservacli). Aqui o front só acompanha o relógio para
+       trocar o botão sem recarregar, usando a hora do servidor
+       e não a do computador, que pode estar adiantada ou atrasada.
+    ----------------------------------------------------- */
+    var TOLERANCIA_SAIDA_MS = 10 * 60 * 1000;
+    var diferencaServidor = 0;
+
+    function sincronizar(servidorAgora) {
+        var servidor = new Date(servidorAgora).getTime();
+        if (!isNaN(servidor)) diferencaServidor = servidor - Date.now();
+    }
+
+    function agora() {
+        return new Date(Date.now() + diferencaServidor);
+    }
+
+    // dentro_do_prazo | tolerancia | excedida | sem_prazo (mesma regra do servidor)
+    function fasePrazo(item, quando) {
+        var fim = new Date(item && item.horaSaida);
+        quando = quando ? new Date(quando) : agora();
+
+        if (!item || !item.horaSaida || isNaN(fim.getTime())) {
+            return { fase: "sem_prazo", vencido: false, finalizar: false, fim: null, toleranciaAte: null };
+        }
+
+        var toleranciaAte = new Date(fim.getTime() + TOLERANCIA_SAIDA_MS);
+        var fase = "dentro_do_prazo";
+
+        if (quando >= toleranciaAte) fase = "excedida";
+        else if (quando >= fim) fase = "tolerancia";
+
+        var status = item.reserva ? item.reserva.status : "";
+        var emAndamento = ["Reservada", "Tolerância", "Atraso", "Ativa"].indexOf(status) !== -1;
+        var vencido = quando >= fim;
+
+        return {
+            fase: fase,
+            vencido: vencido,
+            finalizar: vencido && emAndamento,
+            fim: fim,
+            toleranciaAte: toleranciaAte
+        };
+    }
+
     // Aviso de cancelamento: o código de saída só vale para quem já está na vaga
     function textoCancelamento(item, conta) {
         var volta = mostrarPreco(conta.reembolso);
@@ -194,6 +242,10 @@
         calcularReserva: calcularReserva,
         calcularUso: calcularUso,
         ocupando: ocupando,
+        TOLERANCIA_SAIDA_MS: TOLERANCIA_SAIDA_MS,
+        sincronizar: sincronizar,
+        agora: agora,
+        fasePrazo: fasePrazo,
         textoCancelamento: textoCancelamento
     };
 })(typeof window !== "undefined" ? window : globalThis);

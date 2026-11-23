@@ -13,7 +13,8 @@ router.post('/reservar', autenticar, async (req, res) => {
   } catch (error) {
     res.status(error.status || 400).json({
       erro: error.message,
-      ...(error.valorCorreto !== undefined ? { valorCorreto: error.valorCorreto } : {})
+      ...(error.valorCorreto !== undefined ? { valorCorreto: error.valorCorreto } : {}),
+      ...(error.conflito ? { conflito: error.conflito } : {})
     })
   }
 })
@@ -84,6 +85,21 @@ router.post('/:id/sair', autenticar, async (req, res) => {
 })
 
 
+// Finalizar a utilização depois do fim do tempo contratado (sem reembolso)
+router.post('/:id/finalizar', autenticar, async (req, res) => {
+  try {
+    const reservaCli = await reservaCliService.finalizarUtilizacao(
+      req.params.id,
+      { codigo: req.body?.codigo, pagamento: req.body?.pagamento },
+      req.auth
+    )
+    res.status(200).json(reservaCli)
+  } catch (error) {
+    responderErro(res, error, 400)
+  }
+})
+
+
 router.post('/:id/confirmar-saida', autenticar, async (req, res) => {
   try {
     const reservaCli = await reservaCliService.confirmarSaida(
@@ -115,7 +131,10 @@ router.put('/:id', async (req, res) => {
     const reservaCli = await reservaCliService.atualizarReservaCli(req.params.id, req.body)
     res.status(200).json(reservaCli)
   } catch (error) {
-    res.status(400).json({ erro: error.message })
+    res.status(error.status || 400).json({
+      erro: error.message,
+      ...(error.conflito ? { conflito: error.conflito } : {})
+    })
   }
 })
 

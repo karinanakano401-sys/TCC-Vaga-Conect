@@ -721,8 +721,9 @@ async function gravarReserva(){
             fk_vaga:        reserva.idVaga,
             fk_idCarro:     reserva.idCarro,
             data:           reserva.dataChegada,
-            hora:           `${reserva.dataChegada}T${reserva.horaChegada}:00`,
-            horaSaida:      `${reserva.dataSaida}T${reserva.horaSaida}:00`,
+            // instante absoluto (ISO com Z): o servidor não depende do fuso da própria máquina
+            hora:           new Date(`${reserva.dataChegada}T${reserva.horaChegada}:00`).toISOString(),
+            horaSaida:      new Date(`${reserva.dataSaida}T${reserva.horaSaida}:00`).toISOString(),
             formaPagamento: formaPagamento,
             valorEsperado:  total
         })

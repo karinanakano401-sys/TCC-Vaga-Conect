@@ -331,7 +331,7 @@
             </td>
             <td><b>${item.reserva.vaga.numero}</b></td>
             <td>${horaCurta(item.hora)} - ${horaCurta(item.horaSaida)}</td>
-            <td><span class="status ${status.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}">${status}</span></td>
+            <td><span class="status ${status.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}">${item.agendamento && item.agendamento.agendada ? "Agendada" : status}</span></td>
           </tr>
         `;
         }).join("");

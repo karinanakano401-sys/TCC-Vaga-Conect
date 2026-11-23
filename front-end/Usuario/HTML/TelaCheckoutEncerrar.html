@@ -357,9 +357,15 @@ async function carregar(){
         }
 
 
+        // usa a hora do servidor para decidir quando o tempo contratado acaba
+        if(reserva.servidorAgora) Cobranca.sincronizar(reserva.servidorAgora);
+
+
         preencher();
 
         iniciarRelogio();
+
+        acompanharServidor();
 
     } catch (error) {
 
@@ -481,7 +487,54 @@ function mostrarExcedente(segundos, precoMinuto){
 }
 
 
+// Confere com o servidor de tempos em tempos (e quando o tempo contratado
+// acaba), para o botão e os avisos seguirem o que o backend decide.
+let acompanhando = null;
+
+let venceuConferido = false;
+
+
+async function atualizarDoServidor(){
+
+    try {
+
+        const nova = await buscarPorId(reserva.id);
+
+        if(nova.servidorAgora) Cobranca.sincronizar(nova.servidorAgora);
+
+        reserva = nova;
+
+        preencher();
+
+        iniciarRelogio();
+
+    } catch (error) {
+
+        // sem conexão: segue com o que já está na tela
+
+    }
+
+}
+
+
+function acompanharServidor(){
+
+    if(acompanhando) clearInterval(acompanhando);
+
+    acompanhando = setInterval(atualizarDoServidor, 30000);
+
+}
+
+
 function iniciarRelogio(){
+
+    if(contador){
+
+        clearInterval(contador);
+
+        contador = null;
+
+    }
 
     const entrada = new Date(reserva.hora);
 
@@ -492,7 +545,7 @@ function iniciarRelogio(){
 
     function atualizar(){
 
-        const agora = new Date();
+        const agora = Cobranca.agora();
 
         const antesDaEntrada = !isNaN(entrada.getTime()) && agora < entrada;
 
@@ -529,9 +582,15 @@ function iniciarRelogio(){
             ? new Date(saida.getTime() + TOLERANCIA_SAIDA_MS)
             : null;
 
+        // o tempo contratado acabou? (decisão espelhada do servidor)
+        const vencida = Cobranca.fasePrazo(reserva, agora).vencido;
+
+        // quem nunca entrou na vaga não gera tempo extra nem precisa de código
+        const naoEntrou = !Cobranca.ocupando(reserva);
+
         const emTolerancia = fimTolerancia && agora >= saida && agora < fimTolerancia;
 
-        const emExcedente = fimTolerancia && agora >= fimTolerancia;
+        const emExcedente = fimTolerancia && agora >= fimTolerancia && !naoEntrou;
 
 
         if(saidaValida && agora < saida){
@@ -544,11 +603,19 @@ function iniciarRelogio(){
 
             pintarRelogio(faltam);
 
+        } else if(vencida && naoEntrou){
+
+            rotuloTempo.textContent = "Tempo da reserva encerrado";
+
+            pulso.textContent = "você não chegou a entrar na vaga";
+
+            pintarRelogio(0);
+
         } else if(emTolerancia){
 
             rotuloTempo.textContent = "Tolerância para sair";
 
-            pulso.textContent = "10 minutos para sair sem cobrança extra";
+            pulso.textContent = "tolerância gratuita: saia sem nenhuma cobrança extra";
 
             pintarRelogio(Math.floor((fimTolerancia - agora) / 1000));
 
@@ -579,12 +646,30 @@ function iniciarRelogio(){
 
         mostrarExcedente(segundosExtras, contaPrecoMinuto());
 
-        btnCancelar.textContent = emExcedente ? "Sair" : "Cancelar vaga";
+        // acabou o tempo contratado: "Cancelar" some e entra "Finalizar" (sem reembolso)
+        btnCancelar.textContent = vencida ? "Finalizar" : "Cancelar vaga";
 
-        btnCancelar.classList.toggle("modo-sair", emExcedente);
+        btnCancelar.classList.toggle("modo-sair", vencida);
+
+        // quando o tempo acaba, confirma com o servidor (uma vez por reserva/horário)
+        const chaveVencimento = reserva.id + "|" + reserva.horaSaida;
+
+        if(vencida && venceuConferido !== chaveVencimento){
+
+            venceuConferido = chaveVencimento;
+
+            atualizarDoServidor();
+
+            return;
+
+        }
 
 
-        const conta = Cobranca.calcularUso(reserva, agora);
+        // A conta fica no tempo contratado: a tolerância não soma valor.
+        // O tempo extra (depois da tolerância) é mostrado à parte, abaixo.
+        const agoraDaConta = saidaValida && agora > saida ? saida : agora;
+
+        const conta = Cobranca.calcularUso(reserva, agoraDaConta);
 
 
         linhaTempo.textContent = conta.minutosUsados > 0
@@ -595,9 +680,13 @@ function iniciarRelogio(){
         linhaTotal.textContent = mostrarPreco(conta.valorUsado);
 
 
-        if(emTolerancia){
+        if(vencida && naoEntrou){
 
-            avisoSaida.textContent = "Tolerância de 10 minutos para sair. Ainda não há cobrança extra.";
+            avisoSaida.textContent = "O tempo contratado terminou e você não entrou na vaga. Finalize para encerrar a reserva: não é preciso código, não há cobrança e o reembolso não está mais disponível.";
+
+        } else if(emTolerancia){
+
+            avisoSaida.textContent = "O tempo contratado terminou. Você tem 10 minutos de tolerância para sair, sem nenhuma cobrança extra. O reembolso não está mais disponível: toque em Finalizar.";
 
         } else if(emExcedente){
 
@@ -715,11 +804,17 @@ function minutosExcedentes(agora){
 }
 
 
+// Finalização da utilização (depois do fim do tempo contratado).
+// O código de saída só é pedido a quem está ocupando a vaga; quem nunca entrou
+// (ou já saiu) finaliza direto. O servidor valida tudo de novo.
 function abrirSaida(){
 
-    const agora = new Date();
+    const naoPrecisaCodigo = !Cobranca.ocupando(reserva);
 
-    const minutos = minutosExcedentes(agora);
+    const agora = Cobranca.agora();
+
+    // tolerância não cobra: o tempo extra só existe depois dela
+    const minutos = naoPrecisaCodigo ? 0 : minutosExcedentes(agora);
 
     const valor = Cobranca.valorDosMinutos(
         Number(reserva.reserva?.vaga?.preco || 0),
@@ -735,25 +830,39 @@ function abrirSaida(){
     fundo.innerHTML =
         '<div role="dialog" aria-modal="true" style="width:min(420px,100%);'
       + 'padding:22px;background:#0a1d33;color:#e9f2fc;border:1px solid rgba(120,170,220,.34);">'
-      + "<h3>Sair da vaga</h3>"
+      + "<h3>Finalizar utilização</h3>"
       + '<p class="vc-saida-texto" style="margin:10px 0 14px;color:#93aec9;line-height:1.5;"></p>'
       + '<div class="vc-saida-pagamento" style="display:flex;gap:8px;margin-bottom:14px;"></div>'
-      + '<input data-codigo type="text" inputmode="numeric" maxlength="6" placeholder="Código de saída" '
-      + 'style="width:100%;padding:12px;background:#071426;color:#e9f2fc;border:1px solid rgba(120,170,220,.34);">'
+      + (naoPrecisaCodigo
+          ? ""
+          : '<input data-codigo type="text" inputmode="numeric" maxlength="6" placeholder="Código de saída" '
+            + 'style="width:100%;padding:12px;background:#071426;color:#e9f2fc;border:1px solid rgba(120,170,220,.34);">')
       + '<p data-erro style="min-height:1.2em;margin:8px 0;color:#fca5a5;"></p>'
       + '<div style="display:flex;gap:10px;justify-content:flex-end;">'
       + '<button type="button" data-nao>Voltar</button>'
-      + '<button type="button" data-sim>Confirmar saída</button>'
+      + '<button type="button" data-sim>Finalizar</button>'
       + "</div></div>";
 
     const texto = fundo.querySelector(".vc-saida-texto");
 
     const caixaPagamento = fundo.querySelector(".vc-saida-pagamento");
 
-    texto.textContent = valor > 0
-        ? `Tempo extra: ${Cobranca.mostrarDuracao(minutos)}. A pagar ${mostrarPreco(valor)}. `
-          + "Escolha o pagamento e digite o código que o funcionário passar."
-        : "Digite o código de saída informado pelo funcionário do pátio.";
+    if(naoPrecisaCodigo){
+
+        texto.textContent = "Seu tempo contratado terminou e não há ocupação ativa na vaga. "
+          + "Não é preciso código de saída e não há cobrança: a reserva será encerrada e a vaga liberada.";
+
+    } else if(valor > 0){
+
+        texto.textContent = `Passou da tolerância gratuita: tempo extra de ${Cobranca.mostrarDuracao(minutos)}, a pagar ${mostrarPreco(valor)}. `
+          + "Escolha o pagamento e digite o código que o funcionário passar.";
+
+    } else {
+
+        texto.textContent = "Você está dentro da tolerância gratuita: não há cobrança extra. "
+          + "Digite o código de saída informado pelo funcionário do pátio para liberar a vaga.";
+
+    }
 
     let tipo = "pix";
 
@@ -804,9 +913,9 @@ function abrirSaida(){
 
     confirmarSaida.onclick = async () => {
 
-        const codigo = campo.value.replace(/\s/g, "");
+        const codigo = campo ? campo.value.replace(/\s/g, "") : "";
 
-        if(!codigo){
+        if(campo && !codigo){
             erro.textContent = "Digite o código de saída informado no pátio.";
             campo.focus();
             return;
@@ -818,28 +927,40 @@ function abrirSaida(){
 
         try {
 
-            const resposta = await fetch(api + "/reservacli/" + encodeURIComponent(reserva.id) + "/sair", {
+            const resposta = await fetch(api + "/reservacli/" + encodeURIComponent(reserva.id) + "/finalizar", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    codigo,
+                    codigo: codigo || undefined,
                     pagamento: valor > 0 ? { tipo } : undefined
                 })
             });
 
             const dados = await resposta.json();
 
-            if(!resposta.ok) throw new Error(dados.erro || "Não foi possível concluir a saída.");
+            if(!resposta.ok){
+
+                // a situação mudou com a tela aberta (ex.: a pessoa entrou): passa a pedir o código
+                if(dados.exigeCodigoSaida && !campo){
+                    atualizarDoServidor();
+                    fundo.remove();
+                    aviso("Código de saída necessário", dados.erro || "Informe o código de saída para finalizar.");
+                    return;
+                }
+
+                throw new Error(dados.erro || "Não foi possível finalizar.");
+
+            }
 
             window.location.href = "TelaReserAndamento.html";
 
         } catch (error) {
 
-            erro.textContent = error.message || "Não foi possível concluir a saída.";
+            erro.textContent = error.message || "Não foi possível finalizar.";
 
             confirmarSaida.disabled = false;
 
-            campo.focus();
+            if(campo) campo.focus();
 
         }
 
@@ -847,7 +968,7 @@ function abrirSaida(){
 
     document.body.appendChild(fundo);
 
-    campo.focus();
+    if(campo) campo.focus();
 
 }
 

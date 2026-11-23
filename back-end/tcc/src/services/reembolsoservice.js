@@ -3,10 +3,11 @@ import { ehEquipe, erroHttp } from '../auth.js'
 import {
   STATUS_EM_ANDAMENTO,
   calcularEstorno,
+  faseDoPrazo,
   totalPago
 } from './cobrancaservice.js'
 import { situacaoDaOcupacao } from './ocupacaoservice.js'
-import { cancelarComReembolso } from './reservacliservice.js'
+import { cancelarComReembolso, erroPrazoVencido } from './reservacliservice.js'
 
 
 const relacoes = {
@@ -57,7 +58,13 @@ export async function criarReembolso(dados, auth) {
     where: { id: dados.fk_reservacli },
     include: {
       pagamentos: true,
-      reserva: { include: { vaga: true } }
+      reserva: {
+        include: {
+          vaga: {
+            include: { reservas: { where: { status: 'Ativa' }, select: { id: true, status: true } } }
+          }
+        }
+      }
     }
   })
 
@@ -103,6 +110,11 @@ export async function criarReembolso(dados, auth) {
     // cliente (ou equipe sem estornoTotal): reembolso dos minutos não usados
     if (!STATUS_EM_ANDAMENTO.includes(item.reserva?.status)) {
       throw erroHttp(409, 'O reembolso dos minutos não usados vale só para reservas em andamento.')
+    }
+
+    // tempo contratado acabou: sem reembolso, só finalizar (regra do servidor)
+    if (faseDoPrazo(item).vencido) {
+      throw erroPrazoVencido()
     }
 
     const conta = calcularEstorno(item)

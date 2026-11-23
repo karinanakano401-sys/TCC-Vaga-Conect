@@ -1,5 +1,6 @@
 import express from 'express'
 import * as vagaService from '../services/vagaservice.js'
+import { verificarDisponibilidade } from '../services/agendamentoservice.js'
 
 const router = express.Router()
 
@@ -24,6 +25,22 @@ router.get('/', async (req, res) => {
 })
 
 
+// A vaga está livre para este período? (?inicio=ISO&fim=ISO)
+router.get('/:id/disponibilidade', async (req, res) => {
+  try {
+    const resultado = await verificarDisponibilidade(
+      req.params.id,
+      req.query.inicio,
+      req.query.fim,
+      req.query.ignorar || null
+    )
+    res.status(200).json(resultado)
+  } catch (error) {
+    res.status(error.status || 400).json({ erro: error.message })
+  }
+})
+
+
 router.get('/:id', async (req, res) => {
   try {
     const vaga = await vagaService.buscarVagaPorId(req.params.id)
@@ -40,7 +57,7 @@ router.put('/:id', async (req, res) => {
     const vaga = await vagaService.atualizarVaga(req.params.id, req.body)
     res.status(200).json(vaga)
   } catch (error) {
-    res.status(400).json({ erro: error.message })
+    res.status(error.status || 400).json({ erro: error.message })
   }
 })
 
