@@ -1,6 +1,6 @@
 import express from 'express'
 import * as vagaService from '../services/vagaservice.js'
-import { verificarDisponibilidade } from '../services/agendamentoservice.js'
+import { verificarDisponibilidade, listarDuracoes, listarHorarios } from '../services/agendamentoservice.js'
 
 const router = express.Router()
 
@@ -34,6 +34,28 @@ router.get('/:id/disponibilidade', async (req, res) => {
       req.query.fim,
       req.query.ignorar || null
     )
+    res.status(200).json(resultado)
+  } catch (error) {
+    res.status(error.status || 400).json({ erro: error.message })
+  }
+})
+
+
+// Horários de entrada (de 30 em 30 min) do período ?de=ISO&ate=ISO e se a vaga está livre em cada um
+router.get('/:id/horarios', async (req, res) => {
+  try {
+    const resultado = await listarHorarios(req.params.id, req.query.de, req.query.ate, req.query.ignorar || null)
+    res.status(200).json(resultado)
+  } catch (error) {
+    res.status(error.status || 400).json({ erro: error.message })
+  }
+})
+
+
+// Durações (de 30 em 30 min) que cabem na vaga para quem chega em ?inicio=ISO
+router.get('/:id/duracoes', async (req, res) => {
+  try {
+    const resultado = await listarDuracoes(req.params.id, req.query.inicio, req.query.ignorar || null)
     res.status(200).json(resultado)
   } catch (error) {
     res.status(error.status || 400).json({ erro: error.message })

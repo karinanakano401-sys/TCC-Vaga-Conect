@@ -63,7 +63,15 @@ export async function buscarConflito(cliente, {
   agora = new Date(),
   margemMs = MARGEM_SEGURANCA_MS
 }) {
-  const lista = await cliente.reservaCli.findMany({
+  const lista = await carregarReservasDaVaga(cliente, vagaId, ignorarReservaCliId)
+
+  return acharConflito(lista, { inicio, fim, agora, margemMs })
+}
+
+
+// Reservas em andamento da vaga (as únicas que bloqueiam horário)
+async function carregarReservasDaVaga(cliente, vagaId, ignorarReservaCliId = null) {
+  return cliente.reservaCli.findMany({
     where: {
       reserva: { fk_vaga: vagaId, status: { in: STATUS_EM_ANDAMENTO } },
       ...(ignorarReservaCliId ? { id: { not: ignorarReservaCliId } } : {})
@@ -75,7 +83,12 @@ export async function buscarConflito(cliente, {
       reserva: { select: { status: true } }
     }
   })
+}
 
+
+// A regra de conflito em si (sem acesso ao banco): usada pela reserva, pela consulta
+// de disponibilidade e pela lista de durações, sempre igual.
+function acharConflito(lista, { inicio, fim, agora = new Date(), margemMs = MARGEM_SEGURANCA_MS }) {
   const novoInicio = ms(inicio)
   // o novo período também precisa de folga (tolerância) antes da próxima reserva
   const novoFim = ms(fim) + TOLERANCIA_SAIDA_MS
@@ -103,6 +116,194 @@ export async function buscarConflito(cliente, {
   }
 
   return null
+}
+
+
+// =====================================================
+// DURAÇÃO DA RESERVA
+//
+// O cliente escolhe a duração (não digita a saída). Ela vale quando é um número
+// inteiro de minutos, múltiplo de 30, entre 30 min e 24 h. O servidor calcula a saída
+// (início + duração) e o valor; nada disso é confiado ao que vem da tela.
+// A duração não fica em coluna própria: continua sendo horaSaida - hora.
+// =====================================================
+export const DURACAO_PASSO_MIN = 30
+export const DURACAO_MINIMA_MIN = 30
+export const DURACAO_MAXIMA_MIN = 24 * 60
+
+export function opcoesDeDuracao() {
+  const lista = []
+
+  for (let m = DURACAO_MINIMA_MIN; m <= DURACAO_MAXIMA_MIN; m += DURACAO_PASSO_MIN) {
+    lista.push(m)
+  }
+
+  return lista
+}
+
+
+// Devolve a duração em minutos ou lança 400
+export function validarDuracao(valor) {
+  if (valor === undefined || valor === null || valor === '') {
+    throw erroHttp(400, 'Escolha o tempo de utilização da vaga.')
+  }
+
+  // só número inteiro (ou texto com dígitos): nada de 1.5, "1h", NaN, notação científica...
+  const valido =
+    (typeof valor === 'number' && Number.isInteger(valor)) ||
+    (typeof valor === 'string' && /^\d+$/.test(valor.trim()))
+
+  const minutos = valido ? Number(valor) : NaN
+
+  if (!Number.isFinite(minutos)) {
+    throw erroHttp(400, 'Tempo de utilização inválido. Escolha uma das opções da lista.')
+  }
+
+  if (minutos % DURACAO_PASSO_MIN !== 0) {
+    throw erroHttp(400, `O tempo de utilização precisa ser em intervalos de ${DURACAO_PASSO_MIN} minutos.`)
+  }
+
+  if (minutos < DURACAO_MINIMA_MIN) {
+    throw erroHttp(400, `O tempo mínimo de utilização é de ${DURACAO_MINIMA_MIN} minutos.`)
+  }
+
+  if (minutos > DURACAO_MAXIMA_MIN) {
+    throw erroHttp(400, 'O tempo máximo de utilização é de 24 horas.')
+  }
+
+  return minutos
+}
+
+
+// =====================================================
+// HORÁRIO DE ENTRADA
+//
+// O cliente escolhe a entrada em uma lista de 30 em 30 minutos (00:00, 00:30, 01:00...).
+// O servidor não aceita outro minuto: reserva só começa em hora cheia ou meia hora.
+// (os fusos do Brasil têm hora inteira de diferença, então vale em UTC e no horário local)
+// =====================================================
+export const ENTRADA_PASSO_MIN = 30
+
+const TOLERANCIA_PASSADO_MS = 10 * 60 * 1000
+
+// Devolve a Date da entrada ou lança 400
+export function validarHorarioEntrada(valor) {
+  const data = new Date(valor)
+
+  if (valor === undefined || valor === null || valor === '' || isNaN(data.getTime())) {
+    throw erroHttp(400, 'Escolha o horário de entrada.')
+  }
+
+  const passo = ENTRADA_PASSO_MIN * 60000
+
+  if (data.getTime() % passo !== 0) {
+    throw erroHttp(400, `O horário de entrada precisa ser em intervalos de ${ENTRADA_PASSO_MIN} minutos (por exemplo 08:00 ou 08:30).`)
+  }
+
+  return data
+}
+
+
+// A entrada não pode estar no passado nem cair numa vaga ocupada agora
+function motivoDoInicio(vaga, inicioMs, agora) {
+  if (inicioMs < agora.getTime() - TOLERANCIA_PASSADO_MS) return 'passado'
+
+  if (inicioMs <= agora.getTime() && vaga.status !== 'Livre') return 'ocupada_agora'
+
+  return null
+}
+
+
+// Horários de entrada (de 30 em 30 min) entre `de` e `ate` (ISO) e se a vaga está livre
+// em cada um. "Livre" = cabe ao menos a duração mínima (30 min) pela MESMA regra de
+// conflito da reserva (reservas existentes e margem de 24 h). Horários que já passaram
+// não entram na lista.
+export async function listarHorarios(vagaId, de, ate, ignorarReservaCliId = null) {
+  const vaga = await prismaClient.vaga.findUnique({ where: { id: vagaId } })
+
+  if (!vaga) throw erroHttp(404, 'Vaga não encontrada.')
+
+  const inicio = ms(de)
+  const fim = ms(ate)
+
+  if (inicio === null || fim === null || fim <= inicio) {
+    throw erroHttp(400, 'Informe o período dos horários (de/ate).')
+  }
+
+  // um dia (com folga) por consulta: evita listas gigantes
+  if (fim - inicio > 48 * 60 * 60 * 1000) {
+    throw erroHttp(400, 'Consulte no máximo 48 horas por vez.')
+  }
+
+  const agora = new Date()
+  const lista = await carregarReservasDaVaga(prismaClient, vagaId, ignorarReservaCliId)
+  const passo = ENTRADA_PASSO_MIN * 60000
+  const horarios = []
+
+  // primeiro horário em ponto/meia hora a partir de `de`
+  for (let t = Math.ceil(inicio / passo) * passo; t < fim; t += passo) {
+    const motivo = motivoDoInicio(vaga, t, agora)
+
+    if (motivo === 'passado') continue
+
+    if (motivo) {
+      horarios.push({ inicio: new Date(t).toISOString(), disponivel: false, motivo, conflito: null })
+      continue
+    }
+
+    const conflito = acharConflito(lista, {
+      inicio: new Date(t),
+      fim: new Date(t + DURACAO_MINIMA_MIN * 60000),
+      agora
+    })
+
+    horarios.push(conflito
+      ? { inicio: new Date(t).toISOString(), disponivel: false, motivo: conflito.tipo, conflito }
+      : { inicio: new Date(t).toISOString(), disponivel: true, motivo: null, conflito: null })
+  }
+
+  return { passoMinutos: ENTRADA_PASSO_MIN, horarios }
+}
+
+
+// Quais durações cabem na vaga para quem chega em `inicio`.
+// Cada opção passa pela MESMA regra de conflito da reserva (reservas existentes e
+// margem de 24 h), então o que a tela oferece é o que o servidor aceita.
+export async function listarDuracoes(vagaId, inicio, ignorarReservaCliId = null) {
+  const vaga = await prismaClient.vaga.findUnique({ where: { id: vagaId } })
+
+  if (!vaga) throw erroHttp(404, 'Vaga não encontrada.')
+
+  const ini = ms(inicio)
+
+  if (ini === null) throw erroHttp(400, 'Informe o horário de chegada.')
+
+  const agora = new Date()
+  const lista = await carregarReservasDaVaga(prismaClient, vagaId, ignorarReservaCliId)
+
+  const motivoInicio = motivoDoInicio(vaga, ini, agora)
+
+  const opcoes = opcoesDeDuracao().map((minutos) => {
+    if (motivoInicio) return { minutos, disponivel: false, motivo: motivoInicio, conflito: null }
+
+    const conflito = acharConflito(lista, {
+      inicio: new Date(ini),
+      fim: new Date(ini + minutos * 60000),
+      agora
+    })
+
+    return conflito
+      ? { minutos, disponivel: false, motivo: conflito.tipo, conflito }
+      : { minutos, disponivel: true, motivo: null, conflito: null }
+  })
+
+  return {
+    passoMinutos: DURACAO_PASSO_MIN,
+    minimoMinutos: DURACAO_MINIMA_MIN,
+    maximoMinutos: DURACAO_MAXIMA_MIN,
+    inicio: new Date(ini).toISOString(),
+    opcoes
+  }
 }
 
 

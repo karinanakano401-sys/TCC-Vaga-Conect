@@ -8,7 +8,10 @@ import {
   buscarConflito,
   erroConflito,
   liberarVaga,
-  vagaEhDestaReserva
+  vagaEhDestaReserva,
+  validarDuracao,
+  validarHorarioEntrada,
+  DURACAO_MAXIMA_MIN
 } from './agendamentoservice.js'
 import {
   STATUS_EM_ANDAMENTO,
@@ -17,7 +20,6 @@ import {
   calcularEstorno,
   resumoDeCobranca,
   faseDoPrazo,
-  minutosEntre,
   arredondar
 } from './cobrancaservice.js'
 
@@ -149,6 +151,15 @@ export async function atualizarReservaCli(id, dados) {
     const fim = new Date(dados.horaSaida || atual.horaSaida)
 
     if (!isNaN(inicio.getTime()) && !isNaN(fim.getTime())) {
+      // limite de 24 h de ocupação: prorrogar não pode passar disso
+      // (reservas antigas já maiores só não podem crescer mais)
+      const novaDuracao = fim.getTime() - inicio.getTime()
+      const duracaoAtual = new Date(atual.horaSaida).getTime() - new Date(atual.hora).getTime()
+
+      if (novaDuracao > DURACAO_MAXIMA_MIN * 60000 && novaDuracao > duracaoAtual) {
+        throw erroHttp(400, 'O tempo máximo de utilização de uma reserva é de 24 horas.')
+      }
+
       const base = { vagaId, ignorarReservaCliId: id }
 
       let conflito = await buscarConflito(tx, { ...base, inicio, fim })
@@ -745,17 +756,21 @@ export async function reservar(dados, auth) {
 
   if (!dados.fk_vaga) throw erroHttp(400, 'Informe a vaga.')
 
-  const hora = new Date(dados.hora)
-  const horaSaida = new Date(dados.horaSaida)
+  // O horário de entrada é obrigatório e vem em intervalos de 30 min (08:00, 08:30...)
+  const hora = validarHorarioEntrada(dados.hora)
 
-  if (isNaN(hora.getTime()) || isNaN(horaSaida.getTime())) {
-    throw erroHttp(400, 'Informe o horário de chegada e de saída.')
-  }
+  // A duração é obrigatória e vem em intervalos de 30 min (de 30 min a 24 h).
+  // A saída é sempre calculada aqui: início + duração.
+  const minutos = validarDuracao(dados.duracaoMinutos)
+  const horaSaida = new Date(hora.getTime() + minutos * 60000)
 
-  const minutos = minutosEntre(hora, horaSaida)
+  // se a tela mandar também a saída, ela precisa bater com a duração (anti-adulteração)
+  if (dados.horaSaida !== undefined && dados.horaSaida !== null && dados.horaSaida !== '') {
+    const informada = new Date(dados.horaSaida).getTime()
 
-  if (minutos <= 0) {
-    throw erroHttp(400, 'A saída precisa ser depois da chegada.')
+    if (isNaN(informada) || Math.abs(informada - horaSaida.getTime()) > 1000) {
+      throw erroHttp(400, 'O horário de saída não confere com o tempo de utilização escolhido.')
+    }
   }
 
   if (hora.getTime() < Date.now() - 10 * 60 * 1000) {
