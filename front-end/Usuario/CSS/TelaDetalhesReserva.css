@@ -952,15 +952,51 @@ summary:focus-visible{
 }
 
 
-#novaData,
-#novoHorario,
-#novaSaida{
+/* =====================================================
+   TEMPO DE UTILIZAÇÃO · Select obrigatório (de 30 em 30 min)
+===================================================== */
 
-    height:36px;
+.duracao-bloco{
 
-    padding:0 10px;
+    display:flex;
 
-    border:1px solid var(--linha-forte);
+    flex-direction:column;
+
+    gap:6px;
+
+    margin:6px 0 14px;
+
+}
+
+.duracao-rotulo{
+
+    color:var(--texto);
+
+    font-size:13px;
+
+    font-weight:600;
+
+}
+
+.duracao-rotulo .obrigatorio{
+
+    color:var(--ambar);
+
+}
+
+#duracao,
+#horaEntrada,
+#novaData{
+
+    width:100%;
+
+    max-width:340px;
+
+    min-height:44px;
+
+    padding:0 12px;
+
+    border:1.5px solid var(--linha-forte);
 
     border-radius:var(--raio-p);
 
@@ -970,23 +1006,110 @@ summary:focus-visible{
 
     font-family:inherit;
 
-    font-size:12.5px;
+    /* 16px evita o zoom automático do iPhone ao abrir o seletor */
+    font-size:16px;
+
+    cursor:pointer;
 
     color-scheme:dark;
 
 }
 
-
-#novaData:focus,
-#novoHorario:focus,
-#novaSaida:focus{
+#duracao:focus,
+#horaEntrada:focus,
+#novaData:focus{
 
     border-color:var(--azul-claro);
 
-    outline:none;
+    outline:2px solid rgba(124, 186, 255, .35);
+
+    outline-offset:1px;
 
 }
 
+/* escolhida: borda verde para destacar a opção selecionada */
+#duracao.escolhida,
+#horaEntrada.escolhida,
+#novaData.escolhida{
+
+    border-color:var(--verde);
+
+    font-weight:600;
+
+}
+
+#duracao.invalida,
+#horaEntrada.invalida,
+#novaData.invalida{
+
+    border-color:#f87171;
+
+}
+
+#duracao option:disabled,
+#horaEntrada option:disabled,
+#novaData option:disabled{
+
+    color:#7d93ab;
+
+}
+
+/* a duração só libera depois de escolher o horário de entrada */
+#duracao:disabled{
+
+    opacity:.6;
+
+    cursor:not-allowed;
+
+}
+
+.duracao-ajuda{
+
+    color:var(--apagado);
+
+    font-size:12px;
+
+}
+
+.duracao-erro{
+
+    color:#fca5a5;
+
+    font-size:12.5px;
+
+    font-weight:500;
+
+}
+
+.duracao-erro[hidden]{
+
+    display:none;
+
+}
+
+html[data-tema="claro"] #duracao{
+
+    background:#ffffff;
+
+}
+
+html[data-tema="claro"] .duracao-erro{
+
+    color:#b91c1c;
+
+}
+
+@media (max-width:560px){
+
+    #duracao,
+    #horaEntrada,
+    #novaData{
+
+        max-width:none;
+
+    }
+
+}
 
 
 /* =====================================================
@@ -1875,8 +1998,8 @@ html[data-tema="claro"] #salvarHorario:hover{
 
 /* o calendário e o relógio do navegador abrem claros */
 html[data-tema="claro"] #novaData,
-html[data-tema="claro"] #novoHorario,
-html[data-tema="claro"] #novaSaida{
+html[data-tema="claro"] #horaEntrada,
+html[data-tema="claro"] #duracao{
 
     background:#ffffff;
 
@@ -1890,8 +2013,8 @@ html[data-tema="claro"] #novaSaida{
 
 
 html[data-tema="claro"] #novaData:focus,
-html[data-tema="claro"] #novoHorario:focus,
-html[data-tema="claro"] #novaSaida:focus{
+html[data-tema="claro"] #horaEntrada:focus,
+html[data-tema="claro"] #duracao:focus{
 
     border-color:var(--azul);
 

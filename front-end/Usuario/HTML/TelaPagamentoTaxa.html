@@ -535,6 +535,18 @@ function carregarResumo(){
 
 
 
+    // sem o tempo de utilização escolhido não há o que pagar
+    if(!reserva.horaChegada || !(Number(reserva.minutos) > 0)){
+
+        alert("Escolha o horário de entrada e o tempo de utilização da vaga antes de pagar.");
+
+        window.location.href = "../HTML/TelaDetalheReserva.html";
+
+        return;
+
+    }
+
+
     const minutosMarcados = reserva.dataChegada && reserva.horaChegada && reserva.dataSaida && reserva.horaSaida
         ? Cobranca.minutosEntre(
             `${reserva.dataChegada}T${reserva.horaChegada}:00`,
@@ -723,7 +735,8 @@ async function gravarReserva(){
             data:           reserva.dataChegada,
             // instante absoluto (ISO com Z): o servidor não depende do fuso da própria máquina
             hora:           new Date(`${reserva.dataChegada}T${reserva.horaChegada}:00`).toISOString(),
-            horaSaida:      new Date(`${reserva.dataSaida}T${reserva.horaSaida}:00`).toISOString(),
+            // o tempo escolhido (em minutos, de 30 em 30); o servidor calcula a saída e o valor
+            duracaoMinutos: Number(reserva.minutos),
             formaPagamento: formaPagamento,
             valorEsperado:  total
         })

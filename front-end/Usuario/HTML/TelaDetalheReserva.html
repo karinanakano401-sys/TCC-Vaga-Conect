@@ -150,9 +150,57 @@ Quando você chega e sai
 
 
 <p class="ajuda">
-Por padrão, a reserva começa agora e dura 4 horas.
-Se precisar de outro dia ou horário, use o botão Alterar.
+Escolha o dia, a hora em que vai entrar e por quanto tempo vai ficar. O horário de saída é calculado para você.
 </p>
+
+
+<div class="duracao-bloco">
+
+<label class="duracao-rotulo" for="novaData">
+Em que dia? <span class="obrigatorio" aria-hidden="true">*</span>
+</label>
+
+<input type="date" id="novaData" required>
+
+</div>
+
+
+<div class="duracao-bloco">
+
+<label class="duracao-rotulo" for="horaEntrada">
+Que horas você vai entrar? <span class="obrigatorio" aria-hidden="true">*</span>
+</label>
+
+<select id="horaEntrada" required aria-describedby="entradaAjuda erroEntrada">
+<option value="" disabled selected>Selecione o horário de entrada</option>
+</select>
+
+<p class="duracao-ajuda" id="entradaAjuda">
+Horário em que a sua reserva começa (de 30 em 30 minutos).
+</p>
+
+<p class="duracao-erro" id="erroEntrada" role="alert" hidden></p>
+
+</div>
+
+
+<div class="duracao-bloco">
+
+<label class="duracao-rotulo" for="duracao">
+Por quanto tempo deseja utilizar a vaga? <span class="obrigatorio" aria-hidden="true">*</span>
+</label>
+
+<select id="duracao" required disabled aria-describedby="duracaoAjuda erroDuracao">
+<option value="" disabled selected>Escolha primeiro o horário de entrada</option>
+</select>
+
+<p class="duracao-ajuda" id="duracaoAjuda">
+Tempo que você vai ficar na vaga (de 30 minutos a 24 horas), contado a partir da entrada.
+</p>
+
+<p class="duracao-erro" id="erroDuracao" role="alert" hidden></p>
+
+</div>
 
 
 <div class="grade tres">
@@ -202,61 +250,6 @@ Saída prevista
 </div>
 
 
-
-<div class="editar">
-
-
-<label class="campo">
-
-Data de chegada
-
-<input
-type="date"
-id="novaData"
-style="display:none;">
-
-</label>
-
-
-<label class="campo">
-
-Horário de chegada
-
-<input
-type="time"
-id="novoHorario"
-style="display:none;">
-
-</label>
-
-
-<label class="campo">
-
-Saída prevista
-
-<input
-type="time"
-id="novaSaida"
-style="display:none;">
-
-</label>
-
-
-<button id="alterarHorario" type="button">
-
-Alterar data e horário
-
-</button>
-
-
-<button id="salvarHorario" type="button" style="display:none;">
-
-Salvar horário
-
-</button>
-
-
-</div>
 
 
 </section>
@@ -660,15 +653,19 @@ const horarioTexto = document.getElementById("horarioTexto");
 
 const novaData = document.getElementById("novaData");
 
-const novoHorario = document.getElementById("novoHorario");
+const horaEntrada = document.getElementById("horaEntrada");
 
 const saidaTexto = document.getElementById("saidaTexto");
 
-const novaSaida = document.getElementById("novaSaida");
+const duracao = document.getElementById("duracao");
 
-const alterarHorario = document.getElementById("alterarHorario");
+const erroDuracao = document.getElementById("erroDuracao");
 
-const salvarHorario = document.getElementById("salvarHorario");
+const erroEntrada = document.getElementById("erroEntrada");
+
+
+
+
 
 
 const modeloCarro = document.getElementById("modeloCarro");
@@ -747,14 +744,22 @@ let carroSelecionado = null;
 
 
 
-// Começa na data e na hora de agora
+// Começa no dia de hoje; o horário de entrada é obrigatório e começa sem escolha ("")
 let dataChegada = dataDeHoje();
 
-let horaChegada = horaDeAgora();
+let horaChegada = "";
 
 
-// Por padrão a reserva dura 4 horas
-let horaSaida = somarHoras(horaChegada, 4);
+// O tempo de utilização é obrigatório: começa sem escolha (0) e a saída
+// é calculada a partir dele (chegada + duração)
+let duracaoMinutos = 0;
+
+let horaSaida = "";
+
+let dataSaida = "";
+
+// opções de duração que o servidor diz que cabem na vaga (30 em 30 min)
+let opcoesDuracao = [];
 
 
 
@@ -778,13 +783,14 @@ function dataDeHoje(){
 
 
 
-function horaDeAgora(){
+// "2026-11-23T22:30:00.000Z" -> "19:30" (horário local de quem está usando a tela)
+function horaLocal(iso){
 
-    const agora = new Date();
+    const data = new Date(iso);
 
-    const hora = String(agora.getHours()).padStart(2, "0");
+    const hora = String(data.getHours()).padStart(2, "0");
 
-    const minuto = String(agora.getMinutes()).padStart(2, "0");
+    const minuto = String(data.getMinutes()).padStart(2, "0");
 
     return `${hora}:${minuto}`;
 
@@ -802,38 +808,39 @@ function mostrarData(data){
 
 
 
-function somarHoras(hora, quantidade){
 
-    const partes = hora.split(":");
 
-    const total = (Number(partes[0]) + quantidade) % 24;
 
-    return `${String(total).padStart(2, "0")}:${partes[1]}`;
+// Data da saída (já calculada por recalcularSaida: chegada + duração)
+function dataDaSaida(){
+
+    return dataSaida;
 
 }
 
 
+// Saída = chegada + tempo de utilização escolhido. Sem duração, não há saída.
+function recalcularSaida(){
 
-// A saída vira o dia seguinte quando o horário passa da meia-noite
-function dataDaSaida(){
+    if(!duracaoMinutos || !horaChegada){
 
-    if(horaSaida > horaChegada){
+        horaSaida = "";
 
-        return dataChegada;
+        dataSaida = "";
+
+        return;
 
     }
 
-    const diaSeguinte = new Date(`${dataChegada}T00:00:00`);
+    const fim = new Date(
+        new Date(`${dataChegada}T${horaChegada}:00`).getTime() + duracaoMinutos * 60000
+    );
 
-    diaSeguinte.setDate(diaSeguinte.getDate() + 1);
+    const dois = (n) => String(n).padStart(2, "0");
 
+    dataSaida = `${fim.getFullYear()}-${dois(fim.getMonth() + 1)}-${dois(fim.getDate())}`;
 
-    const mes = String(diaSeguinte.getMonth() + 1).padStart(2, "0");
-
-    const dia = String(diaSeguinte.getDate()).padStart(2, "0");
-
-
-    return `${diaSeguinte.getFullYear()}-${mes}-${dia}`;
+    horaSaida = `${dois(fim.getHours())}:${dois(fim.getMinutes())}`;
 
 }
 
@@ -848,10 +855,7 @@ function mostrarPreco(valor){
 
 function minutosDaReserva(){
 
-    return Cobranca.minutosEntre(
-        `${dataChegada}T${horaChegada}:00`,
-        `${dataDaSaida()}T${horaSaida}:00`
-    );
+    return duracaoMinutos;
 
 }
 
@@ -859,6 +863,11 @@ function minutosDaReserva(){
 // A vaga está livre neste período? O servidor decide (e confere de novo ao pagar).
 // Se a consulta falhar, não trava a tela: a reserva ainda é validada no servidor.
 async function horarioDisponivel(){
+
+    // sem entrada e duração escolhidas não há período para conferir (a tela cobra a escolha)
+    if(!duracaoMinutos || !horaChegada){
+        return { disponivel: true, mensagem: "" };
+    }
 
     try {
 
@@ -876,40 +885,9 @@ async function horarioDisponivel(){
             return { disponivel: true, mensagem: "" };
         }
 
-        if(retorno.motivo === "ocupada_agora"){
-            return {
-                disponivel: false,
-                mensagem: "Esta vaga está ocupada agora. Escolha um horário mais à frente ou outra vaga."
-            };
-        }
-
-        const formatar = (iso) => new Date(iso).toLocaleString("pt-BR", {
-            day: "2-digit",
-            month: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit"
-        }).replace(",", " às");
-
-        // a vaga fica protegida por 24 h antes de cada reserva (margem operacional, sem custo)
-        if(retorno.conflito && retorno.conflito.tipo === "margem_24h"){
-
-            return {
-                disponivel: false,
-                mensagem:
-                    `Esta vaga tem outra reserva próxima desse horário (${formatar(retorno.conflito.inicio)} até ${formatar(retorno.conflito.fim)}). ` +
-                    "Cada reserva protege a vaga por 24 horas antes do início, então a nova reserva precisa ficar " +
-                    "a pelo menos 24 horas de distância. Escolha outro horário ou outra vaga."
-            };
-
-        }
-
-        const trecho = retorno.conflito
-            ? ` (ocupada de ${formatar(retorno.conflito.inicio)} até ${formatar(retorno.conflito.fim)})`
-            : "";
-
         return {
             disponivel: false,
-            mensagem: `Esta vaga já tem outra reserva nesse horário${trecho}. Escolha outro horário ou outra vaga.`
+            mensagem: textoIndisponivel(retorno.motivo, retorno.conflito)
         };
 
     } catch (error) {
@@ -921,11 +899,478 @@ async function horarioDisponivel(){
 }
 
 
+// Por que não dá para reservar neste horário (mesmo texto na tela e no pagamento)
+function textoIndisponivel(motivo, conflito){
+
+    if(motivo === "passado"){
+        return "O horário de chegada já passou. Escolha um horário a partir de agora.";
+    }
+
+    if(motivo === "ocupada_agora"){
+        return "Esta vaga está ocupada agora. Escolha um horário mais à frente ou outra vaga.";
+    }
+
+    const formatar = (iso) => new Date(iso).toLocaleString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+    }).replace(",", " às");
+
+    // a vaga fica protegida por 24 h antes de cada reserva (margem operacional, sem custo)
+    if(conflito && (motivo === "margem_24h" || conflito.tipo === "margem_24h")){
+
+        return `Esta vaga tem outra reserva próxima desse horário (${formatar(conflito.inicio)} até ${formatar(conflito.fim)}). ` +
+            "Cada reserva protege a vaga por 24 horas antes do início, então a nova reserva precisa ficar " +
+            "a pelo menos 24 horas de distância. Escolha outro horário ou outra vaga.";
+
+    }
+
+    const trecho = conflito
+        ? ` (ocupada de ${formatar(conflito.inicio)} até ${formatar(conflito.fim)})`
+        : "";
+
+    return `Esta vaga já tem outra reserva nesse horário${trecho}. Escolha outro horário ou outra vaga.`;
+
+}
+
+
 function cobrancaDaReserva(){
 
     return Cobranca.calcularReserva(vaga.preco, minutosDaReserva());
 
 }
+
+
+
+
+// =====================================================
+// TEMPO DE UTILIZAÇÃO (Select obrigatório, de 30 em 30 min)
+// O servidor diz quais durações cabem na vaga; a tela só mostra.
+// =====================================================
+
+
+function mostrarErroDuracao(texto){
+
+    if(!texto){
+
+        erroDuracao.hidden = true;
+
+        erroDuracao.textContent = "";
+
+        duracao.classList.remove("invalida");
+
+        duracao.removeAttribute("aria-invalid");
+
+        return;
+
+    }
+
+    erroDuracao.textContent = texto;
+
+    erroDuracao.hidden = false;
+
+    duracao.classList.add("invalida");
+
+    duracao.setAttribute("aria-invalid", "true");
+
+}
+
+
+// Só o tempo, sem relógio: "30 min", "1h", "1h 30min"
+function rotuloDuracao(minutos){
+
+    return Cobranca.mostrarDuracao(minutos);
+
+}
+
+
+function desenharDuracoes(){
+
+    const escolhida = duracaoMinutos;
+
+    duracao.innerHTML = "";
+
+    const vazio = document.createElement("option");
+
+    vazio.value = "";
+
+    vazio.textContent = horaChegada
+        ? "Selecione o tempo de permanência"
+        : "Escolha primeiro o horário de entrada";
+
+    vazio.disabled = true;
+
+    duracao.appendChild(vazio);
+
+    opcoesDuracao.forEach(opcao => {
+
+        const item = document.createElement("option");
+
+        item.value = String(opcao.minutos);
+
+        item.textContent = rotuloDuracao(opcao.minutos) + (opcao.disponivel ? "" : " — indisponível");
+
+        item.disabled = !opcao.disponivel;
+
+        duracao.appendChild(item);
+
+    });
+
+    if(escolhida){
+
+        duracao.value = String(escolhida);
+
+    } else {
+
+        duracao.selectedIndex = 0;
+
+    }
+
+    duracao.classList.toggle("escolhida", !!escolhida);
+
+    // sem horário de entrada não há o que escolher ainda
+    duracao.disabled = !horaChegada;
+
+}
+
+
+// Pede ao servidor as durações que cabem para a chegada atual.
+// Se a escolha anterior deixou de caber, ela é desfeita.
+async function carregarDuracoes(){
+
+    // a duração depende da entrada: sem horário de entrada, não há opções
+    if(!horaChegada){
+
+        opcoesDuracao = [];
+
+        duracaoMinutos = 0;
+
+        recalcularSaida();
+
+        desenharDuracoes();
+
+        mostrarErroDuracao("");
+
+        return { nenhuma: false, mensagem: "" };
+
+    }
+
+    let retorno = null;
+
+    try {
+
+        const inicio = new Date(`${dataChegada}T${horaChegada}:00`).toISOString();
+
+        const resposta = await fetch(
+            `${api}/vaga/${escolha.idVaga}/duracoes?inicio=${encodeURIComponent(inicio)}`
+        );
+
+        const corpo = await resposta.json();
+
+        if(resposta.ok) retorno = corpo;
+
+    } catch (error) {
+
+        retorno = null;
+
+    }
+
+    if(retorno){
+
+        opcoesDuracao = retorno.opcoes;
+
+    } else {
+
+        // sem resposta do servidor: oferece a lista completa; ele confere de novo ao reservar
+        opcoesDuracao = [];
+
+        for(let minutos = 30; minutos <= 24 * 60; minutos += 30){
+            opcoesDuracao.push({ minutos, disponivel: true, motivo: null, conflito: null });
+        }
+
+    }
+
+    const atual = opcoesDuracao.find(opcao => opcao.minutos === duracaoMinutos);
+
+    let aviso = "";
+
+    if(duracaoMinutos && (!atual || !atual.disponivel)){
+
+        duracaoMinutos = 0;
+
+        recalcularSaida();
+
+        aviso = "O tempo escolhido não cabe mais nesse horário. Escolha outro.";
+
+    }
+
+    desenharDuracoes();
+
+    const nenhuma = opcoesDuracao.length > 0 && !opcoesDuracao.some(opcao => opcao.disponivel);
+
+    const mensagem = nenhuma
+        ? textoIndisponivel(opcoesDuracao[0].motivo, opcoesDuracao[0].conflito)
+        : "";
+
+    mostrarErroDuracao(mensagem || aviso);
+
+    return { nenhuma, mensagem };
+
+}
+
+
+duracao.addEventListener("change", ()=>{
+
+    const minutos = Number(duracao.value);
+
+    const opcao = opcoesDuracao.find(item => item.minutos === minutos);
+
+    // só vale uma opção da lista (e que caiba na vaga)
+    if(!opcao || !opcao.disponivel){
+
+        duracaoMinutos = 0;
+
+    } else {
+
+        duracaoMinutos = minutos;
+
+    }
+
+    recalcularSaida();
+
+    duracao.classList.toggle("escolhida", duracaoMinutos > 0);
+
+    mostrarErroDuracao("");
+
+    atualizarTela();
+
+});
+
+
+
+
+// =====================================================
+// HORÁRIO DE ENTRADA (Select obrigatório, de 30 em 30 min)
+// O servidor diz quais horários do dia estão livres; a tela só mostra os válidos.
+// =====================================================
+
+
+// horários do dia escolhido: { hora: "08:30", inicio: ISO, disponivel, motivo, conflito }
+let opcoesEntrada = [];
+
+// evita que uma resposta antiga sobrescreva uma consulta mais nova
+let versaoConsulta = 0;
+
+
+function mostrarErroEntrada(texto){
+
+    if(!texto){
+
+        erroEntrada.hidden = true;
+
+        erroEntrada.textContent = "";
+
+        horaEntrada.classList.remove("invalida");
+
+        horaEntrada.removeAttribute("aria-invalid");
+
+        return;
+
+    }
+
+    erroEntrada.textContent = texto;
+
+    erroEntrada.hidden = false;
+
+    horaEntrada.classList.add("invalida");
+
+    horaEntrada.setAttribute("aria-invalid", "true");
+
+}
+
+
+// Só os horários livres entram na lista
+function desenharHorarios(){
+
+    const escolhido = horaChegada;
+
+    horaEntrada.innerHTML = "";
+
+    const vazio = document.createElement("option");
+
+    vazio.value = "";
+
+    vazio.textContent = "Selecione o horário de entrada";
+
+    vazio.disabled = true;
+
+    horaEntrada.appendChild(vazio);
+
+    opcoesEntrada.filter(opcao => opcao.disponivel).forEach(opcao => {
+
+        const item = document.createElement("option");
+
+        item.value = opcao.hora;
+
+        item.textContent = opcao.hora;
+
+        horaEntrada.appendChild(item);
+
+    });
+
+    if(escolhido){
+
+        horaEntrada.value = escolhido;
+
+    } else {
+
+        horaEntrada.selectedIndex = 0;
+
+    }
+
+    horaEntrada.classList.toggle("escolhida", !!escolhido);
+
+}
+
+
+// Busca os horários do dia escolhido. Devolve false se chegou uma consulta mais nova.
+async function carregarHorarios(minha){
+
+    // o dia, do começo ao fim, no horário de quem está usando a tela
+    const [ano, mes, dia] = dataChegada.split("-").map(Number);
+
+    const de = new Date(ano, mes - 1, dia, 0, 0, 0, 0);
+
+    const ate = new Date(ano, mes - 1, dia + 1, 0, 0, 0, 0);
+
+    let horarios = null;
+
+    try {
+
+        const resposta = await fetch(
+            `${api}/vaga/${escolha.idVaga}/horarios?de=${encodeURIComponent(de.toISOString())}&ate=${encodeURIComponent(ate.toISOString())}`
+        );
+
+        const corpo = await resposta.json();
+
+        if(resposta.ok) horarios = corpo.horarios;
+
+    } catch (error) {
+
+        horarios = null;
+
+    }
+
+    if(minha !== versaoConsulta) return false;
+
+    if(!horarios){
+
+        // sem resposta do servidor: oferece os horários que ainda não passaram;
+        // o servidor confere de novo ao reservar
+        horarios = [];
+
+        for(let t = de.getTime(); t < ate.getTime(); t += 30 * 60000){
+
+            if(t >= Date.now() - 10 * 60000){
+                horarios.push({ inicio: new Date(t).toISOString(), disponivel: true, motivo: null, conflito: null });
+            }
+
+        }
+
+    }
+
+    opcoesEntrada = horarios.map(item => ({ ...item, hora: horaLocal(item.inicio) }));
+
+    let aviso = "";
+
+    // a entrada escolhida antes pode não estar mais livre (outro dia, nova reserva...)
+    if(horaChegada && !opcoesEntrada.some(opcao => opcao.disponivel && opcao.hora === horaChegada)){
+
+        horaChegada = "";
+
+        aviso = "O horário escolhido não está disponível. Escolha outro.";
+
+    }
+
+    desenharHorarios();
+
+    const livres = opcoesEntrada.some(opcao => opcao.disponivel);
+
+    let mensagem = "";
+
+    if(!livres){
+
+        const bloqueado = opcoesEntrada[0];
+
+        mensagem = bloqueado
+            ? textoIndisponivel(bloqueado.motivo, bloqueado.conflito)
+            : "Não há mais horários disponíveis neste dia. Escolha outro dia.";
+
+    }
+
+    mostrarErroEntrada(mensagem || aviso);
+
+    return true;
+
+}
+
+
+// Atualiza horários, durações e valores depois de mudar o dia ou a entrada
+async function recarregarOpcoes(){
+
+    const minha = ++versaoConsulta;
+
+    if(!(await carregarHorarios(minha))) return;
+
+    await carregarDuracoes();
+
+    if(minha !== versaoConsulta) return;
+
+    atualizarTela();
+
+}
+
+
+horaEntrada.addEventListener("change", async ()=>{
+
+    const opcao = opcoesEntrada.find(item => item.hora === horaEntrada.value);
+
+    // só vale um horário da lista (e que esteja livre)
+    horaChegada = opcao && opcao.disponivel ? opcao.hora : "";
+
+    horaEntrada.classList.toggle("escolhida", !!horaChegada);
+
+    mostrarErroEntrada("");
+
+    recalcularSaida();
+
+    // as durações que cabem dependem da entrada
+    await carregarDuracoes();
+
+    atualizarTela();
+
+});
+
+
+novaData.addEventListener("change", async ()=>{
+
+    // o dia é obrigatório e não pode ser no passado
+    if(!novaData.value || novaData.value < dataDeHoje()){
+
+        novaData.value = dataChegada;
+
+        return;
+
+    }
+
+    dataChegada = novaData.value;
+
+    recalcularSaida();
+
+    await recarregarOpcoes();
+
+});
 
 
 
@@ -1049,9 +1494,22 @@ function mostrarVaga(){
 
 function mostrarValores(){
 
-    const conta = cobrancaDaReserva();
-
     valorTarifa.textContent = Cobranca.textoTarifa(vaga.preco);
+
+    // sem o tempo escolhido ainda não há valor para mostrar
+    if(!duracaoMinutos){
+
+        valorTempo.textContent = "--";
+
+        valorVaga.textContent = "--";
+
+        valorTotal.textContent = "--";
+
+        return;
+
+    }
+
+    const conta = cobrancaDaReserva();
 
     valorTempo.textContent = Cobranca.mostrarDuracao(conta.minutos);
 
@@ -1067,10 +1525,11 @@ function mostrarChegada(){
 
     dataTexto.textContent = mostrarData(dataChegada);
 
-    horarioTexto.textContent = horaChegada;
+    horarioTexto.textContent = horaChegada || "--";
 
-    saidaTexto.textContent =
-        `${mostrarData(dataDaSaida())} às ${horaSaida}`;
+    saidaTexto.textContent = horaSaida
+        ? `${mostrarData(dataDaSaida())} às ${horaSaida}`
+        : "--";
 
 }
 
@@ -1121,13 +1580,25 @@ function mostrarResumo(){
         carroSelecionado ? carroSelecionado.placacarro : "--";
 
 
-    resumoChegada.textContent =
-        `${mostrarData(dataChegada)} às ${horaChegada}`;
+    resumoChegada.textContent = horaChegada
+        ? `${mostrarData(dataChegada)} às ${horaChegada}`
+        : "--";
 
 
-    resumoSaida.textContent =
-        `${mostrarData(dataDaSaida())} às ${horaSaida}`;
+    resumoSaida.textContent = horaSaida
+        ? `${mostrarData(dataDaSaida())} às ${horaSaida}`
+        : "--";
 
+
+    if(!duracaoMinutos){
+
+        resumoTempo.textContent = "--";
+
+        resumoValor.textContent = "--";
+
+        return;
+
+    }
 
     const conta = cobrancaDaReserva();
 
@@ -1146,6 +1617,15 @@ function mostrarResumo(){
 
 
 function salvarReservaAtual(){
+
+    // sem entrada e tempo de utilização escolhidos não existe reserva para levar ao pagamento
+    if(!duracaoMinutos || !horaChegada){
+
+        localStorage.removeItem("reservaAtual");
+
+        return;
+
+    }
 
     const endereco = estacionamento.endereco;
 
@@ -1258,6 +1738,13 @@ function atualizarTela(){
 
         atualizarTela();
 
+        // o dia começa em hoje: lista os horários livres e (depois da escolha) as durações
+        novaData.min = dataDeHoje();
+
+        novaData.value = dataChegada;
+
+        await recarregarOpcoes();
+
     } catch (error) {
 
         alert(error.message || "Não foi possível carregar a reserva. Verifique se o servidor está ligado.");
@@ -1339,128 +1826,6 @@ alterarVeiculo.onclick = ()=>{
 
 
 // =====================================================
-// ALTERAR DATA E HORÁRIO
-// =====================================================
-
-
-alterarHorario.onclick = ()=>{
-
-    novaData.value = dataChegada;
-
-    novoHorario.value = horaChegada;
-
-    novaSaida.value = horaSaida;
-
-
-    novaData.style.display = "block";
-
-    novoHorario.style.display = "block";
-
-    novaSaida.style.display = "block";
-
-    alterarHorario.style.display = "none";
-
-    salvarHorario.style.display = "block";
-
-};
-
-
-
-salvarHorario.onclick = async ()=>{
-
-    if(novaData.value === "" || novoHorario.value === "" || novaSaida.value === ""){
-
-        alert("Escolha a data, o horário de chegada e a saída prevista.");
-
-        return;
-
-    }
-
-
-    if(novaData.value < dataDeHoje()){
-
-        alert("A data de chegada não pode ser no passado.");
-
-        return;
-
-    }
-
-
-    if(novaSaida.value === novoHorario.value){
-
-        alert("A saída precisa ser diferente do horário de chegada.");
-
-        return;
-
-    }
-
-
-    const dataAnterior = dataChegada;
-
-    const horaAnterior = horaChegada;
-
-    const saidaAnterior = horaSaida;
-
-
-    dataChegada = novaData.value;
-
-    horaChegada = novoHorario.value;
-
-    horaSaida = novaSaida.value;
-
-
-    if(minutosDaReserva() < 1){
-
-        dataChegada = dataAnterior;
-
-        horaChegada = horaAnterior;
-
-        horaSaida = saidaAnterior;
-
-        alert("A reserva precisa durar pelo menos 1 minuto.");
-
-        return;
-
-    }
-
-
-    // conflito com outra reserva da mesma vaga: volta ao horário anterior
-    const livre = await horarioDisponivel();
-
-    if(!livre.disponivel){
-
-        dataChegada = dataAnterior;
-
-        horaChegada = horaAnterior;
-
-        horaSaida = saidaAnterior;
-
-        alert(livre.mensagem);
-
-        return;
-
-    }
-
-
-    novaData.style.display = "none";
-
-    novoHorario.style.display = "none";
-
-    novaSaida.style.display = "none";
-
-    alterarHorario.style.display = "block";
-
-    salvarHorario.style.display = "none";
-
-
-    atualizarTela();
-
-};
-
-
-
-
-// =====================================================
 // BOTÃO PAGAMENTO
 // =====================================================
 
@@ -1492,6 +1857,34 @@ async function reservaQueImpedeNova(){
 
 
 botaoPagamento.onclick = async ()=>{
+
+    // o horário de entrada é obrigatório
+    if(!horaChegada){
+
+        mostrarErroEntrada("Selecione o horário de entrada para continuar.");
+
+        horaEntrada.scrollIntoView({ behavior: "smooth", block: "center" });
+
+        horaEntrada.focus();
+
+        return;
+
+    }
+
+
+    // o tempo de utilização é obrigatório
+    if(!duracaoMinutos){
+
+        mostrarErroDuracao("Selecione o tempo de utilização para continuar.");
+
+        duracao.scrollIntoView({ behavior: "smooth", block: "center" });
+
+        duracao.focus();
+
+        return;
+
+    }
+
 
     if(!carroSelecionado){
 
