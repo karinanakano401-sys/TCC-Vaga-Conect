@@ -89,9 +89,10 @@
         if (area === "funcionario" || area === null) localStorage.removeItem("funcionarioLogado");
         if (area === "usuario" || area === null) localStorage.removeItem("usuarioLogado");
 
-        alert("Sua sessão expirou. Entre novamente para continuar.");
-
-        window.location.replace(urlLogin);
+        // com modal.js o aviso devolve uma Promise: só troca de tela depois que a pessoa fecha
+        Promise.resolve(alert("Sua sessão expirou. Entre novamente para continuar.", { tom: "aviso", titulo: "Sessão expirada" })).then(function () {
+            window.location.replace(urlLogin);
+        });
     }
 
 

@@ -12,6 +12,7 @@ VagaConnect | Detalhes da Reserva
 
 
 <link rel="stylesheet" href="../CSS/TelaDetalhesReserva.css">
+<script src="../../Base/JS/modal.js"></script>
 <script src="../../Base/JS/cobranca.js"></script>
 
 
@@ -726,9 +727,9 @@ const escolha = JSON.parse(
 
 if(!escolha || !escolha.idVaga){
 
-    alert("Escolha uma vaga antes de continuar.");
-
-    window.location.href = "../HTML/TelaReservas.html";
+    alert("Escolha uma vaga antes de continuar.").then(() => {
+        window.location.href = "../HTML/TelaReservas.html";
+    });
 
 }
 
@@ -1727,7 +1728,7 @@ function atualizarTela(){
 
         if(vaga.status !== "Livre"){
 
-            alert("Essa vaga já não está mais livre. Escolha outra.");
+            await alert("Essa vaga já não está mais livre. Escolha outra.");
 
             window.location.href = "../HTML/TelaReservas.html";
 
@@ -1888,7 +1889,7 @@ botaoPagamento.onclick = async ()=>{
 
     if(!carroSelecionado){
 
-        alert("Cadastre um veículo antes de continuar.");
+        await alert("Cadastre um veículo antes de continuar.");
 
         window.location.href = "../HTML/TelaVeiculos.html";
 

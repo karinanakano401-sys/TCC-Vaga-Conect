@@ -88,6 +88,7 @@
     </main>
   </div>
 
+  <script src="../../Base/JS/modal.js"></script>
   <script src="../../Base/JS/sessao.js"></script>
   <script src="../../Base/JS/auth.js"></script>
   <script src="../../Base/JS/avatar.js"></script>
@@ -321,7 +322,13 @@
 
       async function encerrar(id) {
         const item = reservas.find((reserva) => reserva.id === id);
-        if (!confirm("Encerrar esta reserva e liberar a vaga?")) return;
+        if (!(await confirmar({
+          titulo: "Encerrar esta reserva?",
+          texto: "A reserva será finalizada e a vaga volta a ficar livre.",
+          sim: "Encerrar",
+          nao: "Voltar",
+          tom: "aviso"
+        }))) return;
         try {
           await atualizarReserva(item, "Concluída");
           await atualizarVaga(item.reserva.vaga, "Livre");
@@ -333,7 +340,13 @@
 
       async function cancelar(id) {
         const item = reservas.find((reserva) => reserva.id === id);
-        if (!confirm("Cancelar esta reserva?")) return;
+        if (!(await confirmar({
+          titulo: "Cancelar esta reserva?",
+          texto: "A reserva será cancelada e a vaga volta a ficar livre.",
+          sim: "Cancelar reserva",
+          nao: "Voltar",
+          tom: "perigo"
+        }))) return;
         try {
           await atualizarReserva(item, "Cancelada");
           await atualizarVaga(item.reserva.vaga, "Livre");

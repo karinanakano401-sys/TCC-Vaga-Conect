@@ -40,9 +40,12 @@ function exigirLogin(tipo, caminhoLogin){
 
     if(tipo && funcionario.tipoFunc.tipo !== tipo){
 
-        alert("Você não tem acesso a esta tela.");
+        // com modal.js o aviso devolve uma Promise: só troca de tela depois que a pessoa fecha
+        Promise.resolve(alert("Você não tem acesso a esta tela.", { tom: "aviso", titulo: "Acesso negado" })).then(function(){
 
-        window.location.replace(caminhoLogin);
+            window.location.replace(caminhoLogin);
+
+        });
 
         return null;
 

@@ -155,6 +155,7 @@
     </main>
   </div>
 
+  <script src="../../Base/JS/modal.js"></script>
   <script src="../../Base/JS/sessao.js"></script>
   <script src="../../Base/JS/auth.js"></script>
   <script src="../../Base/JS/avatar.js"></script>
@@ -322,11 +323,17 @@
     });
 
     document.getElementById("btnFinalizar").addEventListener("click", async () => {
-      if (!confirm("Encerrar esta reserva e liberar a vaga?")) return;
+      if (!(await confirmar({
+        titulo: "Encerrar esta reserva?",
+        texto: "A reserva será finalizada e a vaga volta a ficar livre.",
+        sim: "Encerrar",
+        nao: "Voltar",
+        tom: "aviso"
+      }))) return;
       try {
         await atualizarReserva("Concluída");
         await atualizarVaga(reservaCli.reserva.vaga, "Livre");
-        alert("Reserva finalizada.");
+        await alert("Reserva finalizada.");
         window.location.href = "../HTML/TelaReservas.html";
       } catch (error) {
         alert(error.message || "Não foi possível finalizar a reserva.");
@@ -346,7 +353,7 @@
 
     async function carregar() {
       if (!idReserva) {
-        alert("Reserva não informada.");
+        await alert("Reserva não informada.");
         window.location.href = "../HTML/TelaReservas.html";
         return;
       }
@@ -358,8 +365,8 @@
       preencher(item);
     }
 
-    carregar().catch((error) => {
-      alert(error.message || "Não foi possível carregar a reserva.");
+    carregar().catch(async (error) => {
+      await alert(error.message || "Não foi possível carregar a reserva.");
       window.location.href = "../HTML/TelaReservas.html";
     });
 

@@ -14,6 +14,7 @@ VagaConnect | Pagamento Taxa
 
 
 <link rel="stylesheet" href="../CSS/TelaPagamentoTaxa.css">
+<script src="../../Base/JS/modal.js"></script>
 <script src="../../Base/JS/cobranca.js"></script>
 <script src="../../Base/JS/auth.js"></script>
 
@@ -525,9 +526,9 @@ function carregarResumo(){
 
     if(!reserva){
 
-        alert("Escolha uma vaga antes de pagar.");
-
-        window.location.href = "../HTML/TelaReservas.html";
+        alert("Escolha uma vaga antes de pagar.").then(() => {
+            window.location.href = "../HTML/TelaReservas.html";
+        });
 
         return;
 
@@ -538,9 +539,9 @@ function carregarResumo(){
     // sem o tempo de utilização escolhido não há o que pagar
     if(!reserva.horaChegada || !(Number(reserva.minutos) > 0)){
 
-        alert("Escolha o horário de entrada e o tempo de utilização da vaga antes de pagar.");
-
-        window.location.href = "../HTML/TelaDetalheReserva.html";
+        alert("Escolha o horário de entrada e o tempo de utilização da vaga antes de pagar.").then(() => {
+            window.location.href = "../HTML/TelaDetalheReserva.html";
+        });
 
         return;
 
@@ -893,7 +894,8 @@ botaoPagar.onclick = async ()=>{
 
 
 
-    alert(
+    // espera a pessoa fechar o aviso antes de trocar de tela
+    await alert(
 
         `Pagamento de ${mostrarPreco(total)} realizado com sucesso!`
 

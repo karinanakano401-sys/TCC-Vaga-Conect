@@ -108,6 +108,7 @@
     </main>
   </div>
 
+  <script src="../../Base/JS/modal.js"></script>
   <script src="../../Base/JS/sessao.js"></script>
   <script>
     const api = "http://localhost:3333";
@@ -274,7 +275,13 @@ ${svg("trash")}
 
     async function excluirFuncionario(id) {
 
-      if (!confirm("Deseja realmente excluir este funcionário?")) return;
+      if (!(await confirmar({
+        titulo: "Excluir este funcionário?",
+        texto: "Essa ação não pode ser desfeita.",
+        sim: "Excluir",
+        nao: "Voltar",
+        tom: "perigo"
+      }))) return;
 
       try {
 

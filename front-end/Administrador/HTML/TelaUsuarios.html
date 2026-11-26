@@ -101,6 +101,7 @@
     </main>
   </div>
 
+  <script src="../../Base/JS/modal.js"></script>
   <script src="../../Base/JS/sessao.js"></script>
   <script src="../../Base/JS/avatar.js"></script>
   <script>
@@ -227,7 +228,13 @@
     }
 
     async function excluirUsuario(id) {
-      if (!confirm("Deseja excluir este usuário?")) return;
+      if (!(await confirmar({
+        titulo: "Excluir este usuário?",
+        texto: "Essa ação não pode ser desfeita.",
+        sim: "Excluir",
+        nao: "Voltar",
+        tom: "perigo"
+      }))) return;
 
       try {
         const resposta = await fetch(api + "/usuario/" + id, {

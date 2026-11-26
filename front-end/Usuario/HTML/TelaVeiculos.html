@@ -142,6 +142,7 @@
 
 </div>
 
+<script src="../../Base/JS/modal.js"></script>
 <script src="../../Base/JS/sessao.js"></script>
 <script>
 
@@ -269,7 +270,7 @@ salvar.addEventListener("click", async () => {
 
     if (placaDigitada === "") {
 
-        alert("Digite a placa do veículo.");
+        await alert("Digite a placa do veículo.");
 
         placa.focus();
 
@@ -281,7 +282,7 @@ salvar.addEventListener("click", async () => {
 
     if (modeloDigitado === "") {
 
-        alert("Digite o modelo do veículo.");
+        await alert("Digite o modelo do veículo.");
 
         modelo.focus();
 
@@ -363,9 +364,15 @@ lista.addEventListener("click", async function(e){
 
     if(botao){
 
-        const confirmar = confirm("Deseja excluir este carro?");
+        const querExcluir = await confirmar({
+            titulo: "Excluir este veículo?",
+            texto: "Ele deixa de aparecer na sua lista e não poderá ser usado em novas reservas.",
+            sim: "Excluir",
+            nao: "Voltar",
+            tom: "perigo"
+        });
 
-        if(confirmar){
+        if(querExcluir){
 
             try {
 

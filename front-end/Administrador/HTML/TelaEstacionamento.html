@@ -71,6 +71,7 @@
     </main>
   </div>
 
+<script src="../../Base/JS/modal.js"></script>
 <script src="../../Base/JS/sessao.js"></script>
 <script>
 (() => {
@@ -240,11 +241,15 @@ icon.outerHTML = svg(icon.dataset.icon);
   };
 
   window.excluirEstacionamento = async function (id) {
-    const confirmar = confirm(
-      "Deseja excluir este estacionamento?"
-    );
+    const querExcluir = await confirmar({
+      titulo: "Excluir este estacionamento?",
+      texto: "Essa ação não pode ser desfeita.",
+      sim: "Excluir",
+      nao: "Voltar",
+      tom: "perigo"
+    });
 
-    if (!confirmar) return;
+    if (!querExcluir) return;
 
     try {
       const resposta = await fetch(api + "/estacionamento/" + id, {

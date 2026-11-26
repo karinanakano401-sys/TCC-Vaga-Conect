@@ -129,6 +129,7 @@
     </main>
   </div>
 
+  <script src="../../Base/JS/modal.js"></script>
   <script src="../../Base/JS/sessao.js"></script>
   <script>
     const icons = {
@@ -316,7 +317,7 @@
           throw new Error(vaga.erro || "Erro ao salvar a vaga");
         }
 
-        alert(
+        await alert(
           idEdicao
             ? "Vaga atualizada com sucesso!"
             : "Vaga cadastrada com sucesso!"
@@ -336,14 +337,20 @@
 
     });
 
-    document.querySelector("#cancelButton").addEventListener("click", () => {
+    document.querySelector("#cancelButton").addEventListener("click", async () => {
 
     const preenchido = [...formularioVaga.elements]
         .some(campo => campo.type !== "submit"
                     && campo.type !== "button"
                     && campo.value.trim() !== "");
 
-    if(preenchido && !confirm("Sair sem salvar? Os dados preenchidos serão perdidos.")) return;
+    if(preenchido && !(await confirmar({
+        titulo: "Sair sem salvar?",
+        texto: "Os dados preenchidos serão perdidos.",
+        sim: "Sair sem salvar",
+        nao: "Continuar editando",
+        tom: "aviso"
+    }))) return;
 
     window.location.href = "TelaVagas.html";
 

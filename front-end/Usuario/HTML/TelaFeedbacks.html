@@ -124,6 +124,7 @@
 
 </div>
 
+<script src="../../Base/JS/modal.js"></script>
 <script src="../../Base/JS/sessao.js"></script>
 <script src="../../Base/JS/avatar.js"></script>
 <script>
@@ -303,10 +304,16 @@ function renderContexto() {
     `;
 }
 
-$("visita").addEventListener("change", () => {
+$("visita").addEventListener("change", async () => {
     const nova = $("visita").value;
 
-    if (temRespostas() && !confirm("Trocar de visita descarta as notas já marcadas. Continuar?")) {
+    if (temRespostas() && !(await confirmar({
+        titulo: "Trocar de visita?",
+        texto: "Trocar de visita descarta as notas já marcadas.",
+        sim: "Trocar",
+        nao: "Manter notas",
+        tom: "aviso"
+    }))) {
         $("visita").value = visitaAtual;
         return;
     }

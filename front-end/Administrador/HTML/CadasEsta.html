@@ -151,6 +151,7 @@
       </div>
 
 
+      <script src="../../Base/JS/modal.js"></script>
       <script src="../../Base/JS/sessao.js"></script>
       <script src="../../Base/JS/cep.js"></script>
       <script>
@@ -403,7 +404,7 @@ save:
               throw new Error(estacionamento.erro || "Erro ao atualizar o estacionamento");
             }
 
-            alert("Estacionamento atualizado com sucesso!");
+            await alert("Estacionamento atualizado com sucesso!");
           } else {
             const respostaEndereco = await fetch(api + "/endereco", {
               method: "POST",
@@ -441,7 +442,7 @@ save:
               throw new Error(estacionamento.erro || "Erro ao criar o estacionamento");
             }
 
-            alert("Estacionamento cadastrado com sucesso!");
+            await alert("Estacionamento cadastrado com sucesso!");
           }
 
           window.location.href = "../HTML/TelaEstacionamento.html";
