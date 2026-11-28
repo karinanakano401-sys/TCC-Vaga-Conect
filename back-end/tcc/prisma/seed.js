@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { gerarHash } from "../src/senha.js";
 
 const prisma = new PrismaClient();
 
@@ -57,7 +58,7 @@ async function popular() {
       dataNascimento: new Date("1998-04-15"),
       cpf: "123.456.789-00",
       email: "maria@email.com",
-      senha: "123456",
+      senha: gerarHash("123456"),
       fk_idEndereco: enderecoUsuario.id,
     },
   });
@@ -127,7 +128,7 @@ async function popular() {
       cpf: "111.222.333-44",
       telefone: "(17) 98888-0001",
       email: "admin@vagaconnect.com",
-      senha: "admin123",
+      senha: gerarHash("admin123"),
       fk_tipofunc: tipoAdmin.id,
       fk_est: centerPark.id,
     },
@@ -140,7 +141,7 @@ async function popular() {
       cpf: "555.666.777-88",
       telefone: "(17) 97777-0002",
       email: "joao.func@vagaconnect.com",
-      senha: "123456",
+      senha: gerarHash("123456"),
       fk_tipofunc: tipoFuncionario.id,
       fk_est: shoppingPlaza.id,
     },

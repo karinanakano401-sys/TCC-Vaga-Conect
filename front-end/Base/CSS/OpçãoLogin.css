@@ -390,6 +390,41 @@ body{
 
 
 /* =====================================================
+   LINK ESQUECI MINHA SENHA
+===================================================== */
+
+.esqueci{
+
+    margin:-6px 0 14px;
+
+    text-align:right;
+
+}
+
+
+.esqueci a{
+
+    color:#60a5fa;
+
+    font-size:12px;
+
+    font-weight:bold;
+
+    text-decoration:none;
+
+}
+
+
+.esqueci a:hover{
+
+    color:#93c5fd;
+
+    text-decoration:underline;
+
+}
+
+
+/* =====================================================
    LINK CADASTRO
 ===================================================== */
 

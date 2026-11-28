@@ -524,15 +524,7 @@ function validar(){
 
         }
 
-        else if(original.senha && senhaAtual.value !== original.senha){
-
-            marcarErro(senhaAtual, true);
-
-            aviso("erro", "Senha atual não confere", "Verifique e tente de novo.");
-
-            ok = false;
-
-        }
+        // a senha atual é conferida pelo servidor ao salvar
 
 
         if(senhaNova.value.length < 6){
@@ -596,6 +588,8 @@ async function salvar(){
 
         corpo.senha = senhaNova.value;
 
+        corpo.senhaAtual = senhaAtual.value;
+
     }
 
 
@@ -621,6 +615,10 @@ async function salvar(){
 
 
         original = { ...original, ...corpo };
+
+        // senhas nunca ficam guardadas na tela
+        delete original.senha;
+        delete original.senhaAtual;
 
 
         // atualiza a sessão para o nome novo valer nas outras telas

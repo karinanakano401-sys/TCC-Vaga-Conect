@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- o endereço desta tela carrega o token: não repassa a outros sites -->
+    <meta name="referrer" content="no-referrer">
+    <title>Redefinir senha · VagaConnect</title>
+    <link rel="stylesheet" href="../CSS/OpçãoLogin.css">
+    <link rel="stylesheet" href="../CSS/RecuperarSenha.css">
+</head>
+
+<body>
+
+    <div class="bg"></div>
+
+    <div class="container">
+
+        <div class="logo">
+            <h1>Vaga<span>Connect</span></h1>
+            <p>Sistema Inteligente de Estacionamento</p>
+        </div>
+
+
+        <!-- VERIFICANDO O LINK -->
+        <section id="etapaVerificando">
+            <div class="carregando-bloco" role="status">
+                <span class="giro-grande" aria-hidden="true"></span>
+                Verificando o link...
+            </div>
+        </section>
+
+
+        <!-- LINK INVÁLIDO / EXPIRADO / USADO -->
+        <section id="etapaInvalido" hidden>
+
+            <div class="icone-estado erro" aria-hidden="true">!</div>
+
+            <h2 class="etapa-titulo" id="tituloInvalido">Link indisponível</h2>
+
+            <p class="etapa-texto" id="textoInvalido"></p>
+
+            <a class="btn-link" id="btnNovoLink" href="EsqueciSenha.html">Solicitar novo link</a>
+            <a class="btn-link" href="OpçãoLogin.html">Voltar ao login</a>
+
+            <button class="btn-texto" id="btnTentarDeNovo" type="button" hidden>
+                Tentar de novo
+            </button>
+
+        </section>
+
+
+        <!-- NOVA SENHA -->
+        <section id="etapaFormulario" hidden>
+
+            <h2 class="etapa-titulo">Crie uma nova senha</h2>
+
+            <p class="etapa-texto">
+                Escolha uma senha que você ainda não use em outros lugares.
+            </p>
+
+            <div class="msg erro" id="mensagem" role="alert" hidden></div>
+
+            <form id="formulario" novalidate>
+
+                <div class="input-box" id="caixaSenha">
+                    <label for="senha">Nova senha</label>
+                    <span class="campo-senha">
+                        <input id="senha" type="password" placeholder="Digite a nova senha" autocomplete="new-password" maxlength="128">
+                        <button class="olho-senha" type="button" data-alvo="senha" aria-label="Mostrar a senha" aria-pressed="false" title="Mostrar a senha"></button>
+                    </span>
+                </div>
+
+                <div class="input-box" id="caixaConfirmar">
+                    <label for="confirmarSenha">Confirmar nova senha</label>
+                    <span class="campo-senha">
+                        <input id="confirmarSenha" type="password" placeholder="Digite a senha de novo" autocomplete="new-password" maxlength="128">
+                        <button class="olho-senha" type="button" data-alvo="confirmarSenha" aria-label="Mostrar a senha" aria-pressed="false" title="Mostrar a senha"></button>
+                    </span>
+                </div>
+
+                <ul class="regras" aria-live="polite">
+                    <li id="regraTamanho">Pelo menos 6 caracteres</li>
+                    <li id="regraIgual">As duas senhas são iguais</li>
+                </ul>
+
+                <button class="btn" id="btnSalvar" type="submit">
+                    Redefinir senha
+                </button>
+
+            </form>
+
+            <div class="extra">
+                <a href="OpçãoLogin.html">Voltar ao login</a>
+            </div>
+
+        </section>
+
+
+        <!-- SUCESSO -->
+        <section id="etapaSucesso" hidden>
+
+            <div class="icone-estado sucesso" aria-hidden="true">✓</div>
+
+            <h2 class="etapa-titulo">Senha redefinida!</h2>
+
+            <p class="etapa-texto">
+                Sua senha foi alterada com sucesso. Por segurança, você foi
+                desconectado dos outros dispositivos.<br>
+                Redirecionando para o login em <b id="segundos">4</b>s...
+            </p>
+
+            <a class="btn-link" href="OpçãoLogin.html?senhaRedefinida=1">Ir para o login agora</a>
+
+        </section>
+
+    </div>
+
+
+    <script>
+
+        const api = "http://localhost:3333";
+
+        const SENHA_MIN = 6;
+        const SENHA_MAX = 128;
+
+        const etapas = {
+            verificando: document.getElementById("etapaVerificando"),
+            invalido:    document.getElementById("etapaInvalido"),
+            formulario:  document.getElementById("etapaFormulario"),
+            sucesso:     document.getElementById("etapaSucesso")
+        };
+
+        const formulario     = document.getElementById("formulario");
+        const campoSenha     = document.getElementById("senha");
+        const campoConfirmar = document.getElementById("confirmarSenha");
+        const caixaSenha     = document.getElementById("caixaSenha");
+        const caixaConfirmar = document.getElementById("caixaConfirmar");
+        const btnSalvar      = document.getElementById("btnSalvar");
+        const mensagem       = document.getElementById("mensagem");
+        const regraTamanho   = document.getElementById("regraTamanho");
+        const regraIgual     = document.getElementById("regraIgual");
+
+        const tituloInvalido  = document.getElementById("tituloInvalido");
+        const textoInvalido   = document.getElementById("textoInvalido");
+        const btnNovoLink     = document.getElementById("btnNovoLink");
+        const btnTentarDeNovo = document.getElementById("btnTentarDeNovo");
+
+
+        /* =====================================================
+           TOKEN
+           Vem do link do e-mail. Sai do endereço da barra assim
+           que é lido (histórico, capturas de tela) e fica só na
+           sessão da aba, para o F5 não perder o link.
+        ===================================================== */
+
+        function lerToken() {
+
+            const doLink = new URLSearchParams(window.location.search).get("token");
+
+            if (doLink) {
+                sessionStorage.setItem("tokenRedefinicao", doLink);
+                history.replaceState(null, "", window.location.pathname);
+                return doLink;
+            }
+
+            return sessionStorage.getItem("tokenRedefinicao") || "";
+        }
+
+        const token = lerToken();
+
+
+        /* =====================================================
+           ETAPAS
+        ===================================================== */
+
+        function mostrar(nome) {
+            for (const chave in etapas) {
+                etapas[chave].hidden = chave !== nome;
+            }
+        }
+
+
+        function mostrarInvalido(titulo, texto, { podeTentarDeNovo = false, novoLink = true } = {}) {
+            tituloInvalido.textContent = titulo;
+            textoInvalido.textContent = texto;
+            btnTentarDeNovo.hidden = !podeTentarDeNovo;
+            btnNovoLink.hidden = !novoLink;
+            mostrar("invalido");
+        }
+
+
+        function mostrarMensagem(texto) {
+            mensagem.textContent = texto;
+            mensagem.hidden = !texto;
+        }
+
+
+        async function chamar(caminho, corpo) {
+
+            let resposta;
+
+            try {
+                resposta = await fetch(api + caminho, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(corpo)
+                });
+            } catch (erro) {
+                const falha = new Error("Não foi possível conectar ao servidor. Verifique sua conexão e tente de novo.");
+                falha.semConexao = true;
+                throw falha;
+            }
+
+            let dados = {};
+
+            try { dados = await resposta.json(); } catch (erro) { /* sem corpo */ }
+
+            if (!resposta.ok) {
+                const falha = new Error(dados.erro || "Não foi possível concluir. Tente novamente.");
+                falha.status = resposta.status;
+                throw falha;
+            }
+
+            return dados;
+        }
+
+
+        /* =====================================================
+           VERIFICAR O LINK AO ABRIR A TELA
+        ===================================================== */
+
+        async function verificar() {
+
+            if (!token) {
+                mostrarInvalido(
+                    "Link inválido",
+                    "Esse endereço não tem um link de redefinição. Abra o link que enviamos por e-mail ou peça um novo."
+                );
+                return;
+            }
+
+            mostrar("verificando");
+
+            try {
+                await chamar("/senha/validar", { token });
+                mostrar("formulario");
+                campoSenha.focus();
+            } catch (erro) {
+
+                if (erro.semConexao || erro.status === 429 || erro.status >= 500) {
+                    mostrarInvalido("Não foi possível verificar", erro.message, { podeTentarDeNovo: true, novoLink: false });
+                    return;
+                }
+
+                sessionStorage.removeItem("tokenRedefinicao");
+
+                mostrarInvalido(
+                    erro.status === 410 ? "Link expirado ou já usado" : "Link inválido",
+                    erro.message
+                );
+            }
+        }
+
+        btnTentarDeNovo.addEventListener("click", verificar);
+
+
+        /* =====================================================
+           OLHINHO DE MOSTRAR / ESCONDER A SENHA
+        ===================================================== */
+
+        const olhoAberto = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+
+        const olhoFechado = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.9 10.9 0 0 1 12 19c-7 0-11-7-11-7a19.8 19.8 0 0 1 5.06-5.94"/><path d="M9.9 4.24A10.9 10.9 0 0 1 12 5c7 0 11 7 11 7a19.7 19.7 0 0 1-3.17 4.19"/><path d="M14.12 14.12A3 3 0 1 1 9.88 9.88"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+
+        function pintarOlho(botao) {
+            const campo = document.getElementById(botao.dataset.alvo);
+            const visivel = campo.type === "text";
+
+            botao.innerHTML = visivel ? olhoFechado : olhoAberto;
+            botao.title = visivel ? "Esconder a senha" : "Mostrar a senha";
+            botao.setAttribute("aria-label", botao.title);
+            botao.setAttribute("aria-pressed", visivel ? "true" : "false");
+        }
+
+        document.querySelectorAll(".olho-senha").forEach((botao) => {
+
+            pintarOlho(botao);
+
+            botao.addEventListener("click", () => {
+
+                const campo = document.getElementById(botao.dataset.alvo);
+                const inicio = campo.selectionStart;
+                const fim = campo.selectionEnd;
+
+                campo.type = campo.type === "password" ? "text" : "password";
+
+                pintarOlho(botao);
+                campo.focus();
+
+                try { campo.setSelectionRange(inicio, fim); } catch (erro) { /* tipo sem seleção */ }
+            });
+        });
+
+
+        /* =====================================================
+           REGRAS EM TEMPO REAL
+        ===================================================== */
+
+        function atualizarRegras() {
+
+            const senha = campoSenha.value;
+            const confirmar = campoConfirmar.value;
+
+            regraTamanho.classList.toggle("ok", senha.length >= SENHA_MIN);
+            regraIgual.classList.toggle("ok", senha.length > 0 && senha === confirmar);
+        }
+
+        campoSenha.addEventListener("input", () => {
+            caixaSenha.classList.remove("erro");
+            atualizarRegras();
+        });
+
+        campoConfirmar.addEventListener("input", () => {
+            caixaConfirmar.classList.remove("erro");
+            atualizarRegras();
+        });
+
+
+        /* =====================================================
+           ENVIAR A NOVA SENHA
+        ===================================================== */
+
+        function carregando(ligado) {
+            btnSalvar.disabled = ligado;
+
+            if (ligado) {
+                btnSalvar.innerHTML = '<span class="giro" aria-hidden="true"></span>Salvando...';
+            } else {
+                btnSalvar.textContent = "Redefinir senha";
+            }
+        }
+
+
+        function irParaLogin() {
+            window.location.replace("OpçãoLogin.html?senhaRedefinida=1");
+        }
+
+
+        function contagemRegressiva() {
+
+            let restante = 4;
+            const rotulo = document.getElementById("segundos");
+
+            const intervalo = setInterval(() => {
+                restante--;
+                rotulo.textContent = restante;
+
+                if (restante <= 0) {
+                    clearInterval(intervalo);
+                    irParaLogin();
+                }
+            }, 1000);
+        }
+
+
+        formulario.addEventListener("submit", async (evento) => {
+
+            evento.preventDefault();
+
+            caixaSenha.classList.remove("erro");
+            caixaConfirmar.classList.remove("erro");
+            mostrarMensagem("");
+
+            const senha = campoSenha.value;
+            const confirmarSenha = campoConfirmar.value;
+
+            if (!senha) {
+                caixaSenha.classList.add("erro");
+                mostrarMensagem("Digite a nova senha.");
+                campoSenha.focus();
+                return;
+            }
+
+            if (senha.length < SENHA_MIN) {
+                caixaSenha.classList.add("erro");
+                mostrarMensagem("A senha precisa ter pelo menos " + SENHA_MIN + " caracteres.");
+                campoSenha.focus();
+                return;
+            }
+
+            if (senha.length > SENHA_MAX) {
+                caixaSenha.classList.add("erro");
+                mostrarMensagem("A senha pode ter no máximo " + SENHA_MAX + " caracteres.");
+                campoSenha.focus();
+                return;
+            }
+
+            if (senha !== confirmarSenha) {
+                caixaConfirmar.classList.add("erro");
+                mostrarMensagem("As senhas não coincidem. Digite a mesma senha nos dois campos.");
+                campoConfirmar.focus();
+                return;
+            }
+
+            carregando(true);
+
+            try {
+
+                await chamar("/senha/redefinir", { token, senha, confirmarSenha });
+
+                sessionStorage.removeItem("tokenRedefinicao");
+
+                // quem estava logado neste navegador com a senha antiga sai
+                localStorage.removeItem("usuarioLogado");
+                localStorage.removeItem("funcionarioLogado");
+
+                mostrar("sucesso");
+                contagemRegressiva();
+
+            } catch (erro) {
+
+                // link que não vale mais (usado em outra aba, expirou durante a digitação)
+                if (erro.status === 410 || (erro.status === 400 && /link/i.test(erro.message))) {
+                    sessionStorage.removeItem("tokenRedefinicao");
+                    mostrarInvalido("Link expirado ou já usado", erro.message);
+                    return;
+                }
+
+                mostrarMensagem(erro.message);
+
+            } finally {
+                carregando(false);
+            }
+        });
+
+
+        verificar();
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esqueci minha senha · VagaConnect</title>
+    <link rel="stylesheet" href="../CSS/OpçãoLogin.css">
+    <link rel="stylesheet" href="../CSS/RecuperarSenha.css">
+</head>
+
+<body>
+
+    <div class="bg"></div>
+
+    <div class="container">
+
+        <div class="logo">
+            <h1>Vaga<span>Connect</span></h1>
+            <p>Sistema Inteligente de Estacionamento</p>
+        </div>
+
+
+        <!-- ETAPA 1 · PEDIR O LINK -->
+        <section id="etapaPedido">
+
+            <h2 class="etapa-titulo">Esqueceu sua senha?</h2>
+
+            <p class="etapa-texto">
+                Informe o e-mail da sua conta. Se ele estiver cadastrado,
+                enviaremos um link para você criar uma nova senha.
+            </p>
+
+            <div class="msg erro" id="mensagem" role="alert" hidden></div>
+
+            <form id="formulario" novalidate>
+
+                <div class="input-box" id="caixaEmail">
+                    <label for="email">E-mail</label>
+                    <input id="email" type="email" placeholder="Digite seu e-mail" autocomplete="email" maxlength="254">
+                </div>
+
+                <button class="btn" id="btnEnviar" type="submit">
+                    Enviar link de redefinição
+                </button>
+
+            </form>
+
+            <div class="extra">
+                Lembrou a senha?
+                <a href="OpçãoLogin.html">Voltar ao login</a>
+            </div>
+
+        </section>
+
+
+        <!-- ETAPA 2 · CONFIRMAÇÃO (igual para e-mail cadastrado ou não) -->
+        <section id="etapaEnviado" hidden>
+
+            <div class="icone-estado sucesso" aria-hidden="true">✓</div>
+
+            <h2 class="etapa-titulo">Confira seu e-mail</h2>
+
+            <p class="etapa-texto">
+                Se <b id="emailInformado"></b> estiver cadastrado, você vai receber
+                em instantes um e-mail com o link para redefinir a senha.
+                O link vale por 30 minutos.<br><br>
+                Não chegou? Veja a caixa de spam ou peça um novo link.
+            </p>
+
+            <div class="msg erro" id="mensagemReenvio" role="alert" hidden></div>
+
+            <a class="btn-link" href="OpçãoLogin.html">Voltar ao login</a>
+
+            <button class="btn-texto" id="btnReenviar" type="button" disabled>
+                Reenviar e-mail
+            </button>
+
+        </section>
+
+    </div>
+
+
+    <script>
+
+        const api = "http://localhost:3333";
+
+        const etapaPedido   = document.getElementById("etapaPedido");
+        const etapaEnviado  = document.getElementById("etapaEnviado");
+        const formulario    = document.getElementById("formulario");
+        const campoEmail    = document.getElementById("email");
+        const caixaEmail    = document.getElementById("caixaEmail");
+        const btnEnviar     = document.getElementById("btnEnviar");
+        const btnReenviar   = document.getElementById("btnReenviar");
+        const mensagem      = document.getElementById("mensagem");
+        const mensagemReenvio = document.getElementById("mensagemReenvio");
+        const emailInformado  = document.getElementById("emailInformado");
+
+        const ESPERA_REENVIO = 60;
+
+        let emailAtual = "";
+        let contador = null;
+
+
+        function mostrarMensagem(caixa, texto) {
+            caixa.textContent = texto;
+            caixa.hidden = !texto;
+        }
+
+
+        function carregando(botao, ligado, textoNormal) {
+            botao.disabled = ligado;
+
+            if (ligado) {
+                botao.innerHTML = '<span class="giro" aria-hidden="true"></span>Enviando...';
+            } else {
+                botao.textContent = textoNormal;
+            }
+        }
+
+
+        async function pedirLink(email) {
+
+            let resposta;
+
+            try {
+                resposta = await fetch(api + "/senha/esqueci", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email })
+                });
+            } catch (erro) {
+                throw new Error("Não foi possível conectar ao servidor. Verifique sua conexão e tente de novo.");
+            }
+
+            let dados = {};
+
+            try { dados = await resposta.json(); } catch (erro) { /* resposta sem corpo */ }
+
+            if (!resposta.ok) {
+                throw new Error(dados.erro || "Não foi possível enviar agora. Tente novamente em instantes.");
+            }
+
+            return dados;
+        }
+
+
+        function iniciarContagem() {
+
+            clearInterval(contador);
+
+            let restante = ESPERA_REENVIO;
+
+            btnReenviar.disabled = true;
+            btnReenviar.textContent = "Reenviar e-mail (" + restante + "s)";
+
+            contador = setInterval(() => {
+
+                restante--;
+
+                if (restante <= 0) {
+                    clearInterval(contador);
+                    btnReenviar.disabled = false;
+                    btnReenviar.textContent = "Reenviar e-mail";
+                    return;
+                }
+
+                btnReenviar.textContent = "Reenviar e-mail (" + restante + "s)";
+
+            }, 1000);
+        }
+
+
+        function irParaConfirmacao() {
+            emailInformado.textContent = emailAtual;
+            etapaPedido.hidden = true;
+            etapaEnviado.hidden = false;
+            mostrarMensagem(mensagemReenvio, "");
+            iniciarContagem();
+        }
+
+
+        formulario.addEventListener("submit", async (evento) => {
+
+            evento.preventDefault();
+
+            caixaEmail.classList.remove("erro");
+            mostrarMensagem(mensagem, "");
+
+            const email = campoEmail.value.trim();
+
+            if (!email) {
+                caixaEmail.classList.add("erro");
+                mostrarMensagem(mensagem, "Digite o e-mail da sua conta.");
+                campoEmail.focus();
+                return;
+            }
+
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                caixaEmail.classList.add("erro");
+                mostrarMensagem(mensagem, "Esse e-mail não parece válido. Confira e tente de novo.");
+                campoEmail.focus();
+                return;
+            }
+
+            carregando(btnEnviar, true);
+
+            try {
+                await pedirLink(email);
+                emailAtual = email;
+                irParaConfirmacao();
+            } catch (erro) {
+                mostrarMensagem(mensagem, erro.message);
+            } finally {
+                carregando(btnEnviar, false, "Enviar link de redefinição");
+            }
+        });
+
+
+        btnReenviar.addEventListener("click", async () => {
+
+            mostrarMensagem(mensagemReenvio, "");
+
+            btnReenviar.disabled = true;
+            btnReenviar.innerHTML = '<span class="giro" aria-hidden="true"></span>Enviando...';
+
+            try {
+                await pedirLink(emailAtual);
+                iniciarContagem();
+            } catch (erro) {
+                mostrarMensagem(mensagemReenvio, erro.message);
+                btnReenviar.disabled = false;
+                btnReenviar.textContent = "Reenviar e-mail";
+            }
+        });
+
+
+        campoEmail.addEventListener("input", () => {
+            caixaEmail.classList.remove("erro");
+        });
+
+    </script>
+
+</body>
+
+</html>

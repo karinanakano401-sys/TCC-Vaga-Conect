@@ -1,0 +1,271 @@
+/* =====================================================
+   RECUPERAÇÃO DE SENHA
+   Complementa OpçãoLogin.css (container, logo, input-box, btn, extra)
+   para as telas EsqueciSenha.html e RedefinirSenha.html.
+===================================================== */
+
+body{
+    overflow-y:auto;
+}
+
+.container{
+    margin:auto;
+}
+
+
+/* ---------- título e texto de cada etapa ---------- */
+
+.etapa-titulo{
+    margin-bottom:8px;
+    text-align:center;
+    color:#dbeafe;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.etapa-texto{
+    margin-bottom:20px;
+    text-align:center;
+    color:#8fa5b9;
+    font-size:13px;
+    line-height:1.55;
+}
+
+.etapa-texto b{
+    color:#dbeafe;
+    word-break:break-all;
+}
+
+[hidden]{
+    display:none !important;
+}
+
+
+/* ---------- ícone de estado ---------- */
+
+.icone-estado{
+    width:56px;
+    height:56px;
+    margin:0 auto 14px;
+    display:grid;
+    place-items:center;
+    border-radius:50%;
+    border:1px solid var(--c, #60a5fa);
+    background:var(--f, rgba(96,165,250,.12));
+    color:var(--c, #60a5fa);
+    font-size:26px;
+    font-weight:bold;
+    line-height:1;
+}
+
+.icone-estado.sucesso{ --c:#4ade80; --f:rgba(74,222,128,.12); }
+.icone-estado.erro{    --c:#f87171; --f:rgba(248,113,113,.12); }
+
+
+/* ---------- mensagem dentro do cartão ---------- */
+
+.msg{
+    margin-bottom:15px;
+    padding:11px 13px;
+    border:1px solid var(--c);
+    border-left-width:3px;
+    border-radius:8px;
+    background:var(--f);
+    color:#e5edf5;
+    font-size:12.5px;
+    line-height:1.5;
+}
+
+.msg.erro{    --c:#f87171; --f:rgba(248,113,113,.10); }
+.msg.sucesso{ --c:#4ade80; --f:rgba(74,222,128,.10); }
+.msg.info{    --c:#60a5fa; --f:rgba(96,165,250,.10); }
+
+
+/* ---------- campo com problema ---------- */
+
+.input-box.erro input{
+    border-color:#f87171;
+    background:rgba(248,113,113,.07);
+}
+
+.input-box.erro label{
+    color:#fca5a5;
+}
+
+
+/* ---------- botão: carregando / secundário ---------- */
+
+.btn:disabled{
+    opacity:.65;
+    cursor:not-allowed;
+    transform:none;
+}
+
+.giro{
+    display:inline-block;
+    width:15px;
+    height:15px;
+    margin-right:8px;
+    vertical-align:-2px;
+    border:2px solid rgba(255,255,255,.35);
+    border-top-color:#ffffff;
+    border-radius:50%;
+    animation:girar .7s linear infinite;
+}
+
+@keyframes girar{
+    to{ transform:rotate(360deg); }
+}
+
+.btn-link{
+    display:block;
+    width:100%;
+    height:43px;
+    margin-top:10px;
+    line-height:43px;
+    border:1px solid #244866;
+    border-radius:7px;
+    background:#081f34;
+    color:#dbeafe;
+    text-align:center;
+    text-decoration:none;
+    font-size:14px;
+    font-weight:bold;
+    transition:.25s;
+}
+
+.btn-link:hover{
+    background:#102e49;
+    color:#ffffff;
+}
+
+.btn-texto{
+    display:block;
+    width:100%;
+    margin-top:12px;
+    padding:6px;
+    border:none;
+    background:none;
+    color:#60a5fa;
+    font-size:12.5px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.btn-texto:hover:not(:disabled){
+    color:#93c5fd;
+    text-decoration:underline;
+}
+
+.btn-texto:disabled{
+    color:#71869a;
+    cursor:default;
+}
+
+
+/* ---------- campo de senha com olhinho ---------- */
+
+.campo-senha{
+    position:relative;
+    display:block;
+}
+
+.campo-senha input{
+    padding-right:44px;
+}
+
+.olho-senha{
+    position:absolute;
+    top:50%;
+    right:6px;
+    width:32px;
+    height:32px;
+    transform:translateY(-50%);
+    display:grid;
+    place-items:center;
+    border:none;
+    border-radius:6px;
+    background:none;
+    color:#8fa5b9;
+    cursor:pointer;
+}
+
+.olho-senha:hover{
+    background:rgba(255,255,255,.08);
+    color:#ffffff;
+}
+
+.olho-senha:focus-visible{
+    outline:2px solid #60a5fa;
+    outline-offset:1px;
+}
+
+.olho-senha svg{
+    width:18px;
+    height:18px;
+}
+
+.campo-senha input::-ms-reveal{
+    display:none;
+}
+
+
+/* ---------- regras da senha ---------- */
+
+.regras{
+    margin:-4px 0 16px;
+    padding:0;
+    list-style:none;
+    font-size:12px;
+    color:#8fa5b9;
+}
+
+.regras li{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    margin-top:4px;
+}
+
+.regras li::before{
+    content:"○";
+    width:14px;
+    text-align:center;
+    color:#71869a;
+}
+
+.regras li.ok{
+    color:#86efac;
+}
+
+.regras li.ok::before{
+    content:"✓";
+    color:#4ade80;
+    font-weight:bold;
+}
+
+
+/* ---------- verificando o link ---------- */
+
+.carregando-bloco{
+    padding:18px 0 8px;
+    text-align:center;
+    color:#8fa5b9;
+    font-size:13px;
+}
+
+.carregando-bloco .giro-grande{
+    display:block;
+    width:34px;
+    height:34px;
+    margin:0 auto 14px;
+    border:3px solid rgba(96,165,250,.25);
+    border-top-color:#60a5fa;
+    border-radius:50%;
+    animation:girar .8s linear infinite;
+}
+
+@media (prefers-reduced-motion:reduce){
+    .giro,
+    .carregando-bloco .giro-grande{ animation-duration:2s; }
+}

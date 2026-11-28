@@ -305,7 +305,9 @@
       formulario.birth.value = funcionario.dataNascimento.substring(0, 10);
       formulario.phone.value = funcionario.telefone;
       formulario.email.value = funcionario.email;
-      formulario.password.value = funcionario.senha;
+      // a senha não volta do servidor: em branco = manter a atual
+      formulario.password.required = false;
+      formulario.password.placeholder = "Deixe em branco para manter";
       formulario.role.value = funcionario.tipoFunc.nome;
       formulario.parking.value = funcionario.fk_est;
 
@@ -363,10 +365,13 @@
           cpf: form.cpf.value.trim(),
           telefone: form.phone.value.trim(),
           email: form.email.value.trim(),
-          senha: form.password.value,
           fk_tipofunc: tipoFunc.id,
           fk_est: form.parking.value
         };
+
+        if (form.password.value) {
+          dados.senha = form.password.value;
+        }
 
         const resposta = await fetch(
           id ? api + "/funcionario/" + id : api + "/funcionario",

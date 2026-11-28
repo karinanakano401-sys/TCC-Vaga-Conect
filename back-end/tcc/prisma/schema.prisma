@@ -16,6 +16,9 @@ model Usuario {
   senha          String
   avatar         String?
   createdAt      DateTime @default(now())
+
+  // Última redefinição de senha: tokens de login emitidos antes dela deixam de valer
+  senhaAlteradaEm DateTime?
   
   fk_idEndereco String   @unique
   endereco      Endereco @relation(fields: [fk_idEndereco], references: [id])
@@ -191,8 +194,43 @@ model Funcionario {
   estacionamento Estacionamento @relation(fields: [fk_est], references: [id])
   tipoFunc       TipoFunc       @relation(fields: [fk_tipofunc], references: [id])
 
+  // Última redefinição de senha: tokens de login emitidos antes dela deixam de valer
+  senhaAlteradaEm DateTime?
+
   @@index([fk_est])
   @@index([fk_tipofunc])
+}
+
+// Configuração do envio de e-mail (SMTP). Existe uma única linha (id = "smtp"),
+// gerenciada pelo administrador em Configurações. A senha fica cifrada (AES-256-GCM).
+model ConfigEmail {
+  id             String   @id
+  host           String
+  porta          Int
+  seguro         Boolean
+  usuario        String
+  senhaCifrada   String
+  emailRemetente String
+  nomeRemetente  String
+  urlFront       String
+  verificadoEm   DateTime
+  atualizadoEm   DateTime @updatedAt
+  atualizadoPor  String?
+}
+
+// Pedidos de recuperação de senha. Só o hash (SHA-256) do token é guardado:
+// o token em si existe apenas no link enviado por e-mail.
+// tipo: 'usuario' | 'funcionario' · contaId: id na tabela correspondente
+model RecuperacaoSenha {
+  id        String    @id @default(uuid())
+  tokenHash String    @unique
+  tipo      String
+  contaId   String
+  expiraEm  DateTime
+  usadoEm   DateTime?
+  criadoEm  DateTime  @default(now())
+
+  @@index([tipo, contaId])
 }
 
 model TipoFunc {

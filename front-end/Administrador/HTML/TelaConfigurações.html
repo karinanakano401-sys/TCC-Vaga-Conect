@@ -169,6 +169,88 @@ Sair
           </div>
         </form>
       </section>
+
+      <section class="config-panel" id="painelEmail">
+        <form id="emailForm" novalidate autocomplete="off">
+          <h2>E-mail de recuperação de senha</h2>
+
+          <p class="email-ajuda">
+            Servidor usado para enviar o link de "Esqueci minha senha". A senha do servidor é
+            guardada cifrada no banco e nunca é mostrada de novo. A configuração só é salva
+            depois que a conexão com o servidor for validada.
+          </p>
+
+          <div class="email-status" id="emailStatus" role="status" aria-live="polite">Carregando...</div>
+
+          <div class="email-atalho">
+            <button type="button" class="secondary" id="emailGmail">Preencher para Gmail</button>
+            <small>No Gmail, use uma <b>senha de app</b> (myaccount.google.com/apppasswords), não a senha da conta.</small>
+          </div>
+
+          <div class="form-grid">
+            <label>
+              Servidor SMTP
+              <input id="smtpHost" placeholder="smtp.gmail.com" maxlength="253" autocomplete="off">
+            </label>
+
+            <label>
+              Porta
+              <input id="smtpPorta" type="number" min="1" max="65535" placeholder="465">
+            </label>
+
+            <label>
+              Conexão segura (SSL/TLS)
+              <select id="smtpSeguro">
+                <option value="true">Ligada (porta 465)</option>
+                <option value="false">Desligada / STARTTLS (porta 587)</option>
+              </select>
+            </label>
+
+            <label>
+              Usuário
+              <input id="smtpUsuario" placeholder="seuemail@gmail.com" maxlength="254" autocomplete="off">
+            </label>
+
+            <label>
+              Senha
+              <span class="campo-cfg">
+                <input id="smtpSenha" type="password" maxlength="512" autocomplete="new-password">
+                <button type="button" id="smtpVerSenha" aria-pressed="false">Mostrar</button>
+              </span>
+            </label>
+
+            <label>
+              E-mail do remetente
+              <input id="smtpRemetente" type="email" placeholder="seuemail@gmail.com" maxlength="254" autocomplete="off">
+            </label>
+
+            <label>
+              Nome do remetente
+              <input id="smtpNome" placeholder="VagaConnect" maxlength="60" autocomplete="off">
+            </label>
+
+            <label>
+              Endereço do sistema
+              <input id="smtpUrl" placeholder="http://127.0.0.1:5500/front-end" maxlength="300" autocomplete="off">
+            </label>
+          </div>
+
+          <div class="email-teste">
+            <label>
+              Enviar e-mail de teste para
+              <span class="campo-cfg">
+                <input id="emailTestePara" type="email" maxlength="254" autocomplete="off">
+                <button type="button" id="emailEnviarTeste">Enviar teste</button>
+              </span>
+            </label>
+          </div>
+
+          <div class="actions">
+            <button class="secondary" type="button" id="emailTestar">Testar conexão</button>
+            <button class="primary" type="submit" id="emailSalvar">Salvar e verificar</button>
+          </div>
+        </form>
+      </section>
     </main>
   </div>
 
@@ -176,6 +258,7 @@ Sair
 
   <script src="../../Base/JS/modal.js"></script>
   <script src="../../Base/JS/sessao.js"></script>
+  <script src="../../Base/JS/auth.js"></script>
   <script>
 
     const icons = {
@@ -1005,6 +1088,350 @@ icon.outerHTML = svg(icon.dataset.icon);
             }
 
         });
+
+    })();
+  </script>
+
+  <script>
+    /* =====================================================
+       E-mail de recuperação de senha (SMTP)
+       Conversa com /configuracao/email (só administrador).
+       A senha digitada só vai no envio; a API nunca a devolve.
+    ===================================================== */
+
+    (function(){
+
+      "use strict";
+
+      const admin = exigirLogin("admin", "../../Base/HTML/OpçãoLogin.html");
+
+      if(!admin) return;
+
+      mostrarFuncionarioNoPerfil(admin);
+
+
+      const campo = (id) => document.getElementById(id);
+
+      const form      = campo("emailForm");
+      const status    = campo("emailStatus");
+      const host      = campo("smtpHost");
+      const porta     = campo("smtpPorta");
+      const seguro    = campo("smtpSeguro");
+      const usuario   = campo("smtpUsuario");
+      const senha     = campo("smtpSenha");
+      const remetente = campo("smtpRemetente");
+      const nome      = campo("smtpNome");
+      const url       = campo("smtpUrl");
+      const testePara = campo("emailTestePara");
+
+      const botaoSalvar  = campo("emailSalvar");
+      const botaoTestar  = campo("emailTestar");
+      const botaoTeste   = campo("emailEnviarTeste");
+      const botaoVer     = campo("smtpVerSenha");
+
+      testePara.placeholder = admin.email || "seuemail@exemplo.com";
+
+
+      function dizer(tipo, texto){
+
+        status.className = "email-status " + tipo;
+
+        status.textContent = texto;
+
+      }
+
+
+      function quando(iso){
+
+        return new Date(iso).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+
+      }
+
+
+      function ocupado(botao, ligado, textoOcupado){
+
+        if(ligado){
+
+          botao.dataset.rotulo = botao.textContent;
+
+          botao.textContent = textoOcupado;
+
+        } else if(botao.dataset.rotulo){
+
+          botao.textContent = botao.dataset.rotulo;
+
+        }
+
+        [botaoSalvar, botaoTestar, botaoTeste].forEach(b => { b.disabled = ligado; });
+
+      }
+
+
+      // chama a API e devolve { resposta, dados } ou lança erro com mensagem pronta
+      async function chamar(metodo, caminho, corpo){
+
+        let resposta;
+
+        try {
+
+          resposta = await fetch(API + "/configuracao/email" + caminho, {
+
+            method: metodo,
+
+            headers: { "Content-Type": "application/json" },
+
+            body: corpo ? JSON.stringify(corpo) : undefined
+
+          });
+
+        } catch (erro) {
+
+          throw new Error("Não foi possível falar com o servidor. Verifique se o back-end está rodando.");
+
+        }
+
+        let dados = {};
+
+        try { dados = await resposta.json(); } catch (erro) { /* sem corpo */ }
+
+        if(!resposta.ok){
+
+          throw new Error(dados.erro || "Não foi possível concluir a operação.");
+
+        }
+
+        return dados;
+
+      }
+
+
+      function preencher(c){
+
+        if(!c.configurado){
+
+          dizer("aviso", "Nenhum servidor de e-mail configurado. Enquanto isso, o \"Esqueci minha senha\" não consegue enviar e-mails.");
+
+          senha.placeholder = "Senha do servidor";
+
+          return;
+
+        }
+
+        host.value      = c.host;
+        porta.value     = c.porta;
+        seguro.value    = String(c.seguro);
+        usuario.value   = c.usuario;
+        remetente.value = c.emailRemetente;
+        nome.value      = c.nomeRemetente;
+        url.value       = c.urlFront || "";
+
+        senha.value = "";
+
+        if(c.origem === "banco"){
+
+          senha.placeholder = "Senha salva (deixe em branco para manter)";
+
+          dizer("ok", "Configurado e validado em " + quando(c.verificadoEm) + ". A senha está guardada cifrada.");
+
+        } else {
+
+          senha.placeholder = "Digite a senha para salvar no banco";
+
+          dizer("info", "Usando as credenciais do arquivo .env do servidor. Digite a senha e salve para passar a usar a configuração guardada no banco, cifrada.");
+
+        }
+
+      }
+
+
+      async function carregar(){
+
+        try {
+
+          preencher(await chamar("GET", ""));
+
+        } catch (erro) {
+
+          dizer("erro", erro.message);
+
+        }
+
+      }
+
+
+      function coletar(){
+
+        return {
+
+          host:           host.value.trim(),
+          porta:          Number(porta.value),
+          seguro:         seguro.value === "true",
+          usuario:        usuario.value.trim(),
+          senha:          senha.value,
+          emailRemetente: remetente.value.trim(),
+          nomeRemetente:  nome.value.trim(),
+          urlFront:       url.value.trim()
+
+        };
+
+      }
+
+
+      function validarLocal(d){
+
+        if(!d.host)    return "Informe o servidor SMTP.";
+        if(!Number.isInteger(d.porta) || d.porta < 1 || d.porta > 65535) return "A porta precisa ser um número entre 1 e 65535.";
+        if(!d.usuario) return "Informe o usuário.";
+        if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.emailRemetente)) return "Informe um e-mail de remetente válido.";
+        if(!/^https?:\/\//i.test(d.urlFront)) return "Informe o endereço do sistema começando com http:// ou https://.";
+
+        return "";
+
+      }
+
+
+      botaoVer.addEventListener("click", () => {
+
+        const mostrando = senha.type === "text";
+
+        senha.type = mostrando ? "password" : "text";
+
+        botaoVer.textContent = mostrando ? "Mostrar" : "Ocultar";
+
+        botaoVer.setAttribute("aria-pressed", mostrando ? "false" : "true");
+
+      });
+
+
+      campo("emailGmail").addEventListener("click", () => {
+
+        host.value = "smtp.gmail.com";
+        porta.value = 465;
+        seguro.value = "true";
+
+        if(usuario.value && !remetente.value) remetente.value = usuario.value;
+
+        usuario.focus();
+
+      });
+
+
+      usuario.addEventListener("blur", () => {
+
+        if(!remetente.value && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(usuario.value)) remetente.value = usuario.value.trim();
+
+      });
+
+
+      seguro.addEventListener("change", () => {
+
+        if(seguro.value === "true" && Number(porta.value) === 587) porta.value = 465;
+
+        if(seguro.value === "false" && Number(porta.value) === 465) porta.value = 587;
+
+      });
+
+
+      botaoTestar.addEventListener("click", async () => {
+
+        const dados = coletar();
+        const problema = validarLocal(dados);
+
+        if(problema){ dizer("erro", problema); return; }
+
+        ocupado(botaoTestar, true, "Testando...");
+
+        dizer("info", "Conectando ao servidor de e-mail...");
+
+        try {
+
+          await chamar("POST", "/testar", dados);
+
+          dizer("ok", "Conexão validada: o servidor aceitou o usuário e a senha. Ainda falta salvar.");
+
+          alert("Conexão com o servidor validada. Clique em Salvar e verificar para guardar.", { tom: "sucesso", titulo: "Conexão ok" });
+
+        } catch (erro) {
+
+          dizer("erro", erro.message);
+
+          alert(erro.message, { tom: "erro", titulo: "Não foi possível conectar" });
+
+        } finally {
+
+          ocupado(botaoTestar, false);
+
+        }
+
+      });
+
+
+      form.addEventListener("submit", async (evento) => {
+
+        evento.preventDefault();
+
+        const dados = coletar();
+        const problema = validarLocal(dados);
+
+        if(problema){ dizer("erro", problema); return; }
+
+        ocupado(botaoSalvar, true, "Validando...");
+
+        dizer("info", "Validando a conexão antes de salvar...");
+
+        try {
+
+          const salvo = await chamar("PUT", "", dados);
+
+          preencher(salvo);
+
+          alert("Conexão validada e configuração salva. Use Enviar teste para conferir a entrega.", { tom: "sucesso", titulo: "E-mail configurado" });
+
+        } catch (erro) {
+
+          dizer("erro", erro.message);
+
+          alert(erro.message, { tom: "erro", titulo: "Configuração não salva" });
+
+        } finally {
+
+          ocupado(botaoSalvar, false);
+
+        }
+
+      });
+
+
+      botaoTeste.addEventListener("click", async () => {
+
+        ocupado(botaoTeste, true, "Enviando...");
+
+        dizer("info", "Enviando e-mail de teste...");
+
+        try {
+
+          const r = await chamar("POST", "/enviar-teste", { para: testePara.value.trim() });
+
+          dizer("ok", r.mensagem);
+
+          alert(r.mensagem + " Confira a caixa de entrada (e o spam).", { tom: "sucesso", titulo: "Teste enviado" });
+
+        } catch (erro) {
+
+          dizer("erro", erro.message);
+
+          alert(erro.message, { tom: "erro", titulo: "Teste não enviado" });
+
+        } finally {
+
+          ocupado(botaoTeste, false);
+
+        }
+
+      });
+
+
+      carregar();
 
     })();
   </script>

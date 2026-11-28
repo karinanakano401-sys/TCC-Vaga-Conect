@@ -55,6 +55,10 @@
                 <input id="senha" type="password" placeholder="Digite sua senha">
             </div>
 
+            <div class="esqueci">
+                <a href="EsqueciSenha.html">Esqueci minha senha</a>
+            </div>
+
             <button class="btn" id="btnEntrar" type="button">
                 Entrar
             </button>
@@ -199,6 +203,12 @@
             ================================================= */
 
             const regras = [
+
+                {
+                    re: /senha redefinida/i, t: "sucesso",
+                    tit: "Senha redefinida",
+                    txt: "Tudo certo! Entre com a sua nova senha."
+                },
 
                 {
                     re: /bem-vind/i, t: "sucesso",
@@ -806,7 +816,23 @@
             pintar();
 
         })();
-    
+
+
+        /* =====================================================
+           Volta da redefinição de senha: avisa que deu certo
+        ===================================================== */
+
+        (function () {
+
+            const params = new URLSearchParams(window.location.search);
+
+            if (!params.has("senhaRedefinida")) return;
+
+            history.replaceState(null, "", window.location.pathname);
+
+            alert("Senha redefinida com sucesso!");
+
+        })();
 
     </script>
 

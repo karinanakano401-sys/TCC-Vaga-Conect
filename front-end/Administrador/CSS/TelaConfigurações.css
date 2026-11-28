@@ -1658,3 +1658,148 @@ html[data-tema="claro"] .tema-botao:hover{
     }
 
 }
+
+/* =====================================================
+   E-MAIL DE RECUPERAÇÃO DE SENHA (SMTP)
+===================================================== */
+
+.config-panel + .config-panel{
+    margin-top:22px;
+}
+
+.email-ajuda{
+    margin:-6px 0 16px;
+    color:var(--apagado);
+    font-size:12.5px;
+    line-height:1.6;
+}
+
+.email-status{
+    margin-bottom:18px;
+    padding:11px 14px;
+    border:1px solid var(--risco-forte);
+    border-left:3px solid var(--azul);
+    background:rgba(47,125,255,.08);
+    color:var(--texto);
+    font-size:12.5px;
+    line-height:1.55;
+}
+
+.email-status.ok{    border-left-color:var(--verde);    background:rgba(61,220,151,.08); }
+.email-status.erro{  border-left-color:var(--vermelho); background:rgba(255,122,122,.09); }
+.email-status.aviso{ border-left-color:#f5c451;         background:rgba(245,196,81,.09); }
+
+.email-atalho{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-bottom:18px;
+}
+
+.email-atalho small{
+    flex:1 1 260px;
+    color:var(--fraco);
+    font-size:11.5px;
+    line-height:1.5;
+}
+
+.form-grid select{
+    height:44px;
+    padding:0 13px;
+    border:1px solid var(--risco);
+    border-radius:4px;
+    background:rgba(10,29,51,.55);
+    color:var(--texto);
+    font-family:'Poppins', sans-serif;
+    font-size:13px;
+    letter-spacing:0;
+    text-transform:none;
+    outline:none;
+}
+
+.form-grid select:hover{ border-color:var(--risco-forte); }
+
+.form-grid select:focus{
+    border-color:var(--azul);
+    box-shadow:inset 2px 0 0 var(--azul);
+}
+
+.campo-cfg{
+    display:flex;
+    gap:8px;
+}
+
+.campo-cfg input{
+    flex:1;
+    min-width:0;
+}
+
+.campo-cfg button{
+    flex:none;
+    padding:0 14px;
+    border:1px solid var(--risco-forte);
+    border-radius:4px;
+    background:transparent;
+    color:var(--apagado);
+    font-family:var(--mono);
+    font-size:10px;
+    font-weight:600;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    cursor:pointer;
+}
+
+.campo-cfg button:hover:not(:disabled){
+    border-color:var(--azul-claro);
+    color:#ffffff;
+}
+
+.campo-cfg button:disabled{
+    border-color:var(--risco);
+    color:var(--fraco);
+    cursor:not-allowed;
+}
+
+.email-teste{
+    margin-top:22px;
+    max-width:460px;
+}
+
+.email-teste label{
+    display:grid;
+    gap:6px;
+    color:var(--fraco);
+    font-family:var(--mono);
+    font-size:10px;
+    font-weight:500;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+}
+
+.email-teste input{
+    height:44px;
+    padding:0 13px;
+    border:1px solid var(--risco);
+    border-radius:4px;
+    background:rgba(10,29,51,.55);
+    color:var(--texto);
+    font-family:'Poppins', sans-serif;
+    font-size:13px;
+    letter-spacing:0;
+    text-transform:none;
+    outline:none;
+}
+
+.email-teste input:focus{
+    border-color:var(--azul);
+    box-shadow:inset 2px 0 0 var(--azul);
+}
+
+.email-atalho .secondary{ height:36px; }
+
+@media (max-width:650px){
+    .email-atalho .secondary{ width:100%; }
+    .campo-cfg{ flex-wrap:wrap; }
+    .campo-cfg button{ width:100%; height:40px; }
+}

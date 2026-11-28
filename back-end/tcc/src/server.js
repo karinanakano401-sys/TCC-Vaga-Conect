@@ -12,6 +12,8 @@ import tipoFuncRoutes from './controller/tipoFuncController.js'
 import vagaRoutes from './controller/vagaController.js'
 import pagamentoRoutes from './controller/pagamentoController.js'
 import reembolsoRoutes from './controller/reembolsoController.js'
+import senhaRoutes from './controller/senhaController.js'
+import configuracaoEmailRoutes from './controller/configuracaoEmailController.js'
 import { anexarWebSocket } from './websocket.js'
 
 const app = express()
@@ -37,6 +39,8 @@ app.use('/tipofunc', tipoFuncRoutes)
 app.use('/vaga', vagaRoutes)
 app.use('/pagamento', pagamentoRoutes)
 app.use('/reembolso', reembolsoRoutes)
+app.use('/senha', senhaRoutes)
+app.use('/configuracao/email', configuracaoEmailRoutes)
 
 const servidor = http.createServer(app)
 anexarWebSocket(servidor)

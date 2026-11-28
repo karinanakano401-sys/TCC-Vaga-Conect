@@ -1,4 +1,5 @@
 import crypto from 'node:crypto'
+import prismaClient from './prisma/index.js'
 
 
 // Token assinado com HMAC-SHA256 (sem dependência externa).
@@ -32,6 +33,7 @@ export function emitirToken({ id, tipo, perfil, nome }) {
     tipo,
     perfil,
     nome:   nome || '',
+    iat:    Date.now(),
     exp:    Date.now() + VALIDADE_MS
   }
 
@@ -64,14 +66,41 @@ export function verificarToken(token) {
 }
 
 
+// Quando a senha da conta foi redefinida, qualquer token emitido antes
+// dessa data (ou sem data de emissão) deixa de valer.
+async function sessaoRevogada(payload) {
+  const tabela = payload.tipo === 'funcionario' ? prismaClient.funcionario : prismaClient.usuario
+
+  const conta = await tabela.findUnique({
+    where:  { id: payload.sub },
+    select: { senhaAlteradaEm: true }
+  })
+
+  if (!conta) return true
+
+  if (!conta.senhaAlteradaEm) return false
+
+  return !payload.iat || payload.iat < conta.senhaAlteradaEm.getTime()
+}
+
+
 // Exige um token válido e coloca a identidade em req.auth
-export function autenticar(req, res, next) {
+export async function autenticar(req, res, next) {
   const cabecalho = req.headers.authorization || ''
   const token = cabecalho.startsWith('Bearer ') ? cabecalho.slice(7) : ''
   const payload = verificarToken(token)
 
   if (!payload) {
     return res.status(401).json({ erro: 'Faça login para continuar.' })
+  }
+
+  try {
+    if (await sessaoRevogada(payload)) {
+      return res.status(401).json({ erro: 'Sua sessão não é mais válida. Faça login novamente.' })
+    }
+  } catch (error) {
+    console.error('[auth] falha ao conferir a sessão:', error.message)
+    return res.status(500).json({ erro: 'Não foi possível concluir a operação.' })
   }
 
   req.auth = payload
