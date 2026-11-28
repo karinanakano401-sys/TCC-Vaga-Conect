@@ -15,8 +15,11 @@ export async function criarCarro(dados) {
 }
 
 
-export async function listarCarros() {
-  const carros = await prismaClient.carro.findMany()
+// idCliente opcional: a equipe lista todos; o cliente só os dele
+export async function listarCarros(idCliente) {
+  const carros = await prismaClient.carro.findMany({
+    where: idCliente ? { fk_idCliente: idCliente } : undefined
+  })
   return carros
 }
 

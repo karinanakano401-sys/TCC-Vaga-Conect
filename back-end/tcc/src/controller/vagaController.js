@@ -1,11 +1,16 @@
 import express from 'express'
 import * as vagaService from '../services/vagaservice.js'
 import { verificarDisponibilidade, listarDuracoes, listarHorarios } from '../services/agendamentoservice.js'
+import { autenticar, soAdmin, soEquipe, ehAdmin } from '../permissoes.js'
 
 const router = express.Router()
 
+// Consultar vagas, horários e durações: qualquer pessoa logada (o cliente escolhe a vaga).
+// Cadastrar, editar o cadastro e apagar: administrador. O funcionário só muda o status da vaga.
+router.use(autenticar)
 
-router.post('/', async (req, res) => {
+
+router.post('/', soAdmin, async (req, res) => {
   try {
     const vaga = await vagaService.criarVaga(req.body)
     res.status(201).json(vaga)
@@ -74,9 +79,25 @@ router.get('/:id', async (req, res) => {
 })
 
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', soEquipe, async (req, res) => {
   try {
-    const vaga = await vagaService.atualizarVaga(req.params.id, req.body)
+    let dados = req.body
+
+    // funcionário: só o status; número, tipo, preço e estacionamento ficam como estão
+    if (!ehAdmin(req.auth)) {
+      const atual = await vagaService.buscarVagaPorId(req.params.id)
+      if (!atual) return res.status(404).json({ erro: 'Vaga não encontrada' })
+
+      dados = {
+        numero: atual.numero,
+        tipo:   atual.tipo,
+        preco:  atual.preco,
+        fk_est: atual.fk_est,
+        status: req.body?.status ?? atual.status
+      }
+    }
+
+    const vaga = await vagaService.atualizarVaga(req.params.id, dados)
     res.status(200).json(vaga)
   } catch (error) {
     res.status(error.status || 400).json({ erro: error.message })
@@ -84,7 +105,8 @@ router.put('/:id', async (req, res) => {
 })
 
 
-router.delete('/:id', async (req, res) => {
+// Apagar a vaga apaga em cascata as reservas e os pagamentos dela: só o administrador
+router.delete('/:id', soAdmin, async (req, res) => {
   try {
     await vagaService.deletarVaga(req.params.id)
     res.status(200).json({ mensagem: 'Vaga deletada com sucesso' })

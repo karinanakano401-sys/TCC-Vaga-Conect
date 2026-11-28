@@ -95,9 +95,11 @@ export function erroPrazoVencido() {
 }
 
 
-export async function listarReservaClis() {
+// idCliente opcional: a equipe lista todas; o cliente só as dele
+export async function listarReservaClis(idCliente) {
   await processarAtrasos()
   const reservaClis = await prismaClient.reservaCli.findMany({
+    where: idCliente ? { fk_idCliente: idCliente } : undefined,
     include: relacoes
   })
   return reservaClis.map(comCobranca)
@@ -182,6 +184,41 @@ export async function atualizarReservaCli(id, dados) {
   })
 
   return prismaClient.reservaCli.findUnique({ where: { id }, include: relacoes })
+}
+
+
+// Prorrogação feita pelo próprio cliente: só a hora de saída, para depois da atual,
+// em até 1 hora por vez, numa reserva em andamento. Nada mais da reserva muda
+// (cliente, vaga, veículo e entrada ficam como estão); o conflito com outras
+// reservas e o limite de 24 h são conferidos em atualizarReservaCli.
+export async function prorrogarComoCliente(id, dados) {
+  const item = await prismaClient.reservaCli.findUnique({
+    where: { id },
+    include: { reserva: true }
+  })
+
+  if (!item) throw erroHttp(404, 'Reserva de cliente não encontrada')
+
+  if (!STATUS_EM_ANDAMENTO.includes(item.reserva?.status)) {
+    throw erroHttp(409, 'Só é possível prorrogar uma reserva em andamento.')
+  }
+
+  const nova = new Date(dados?.horaSaida)
+  const atual = new Date(item.horaSaida)
+
+  if (!dados?.horaSaida || isNaN(nova.getTime()) || isNaN(atual.getTime())) {
+    throw erroHttp(400, 'Informe a nova hora de saída.')
+  }
+
+  if (nova.getTime() <= atual.getTime()) {
+    throw erroHttp(400, 'A nova saída precisa ser depois da saída atual.')
+  }
+
+  if (nova.getTime() - atual.getTime() > 60 * 60000 + 1000) {
+    throw erroHttp(400, 'Cada prorrogação pode acrescentar no máximo 1 hora.')
+  }
+
+  return atualizarReservaCli(id, { horaSaida: nova.toISOString() })
 }
 
 

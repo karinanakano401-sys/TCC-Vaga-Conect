@@ -75,7 +75,9 @@
             socket.onopen = function () {
                 socket.send(JSON.stringify({
                     tipo: "entrar",
-                    reservaCliId: id
+                    reservaCliId: id,
+                    // o servidor só libera a sala para quem tem login (dono da reserva ou pátio)
+                    token: (window.Auth && window.Auth.token && window.Auth.token()) || null
                 }));
             };
             socket.onmessage = function (ev) {

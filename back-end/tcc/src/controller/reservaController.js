@@ -1,10 +1,15 @@
 import express from 'express'
 import * as reservaService from '../services/reservaservice.js'
+import { autenticar, soAdmin, soEquipe } from '../permissoes.js'
 
 const router = express.Router()
 
+// Registro interno da vaga (status da reserva): quem opera o pátio.
+// O cliente reserva por /reservacli/reservar e acompanha por /reservacli.
+router.use(autenticar, soEquipe)
 
-router.post('/', async (req, res) => {
+
+router.post('/', soAdmin, async (req, res) => {
   try {
     const reserva = await reservaService.criarReserva(req.body)
     res.status(201).json(reserva)
@@ -45,7 +50,7 @@ router.put('/:id', async (req, res) => {
 })
 
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', soAdmin, async (req, res) => {
   try {
     await reservaService.deletarReserva(req.params.id)
     res.status(200).json({ mensagem: 'Reserva deletada com sucesso' })

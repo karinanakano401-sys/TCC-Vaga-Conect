@@ -1,11 +1,21 @@
 import express from 'express'
 import * as usuarioService from '../services/usuarioservice.js'
 import { emitirToken } from '../auth.js'
+import {
+  autenticar,
+  soAdmin,
+  soOProprio,
+  limitarCadastro,
+  limitarLogin,
+  ehEquipe,
+  ehOProprio
+} from '../permissoes.js'
 
 const router = express.Router()
 
 
-router.post('/', async (req, res) => {
+// Cadastro público (a pessoa ainda não tem login)
+router.post('/', limitarCadastro, async (req, res) => {
   try {
     const usuario = await usuarioService.criarUsuario(req.body)
     res.status(201).json(usuario)
@@ -15,7 +25,7 @@ router.post('/', async (req, res) => {
 })
 
 
-router.post('/login', async (req, res) => {
+router.post('/login', limitarLogin, async (req, res) => {
   try {
     const usuario = await usuarioService.loginUsuario(req.body)
     const token = emitirToken({ id: usuario.id, tipo: 'usuario', perfil: 'cliente', nome: usuario.nome })
@@ -26,7 +36,8 @@ router.post('/login', async (req, res) => {
 })
 
 
-router.get('/', async (req, res) => {
+// Lista com CPF, e-mail e endereço de todos: só o administrador
+router.get('/', autenticar, soAdmin, async (req, res) => {
   try {
     const usuarios = await usuarioService.listarUsuarios()
     res.status(200).json(usuarios)
@@ -36,8 +47,13 @@ router.get('/', async (req, res) => {
 })
 
 
-router.get('/:id', async (req, res) => {
+// O próprio cliente ou a equipe (a equipe já enxerga o cliente nas reservas)
+router.get('/:id', autenticar, async (req, res) => {
   try {
+    if (!ehEquipe(req.auth) && !ehOProprio(req.auth, req.params.id)) {
+      return res.status(403).json({ erro: 'Você não tem permissão para ver os dados de outra pessoa.' })
+    }
+
     const usuario = await usuarioService.buscarUsuarioPorId(req.params.id)
     if (!usuario) return res.status(404).json({ erro: 'Usuário não encontrado' })
     res.status(200).json(usuario)
@@ -47,7 +63,8 @@ router.get('/:id', async (req, res) => {
 })
 
 
-router.put('/:id', async (req, res) => {
+// Perfil e senha: só o próprio cliente
+router.put('/:id', autenticar, soOProprio, async (req, res) => {
   try {
     const usuario = await usuarioService.atualizarUsuario(req.params.id, req.body)
     res.status(200).json(usuario)
@@ -57,7 +74,7 @@ router.put('/:id', async (req, res) => {
 })
 
 
-router.put('/:id/avatar', async (req, res) => {
+router.put('/:id/avatar', autenticar, soOProprio, async (req, res) => {
   try {
     const avatar = req.body?.avatar ?? null
     const usuario = await usuarioService.atualizarAvatar(req.params.id, avatar)
@@ -69,7 +86,8 @@ router.put('/:id/avatar', async (req, res) => {
 })
 
 
-router.delete('/:id', async (req, res) => {
+// Excluir uma conta apaga também as reservas, pagamentos e reembolsos dela: só o administrador
+router.delete('/:id', autenticar, soAdmin, async (req, res) => {
   try {
     await usuarioService.deletarUsuario(req.params.id)
     res.status(200).json({ mensagem: 'Usuário deletado com sucesso' })

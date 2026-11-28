@@ -42,7 +42,30 @@ app.use('/reembolso', reembolsoRoutes)
 app.use('/senha', senhaRoutes)
 app.use('/configuracao/email', configuracaoEmailRoutes)
 
+// Rota que não existe e erros fora das rotas (JSON malformado, corpo grande demais)
+// sempre respondem em JSON, sem página de erro nem detalhes internos
+app.use((req, res) => {
+  res.status(404).json({ erro: 'Rota não encontrada.' })
+})
+
+app.use((erro, req, res, next) => {
+  if (erro?.type === 'entity.too.large') {
+    return res.status(413).json({ erro: 'Os dados enviados são grandes demais.' })
+  }
+
+  if (erro?.type === 'entity.parse.failed') {
+    return res.status(400).json({ erro: 'Os dados enviados não são um JSON válido.' })
+  }
+
+  console.error('[erro não tratado]', erro?.message)
+  res.status(500).json({ erro: 'Não foi possível concluir a operação.' })
+})
+
 const servidor = http.createServer(app)
 anexarWebSocket(servidor)
 
-servidor.listen(3333, () => console.log('Servidor rodando na porta 3333'))
+// A porta padrão continua 3333 (é a que o front-end usa); PORT existe para rodar
+// uma segunda instância de testes sem derrubar a principal.
+const porta = Number(process.env.PORT) || 3333
+
+servidor.listen(porta, () => console.log(`Servidor rodando na porta ${porta}`))
