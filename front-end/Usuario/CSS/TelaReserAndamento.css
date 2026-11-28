@@ -671,6 +671,24 @@ body{
 }
 
 
+/* "Cancelar reserva" (antes de chegar) ocupa a linha toda */
+.reservation-card > button.cancelar-antes{
+
+    grid-column:1 / -1;
+
+    width:100%;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:8px;
+
+}
+
+
 
 /* =====================================================
    TOPO DO CARD

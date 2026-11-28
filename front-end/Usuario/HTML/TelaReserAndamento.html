@@ -1558,6 +1558,26 @@ function render(){
                     : ""
             }
 
+            ${
+                /* antes de chegar no local: pode cancelar a reserva */
+                Cobranca.aguardandoChegada(reserva.status)
+                    ? `
+
+            <button
+                class="cancel cancelar-antes"
+                type="button"
+                onclick="cancelar('${item.id}')">
+
+                <i class="fa-solid fa-xmark"></i>
+
+                Cancelar reserva
+
+            </button>
+
+            `
+                    : ""
+            }
+
 
 
         </div>
